@@ -5,11 +5,11 @@ import com.configcat.client.Constants
 import com.configcat.client.logging.InternalLogger
 import com.soywiz.klock.DateTime
 import io.ktor.client.*
+import io.ktor.client.engine.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.utils.io.core.*
 import kotlinx.atomicfu.*
 
 internal class ConfigFetcher constructor(
@@ -17,6 +17,7 @@ internal class ConfigFetcher constructor(
     private val logger: InternalLogger,
 ) : Closeable {
     private val httpClient = createClient()
+    private val closed = atomic(false)
     private val isUrlCustom = !options.baseUrl.isNullOrEmpty()
     private val baseUrl = atomic(
         options.baseUrl?.let { it.ifEmpty { null } }
@@ -36,6 +37,7 @@ internal class ConfigFetcher constructor(
     }
 
     override fun close() {
+        if (!closed.compareAndSet(expect = false, update = true)) return
         httpClient.close()
     }
 

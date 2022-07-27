@@ -27,4 +27,6 @@ hs_err_pid*
 /build/
 /.gradle/
 
+yarn.lock
+
 !gradle-wrapper.jar

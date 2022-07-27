@@ -5,6 +5,10 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 
+internal interface Closeable {
+    fun close()
+}
+
 internal object Constants {
     const val version: String = "0.1.0"
     const val configFileName: String = "config_v5"

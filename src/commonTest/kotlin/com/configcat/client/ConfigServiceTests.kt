@@ -9,13 +9,15 @@ import io.ktor.http.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ConfigServiceTests {
+    @AfterTest
+    fun tearDown() {
+        Services.reset()
+    }
+
     @Test
     fun testAutoPollGet() = runTest {
         val mockEngine = MockEngine.create {
@@ -26,7 +28,7 @@ class ConfigServiceTests {
                 respond(content = Utils.formatJsonBody("test2"), status = HttpStatusCode.OK)
             }
         } as MockEngine
-        val service = Utils.createService(mockEngine, autoPoll { pollingIntervalSeconds = 2 })
+        val service = Services.createConfigService(mockEngine, autoPoll { pollingIntervalSeconds = 2 })
 
         val settings1 = service.getSettings()
         assertEquals("test1", settings1["fakeKey"]?.value)
@@ -37,8 +39,6 @@ class ConfigServiceTests {
         assertEquals("test2", settings2["fakeKey"]?.value)
 
         assertEquals(2, mockEngine.requestHistory.size)
-
-        service.close()
     }
 
     @Test
@@ -51,7 +51,7 @@ class ConfigServiceTests {
                 respond(content = "", status = HttpStatusCode.BadGateway)
             }
         } as MockEngine
-        val service = Utils.createService(mockEngine, autoPoll { pollingIntervalSeconds = 2 })
+        val service = Services.createConfigService(mockEngine, autoPoll { pollingIntervalSeconds = 2 })
 
         val settings1 = service.getSettings()
         assertEquals("test1", settings1["fakeKey"]?.value)
@@ -62,8 +62,6 @@ class ConfigServiceTests {
         assertEquals("test1", settings2["fakeKey"]?.value)
 
         assertEquals(2, mockEngine.requestHistory.size)
-
-        service.close()
     }
 
     @Test
@@ -76,7 +74,7 @@ class ConfigServiceTests {
                 respond(content = Utils.formatJsonBody("test2"), status = HttpStatusCode.OK)
             }
         } as MockEngine
-        val service = Utils.createService(mockEngine, lazyLoad { cacheRefreshIntervalSeconds = 2 })
+        val service = Services.createConfigService(mockEngine, lazyLoad { cacheRefreshIntervalSeconds = 2 })
 
         val settings1 = service.getSettings()
         assertEquals("test1", settings1["fakeKey"]?.value)
@@ -87,8 +85,6 @@ class ConfigServiceTests {
         assertEquals("test2", settings2["fakeKey"]?.value)
 
         assertEquals(2, mockEngine.requestHistory.size)
-
-        service.close()
     }
 
     @Test
@@ -101,7 +97,7 @@ class ConfigServiceTests {
                 respond(content = "", status = HttpStatusCode.BadGateway)
             }
         } as MockEngine
-        val service = Utils.createService(mockEngine, lazyLoad { cacheRefreshIntervalSeconds = 2 })
+        val service = Services.createConfigService(mockEngine, lazyLoad { cacheRefreshIntervalSeconds = 2 })
 
         val settings1 = service.getSettings()
         assertEquals("test1", settings1["fakeKey"]?.value)
@@ -112,8 +108,6 @@ class ConfigServiceTests {
         assertEquals("test1", settings2["fakeKey"]?.value)
 
         assertEquals(2, mockEngine.requestHistory.size)
-
-        service.close()
     }
 
     @Test
@@ -126,7 +120,7 @@ class ConfigServiceTests {
                 respond(content = Utils.formatJsonBody("test2"), status = HttpStatusCode.OK)
             }
         } as MockEngine
-        val service = Utils.createService(mockEngine, manualPoll())
+        val service = Services.createConfigService(mockEngine, manualPoll())
 
         service.refresh()
         val settings1 = service.getSettings()
@@ -137,8 +131,6 @@ class ConfigServiceTests {
         assertEquals("test2", settings2["fakeKey"]?.value)
 
         assertEquals(2, mockEngine.requestHistory.size)
-
-        service.close()
     }
 
     @Test
@@ -151,7 +143,7 @@ class ConfigServiceTests {
                 respond(content = "", status = HttpStatusCode.BadGateway)
             }
         } as MockEngine
-        val service = Utils.createService(mockEngine, manualPoll())
+        val service = Services.createConfigService(mockEngine, manualPoll())
 
         service.refresh()
         val settings1 = service.getSettings()
@@ -162,8 +154,6 @@ class ConfigServiceTests {
         assertEquals("test1", settings2["fakeKey"]?.value)
 
         assertEquals(2, mockEngine.requestHistory.size)
-
-        service.close()
     }
 
     @Test
@@ -172,7 +162,7 @@ class ConfigServiceTests {
             delay(5000)
             respond(content = Utils.formatJsonBody("test1"), status = HttpStatusCode.OK)
         }
-        val service = Utils.createService(
+        val service = Services.createConfigService(
             mockEngine,
             autoPoll {
                 pollingIntervalSeconds = 60
@@ -186,8 +176,6 @@ class ConfigServiceTests {
         val elapsed = DateTime.now() - start
         assertTrue(elapsed.seconds > 1)
         assertTrue(elapsed.seconds < 2)
-
-        service.close()
     }
 
     @Test
@@ -201,7 +189,7 @@ class ConfigServiceTests {
             }
         } as MockEngine
         val cache = InMemoryCache()
-        val service = Utils.createService(mockEngine, autoPoll { pollingIntervalSeconds = 2 }, cache)
+        val service = Services.createConfigService(mockEngine, autoPoll { pollingIntervalSeconds = 2 }, cache)
 
         Utils.delayWithBlock(1_000)
         assertEquals(Utils.formatJsonBody("test1"), cache.store.values.first())
@@ -210,8 +198,6 @@ class ConfigServiceTests {
         assertEquals(Utils.formatJsonBody("test2"), cache.store.values.first())
 
         assertEquals(2, mockEngine.requestHistory.size)
-
-        service.close()
     }
 
     @Test
@@ -225,7 +211,7 @@ class ConfigServiceTests {
             }
         } as MockEngine
         val cache = InMemoryCache()
-        val service = Utils.createService(mockEngine, lazyLoad { cacheRefreshIntervalSeconds = 2 }, cache)
+        val service = Services.createConfigService(mockEngine, lazyLoad { cacheRefreshIntervalSeconds = 2 }, cache)
 
         service.getSettings()
         assertEquals(Utils.formatJsonBody("test1"), cache.store.values.first())
@@ -235,8 +221,6 @@ class ConfigServiceTests {
         assertEquals(Utils.formatJsonBody("test2"), cache.store.values.first())
 
         assertEquals(2, mockEngine.requestHistory.size)
-
-        service.close()
     }
 
     @Test
@@ -250,7 +234,7 @@ class ConfigServiceTests {
             }
         } as MockEngine
         val cache = InMemoryCache()
-        val service = Utils.createService(mockEngine, manualPoll(), cache)
+        val service = Services.createConfigService(mockEngine, manualPoll(), cache)
 
         service.refresh()
         assertEquals(Utils.formatJsonBody("test1"), cache.store.values.first())
@@ -259,8 +243,6 @@ class ConfigServiceTests {
         assertEquals(Utils.formatJsonBody("test2"), cache.store.values.first())
 
         assertEquals(2, mockEngine.requestHistory.size)
-
-        service.close()
     }
 
     @Test
@@ -268,13 +250,11 @@ class ConfigServiceTests {
         val mockEngine = MockEngine { _ ->
             respond(content = Utils.formatJsonBody("test1"), status = HttpStatusCode.OK)
         }
-        val service = Utils.createService(mockEngine, manualPoll())
+        val service = Services.createConfigService(mockEngine, manualPoll())
 
         val settings1 = service.getSettings()
         assertNull(settings1["fakeKey"]?.value)
 
         assertEquals(0, mockEngine.requestHistory.size)
-
-        service.close()
     }
 }

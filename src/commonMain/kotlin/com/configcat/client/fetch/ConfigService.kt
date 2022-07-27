@@ -14,7 +14,7 @@ internal class ConfigService constructor(
     private val options: ClientOptions,
     private val configFetcher: ConfigFetcher,
     private val logger: InternalLogger,
-) {
+) : Closeable {
     private val cacheKey: String = "kotlin_${options.sdkKey}_${Constants.configFileName}".encodeToByteArray().sha1().hex
     private val mutex = Mutex()
     private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
@@ -137,7 +137,7 @@ internal class ConfigService constructor(
         }
     }
 
-    fun close() {
+    override fun close() {
         if (!closed.compareAndSet(expect = false, update = true)) return
         configFetcher.close()
         coroutineScope.cancel()

@@ -13,11 +13,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ macos-latest ]
+  test-macos:
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK
@@ -29,6 +26,27 @@ jobs:
         uses: ./.github/actions/cache-konan
       - name: Cache Gradle
         uses: ./.github/actions/cache-gradle
+      - name: Install curl
+        run: brew install curl
+      - name: Run all tests
+        run: ./gradlew allTests --stacktrace
+        shell: bash
+
+  test-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: zulu
+      - name: Cache Konan
+        uses: ./.github/actions/cache-konan
+      - name: Cache Gradle
+        uses: ./.github/actions/cache-gradle
+      - name: Install libcurl
+        run: sudo apt install libcurl-dev
       - name: Run all tests
         run: ./gradlew allTests --stacktrace
         shell: bash

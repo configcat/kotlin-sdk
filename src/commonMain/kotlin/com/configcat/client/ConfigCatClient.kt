@@ -10,7 +10,6 @@ import com.configcat.client.logging.LogLevel
 import com.configcat.client.logging.Logger
 import com.configcat.client.override.FlagOverrides
 import com.configcat.client.override.OverrideBehaviour
-import com.configcat.client.override.OverrideDataSource
 import io.ktor.client.engine.*
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
@@ -74,7 +73,7 @@ public class ClientOptions {
 public class ConfigCatClient private constructor(
     private val sdkKey: String,
     options: ClientOptions
-) {
+) : Closeable {
 
     private val service: ConfigService?
     private val flagOverrides: FlagOverrides?
@@ -92,7 +91,7 @@ public class ConfigCatClient private constructor(
         evaluator = Evaluator(logger)
     }
 
-    internal fun close() {
+    override fun close() {
         service?.close()
     }
 
