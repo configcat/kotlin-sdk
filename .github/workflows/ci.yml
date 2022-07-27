@@ -175,8 +175,8 @@ jobs:
     env:
       SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
       SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-      SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-      SIGNING_PASSPHRASE: ${{ secrets.SIGNING_PASSPHRASE }}
+      SIGNING_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+      SIGNING_PASSPHRASE: ${{ secrets.PASSPHRASE }}
       BUILD_NUMBER: ${{ github.run_number }}
     steps:
     - uses: actions/checkout@v3
