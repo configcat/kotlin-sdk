@@ -1,0 +1,218 @@
+name: Kotlin SDK CI
+
+on:
+  push:
+    #branches: [ main ]
+    tags: [ '[0-9]+.[0-9]+.[0-9]+' ]
+    paths-ignore:
+      - '**.md'
+
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ macos-latest, ubuntu-latest, windows-latest ]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: 11
+        distribution: zulu
+    - name: Cache Konan
+      uses: ./.github/actions/cache-konan
+    - name: Cache Gradle
+      uses: ./.github/actions/cache-gradle
+    - name: Run all tests
+      run: ./gradlew allTests --stacktrace
+      shell: bash
+
+  analysis:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: 11
+        distribution: zulu
+    - name: Cache Konan
+      uses: ./.github/actions/cache-konan
+    - name: Cache Gradle
+      uses: ./.github/actions/cache-gradle
+    - name: Run code analysis
+      run: ./gradlew detekt --stacktrace
+      shell: bash
+    - name: Upload SARIF file
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: build/reports/detekt/detekt.sarif
+    - name: Upload analysis report
+      uses: actions/upload-artifact@v3
+      with:
+        name: analysis-report
+        path: build/reports/detekt
+
+  assemble:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ macos-latest, ubuntu-latest, windows-latest ]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: zulu
+      - name: Cache Konan
+        uses: ./.github/actions/cache-konan
+      - name: Cache Gradle
+        uses: ./.github/actions/cache-gradle
+      - name: Run assemble
+        run: ./gradlew assemble --stacktrace
+        shell: bash
+
+  coverage:
+    needs: [test, assemble, analysis]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: 11
+        distribution: zulu
+    - name: Cache Konan
+      uses: ./.github/actions/cache-konan
+    - name: Cache Gradle
+      uses: ./.github/actions/cache-gradle
+    - name: Calculate coverage
+      run: ./gradlew koverMergedXmlReport --stacktrace
+      shell: bash
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: build/reports/kover
+
+  upload-reports:
+    needs: [ coverage ]
+    runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      BUILD_NUMBER: ${{ github.run_number }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: 11
+        distribution: zulu
+    - name: SonarCloud cache
+      uses: actions/cache@v3
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+    - name: Cache Konan
+      uses: ./.github/actions/cache-konan
+    - name: Cache Gradle
+      uses: ./.github/actions/cache-gradle
+    - name: Download coverage report
+      uses: actions/download-artifact@v2
+      with:
+        name: coverage-report
+        path: build/reports/kover
+    - name: Download analysis report
+      uses: actions/download-artifact@v2
+      with:
+        name: analysis-report
+        path: build/reports/detekt
+    - name: Upload reports to SonarCloud
+      run: ./gradlew sonarqube --stacktrace
+      shell: bash
+
+  deploy-snapshot:
+    needs: [ coverage ]
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ macos-latest, ubuntu-latest, windows-latest ]
+    env:
+      SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+      SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+      SIGNING_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+      SIGNING_PASSPHRASE: ${{ secrets.PASSPHRASE }}
+      BUILD_NUMBER: ${{ github.run_number }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: 11
+        distribution: zulu
+    - name: Cache Konan
+      uses: ./.github/actions/cache-konan
+    - name: Cache Gradle
+      uses: ./.github/actions/cache-gradle
+    - name: Deploy snapshot
+      run: ./gradlew publish -Dsnapshot=true --stacktrace
+      shell: bash
+
+  deploy-release:
+    needs: [ coverage ]
+    if: startsWith(github.ref, 'refs/tags')
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ macos-latest, ubuntu-latest, windows-latest ]
+    env:
+      SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+      SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+      SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+      SIGNING_PASSPHRASE: ${{ secrets.SIGNING_PASSPHRASE }}
+      BUILD_NUMBER: ${{ github.run_number }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: 11
+        distribution: zulu
+    - name: Cache Konan
+      uses: ./.github/actions/cache-konan
+    - name: Cache Gradle
+      uses: ./.github/actions/cache-gradle
+    - name: Deploy release
+      run: ./gradlew publish --stacktrace
+      shell: bash
+
+  deploy-gh-pages:
+    needs: [ coverage ]
+    if: startsWith(github.ref, 'refs/tags')
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: 11
+        distribution: zulu
+    - name: Cache Konan
+      uses: ./.github/actions/cache-konan
+    - name: Cache Gradle
+      uses: ./.github/actions/cache-gradle
+    - name: Generate HTML docs
+      run: ./gradlew dokkaHtml --stacktrace
+      shell: bash
+    - name: Deploy docs to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@v4.3.3
+      with:
+        branch: gh-pages
+        folder: build/dokka

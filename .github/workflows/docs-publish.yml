@@ -1,0 +1,27 @@
+name: Kotlin SDK Docs Publish
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-gh-pages:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: 11
+        distribution: zulu
+    - name: Cache Konan
+      uses: ./.github/actions/cache-konan
+    - name: Cache Gradle
+      uses: ./.github/actions/cache-gradle
+    - name: Generate HTML docs
+      run: ./gradlew dokkaHtml
+      shell: bash
+    - name: Deploy docs to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@v4.3.3
+      with:
+        branch: gh-pages
+        folder: build/dokka

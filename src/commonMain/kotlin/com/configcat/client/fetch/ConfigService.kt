@@ -52,54 +52,56 @@ internal class ConfigService constructor(
     }
 
     private suspend fun fetchIfOlder(time: DateTime, preferCached: Boolean = false): Config {
-        mutex.lock()
-        if (cachedEntry.isEmpty() || cachedEntry.fetchTime > time) {
-            val json = readCache()
-            if (json.isNotEmpty() && json != cachedEntry.json) {
-                val (config, error) = json.parseConfigJson()
-                when (error) {
-                    null -> cachedEntry = Entry(config, json, "", Constants.minDate)
-                    else -> logger.error("JSON parsing failed. ${error.message}")
+        mutex.withLock {
+            // Sync up with the cache and use it when it's not expired.
+            if (cachedEntry.isEmpty() || cachedEntry.fetchTime > time) {
+                val json = readCache()
+                if (json.isNotEmpty() && json != cachedEntry.json) {
+                    val (config, error) = json.parseConfigJson()
+                    when (error) {
+                        null -> cachedEntry = Entry(config, json, "", Constants.minDate)
+                        else -> logger.error("JSON parsing failed. ${error.message}")
+                    }
+                }
+                if (cachedEntry.fetchTime > time) {
+                    return cachedEntry.config
                 }
             }
-            if (cachedEntry.fetchTime > time) {
-                mutex.unlock()
+
+            // Use cache anyway (get calls on auto & manual poll must not initiate fetch).
+            // The initialized check ensures that we subscribe for the ongoing fetch during the
+            // max init wait time window in case of auto poll.
+            if (preferCached && initialized.value) {
                 return cachedEntry.config
             }
-        }
-        if (preferCached && initialized.value) {
-            mutex.unlock()
-            return cachedEntry.config
-        }
 
-        val runningJob = fetchJob
-        if (runningJob != null) {
-            mutex.unlock()
-            return runningJob.await()
-        }
-
-        val eTag = cachedEntry.eTag
-        val fetch = coroutineScope.async {
-            if (mode is AutoPollMode) {
-                if (initialized.value) {
-                    fetchConfig(eTag)
-                } else {
-                    val result = withTimeoutOrNull(mode.configuration.maxInitWaitTimeSeconds.toLongMillis()) {
+            // No fetch is running, initiate a new one.
+            val runningJob = fetchJob
+            if (runningJob == null || !runningJob.isActive) {
+                val eTag = cachedEntry.eTag
+                fetchJob = coroutineScope.async {
+                    if (mode is AutoPollMode) {
+                        if (initialized.value) { // The service is initialized, start fetch without timeout.
+                            fetchConfig(eTag)
+                        } else {
+                            // Waiting for the client initialization.
+                            // After the maxInitWaitTimeInSeconds timeout the client will be initialized and while the config is not ready
+                            // the default value will be returned.
+                            val result = withTimeoutOrNull(mode.configuration.maxInitWaitTimeSeconds.toLongMillis()) {
+                                fetchConfig(eTag)
+                            }
+                            result ?: Config.empty
+                        }
+                    } else {
                         fetchConfig(eTag)
                     }
-                    result ?: Config.empty
                 }
-            } else {
-                fetchConfig(eTag)
             }
         }
-        fetchJob = fetch
-        mutex.unlock()
+        val result = fetchJob?.await()
 
-        val result = fetch.await()
         mutex.withLock {
-            fetchJob = null
-            return if (!result.isEmpty()) result else cachedEntry.config
+            return if (result != null && !result.isEmpty()) result else cachedEntry.config
         }
     }
 
