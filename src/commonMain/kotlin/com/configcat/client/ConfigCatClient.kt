@@ -45,8 +45,8 @@ public class ClientOptions {
     public var configCache: ConfigCache = EmptyConfigCache()
 
     /**
-     * Default: [DataGovernance.GLOBAL]. Set this parameter to be in sync with the Data Governance preference on the Dashboard:
-     * https://app.configcat.com/organization/data-governance (Only Organization Admins have access)
+     * Default: [DataGovernance.GLOBAL]. Set this parameter to be in sync with the
+     * Data Governance preference on the [Dashboard](https://app.configcat.com/organization/data-governance). (Only Organization Admins have access)
      */
     public var dataGovernance: DataGovernance = DataGovernance.GLOBAL
 
