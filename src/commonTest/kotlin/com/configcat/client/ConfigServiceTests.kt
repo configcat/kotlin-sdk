@@ -158,7 +158,7 @@ class ConfigServiceTests {
 
     @Test
     fun testAutoPollInitWaitTimeTimeout() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             delay(5000)
             respond(content = Utils.formatJsonBody("test1"), status = HttpStatusCode.OK)
         }
@@ -189,7 +189,7 @@ class ConfigServiceTests {
             }
         } as MockEngine
         val cache = InMemoryCache()
-        val service = Services.createConfigService(mockEngine, autoPoll { pollingIntervalSeconds = 2 }, cache)
+        Services.createConfigService(mockEngine, autoPoll { pollingIntervalSeconds = 2 }, cache)
 
         Utils.delayWithBlock(1_000)
         assertEquals(Utils.formatJsonBody("test1"), cache.store.values.first())
@@ -247,7 +247,7 @@ class ConfigServiceTests {
 
     @Test
     fun testEnsureManualNotInitiatesHTTP() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(content = Utils.formatJsonBody("test1"), status = HttpStatusCode.OK)
         }
         val service = Services.createConfigService(mockEngine, manualPoll())

@@ -18,7 +18,7 @@ class DataGovernanceTests {
 
     @Test
     fun testShouldStayOnServer() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(content = formatBody("https://fakeUrl", 0), status = HttpStatusCode.OK)
         }
         val fetcher = Services.createFetcher(mockEngine)
@@ -30,7 +30,7 @@ class DataGovernanceTests {
 
     @Test
     fun testShouldStayOnSameUrl() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(content = formatBody(Constants.globalCdnUrl, 1), status = HttpStatusCode.OK)
         }
         val fetcher = Services.createFetcher(mockEngine)
@@ -42,7 +42,7 @@ class DataGovernanceTests {
 
     @Test
     fun testShouldStayOnSameUrlEvenWithForce() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(content = formatBody(Constants.globalCdnUrl, 2), status = HttpStatusCode.OK)
         }
         val fetcher = Services.createFetcher(mockEngine)

@@ -23,7 +23,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testGetValue() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = Utils.formatJsonBody(true),
                 status = HttpStatusCode.OK
@@ -45,7 +45,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testGetIntValue() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = Utils.formatJsonBody(10),
                 status = HttpStatusCode.OK
@@ -61,7 +61,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testGetIntValueFailed() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = "",
                 status = HttpStatusCode.BadGateway
@@ -77,7 +77,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testGetValueTypeMismatch() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = Utils.formatJsonBody("fake"),
                 status = HttpStatusCode.OK
@@ -93,7 +93,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testGetValueInvalidJson() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = "{",
                 status = HttpStatusCode.OK
@@ -109,7 +109,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testGetIntValueBadRequest() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = "",
                 status = HttpStatusCode.BadRequest
@@ -125,7 +125,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testGetStringValue() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = Utils.formatJsonBody("test"),
                 status = HttpStatusCode.OK
@@ -141,7 +141,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testGetStringValueFailed() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = "",
                 status = HttpStatusCode.BadGateway
@@ -157,7 +157,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testGetDoubleValue() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = Utils.formatJsonBody(3.14),
                 status = HttpStatusCode.OK
@@ -173,7 +173,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testGetDoubleValueFailed() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = "",
                 status = HttpStatusCode.BadGateway
@@ -189,7 +189,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testGetBoolValue() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = Utils.formatJsonBody(true),
                 status = HttpStatusCode.OK
@@ -205,7 +205,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testGetBoolValueFailed() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = "",
                 status = HttpStatusCode.BadGateway
@@ -221,7 +221,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testGetValueInvalidType() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = Utils.formatJsonBody(true),
                 status = HttpStatusCode.OK
@@ -237,7 +237,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testRequestTimeout() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             delay(3000)
             respond(content = Utils.formatJsonBody(true), status = HttpStatusCode.OK)
         }
@@ -255,7 +255,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testGetFromOnlyCache() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = "",
                 status = HttpStatusCode.BadRequest
@@ -276,7 +276,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testOnlyCacheRefresh() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = "",
                 status = HttpStatusCode.BadRequest
@@ -360,7 +360,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testAutoPollFailing() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = "",
                 status = HttpStatusCode.BadRequest
@@ -376,7 +376,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testAutoPollRefreshFailing() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = "",
                 status = HttpStatusCode.BadRequest
@@ -393,7 +393,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testLazyFailing() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = "",
                 status = HttpStatusCode.BadRequest
@@ -410,7 +410,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testLazyRefreshFailing() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = "",
                 status = HttpStatusCode.BadRequest
@@ -428,7 +428,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testAutoPollUserAgent() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = Utils.formatJsonBody(true),
                 status = HttpStatusCode.OK
@@ -448,7 +448,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testGetAllKeys() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = testMultipleBody,
                 status = HttpStatusCode.OK
@@ -464,7 +464,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testGetAllValues() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = testMultipleBody,
                 status = HttpStatusCode.OK
@@ -482,7 +482,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testLazyUserAgent() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = Utils.formatJsonBody(true),
                 status = HttpStatusCode.OK
@@ -502,7 +502,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testManualPollUserAgent() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = Utils.formatJsonBody(true),
                 status = HttpStatusCode.OK

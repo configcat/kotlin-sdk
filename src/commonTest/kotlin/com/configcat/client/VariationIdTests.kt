@@ -15,7 +15,7 @@ class VariationIdTests {
 
     @Test
     fun testGetVariationId() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = variationIdBody,
                 status = HttpStatusCode.OK
@@ -31,7 +31,7 @@ class VariationIdTests {
 
     @Test
     fun testGetVariationIdNotFound() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = variationIdBody,
                 status = HttpStatusCode.OK
@@ -47,7 +47,7 @@ class VariationIdTests {
 
     @Test
     fun testGetAllVariationIds() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = variationIdBody,
                 status = HttpStatusCode.OK
@@ -64,7 +64,7 @@ class VariationIdTests {
 
     @Test
     fun testGetAllVariationIdsEmpty() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = "{}",
                 status = HttpStatusCode.OK
@@ -80,7 +80,7 @@ class VariationIdTests {
 
     @Test
     fun testGetKeyAndValue() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = variationIdBody,
                 status = HttpStatusCode.OK
@@ -105,7 +105,7 @@ class VariationIdTests {
 
     @Test
     fun testGetKeyAndValueNotFound() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(
                 content = "{}",
                 status = HttpStatusCode.OK

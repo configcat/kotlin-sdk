@@ -2,9 +2,13 @@ package com.configcat.client.integration
 
 import com.configcat.client.ConfigCatClient
 import com.configcat.client.ConfigCatUser
+import com.configcat.client.Utils
 import com.configcat.client.fetch.manualPoll
 import com.configcat.client.integration.matrix.*
+import io.ktor.client.engine.mock.*
+import io.ktor.http.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -48,8 +52,12 @@ class RolloutMatrixTests {
     }
 
     private suspend fun runMatrixTest(matrix: DataMatrix, isValueKind: Boolean) {
+        val mockEngine = MockEngine {
+            respond(content = matrix.remoteJson, status = HttpStatusCode.OK)
+        }
         val client = ConfigCatClient.get(matrix.sdkKey) {
             pollingMode = manualPoll()
+            httpEngine = mockEngine
         }
         client.refresh()
 

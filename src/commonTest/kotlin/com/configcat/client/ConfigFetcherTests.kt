@@ -15,7 +15,7 @@ class ConfigFetcherTests {
 
     @Test
     fun testFetchSuccess() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(content = testBody, status = HttpStatusCode.OK)
         }
         val fetcher = Services.createFetcher(mockEngine)
@@ -28,7 +28,7 @@ class ConfigFetcherTests {
 
     @Test
     fun testFetchNotModified() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(content = "", status = HttpStatusCode.NotModified)
         }
         val fetcher = Services.createFetcher(mockEngine)
@@ -41,7 +41,7 @@ class ConfigFetcherTests {
 
     @Test
     fun testFetchFailed() = runTest {
-        val mockEngine = MockEngine { _ ->
+        val mockEngine = MockEngine {
             respond(content = "", status = HttpStatusCode.BadGateway)
         }
         val fetcher = Services.createFetcher(mockEngine)
