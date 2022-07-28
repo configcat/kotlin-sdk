@@ -2,7 +2,7 @@ name: Kotlin SDK CI
 
 on:
   push:
-    #branches: [ main ]
+    branches: [ main ]
     tags: [ '[0-9]+.[0-9]+.[0-9]+' ]
     paths-ignore:
       - '**.md'
@@ -100,7 +100,7 @@ jobs:
         path: build/reports/kover
 
   upload-reports:
-    needs: [ coverage ]
+    needs: [ test, assemble, analysis ]
     runs-on: ubuntu-latest
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
