@@ -9,7 +9,7 @@ public class FlagOverrides {
      * override the remote values, or use local values only when a remote value doesn't exist,
      * or use it for local only mode.
      */
-    public var behavior: OverrideBehaviour = OverrideBehaviour.LOCAL_ONLY
+    public var behavior: OverrideBehavior = OverrideBehavior.LOCAL_ONLY
 
     /**
      * Describes the overrides' data source.

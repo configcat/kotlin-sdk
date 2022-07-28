@@ -1,0 +1,15 @@
+style:
+  MagicNumber:
+    active: false
+  WildcardImport:
+    active: false
+  ReturnCount:
+    max: 6
+
+complexity:
+  ComplexCondition:
+    threshold: 5
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: false

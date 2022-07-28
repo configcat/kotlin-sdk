@@ -3,7 +3,7 @@ package com.configcat.client.override
 /**
  * Describes how the overrides should behave.
  */
-public enum class OverrideBehaviour {
+public enum class OverrideBehavior {
     /**
      * When evaluating values, the SDK will not use feature flags & settings from the ConfigCat CDN, but it will use
      * all feature flags & settings that are loaded from local-override sources.

@@ -17,5 +17,5 @@ public interface ConfigCache {
 
 internal class EmptyConfigCache : ConfigCache {
     override suspend fun read(key: String): String = ""
-    override suspend fun write(key: String, value: String) {}
+    override suspend fun write(key: String, value: String) { /* do nothing */ }
 }

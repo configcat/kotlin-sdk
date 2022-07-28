@@ -7,7 +7,7 @@ import com.configcat.client.log.InternalLogger
 import com.configcat.client.log.LogLevel
 import com.configcat.client.log.Logger
 import com.configcat.client.override.FlagOverrides
-import com.configcat.client.override.OverrideBehaviour
+import com.configcat.client.override.OverrideBehavior
 import io.ktor.client.engine.*
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
@@ -43,7 +43,8 @@ public class ClientOptions {
 
     /**
      * Default: [DataGovernance.GLOBAL]. Set this parameter to be in sync with the
-     * Data Governance preference on the [Dashboard](https://app.configcat.com/organization/data-governance). (Only Organization Admins have access)
+     * Data Governance preference on the [Dashboard](https://app.configcat.com/organization/data-governance).
+     * (Only Organization Admins have access)
      */
     public var dataGovernance: DataGovernance = DataGovernance.GLOBAL
 
@@ -154,7 +155,7 @@ internal class Client private constructor(
         options.sdkKey = sdkKey
         val logger = InternalLogger(options.logger, options.logLevel)
         flagOverrides = options.flagOverrides?.let { FlagOverrides().apply(it) }
-        service = if (flagOverrides != null && flagOverrides.behavior == OverrideBehaviour.LOCAL_ONLY) {
+        service = if (flagOverrides != null && flagOverrides.behavior == OverrideBehavior.LOCAL_ONLY) {
             null
         } else {
             ConfigService(options, ConfigFetcher(options, logger), logger)
@@ -224,13 +225,14 @@ internal class Client private constructor(
     private suspend fun getSettings(): Map<String, Setting> {
         if (flagOverrides != null) {
             return when (flagOverrides.behavior) {
-                OverrideBehaviour.LOCAL_ONLY -> flagOverrides.dataSource.getOverrides()
-                OverrideBehaviour.LOCAL_OVER_REMOTE -> {
+                OverrideBehavior.LOCAL_ONLY -> flagOverrides.dataSource.getOverrides()
+                OverrideBehavior.LOCAL_OVER_REMOTE -> {
                     val remote = service?.getSettings() ?: mapOf()
                     val local = flagOverrides.dataSource.getOverrides()
                     remote + local
                 }
-                OverrideBehaviour.REMOTE_OVER_LOCAL -> {
+
+                OverrideBehavior.REMOTE_OVER_LOCAL -> {
                     val remote = service?.getSettings() ?: mapOf()
                     val local = flagOverrides.dataSource.getOverrides()
                     local + remote

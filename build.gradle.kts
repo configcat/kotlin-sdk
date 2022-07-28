@@ -184,6 +184,7 @@ val javadocJar = tasks.register<Jar>("javadocJar") {
 }
 
 detekt {
+    config = files("${rootDir}/detekt.yml")
     buildUponDefaultConfig = true
     parallel = true
     isIgnoreFailures = true

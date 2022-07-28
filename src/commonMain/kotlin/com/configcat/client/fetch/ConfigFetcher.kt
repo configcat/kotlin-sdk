@@ -42,7 +42,7 @@ internal class ConfigFetcher constructor(
 
     private suspend fun fetchHTTPWithPreferenceHandling(baseUrl: String, eTag: String): FetchResponse {
         var currentBaseUrl = baseUrl
-        for (i in 0..2) {
+        repeat(3) {
             val response = fetchHTTP(currentBaseUrl, eTag)
             val preferences = response.entry.config.preferences
             if (!response.isFetched ||
@@ -54,7 +54,12 @@ internal class ConfigFetcher constructor(
             currentBaseUrl = preferences.baseUrl
             if (preferences.redirect == RedirectMode.NO_REDIRECT.ordinal) return response
             else if (preferences.redirect == RedirectMode.SHOULD_REDIRECT.ordinal) {
-                logger.warning("Your \'dataGovernance\' parameter at ConfigCatClient initialization is not in sync with your preferences on the ConfigCat Dashboard: https://app.configcat.com/organization/data-governance. Only Organization Admins can access this preference.")
+                logger.warning(
+                    "Your \'dataGovernance\' parameter at ConfigCatClient initialization is " +
+                            "not in sync with your preferences on the ConfigCat Dashboard: " +
+                            "https://app.configcat.com/organization/data-governance. " +
+                            "Only Organization Admins can access this preference."
+                )
             }
         }
         logger.error("Redirect loop during config.json fetch. Please contact support@configcat.com.")
@@ -89,7 +94,10 @@ internal class ConfigFetcher constructor(
                 logger.debug("Fetch was successful: config not modified.")
                 return FetchResponse.notModified()
             } else {
-                logger.error("Double-check your API KEY at https://app.configcat.com/apikey. Received unexpected response: ${response.status}")
+                logger.error(
+                    "Double-check your API KEY at https://app.configcat.com/apikey. " +
+                            "Received unexpected response: ${response.status}"
+                )
                 return FetchResponse.failure()
             }
         } catch (_: HttpRequestTimeoutException) {

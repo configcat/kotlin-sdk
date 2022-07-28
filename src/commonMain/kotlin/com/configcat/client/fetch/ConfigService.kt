@@ -43,6 +43,7 @@ internal class ConfigService constructor(
                 DateTime.now()
                     .add(0, -mode.configuration.cacheRefreshIntervalSeconds.toDoubleMillis())
             ).settings
+
             else -> return fetchIfOlder(Constants.minDate, preferCached = true).settings
         }
     }
@@ -51,6 +52,7 @@ internal class ConfigService constructor(
         fetchIfOlder(DateTime.now().add(1, 0.0))
     }
 
+    @Suppress("ComplexMethod")
     private suspend fun fetchIfOlder(time: DateTime, preferCached: Boolean = false): Config {
         mutex.withLock {
             // Sync up with the cache and use it when it's not expired.
@@ -85,8 +87,8 @@ internal class ConfigService constructor(
                             fetchConfig(eTag)
                         } else {
                             // Waiting for the client initialization.
-                            // After the maxInitWaitTimeInSeconds timeout the client will be initialized and while the config is not ready
-                            // the default value will be returned.
+                            // After the maxInitWaitTimeInSeconds timeout the client will be initialized and while
+                            // the config is not ready the default value will be returned.
                             val result = withTimeoutOrNull(mode.configuration.maxInitWaitTimeSeconds.toLongMillis()) {
                                 fetchConfig(eTag)
                             }

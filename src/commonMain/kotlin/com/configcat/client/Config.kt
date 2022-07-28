@@ -126,9 +126,9 @@ public data class RolloutRule(
 internal object FlagValueSerializer : KSerializer<Any> {
     override fun deserialize(decoder: Decoder): Any {
         val json = decoder as? JsonDecoder
-            ?: throw IllegalStateException("Only JsonDecoder is supported.")
+            ?: error("Only JsonDecoder is supported.")
         val element = json.decodeJsonElement()
-        val primitive = element as? JsonPrimitive ?: throw IllegalStateException("Unable to decode $element")
+        val primitive = element as? JsonPrimitive ?: error("Unable to decode $element")
         return when (primitive.content) {
             "true", "false" -> primitive.content == "true"
             else -> primitive.content.toIntOrNull() ?: primitive.content.toDoubleOrNull() ?: primitive.content
@@ -137,7 +137,7 @@ internal object FlagValueSerializer : KSerializer<Any> {
 
     override fun serialize(encoder: Encoder, value: Any) {
         val json = encoder as? JsonEncoder
-            ?: throw IllegalStateException("Only JsonEncoder is supported.")
+            ?: error("Only JsonEncoder is supported.")
         val element: JsonElement = when (value) {
             is String -> JsonPrimitive(value)
             is Number -> JsonPrimitive(value)

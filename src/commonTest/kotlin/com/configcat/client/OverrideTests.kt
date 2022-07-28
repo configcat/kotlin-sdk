@@ -1,6 +1,6 @@
 package com.configcat.client
 
-import com.configcat.client.override.OverrideBehaviour
+import com.configcat.client.override.OverrideBehavior
 import com.configcat.client.override.OverrideDataSource
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
@@ -25,7 +25,7 @@ class OverrideTests {
         val client = ConfigCatClient("local") {
             httpEngine = mockEngine
             flagOverrides = {
-                behavior = OverrideBehaviour.LOCAL_ONLY
+                behavior = OverrideBehavior.LOCAL_ONLY
                 dataSource = OverrideDataSource.map(
                     mapOf(
                         "enabledFeature" to true,
@@ -54,7 +54,7 @@ class OverrideTests {
         val client = ConfigCatClient("local") {
             httpEngine = mockEngine
             flagOverrides = {
-                behavior = OverrideBehaviour.LOCAL_OVER_REMOTE
+                behavior = OverrideBehavior.LOCAL_OVER_REMOTE
                 dataSource = OverrideDataSource.map(
                     mapOf(
                         "fakeKey" to true,
@@ -77,7 +77,7 @@ class OverrideTests {
         val client = ConfigCatClient("local") {
             httpEngine = mockEngine
             flagOverrides = {
-                behavior = OverrideBehaviour.REMOTE_OVER_LOCAL
+                behavior = OverrideBehavior.REMOTE_OVER_LOCAL
                 dataSource = OverrideDataSource.map(
                     mapOf(
                         "fakeKey" to true,

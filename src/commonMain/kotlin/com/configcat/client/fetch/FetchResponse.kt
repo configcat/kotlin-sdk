@@ -42,9 +42,7 @@ internal enum class RedirectMode {
     FORCE_REDIRECT,
 }
 
-internal class FetchResponse(status: FetchStatus, private val _entry: Entry = Entry.empty) {
-    val entry: Entry get() = _entry
-
+internal class FetchResponse(status: FetchStatus, val entry: Entry = Entry.empty) {
     val isFetched: Boolean = status == FetchStatus.FETCHED
     val isNotModified: Boolean = status == FetchStatus.NOT_MODIFIED
     val isFailed: Boolean = status == FetchStatus.FAILED
