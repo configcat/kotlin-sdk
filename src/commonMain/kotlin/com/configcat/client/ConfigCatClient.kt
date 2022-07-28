@@ -129,13 +129,17 @@ public interface ConfigCatClient {
 public fun ConfigCatClient(
     sdkKey: String,
     block: ClientOptions.() -> Unit = {}
-) : ConfigCatClient = Client.get(sdkKey, block)
+): ConfigCatClient = Client.get(sdkKey, block)
 
 /**
  * Gets the value of a feature flag or setting as [T] identified by the given [key].
  * In case of any failure, [defaultValue] will be returned. The [user] param identifies the caller.
  */
-public suspend inline fun <reified T> ConfigCatClient.getValue(key: String, defaultValue: T, user: ConfigCatUser? = null): T {
+public suspend inline fun <reified T> ConfigCatClient.getValue(
+    key: String,
+    defaultValue: T,
+    user: ConfigCatUser? = null
+): T {
     return this.getAnyValueOrNull(key, user) as? T ?: defaultValue
 }
 
