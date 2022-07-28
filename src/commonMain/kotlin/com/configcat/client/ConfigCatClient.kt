@@ -70,10 +70,79 @@ public class ClientOptions {
 /**
  * ConfigCat SDK client.
  */
-public class ConfigCatClient private constructor(
+public interface ConfigCatClient {
+    /**
+     * Gets the value of a feature flag or setting as [Any] identified by the given [key].
+     * In case of any failure, `null` will be returned. The [user] param identifies the caller.
+     */
+    public suspend fun getAnyValueOrNull(key: String, user: ConfigCatUser? = null): Any?
+
+    /**
+     * Gets the Variation ID (analytics) of a feature flag or setting based on its [key].
+     * In case of any failure, [defaultVariationId] will be returned. The [user] param identifies the caller.
+     */
+    public suspend fun getVariationId(key: String, defaultVariationId: String?, user: ConfigCatUser? = null): String?
+
+    /**
+     * Gets the key of a setting and its value identified by the given [variationId] (analytics).
+     */
+    public suspend fun getKeyAndValue(variationId: String): Pair<String, Any>?
+
+    /**
+     * Gets a collection of all setting keys.
+     */
+    public suspend fun getAllKeys(): Collection<String>
+
+    /**
+     * Gets the values of all feature flags or settings. The [user] param identifies the caller.
+     */
+    public suspend fun getAllValues(user: ConfigCatUser? = null): Map<String, Any>
+
+    /**
+     * Gets the Variation IDs (analytics) of all feature flags or settings.
+     * The [user] param identifies the caller.
+     */
+    public suspend fun getAllVariationIds(user: ConfigCatUser? = null): Collection<String>
+
+    /**
+     * Downloads the latest feature flag and configuration values.
+     */
+    public suspend fun refresh()
+
+    /**
+     * Companion object of [ConfigCatClient].
+     */
+    public companion object {
+        /**
+         * Closes an individual or all [ConfigCatClient] instances.
+         *
+         * If [client] is not set, all underlying [ConfigCatClient]
+         * instances will be closed, otherwise only the given [client] will be closed.
+         */
+        public fun close(client: ConfigCatClient? = null): Unit = Client.close(client)
+    }
+}
+
+/**
+ * Creates a new or gets an already existing [ConfigCatClient] for the given [sdkKey].
+ */
+public fun ConfigCatClient(
+    sdkKey: String,
+    block: ClientOptions.() -> Unit = {}
+) : ConfigCatClient = Client.get(sdkKey, block)
+
+/**
+ * Gets the value of a feature flag or setting as [T] identified by the given [key].
+ * In case of any failure, [defaultValue] will be returned. The [user] param identifies the caller.
+ */
+public suspend inline fun <reified T> ConfigCatClient.getValue(key: String, defaultValue: T, user: ConfigCatUser? = null): T {
+    return this.getAnyValueOrNull(key, user) as? T ?: defaultValue
+}
+
+internal class Client private constructor(
     private val sdkKey: String,
     options: ClientOptions
-) : Closeable {
+) : ConfigCatClient, Closeable {
 
     private val service: ConfigService?
     private val flagOverrides: FlagOverrides?
@@ -91,31 +160,17 @@ public class ConfigCatClient private constructor(
         evaluator = Evaluator(logger)
     }
 
-    override fun close() {
-        service?.close()
+    override suspend fun getAnyValueOrNull(key: String, user: ConfigCatUser?): Any? {
+        val setting = getSettings()[key] ?: return null
+        return evaluator.evaluate(setting, key, user).first
     }
 
-    /**
-     * Gets the value of a feature flag or setting as [T] identified by the given [key].
-     * In case of any failure, [defaultValue] will be returned. The [user] param identifies the caller.
-     */
-    public suspend inline fun <reified T> getValue(key: String, defaultValue: T, user: ConfigCatUser? = null): T {
-        return getAnyValue(key, user) as? T ?: defaultValue
-    }
-
-    /**
-     * Gets the Variation ID (analytics) of a feature flag or setting based on its [key].
-     * In case of any failure, [defaultVariationId] will be returned. The [user] param identifies the caller.
-     */
-    public suspend fun getVariationId(key: String, defaultVariationId: String?, user: ConfigCatUser? = null): String? {
+    override suspend fun getVariationId(key: String, defaultVariationId: String?, user: ConfigCatUser?): String? {
         val setting = getSettings()[key] ?: return defaultVariationId
         return evaluator.evaluate(setting, key, user).second ?: defaultVariationId
     }
 
-    /**
-     * Gets the key of a setting and its value identified by the given [variationId] (analytics).
-     */
-    public suspend fun getKeyAndValue(variationId: String): Pair<String, Any>? {
+    override suspend fun getKeyAndValue(variationId: String): Pair<String, Any>? {
         val settings = getSettings()
         if (settings.isEmpty()) {
             return null
@@ -138,48 +193,30 @@ public class ConfigCatClient private constructor(
         return null
     }
 
-    /**
-     * Gets a collection of all setting keys.
-     */
-    public suspend fun getAllKeys(): Collection<String> {
+    override suspend fun getAllKeys(): Collection<String> {
         return getSettings().keys
     }
 
-    /**
-     * Gets the values of all feature flags or settings. The [user] param identifies the caller.
-     */
-    public suspend fun getAllValues(user: ConfigCatUser? = null): Map<String, Any> {
+    override suspend fun getAllValues(user: ConfigCatUser?): Map<String, Any> {
         return getSettings().map {
             val evaluated = evaluator.evaluate(it.value, it.key, user)
             it.key to evaluated.first
         }.toMap()
     }
 
-    /**
-     * Gets the Variation IDs (analytics) of all feature flags or settings.
-     * The [user] param identifies the caller.
-     */
-    public suspend fun getAllVariationIds(user: ConfigCatUser? = null): Collection<String> {
+    override suspend fun getAllVariationIds(user: ConfigCatUser?): Collection<String> {
         return getSettings().map {
             val evaluated = evaluator.evaluate(it.value, it.key, user)
             evaluated.second
         }.filterNotNull()
     }
 
-    /**
-     * Downloads the latest feature flag and configuration values.
-     */
-    public suspend fun refresh() {
+    override suspend fun refresh() {
         service?.refresh()
     }
 
-    /**
-     * Gets the value of a feature flag or setting as [Any] identified by the given [key].
-     * In case of any failure, `null` will be returned. The [user] param identifies the caller.
-     */
-    public suspend fun getAnyValue(key: String, user: ConfigCatUser? = null): Any? {
-        val setting = getSettings()[key] ?: return null
-        return evaluator.evaluate(setting, key, user).first
+    override fun close() {
+        service?.close()
     }
 
     private suspend fun getSettings(): Map<String, Setting> {
@@ -202,17 +239,11 @@ public class ConfigCatClient private constructor(
         return service?.getSettings() ?: mapOf()
     }
 
-    /**
-     * Companion object of [ConfigCatClient].
-     */
-    public companion object {
-        private val instances = mutableMapOf<String, ConfigCatClient>()
+    companion object {
+        private val instances = mutableMapOf<String, Client>()
         private val lock = reentrantLock()
 
-        /**
-         * Creates a new or gets an already existing [ConfigCatClient] for the given [sdkKey].
-         */
-        public fun get(sdkKey: String, block: ClientOptions.() -> Unit = {}): ConfigCatClient {
+        fun get(sdkKey: String, block: ClientOptions.() -> Unit = {}): Client {
             if (sdkKey.isEmpty()) {
                 throw IllegalArgumentException("'sdkKey' cannot be null or empty.")
             }
@@ -220,21 +251,15 @@ public class ConfigCatClient private constructor(
                 val instance = instances[sdkKey]
                 if (instance != null)
                     return instance
-                val client = ConfigCatClient(sdkKey, ClientOptions().apply(block))
+                val client = Client(sdkKey, ClientOptions().apply(block))
                 instances[sdkKey] = client
                 return client
             }
         }
 
-        /**
-         * Closes an individual or all [ConfigCatClient] instances.
-         *
-         * If [client] is not set, all underlying [ConfigCatClient]
-         * instances will be closed, otherwise only the given [client] will be closed.
-         */
-        public fun close(client: ConfigCatClient? = null) {
+        fun close(client: ConfigCatClient? = null) {
             lock.withLock {
-                if (client != null) {
+                if (client != null && client is Client) {
                     instances.remove(client.sdkKey)
                     client.close()
                     return

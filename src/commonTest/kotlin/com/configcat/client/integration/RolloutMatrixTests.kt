@@ -55,7 +55,7 @@ class RolloutMatrixTests {
         val mockEngine = MockEngine {
             respond(content = matrix.remoteJson, status = HttpStatusCode.OK)
         }
-        val client = ConfigCatClient.get(matrix.sdkKey) {
+        val client = ConfigCatClient(matrix.sdkKey) {
             pollingMode = manualPoll()
             httpEngine = mockEngine
         }
@@ -92,7 +92,7 @@ class RolloutMatrixTests {
 
             for ((j, settingKey) in settingKeys.withIndex()) {
                 if (isValueKind) {
-                    val value = client.getAnyValue(settingKey, user)
+                    val value = client.getAnyValueOrNull(settingKey, user)
                     val boolVal = value as? Boolean
                     if (boolVal != null) {
                         val expected = testObjects[j + 4].lowercase().toBooleanStrictOrNull()

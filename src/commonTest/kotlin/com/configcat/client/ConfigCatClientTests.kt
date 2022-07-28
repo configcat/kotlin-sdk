@@ -29,7 +29,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
         }
         val op1 = async { client.getValue("fakeKey", false) }
@@ -51,7 +51,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
         }
 
@@ -67,7 +67,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadGateway
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
         }
 
@@ -83,7 +83,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
         }
 
@@ -99,7 +99,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
         }
 
@@ -115,7 +115,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadRequest
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
         }
 
@@ -131,7 +131,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
         }
 
@@ -147,7 +147,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadGateway
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
         }
 
@@ -163,7 +163,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
         }
 
@@ -179,7 +179,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadGateway
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
         }
 
@@ -195,7 +195,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
         }
 
@@ -211,7 +211,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadGateway
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
         }
 
@@ -227,7 +227,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
         }
 
@@ -241,7 +241,7 @@ class ConfigCatClientTests {
             delay(3000)
             respond(content = Utils.formatJsonBody(true), status = HttpStatusCode.OK)
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
             requestTimeoutMs = 1000
         }
@@ -265,7 +265,7 @@ class ConfigCatClientTests {
         val cacheKey: String = "kotlin_${sdkKey}_${Constants.configFileName}".encodeToByteArray().sha1().hex
         val cache = InMemoryCache()
         cache.write(cacheKey, Utils.formatJsonBody(true))
-        val client = ConfigCatClient.get(sdkKey) {
+        val client = ConfigCatClient(sdkKey) {
             httpEngine = mockEngine
             configCache = cache
         }
@@ -286,7 +286,7 @@ class ConfigCatClientTests {
         val cacheKey: String = "kotlin_${sdkKey}_${Constants.configFileName}".encodeToByteArray().sha1().hex
         val cache = InMemoryCache()
         cache.write(cacheKey, Utils.formatJsonBody(true))
-        val client = ConfigCatClient.get(sdkKey) {
+        val client = ConfigCatClient(sdkKey) {
             httpEngine = mockEngine
             configCache = cache
         }
@@ -306,7 +306,7 @@ class ConfigCatClientTests {
                 respond(content = "", status = HttpStatusCode.BadGateway)
             }
         } as MockEngine
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
         }
 
@@ -326,7 +326,7 @@ class ConfigCatClientTests {
                 respond(content = Utils.formatJsonBody("test2"), status = HttpStatusCode.OK)
             }
         } as MockEngine
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
             pollingMode = lazyLoad()
         }
@@ -347,7 +347,7 @@ class ConfigCatClientTests {
                 respond(content = Utils.formatJsonBody("test2"), status = HttpStatusCode.OK)
             }
         } as MockEngine
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
             pollingMode = autoPoll()
         }
@@ -366,7 +366,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadRequest
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
         }
 
@@ -382,7 +382,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadRequest
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
         }
 
@@ -399,7 +399,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadRequest
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
             pollingMode = lazyLoad()
         }
@@ -416,7 +416,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadRequest
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
             pollingMode = lazyLoad()
         }
@@ -434,7 +434,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
             pollingMode = autoPoll()
         }
@@ -454,7 +454,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
         }
 
@@ -470,7 +470,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
         }
 
@@ -488,7 +488,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
             pollingMode = lazyLoad()
         }
@@ -508,7 +508,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient.get("test") {
+        val client = ConfigCatClient("test") {
             httpEngine = mockEngine
             pollingMode = manualPoll()
         }
