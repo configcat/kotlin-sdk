@@ -100,7 +100,7 @@ jobs:
         path: build/reports/kover
 
   upload-reports:
-    needs: [ test, assemble, analysis ]
+    needs: [ coverage ]
     runs-on: ubuntu-latest
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
