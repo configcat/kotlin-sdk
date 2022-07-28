@@ -30,32 +30,6 @@ jobs:
       run: ./gradlew allTests --stacktrace
       shell: bash
 
-  analysis:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK
-      uses: actions/setup-java@v3
-      with:
-        java-version: 11
-        distribution: zulu
-    - name: Cache Konan
-      uses: ./.github/actions/cache-konan
-    - name: Cache Gradle
-      uses: ./.github/actions/cache-gradle
-    - name: Run code analysis
-      run: ./gradlew detekt --stacktrace
-      shell: bash
-    - name: Upload SARIF file
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        sarif_file: build/reports/detekt/detekt.sarif
-    - name: Upload analysis report
-      uses: actions/upload-artifact@v3
-      with:
-        name: analysis-report
-        path: build/reports/detekt
-
   assemble:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -75,6 +49,32 @@ jobs:
       - name: Run assemble
         run: ./gradlew assemble --stacktrace
         shell: bash
+        
+  analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: zulu
+      - name: Cache Konan
+        uses: ./.github/actions/cache-konan
+      - name: Cache Gradle
+        uses: ./.github/actions/cache-gradle
+      - name: Run code analysis
+        run: ./gradlew detekt --stacktrace
+        shell: bash
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: build/reports/detekt/detekt.sarif
+      - name: Upload analysis report
+        uses: actions/upload-artifact@v3
+        with:
+          name: analysis-report
+          path: build/reports/detekt
 
   coverage:
     runs-on: ubuntu-latest
@@ -90,7 +90,7 @@ jobs:
     - name: Cache Gradle
       uses: ./.github/actions/cache-gradle
     - name: Calculate coverage
-      run: ./gradlew koverMergedXmlReport --stacktrace
+      run: ./gradlew koverXmlReport --stacktrace
       shell: bash
     - name: Upload coverage report
       uses: actions/upload-artifact@v3

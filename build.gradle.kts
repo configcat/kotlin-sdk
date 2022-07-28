@@ -211,7 +211,7 @@ sonarqube {
         property("sonar.sources", "src/commonMain/kotlin/com/configcat/client")
         property("sonar.tests", "src/commonTest/kotlin/com/configcat/client")
         property("sonar.kotlin.detekt.reportPaths", buildDir.resolve("reports/detekt/detekt.xml"))
-        property("sonar.coverage.jacoco.xmlReportPaths", buildDir.resolve("reports/kover/report.xml"))
+        property("sonar.coverage.jacoco.xmlReportPaths", buildDir.resolve("reports/kover/project-xml/report.xml"))
     }
 }
 
