@@ -2,7 +2,7 @@ package com.configcat.client.fetch
 
 import com.configcat.client.*
 import com.configcat.client.Constants
-import com.configcat.client.logging.InternalLogger
+import com.configcat.client.log.InternalLogger
 import com.soywiz.klock.DateTime
 import com.soywiz.krypto.sha1
 import kotlinx.atomicfu.atomic

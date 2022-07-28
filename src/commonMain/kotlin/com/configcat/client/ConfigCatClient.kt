@@ -2,12 +2,10 @@ package com.configcat.client
 
 import com.configcat.client.fetch.ConfigFetcher
 import com.configcat.client.fetch.ConfigService
-import com.configcat.client.fetch.PollingMode
-import com.configcat.client.fetch.autoPoll
-import com.configcat.client.logging.DefaultLogger
-import com.configcat.client.logging.InternalLogger
-import com.configcat.client.logging.LogLevel
-import com.configcat.client.logging.Logger
+import com.configcat.client.log.DefaultLogger
+import com.configcat.client.log.InternalLogger
+import com.configcat.client.log.LogLevel
+import com.configcat.client.log.Logger
 import com.configcat.client.override.FlagOverrides
 import com.configcat.client.override.OverrideBehaviour
 import io.ktor.client.engine.*

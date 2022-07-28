@@ -2,9 +2,7 @@ package com.configcat.client
 
 import com.configcat.client.fetch.ConfigFetcher
 import com.configcat.client.fetch.ConfigService
-import com.configcat.client.fetch.PollingMode
-import com.configcat.client.fetch.autoPoll
-import com.configcat.client.logging.InternalLogger
+import com.configcat.client.log.InternalLogger
 import io.ktor.client.engine.mock.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

@@ -1,4 +1,4 @@
-package com.configcat.client.logging
+package com.configcat.client.log
 
 import com.soywiz.klock.DateTime
 

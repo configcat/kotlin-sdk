@@ -1,4 +1,4 @@
-package com.configcat.client.fetch
+package com.configcat.client
 
 /**
  * Describes a polling mode configuration.

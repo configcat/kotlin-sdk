@@ -1,6 +1,6 @@
 package com.configcat.client
 
-import com.configcat.client.logging.InternalLogger
+import com.configcat.client.log.InternalLogger
 import com.soywiz.krypto.sha1
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion

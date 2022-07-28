@@ -1,8 +1,5 @@
 package com.configcat.client
 
-import com.configcat.client.fetch.autoPoll
-import com.configcat.client.fetch.lazyLoad
-import com.configcat.client.fetch.manualPoll
 import com.soywiz.klock.DateTime
 import com.soywiz.krypto.sha1
 import io.ktor.client.engine.mock.*
