@@ -151,11 +151,8 @@ kotlin {
             }
         }
 
-        val curlMain by creating {
+        val nativeMain by creating {
             dependsOn(commonMain)
-            dependencies {
-                implementation("io.ktor:ktor-client-curl:$ktor_version")
-            }
         }
 
         val nativeTest by creating {
@@ -166,7 +163,7 @@ kotlin {
             if (this.name.isDarwin()) {
                 dependsOn(darwinMain)
             } else {
-                dependsOn(curlMain)
+                dependsOn(nativeMain)
             }
         }
 
