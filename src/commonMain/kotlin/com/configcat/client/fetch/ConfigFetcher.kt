@@ -80,6 +80,7 @@ internal class ConfigFetcher constructor(
             }
 
             if (response.status.value in 200..299) {
+                logger.debug("Fetch was successful: new config fetched.")
                 val body = response.bodyAsText()
                 val newETag = response.etag()
                 val (config, error) = body.parseConfigJson()
@@ -87,7 +88,6 @@ internal class ConfigFetcher constructor(
                     logger.error("JSON parsing failed. ${error?.message}")
                     return FetchResponse.failure()
                 }
-                logger.debug("Fetch was successful: new config fetched.")
                 val entry = Entry(config, body, newETag ?: "", DateTime.now())
                 return FetchResponse.success(entry)
             } else if (response.status == HttpStatusCode.NotModified) {
