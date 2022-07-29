@@ -6,7 +6,6 @@ import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
 
 internal class Evaluator constructor(private val logger: InternalLogger) {
-    @Suppress("ComplexMethod", "NestedBlockDepth")
     fun evaluate(setting: Setting, key: String, user: ConfigCatUser?): Pair<Any, String?> {
         val infoLogBuilder = StringBuilder()
         try {
@@ -23,24 +22,10 @@ internal class Evaluator constructor(private val logger: InternalLogger) {
             }
             infoLogBuilder.appendLine("User object: $user")
             val valueFromTargetingRules = processTargetingRules(setting, user, infoLogBuilder)
-            if (valueFromTargetingRules != null)
-                return valueFromTargetingRules
+            if (valueFromTargetingRules != null) return valueFromTargetingRules
 
-            if (setting.percentageItems.isNotEmpty()) {
-                val hashCandidate = "$key${user.identifier}"
-                val hash = hashCandidate.encodeToByteArray().sha1().hex.substring(0, 7)
-                val numberRepresentation = hash.toInt(radix = 16)
-                val scale = numberRepresentation % 100
-
-                var bucket = 0.0
-                for (rule in setting.percentageItems) {
-                    bucket += rule.percentage
-                    if (scale < bucket) {
-                        infoLogBuilder.appendLine("Evaluating % options. Returning ${rule.value}.")
-                        return Pair(rule.value, rule.variationId)
-                    }
-                }
-            }
+            val valueFromPercentageRules = processPercentageRules(setting, user, key, infoLogBuilder)
+            if (valueFromPercentageRules != null) return valueFromPercentageRules
 
             infoLogBuilder.appendLine("Returning ${setting.value}.")
             return Pair(setting.value, setting.variationId)
@@ -49,10 +34,7 @@ internal class Evaluator constructor(private val logger: InternalLogger) {
         }
     }
 
-    @Suppress(
-        "NestedBlockDepth", "ReturnCount", "ComplexCondition",
-        "LoopWithTooManyJumpStatements", "LongMethod", "ComplexMethod"
-    )
+    @Suppress("ComplexMethod", "LoopWithTooManyJumpStatements")
     private fun processTargetingRules(
         setting: Setting,
         user: ConfigCatUser,
@@ -63,244 +45,303 @@ internal class Evaluator constructor(private val logger: InternalLogger) {
         }
         for (rule in setting.rolloutRules) {
             val userValue = user.attributeFor(rule.comparisonAttribute)
-            val comparisonValue = rule.comparisonValue
-            val attribute = rule.comparisonAttribute
             val comparator = rule.comparator.toComparatorOrNull()
-            val returnValue = rule.value
-            val variationId = rule.variationId
 
             if (comparator == null) {
                 infoLogBuilder.appendLine(
                     logComparatorError(
-                        attribute,
+                        rule.comparisonAttribute,
                         userValue ?: "",
                         rule.comparator,
-                        comparisonValue
+                        rule.comparisonValue
                     )
                 )
                 continue
             }
-            if (userValue.isNullOrEmpty() || comparisonValue.isEmpty()) {
+            if (userValue.isNullOrEmpty() || rule.comparisonValue.isEmpty()) {
                 infoLogBuilder.appendLine(
                     logNoMatch(
-                        attribute,
-                        userValue ?: "", comparator, comparisonValue
+                        rule.comparisonAttribute,
+                        userValue ?: "", comparator, rule.comparisonValue
                     )
                 )
                 continue
             }
 
             when (comparator) {
-                Comparator.ONE_OF -> {
-                    val split = comparisonValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-                    if (split.contains(userValue)) {
-                        infoLogBuilder.appendLine(
-                            logMatch(
-                                attribute,
-                                userValue,
-                                comparator,
-                                comparisonValue,
-                                returnValue
-                            )
-                        )
-                        return Pair(returnValue, variationId)
-                    }
-                }
-
+                Comparator.ONE_OF,
                 Comparator.NOT_ONE_OF -> {
-                    val split = rule.comparisonValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-                    if (!split.contains(userValue)) {
-                        infoLogBuilder.appendLine(
-                            logMatch(
-                                attribute,
-                                userValue,
-                                comparator,
-                                comparisonValue,
-                                returnValue
-                            )
-                        )
-                        return Pair(returnValue, variationId)
-                    }
+                    val value = processOneOf(rule, userValue, infoLogBuilder, comparator)
+                    if (value != null) return value
                 }
 
-                Comparator.CONTAINS -> {
-                    if (userValue.contains(comparisonValue)) {
-                        infoLogBuilder.appendLine(
-                            logMatch(
-                                attribute,
-                                userValue,
-                                comparator,
-                                comparisonValue,
-                                returnValue
-                            )
-                        )
-                        return Pair(returnValue, variationId)
-                    }
-                }
-
+                Comparator.CONTAINS,
                 Comparator.NOT_CONTAINS -> {
-                    if (!userValue.contains(comparisonValue)) {
-                        infoLogBuilder.appendLine(
-                            logMatch(
-                                attribute,
-                                userValue,
-                                comparator,
-                                comparisonValue,
-                                returnValue
-                            )
-                        )
-                        return Pair(returnValue, variationId)
-                    }
+                    val value = processContains(rule, userValue, infoLogBuilder, comparator)
+                    if (value != null) return value
                 }
 
                 Comparator.ONE_OF_SEMVER,
                 Comparator.NOT_ONE_OF_SEMVER -> {
-                    try {
-                        val userVersion = userValue.toVersion()
-                        val split = rule.comparisonValue.split(",")
-                            .map { it.trim() }.filter { it.isNotEmpty() }
-                        var matched = false
-                        for (value in split) {
-                            matched = value.toVersion() == userVersion || matched
-                        }
-                        if ((matched && comparator == Comparator.ONE_OF_SEMVER) ||
-                            (!matched && comparator == Comparator.NOT_ONE_OF_SEMVER)
-                        ) {
-                            infoLogBuilder.appendLine(
-                                logMatch(
-                                    attribute,
-                                    userValue,
-                                    comparator,
-                                    comparisonValue,
-                                    returnValue
-                                )
-                            )
-                            return Pair(returnValue, variationId)
-                        }
-                    } catch (e: VersionFormatException) {
-                        infoLogBuilder.appendLine(
-                            logFormatError(
-                                attribute,
-                                userValue,
-                                comparator,
-                                comparisonValue,
-                                e
-                            )
-                        )
-                    }
+                    val value = processSemverOneOf(rule, userValue, infoLogBuilder, comparator)
+                    if (value != null) return value
                 }
-
                 Comparator.LT_SEMVER,
                 Comparator.LTE_SEMVER,
                 Comparator.GT_SEMVER,
                 Comparator.GTE_SEMVER -> {
-                    try {
-                        val userVersion = userValue.toVersion()
-                        val comparisonVersion = comparisonValue.trim().toVersion()
-
-                        if ((comparator == Comparator.LT_SEMVER && userVersion < comparisonVersion) ||
-                            (comparator == Comparator.LTE_SEMVER && userVersion <= comparisonVersion) ||
-                            (comparator == Comparator.GT_SEMVER && userVersion > comparisonVersion) ||
-                            (comparator == Comparator.GTE_SEMVER && userVersion >= comparisonVersion)
-                        ) {
-                            infoLogBuilder.appendLine(
-                                logMatch(
-                                    attribute,
-                                    userValue,
-                                    comparator,
-                                    comparisonValue,
-                                    returnValue
-                                )
-                            )
-                            return Pair(returnValue, variationId)
-                        }
-                    } catch (e: VersionFormatException) {
-                        infoLogBuilder.appendLine(
-                            logFormatError(
-                                attribute,
-                                userValue,
-                                comparator,
-                                comparisonValue,
-                                e
-                            )
-                        )
-                    }
+                    val value = processSemverCompare(rule, userValue, infoLogBuilder, comparator)
+                    if (value != null) return value
                 }
-
                 Comparator.EQ_NUM,
                 Comparator.NOT_EQ_NUM,
                 Comparator.LT_NUM,
                 Comparator.LTE_NUM,
                 Comparator.GT_NUM,
                 Comparator.GTE_NUM -> {
-                    try {
-                        val userNumber = userValue.replace(",", ".").toDouble()
-                        val comparisonNumber = comparisonValue.trim().replace(",", ".").toDouble()
-
-                        if ((comparator == Comparator.EQ_NUM && userNumber == comparisonNumber) ||
-                            (comparator == Comparator.NOT_EQ_NUM && userNumber != comparisonNumber) ||
-                            (comparator == Comparator.LT_NUM && userNumber < comparisonNumber) ||
-                            (comparator == Comparator.LTE_NUM && userNumber <= comparisonNumber) ||
-                            (comparator == Comparator.GT_NUM && userNumber > comparisonNumber) ||
-                            (comparator == Comparator.GTE_NUM && userNumber >= comparisonNumber)
-                        ) {
-                            infoLogBuilder.appendLine(
-                                logMatch(
-                                    attribute,
-                                    userValue,
-                                    comparator,
-                                    comparisonValue,
-                                    returnValue
-                                )
-                            )
-                            return Pair(returnValue, variationId)
-                        }
-                    } catch (e: NumberFormatException) {
-                        infoLogBuilder.appendLine(
-                            logFormatError(
-                                attribute,
-                                userValue,
-                                comparator,
-                                comparisonValue,
-                                e
-                            )
-                        )
-                    }
+                    val value = processNumber(rule, userValue, infoLogBuilder, comparator)
+                    if (value != null) return value
                 }
-
-                Comparator.ONE_OF_SENS -> {
-                    val split = rule.comparisonValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-                    val userValueHash = userValue.encodeToByteArray().sha1().hex
-                    if (split.contains(userValueHash)) {
-                        infoLogBuilder.appendLine(
-                            logMatch(
-                                attribute,
-                                userValue,
-                                comparator,
-                                comparisonValue,
-                                returnValue
-                            )
-                        )
-                        return Pair(returnValue, variationId)
-                    }
-                }
-
+                Comparator.ONE_OF_SENS,
                 Comparator.NOT_ONE_OF_SENS -> {
-                    val split = rule.comparisonValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-                    val userValueHash = userValue.encodeToByteArray().sha1().hex
-                    if (!split.contains(userValueHash)) {
-                        infoLogBuilder.appendLine(
-                            logMatch(
-                                attribute,
-                                userValue,
-                                comparator,
-                                comparisonValue,
-                                returnValue
-                            )
-                        )
-                        return Pair(returnValue, variationId)
-                    }
+                    val value = processSensitiveOneOf(rule, userValue, infoLogBuilder, comparator)
+                    if (value != null) return value
                 }
+            }
+        }
+        return null
+    }
+
+    private fun processOneOf(
+        rule: RolloutRule,
+        userValue: String,
+        infoLogBuilder: StringBuilder,
+        comparator: Comparator
+    ): Pair<Any, String?>? {
+        val split = rule.comparisonValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+        val matchCondition = when (comparator) {
+            Comparator.ONE_OF -> split.contains(userValue)
+            Comparator.NOT_ONE_OF -> !split.contains(userValue)
+            else -> false
+        }
+        if (matchCondition) {
+            infoLogBuilder.appendLine(
+                logMatch(
+                    rule.comparisonAttribute,
+                    userValue,
+                    comparator,
+                    rule.comparisonValue,
+                    rule.value
+                )
+            )
+            return Pair(rule.value, rule.variationId)
+        }
+        return null
+    }
+
+    private fun processContains(
+        rule: RolloutRule,
+        userValue: String,
+        infoLogBuilder: StringBuilder,
+        comparator: Comparator
+    ): Pair<Any, String?>? {
+        val matchCondition = when (comparator) {
+            Comparator.CONTAINS -> userValue.contains(rule.comparisonValue)
+            Comparator.NOT_CONTAINS -> !userValue.contains(rule.comparisonValue)
+            else -> false
+        }
+        if (matchCondition) {
+            infoLogBuilder.appendLine(
+                logMatch(
+                    rule.comparisonAttribute,
+                    userValue,
+                    comparator,
+                    rule.comparisonValue,
+                    rule.value
+                )
+            )
+            return Pair(rule.value, rule.variationId)
+        }
+        return null
+    }
+
+    private fun processSemverOneOf(
+        rule: RolloutRule,
+        userValue: String,
+        infoLogBuilder: StringBuilder,
+        comparator: Comparator
+    ): Pair<Any, String?>? {
+        try {
+            val userVersion = userValue.toVersion()
+            val split = rule.comparisonValue.split(",")
+                .map { it.trim() }.filter { it.isNotEmpty() }
+            var matched = false
+            for (value in split) {
+                matched = value.toVersion() == userVersion || matched
+            }
+            if ((matched && comparator == Comparator.ONE_OF_SEMVER) ||
+                (!matched && comparator == Comparator.NOT_ONE_OF_SEMVER)
+            ) {
+                infoLogBuilder.appendLine(
+                    logMatch(
+                        rule.comparisonAttribute,
+                        userValue,
+                        comparator,
+                        rule.comparisonValue,
+                        rule.value
+                    )
+                )
+                return Pair(rule.value, rule.variationId)
+            }
+        } catch (e: VersionFormatException) {
+            infoLogBuilder.appendLine(
+                logFormatError(
+                    rule.comparisonAttribute,
+                    userValue,
+                    comparator,
+                    rule.comparisonValue,
+                    e
+                )
+            )
+        }
+        return null
+    }
+
+    private fun processSemverCompare(
+        rule: RolloutRule,
+        userValue: String,
+        infoLogBuilder: StringBuilder,
+        comparator: Comparator
+    ): Pair<Any, String?>? {
+        try {
+            val userVersion = userValue.toVersion()
+            val comparisonVersion = rule.comparisonValue.trim().toVersion()
+            val matchCondition = when (comparator) {
+                Comparator.LT_SEMVER -> userVersion < comparisonVersion
+                Comparator.LTE_SEMVER -> userVersion <= comparisonVersion
+                Comparator.GT_SEMVER -> userVersion > comparisonVersion
+                Comparator.GTE_SEMVER -> userVersion >= comparisonVersion
+                else -> false
+            }
+            if (matchCondition) {
+                infoLogBuilder.appendLine(
+                    logMatch(
+                        rule.comparisonAttribute,
+                        userValue,
+                        comparator,
+                        rule.comparisonValue,
+                        rule.value
+                    )
+                )
+                return Pair(rule.value, rule.variationId)
+            }
+        } catch (e: VersionFormatException) {
+            infoLogBuilder.appendLine(
+                logFormatError(
+                    rule.comparisonAttribute,
+                    userValue,
+                    comparator,
+                    rule.comparisonValue,
+                    e
+                )
+            )
+        }
+        return null
+    }
+
+    private fun processNumber(
+        rule: RolloutRule,
+        userValue: String,
+        infoLogBuilder: StringBuilder,
+        comparator: Comparator
+    ): Pair<Any, String?>? {
+        try {
+            val userNumber = userValue.replace(",", ".").toDouble()
+            val comparisonNumber = rule.comparisonValue.trim().replace(",", ".").toDouble()
+            val matchCondition = when (comparator) {
+                Comparator.EQ_NUM -> userNumber == comparisonNumber
+                Comparator.NOT_EQ_NUM -> userNumber != comparisonNumber
+                Comparator.LT_NUM -> userNumber < comparisonNumber
+                Comparator.LTE_NUM -> userNumber <= comparisonNumber
+                Comparator.GT_NUM -> userNumber > comparisonNumber
+                Comparator.GTE_NUM -> userNumber >= comparisonNumber
+                else -> false
+            }
+            if (matchCondition) {
+                infoLogBuilder.appendLine(
+                    logMatch(
+                        rule.comparisonAttribute,
+                        userValue,
+                        comparator,
+                        rule.comparisonValue,
+                        rule.value
+                    )
+                )
+                return Pair(rule.value, rule.variationId)
+            }
+        } catch (e: NumberFormatException) {
+            infoLogBuilder.appendLine(
+                logFormatError(
+                    rule.comparisonAttribute,
+                    userValue,
+                    comparator,
+                    rule.comparisonValue,
+                    e
+                )
+            )
+        }
+        return null
+    }
+
+    private fun processSensitiveOneOf(
+        rule: RolloutRule,
+        userValue: String,
+        infoLogBuilder: StringBuilder,
+        comparator: Comparator
+    ): Pair<Any, String?>? {
+        val split = rule.comparisonValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+        val userValueHash = userValue.encodeToByteArray().sha1().hex
+        val matchCondition = when (comparator) {
+            Comparator.ONE_OF_SENS -> split.contains(userValueHash)
+            Comparator.NOT_ONE_OF_SENS -> !split.contains(userValueHash)
+            else -> false
+        }
+        if (matchCondition) {
+            infoLogBuilder.appendLine(
+                logMatch(
+                    rule.comparisonAttribute,
+                    userValue,
+                    comparator,
+                    rule.comparisonValue,
+                    rule.value
+                )
+            )
+            return Pair(rule.value, rule.variationId)
+        }
+        return null
+    }
+
+    private fun processPercentageRules(
+        setting: Setting,
+        user: ConfigCatUser,
+        key: String,
+        infoLogBuilder: StringBuilder
+    ): Pair<Any, String?>? {
+        if (setting.percentageItems.isEmpty()) {
+            return null
+        }
+
+        val hashCandidate = "$key${user.identifier}"
+        val hash = hashCandidate.encodeToByteArray().sha1().hex.substring(0, 7)
+        val numberRepresentation = hash.toInt(radix = 16)
+        val scale = numberRepresentation % 100
+
+        var bucket = 0.0
+        for (rule in setting.percentageItems) {
+            bucket += rule.percentage
+            if (scale < bucket) {
+                infoLogBuilder.appendLine("Evaluating % options. Returning ${rule.value}.")
+                return Pair(rule.value, rule.variationId)
             }
         }
         return null

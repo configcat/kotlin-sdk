@@ -4,11 +4,15 @@ style:
   WildcardImport:
     active: false
   ReturnCount:
-    max: 6
+    max: 8
 
 complexity:
   ComplexCondition:
     threshold: 5
+  TooManyFunctions:
+    thresholdInClasses: 15
+  LongMethod:
+    threshold: 70
 
 exceptions:
   TooGenericExceptionCaught:
