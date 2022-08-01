@@ -29,4 +29,6 @@ hs_err_pid*
 
 yarn.lock
 
+.DS_Store
+
 !gradle-wrapper.jar
