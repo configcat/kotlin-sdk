@@ -20,8 +20,14 @@ ConfigCat is a <a href="https://configcat.com" target="_blank">hosted feature fl
 ```kotlin
 val configcat_version: String by project
 
-dependencies {
-    implementation("com.configcat:configcat-kotlin-client:$configcat_version")
+kotlin {
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation("com.configcat:configcat-kotlin-client:$configcat_version")
+            }
+        }
+    }
 }
 ```
 
@@ -49,9 +55,9 @@ import com.configcat.*
 suspend fun main() {
     val client = ConfigCatClient("#YOUR-SDK-KEY#")
     val isMyAwesomeFeatureEnabled = client.getValue("isMyAwesomeFeatureEnabled", false)
-    if(isMyAwesomeFeatureEnabled) {
+    if (isMyAwesomeFeatureEnabled) {
         doTheNewThing()
-    } else{
+    } else {
         doTheOldThing()
     }
 }
@@ -78,9 +84,9 @@ suspend fun main() {
     
     val user = ConfigCatUser("#USER-IDENTIFIER#")
     val isMyAwesomeFeatureEnabled = client.getValue("isMyAwesomeFeatureEnabled", false, user)
-    if(isMyAwesomeFeatureEnabled) {
+    if (isMyAwesomeFeatureEnabled) {
         doTheNewThing()
-    } else{
+    } else {
         doTheOldThing()
     }
 }
