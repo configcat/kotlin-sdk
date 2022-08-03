@@ -208,8 +208,8 @@ sonarqube {
         property("sonar.projectVersion", "$version-$build_number")
         property("sonar.organization", "configcat")
         property("sonar.host.url", "https://sonarcloud.io")
-        property("sonar.sources", "src/commonMain/kotlin/com/configcat/client")
-        property("sonar.tests", "src/commonTest/kotlin/com/configcat/client")
+        property("sonar.sources", "src/commonMain/kotlin/com/configcat")
+        property("sonar.tests", "src/commonTest/kotlin/com/configcat")
         property("sonar.kotlin.detekt.reportPaths", buildDir.resolve("reports/detekt/detekt.xml"))
         property("sonar.coverage.jacoco.xmlReportPaths", buildDir.resolve("reports/kover/project-xml/report.xml"))
     }
