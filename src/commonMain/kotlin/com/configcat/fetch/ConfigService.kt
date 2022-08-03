@@ -117,6 +117,9 @@ internal class ConfigService constructor(
             if (response.isFetched && response.entry != cachedEntry) {
                 cachedEntry = response.entry
                 writeCache(response.entry.json)
+                if (mode is AutoPollMode) {
+                    mode.configuration.onConfigChanged?.invoke()
+                }
                 return response.entry.config
             } else if (response.isNotModified) {
                 cachedEntry = cachedEntry.copy(fetchTime = DateTime.now())

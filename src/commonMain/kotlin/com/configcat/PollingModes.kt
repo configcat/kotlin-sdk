@@ -23,6 +23,10 @@ public data class AutoPollConfiguration(
      * The maximum waiting time between initialization and the first config acquisition in seconds.
      */
     public var maxInitWaitTimeSeconds: Int = 5,
+    /**
+     * The configuration changed event handler.
+     */
+    public var onConfigChanged: (() -> Unit)? = null,
 )
 
 /**

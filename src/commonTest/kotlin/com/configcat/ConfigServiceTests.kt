@@ -62,6 +62,34 @@ class ConfigServiceTests {
     }
 
     @Test
+    fun testAutoOnConfigChanged() = runTest {
+        val mockEngine = MockEngine.create {
+            this.addHandler {
+                respond(content = Utils.formatJsonBody("test1"), status = HttpStatusCode.OK)
+            }
+            this.addHandler {
+                respond(content = Utils.formatJsonBody("test2"), status = HttpStatusCode.OK)
+            }
+        } as MockEngine
+        var called = false
+        val service = Services.createConfigService(mockEngine, autoPoll {
+            pollingIntervalSeconds = 2
+            onConfigChanged = {
+                called = true
+            }
+        })
+
+        Utils.delayWithBlock(1_000)
+
+        assertTrue(called)
+
+        val settings1 = service.getSettings()
+        assertEquals("test1", settings1["fakeKey"]?.value)
+
+        assertEquals(1, mockEngine.requestHistory.size)
+    }
+
+    @Test
     fun testLazyGet() = runTest {
         val mockEngine = MockEngine.create {
             this.addHandler {
