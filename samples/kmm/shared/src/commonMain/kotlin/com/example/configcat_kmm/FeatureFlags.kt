@@ -1,9 +1,9 @@
 package com.example.configcat_kmm
 
-import com.configcat.client.ConfigCatClient
-import com.configcat.client.ConfigCatUser
-import com.configcat.client.getValue
-import com.configcat.client.log.LogLevel
+import com.configcat.ConfigCatClient
+import com.configcat.ConfigCatUser
+import com.configcat.getValue
+import com.configcat.log.LogLevel
 
 class FeatureFlags {
     private val client: ConfigCatClient = ConfigCatClient("PKDVCLf-Hq-h-kCzMp-L7Q/HhOWfwVtZ0mb30i9wi17GQ") {
