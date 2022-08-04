@@ -3,7 +3,7 @@ import com.configcat.ConfigCatUser
 import com.configcat.getValue
 import com.configcat.log.LogLevel
 
-suspend fun main(args: Array<String>) {
+suspend fun main() {
     val client = ConfigCatClient("PKDVCLf-Hq-h-kCzMp-L7Q/HhOWfwVtZ0mb30i9wi17GQ") {
         // Info level logging helps to inspect the feature flag evaluation process.
         // Use the default Warning level to avoid too detailed logging in your application.
