@@ -5,14 +5,17 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinTargetPreset
 
 buildscript {
     val atomicfu_version: String by project
+    val android_gradle_plugin: String by project
     dependencies {
         classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:$atomicfu_version")
+        classpath("com.android.tools.build:gradle:$android_gradle_plugin")
     }
 }
 
 apply(plugin = "kotlinx-atomicfu")
 
 plugins {
+    id("com.android.library") version "7.2.1"
     kotlin("multiplatform") version "1.7.10"
     kotlin("plugin.serialization") version "1.7.10"
     id("maven-publish")
@@ -23,6 +26,7 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.21.0"
 }
 
+val atomicfu_version: String by project
 val ktor_version: String by project
 val kotlinx_serialization_version: String by project
 val kotlinx_coroutines_version: String by project
@@ -37,11 +41,6 @@ val nativeTestSets: MutableList<KotlinSourceSet> = mutableListOf()
 val host: Host = getHostType()
 
 version = "$version${if (is_snapshot) "-SNAPSHOT" else ""}"
-
-repositories {
-    mavenCentral()
-    google()
-}
 
 kotlin {
     fun addNativeTarget(preset: KotlinTargetPreset<*>, desiredHost: Host) {
@@ -61,7 +60,13 @@ kotlin {
         compilations.all {
             kotlinOptions.jvmTarget = "1.8"
         }
-        withJava()
+    }
+
+    android {
+        compilations.all {
+            kotlinOptions.jvmTarget = "1.8"
+        }
+        publishLibraryVariants("release")
     }
 
     js(BOTH) {
@@ -144,6 +149,14 @@ kotlin {
             }
         }
 
+        val androidMain by getting {
+            dependsOn(commonMain)
+            dependencies {
+                implementation("io.ktor:ktor-client-okhttp:$ktor_version")
+                implementation("org.jetbrains.kotlinx:atomicfu:$atomicfu_version")
+            }
+        }
+
         val darwinMain by creating {
             dependsOn(commonMain)
             dependencies {
@@ -170,6 +183,16 @@ kotlin {
         configure(nativeTestSets) {
             dependsOn(nativeTest)
         }
+    }
+}
+
+android {
+    compileSdk = 31
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+    defaultConfig {
+        minSdk = 21
+        targetSdk = 31
+        consumerProguardFiles("configcat-proguard-rules.pro")
     }
 }
 
