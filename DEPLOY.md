@@ -30,9 +30,10 @@ Use the **same version** for the git tag as in the properties file.
 1. Log in to [Maven Repository](https://oss.sonatype.org/) and follow these steps:
    1. Select `Staging Repositories` and select the version you published.
    2. Click `Close`. The process might take some time, click `Refresh` to get the latest state.
-   3. When the repo is closed click `Release`, tick the `Automatically drop when released` option.
+   3. When the repo is closed click `Release`, tick the `Auto drop when released` option.
 2. Make sure the new version is available
-   on [Maven Central](https://search.maven.org/artifact/com.configcat/configcat-kotlin-client).
+   on [Maven Central](https://search.maven.org/artifact/com.configcat/configcat-kotlin-client). (It might take some time - up to hours - until the repo is synced)
+
 
 ## Update import examples in local README.md
 
