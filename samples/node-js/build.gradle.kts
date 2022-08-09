@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.configcat:configcat-kotlin-client:0.1.0-SNAPSHOT")
+    implementation("com.configcat:configcat-kotlin-client:0.1.0")
 }
 
 kotlin {
