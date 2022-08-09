@@ -61,6 +61,6 @@ internal class DefaultLogger : Logger {
     }
 
     private fun enrichMessage(message: String, level: LogLevel): String {
-        return "${DateTime.now().toString("yyyy-MM-dd HH:mm:ss z")} [${levelMap[level]}]: ConfigCatClient - $message"
+        return "${DateTime.now().toString("yyyy-MM-dd HH:mm:ss z")} [${levelMap[level]}]: ConfigCat - $message"
     }
 }
