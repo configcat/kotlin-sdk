@@ -34,4 +34,8 @@ public class ConfigCatUser public constructor(
         }
         return attributes[key]
     }
+
+    override fun toString(): String {
+        return "{${attributes.map { "${it.key}: ${it.value}" }.joinToString()}}"
+    }
 }

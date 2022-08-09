@@ -8,6 +8,7 @@ import io.github.z4kn4fein.semver.toVersion
 internal class Evaluator constructor(private val logger: InternalLogger) {
     fun evaluate(setting: Setting, key: String, user: ConfigCatUser?): Pair<Any, String?> {
         val infoLogBuilder = StringBuilder()
+        infoLogBuilder.appendLine("Evaluating '$key'")
         try {
             if (user == null) {
                 if (setting.rolloutRules.isNotEmpty() || setting.percentageItems.isNotEmpty()) {
@@ -27,7 +28,7 @@ internal class Evaluator constructor(private val logger: InternalLogger) {
             val valueFromPercentageRules = processPercentageRules(setting, user, key, infoLogBuilder)
             if (valueFromPercentageRules != null) return valueFromPercentageRules
 
-            infoLogBuilder.appendLine("Returning ${setting.value}.")
+            infoLogBuilder.appendLine("Returning ${setting.value}")
             return Pair(setting.value, setting.variationId)
         } finally {
             logger.info(infoLogBuilder.toString())
