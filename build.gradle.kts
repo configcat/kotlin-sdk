@@ -5,19 +5,17 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinTargetPreset
 
 buildscript {
     val atomicfu_version: String by project
-    val android_gradle_plugin: String by project
     dependencies {
         classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:$atomicfu_version")
-        classpath("com.android.tools.build:gradle:$android_gradle_plugin")
     }
 }
 
 apply(plugin = "kotlinx-atomicfu")
 
 plugins {
-    id("com.android.library") version "7.2.1"
     kotlin("multiplatform") version "1.7.10"
     kotlin("plugin.serialization") version "1.7.10"
+    id("com.android.library")
     id("maven-publish")
     id("signing")
     id("org.jetbrains.dokka") version "1.7.10"
@@ -26,7 +24,6 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.21.0"
 }
 
-val atomicfu_version: String by project
 val ktor_version: String by project
 val kotlinx_serialization_version: String by project
 val kotlinx_coroutines_version: String by project
@@ -142,6 +139,10 @@ kotlin {
             }
         }
 
+        val jvmTest by getting {
+            dependsOn(commonTest)
+        }
+
         val jsMain by getting {
             dependsOn(commonMain)
             dependencies {
@@ -149,12 +150,19 @@ kotlin {
             }
         }
 
+        val jsTest by getting {
+            dependsOn(commonTest)
+        }
+
         val androidMain by getting {
             dependsOn(commonMain)
             dependencies {
                 implementation("io.ktor:ktor-client-okhttp:$ktor_version")
-                implementation("org.jetbrains.kotlinx:atomicfu:$atomicfu_version")
             }
+        }
+
+        val androidTest by getting {
+            dependsOn(commonTest)
         }
 
         val darwinMain by creating {
