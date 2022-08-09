@@ -118,5 +118,8 @@ internal class ConfigFetcher constructor(
         block.install(HttpTimeout) {
             requestTimeoutMillis = options.requestTimeoutMs
         }
+        block.engine {
+            proxy = options.httpProxy
+        }
     }
 }

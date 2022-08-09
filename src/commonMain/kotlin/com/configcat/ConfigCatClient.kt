@@ -63,6 +63,11 @@ public class ClientOptions {
      */
     public var httpEngine: HttpClientEngine? = null
 
+    /**
+     * Proxy configuration for the HTTP engine.
+     */
+    public var httpProxy: ProxyConfig? = null
+
     internal var sdkKey: String? = null
 }
 
