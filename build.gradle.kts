@@ -302,8 +302,7 @@ signing {
 fun isPublicationAllowed(name: String): Boolean =
     when {
         name.startsWith("mingw") -> host == Host.WINDOWS
-        name.startsWith("macos") ||
-            name.isDarwin() -> host == Host.MAC_OS
+        name.isDarwin() -> host == Host.MAC_OS
         else -> host == Host.LINUX
     }
 
@@ -319,6 +318,7 @@ fun getHostType(): Host {
 
 enum class Host { WINDOWS, MAC_OS, LINUX }
 
-fun String.isDarwin(): Boolean = this.startsWith("ios") ||
-    this.startsWith("watchos") ||
-    this.startsWith("tvos")
+fun String.isDarwin(): Boolean = name.startsWith("macos") ||
+        this.startsWith("ios") ||
+        this.startsWith("watchos") ||
+        this.startsWith("tvos")
