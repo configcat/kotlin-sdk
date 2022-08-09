@@ -157,10 +157,6 @@ kotlin {
             }
         }
 
-        val androidTest by getting {
-            dependsOn(commonTest)
-        }
-
         val darwinMain by creating {
             dependsOn(commonMain)
             dependencies {
