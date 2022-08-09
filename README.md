@@ -7,6 +7,8 @@ ConfigCat is a feature flag and configuration management service that lets you s
 
 ConfigCat is a <a href="https://configcat.com" target="_blank">hosted feature flag service</a>. Manage feature toggles across frontend, backend, mobile, desktop apps. <a href="https://configcat.com" target="_blank">Alternative to LaunchDarkly</a>. Management app + feature flag SDKs.
 
+The API Documentation is available [here](https://configcat.github.io/kotlin-sdk/).
+
 [![Kotlin CI](https://github.com/configcat/kotlin-sdk/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/configcat/kotlin-sdk/actions/workflows/ci.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/com.configcat/configcat-kotlin-client?label=maven%20central)](https://search.maven.org/artifact/com.configcat/configcat-kotlin-client/)
 ![Snapshot](https://img.shields.io/nexus/s/com.configcat/configcat-kotlin-client?label=snapshot&server=https%3A%2F%2Foss.sonatype.org)
