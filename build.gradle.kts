@@ -24,6 +24,7 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.21.0"
 }
 
+val atomicfu_version: String by project
 val ktor_version: String by project
 val kotlinx_serialization_version: String by project
 val kotlinx_coroutines_version: String by project
@@ -158,6 +159,7 @@ kotlin {
             dependsOn(commonMain)
             dependencies {
                 implementation("io.ktor:ktor-client-okhttp:$ktor_version")
+                implementation("org.jetbrains.kotlinx:atomicfu:$atomicfu_version")
             }
         }
 
