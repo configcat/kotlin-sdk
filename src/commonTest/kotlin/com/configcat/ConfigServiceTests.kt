@@ -30,10 +30,10 @@ class ConfigServiceTests {
         val settings1 = service.getSettings()
         assertEquals("test1", settings1["fakeKey"]?.value)
 
-        Utils.delayWithBlock(3_000)
-
-        val settings2 = service.getSettings()
-        assertEquals("test2", settings2["fakeKey"]?.value)
+        Utils.awaitUntil {
+            val settings2 = service.getSettings()
+            settings2["fakeKey"]?.value == "test2"
+        }
 
         assertTrue(mockEngine.requestHistory.size in 2..3)
     }
@@ -53,12 +53,10 @@ class ConfigServiceTests {
         val settings1 = service.getSettings()
         assertEquals("test1", settings1["fakeKey"]?.value)
 
-        Utils.delayWithBlock(3_000)
-
-        val settings2 = service.getSettings()
-        assertEquals("test1", settings2["fakeKey"]?.value)
-
-        assertTrue(mockEngine.requestHistory.size in 2..3)
+        Utils.awaitUntil {
+            val settings2 = service.getSettings()
+            settings2["fakeKey"]?.value == "test1" && mockEngine.requestHistory.size in 2..3
+        }
     }
 
     @Test
@@ -79,9 +77,9 @@ class ConfigServiceTests {
             }
         })
 
-        Utils.delayWithBlock(1_000)
-
-        assertTrue(called)
+        Utils.awaitUntil {
+            called
+        }
 
         val settings1 = service.getSettings()
         assertEquals("test1", settings1["fakeKey"]?.value)
@@ -104,10 +102,10 @@ class ConfigServiceTests {
         val settings1 = service.getSettings()
         assertEquals("test1", settings1["fakeKey"]?.value)
 
-        Utils.delayWithBlock(3_000)
-
-        val settings2 = service.getSettings()
-        assertEquals("test2", settings2["fakeKey"]?.value)
+        Utils.awaitUntil {
+            val settings2 = service.getSettings()
+            settings2["fakeKey"]?.value == "test2"
+        }
 
         assertEquals(2, mockEngine.requestHistory.size)
     }
@@ -127,12 +125,10 @@ class ConfigServiceTests {
         val settings1 = service.getSettings()
         assertEquals("test1", settings1["fakeKey"]?.value)
 
-        Utils.delayWithBlock(3_000)
-
-        val settings2 = service.getSettings()
-        assertEquals("test1", settings2["fakeKey"]?.value)
-
-        assertEquals(2, mockEngine.requestHistory.size)
+        Utils.awaitUntil {
+            val settings2 = service.getSettings()
+            settings2["fakeKey"]?.value == "test1" && mockEngine.requestHistory.size == 2
+        }
     }
 
     @Test
@@ -215,11 +211,13 @@ class ConfigServiceTests {
         val cache = InMemoryCache()
         Services.createConfigService(mockEngine, autoPoll { pollingIntervalSeconds = 2 }, cache)
 
-        Utils.delayWithBlock(1_000)
-        assertEquals(Utils.formatJsonBody("test1"), cache.store.values.first())
+        Utils.awaitUntil {
+            !cache.store.values.isEmpty() && cache.store.values.first() == Utils.formatJsonBody("test1")
+        }
 
-        Utils.delayWithBlock(2_000)
-        assertEquals(Utils.formatJsonBody("test2"), cache.store.values.first())
+        Utils.awaitUntil {
+            !cache.store.values.isEmpty() && cache.store.values.first() == Utils.formatJsonBody("test2")
+        }
 
         assertTrue(mockEngine.requestHistory.size in 2..3)
     }
@@ -240,9 +238,10 @@ class ConfigServiceTests {
         service.getSettings()
         assertEquals(Utils.formatJsonBody("test1"), cache.store.values.first())
 
-        Utils.delayWithBlock(3_000)
-        service.getSettings()
-        assertEquals(Utils.formatJsonBody("test2"), cache.store.values.first())
+        Utils.awaitUntil {
+            service.getSettings()
+            cache.store.values.first() == Utils.formatJsonBody("test2")
+        }
 
         assertEquals(2, mockEngine.requestHistory.size)
     }

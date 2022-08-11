@@ -3,16 +3,25 @@ package com.configcat
 import com.configcat.fetch.ConfigFetcher
 import com.configcat.fetch.ConfigService
 import com.configcat.log.InternalLogger
+import com.soywiz.klock.DateTime
 import io.ktor.client.engine.mock.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 internal object Utils {
-    suspend fun delayWithBlock(ms: Long) {
+    suspend fun awaitUntil(timeoutMs: Long = 5_000, condTarget: suspend () -> Boolean): Long {
+        val start = DateTime.now()
         withContext(Dispatchers.Default) {
-            delay(ms)
+            while (!condTarget()) {
+                delay(200)
+                val elapsed = DateTime.now() - start
+                if (elapsed.milliseconds > timeoutMs) {
+                    throw Exception("Test await timed out.")
+                }
+            }
         }
+        return (DateTime.now() - start).milliseconds.toLong()
     }
 
     fun formatJsonBody(value: Any): String {
