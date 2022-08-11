@@ -101,6 +101,7 @@ internal class ConfigService constructor(
                         fetchConfig(eTag)
                     }
                 }
+                fetchJob?.start()
             }
         }
         val result = fetchJob?.await()
