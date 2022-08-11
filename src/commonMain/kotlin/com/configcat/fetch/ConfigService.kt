@@ -26,6 +26,7 @@ internal class ConfigService constructor(
     private val mode = options.pollingMode
     private var cachedEntry = Entry.empty
     private var fetchJob: Deferred<Config>? = null
+    private var fetching = false
 
     init {
         if (mode is AutoPollMode) {
@@ -80,9 +81,10 @@ internal class ConfigService constructor(
                 return cachedEntry.config
             }
 
-            // No fetch is running, initiate a new one.
             val runningJob = fetchJob
-            if (runningJob == null || !runningJob.isActive) {
+            if (runningJob == null || !fetching) {
+                // No fetch is running, initiate a new one.
+                fetching = true
                 val eTag = cachedEntry.eTag
                 fetchJob = coroutineScope.async {
                     if (mode is AutoPollMode) {
@@ -101,7 +103,6 @@ internal class ConfigService constructor(
                         fetchConfig(eTag)
                     }
                 }
-                fetchJob?.start()
             }
         }
         val result = fetchJob?.await()
@@ -115,6 +116,7 @@ internal class ConfigService constructor(
         val response = configFetcher.fetch(eTag)
         mutex.withLock {
             initialized.value = true
+            fetching = false
             if (response.isFetched && response.entry != cachedEntry) {
                 cachedEntry = response.entry
                 writeCache(response.entry.json)
