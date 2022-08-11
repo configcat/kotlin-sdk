@@ -43,6 +43,7 @@ $dokka.location:com.configcat/ClientOptions/configCache/#/PointingToDeclaration/
 $dokka.location:com.configcat/ClientOptions/dataGovernance/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-client-options/data-governance.html
 $dokka.location:com.configcat/ClientOptions/flagOverrides/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-client-options/flag-overrides.html
 $dokka.location:com.configcat/ClientOptions/httpEngine/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-client-options/http-engine.html
+$dokka.location:com.configcat/ClientOptions/httpProxy/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-client-options/http-proxy.html
 $dokka.location:com.configcat/ClientOptions/logLevel/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-client-options/log-level.html
 $dokka.location:com.configcat/ClientOptions/logger/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-client-options/logger.html
 $dokka.location:com.configcat/ClientOptions/pollingMode/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-client-options/polling-mode.html
@@ -63,6 +64,7 @@ $dokka.location:com.configcat/ConfigCatClient/refresh/#/PointingToDeclaration/c
 $dokka.location:com.configcat/ConfigCatUser///PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-user/index.html
 $dokka.location:com.configcat/ConfigCatUser/ConfigCatUser/#kotlin.String#kotlin.String?#kotlin.String?#kotlin.collections.Map[kotlin.String,kotlin.String]?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-user/-config-cat-user.html
 $dokka.location:com.configcat/ConfigCatUser/identifier/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-user/identifier.html
+$dokka.location:com.configcat/ConfigCatUser/toString/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-user/to-string.html
 $dokka.location:com.configcat/DataGovernance.EU_ONLY///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat/-data-governance/-e-u_-o-n-l-y/index.html
 $dokka.location:com.configcat/DataGovernance.GLOBAL///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat/-data-governance/-g-l-o-b-a-l/index.html
 $dokka.location:com.configcat/DataGovernance///PointingToDeclaration/configcat-kotlin-client/com.configcat/-data-governance/index.html
