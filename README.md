@@ -1,4 +1,4 @@
-# ConfigCat SDK for Kotlin Multiplatform [Work in progress]
+# ConfigCat SDK for Kotlin Multiplatform
 https://configcat.com
 
 ConfigCat SDK for Kotlin Multiplatform provides easy integration for your application to ConfigCat.
