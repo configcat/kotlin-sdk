@@ -5,7 +5,7 @@ import com.soywiz.krypto.sha1
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
 
-internal class Evaluator constructor(private val logger: InternalLogger) {
+internal class Evaluator(private val logger: InternalLogger) {
     fun evaluate(setting: Setting, key: String, user: ConfigCatUser?): Pair<Any, String?> {
         val infoLogBuilder = StringBuilder()
         infoLogBuilder.appendLine("Evaluating '$key'")

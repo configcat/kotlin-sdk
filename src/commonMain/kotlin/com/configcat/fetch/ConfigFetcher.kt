@@ -11,6 +11,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.atomicfu.*
+import kotlinx.serialization.decodeFromString
 
 internal class ConfigFetcher constructor(
     private val options: ClientOptions,
@@ -63,8 +64,9 @@ internal class ConfigFetcher constructor(
                 )
             }
         }
-        logger.error("Redirect loop during config.json fetch. Please contact support@configcat.com.")
-        return FetchResponse.failure()
+        val message = "Redirect loop during config.json fetch. Please contact support@configcat.com."
+        logger.error(message)
+        return FetchResponse.failure(message)
     }
 
     private suspend fun fetchHTTP(baseUrl: String, eTag: String): FetchResponse {
@@ -84,29 +86,29 @@ internal class ConfigFetcher constructor(
                 logger.debug("Fetch was successful: new config fetched.")
                 val body = response.bodyAsText()
                 val newETag = response.etag()
-                val (config, error) = body.parseConfigJson()
-                if (config.isEmpty()) {
-                    logger.error("JSON parsing failed. ${error?.message}")
-                    return FetchResponse.failure()
+                val (config, err) = parseConfigJson(body)
+                if (err != null) {
+                    return FetchResponse.failure(err)
                 }
-                val entry = Entry(config, body, newETag ?: "", DateTime.now())
+                val entry = Entry(config, newETag ?: "", DateTime.now())
                 return FetchResponse.success(entry)
             } else if (response.status == HttpStatusCode.NotModified) {
                 logger.debug("Fetch was successful: config not modified.")
                 return FetchResponse.notModified()
             } else {
-                logger.error(
-                    "Double-check your API KEY at https://app.configcat.com/apikey. " +
-                            "Received unexpected response: ${response.status}"
-                )
-                return FetchResponse.failure()
+                val message = "Double-check your API KEY at https://app.configcat.com/apikey. " +
+                        "Received unexpected response: ${response.status}"
+                logger.error(message)
+                return FetchResponse.failure(message)
             }
         } catch (_: HttpRequestTimeoutException) {
-            logger.error("Request timed out. Timeout value: ${options.requestTimeoutMs}ms")
-            return FetchResponse.failure()
+            val message = "Request timed out. Timeout value: ${options.requestTimeout.inWholeMilliseconds}ms"
+            logger.error(message)
+            return FetchResponse.failure(message)
         } catch (e: Exception) {
-            logger.error("Error during config JSON download. ${e.message}")
-            return FetchResponse.failure()
+            val message = "Error during config JSON download. ${e.message}"
+            logger.error(message)
+            return FetchResponse.failure(message)
         }
     }
 
@@ -116,10 +118,19 @@ internal class ConfigFetcher constructor(
 
     private fun configureClient(block: HttpClientConfig<*>) {
         block.install(HttpTimeout) {
-            requestTimeoutMillis = options.requestTimeoutMs
+            requestTimeoutMillis = options.requestTimeout.inWholeMilliseconds
         }
         block.engine {
             proxy = options.httpProxy
+        }
+    }
+
+    private fun parseConfigJson(jsonString: String): Pair<Config, String?> {
+        return try {
+            Pair(Constants.json.decodeFromString(jsonString), null)
+        } catch (e: Exception) {
+            logger.error("JSON parsing failed. ${e.message}")
+            Pair(Config.empty, e.message)
         }
     }
 }

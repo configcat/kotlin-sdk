@@ -2,6 +2,8 @@ package com.configcat
 
 import com.configcat.fetch.ConfigFetcher
 import com.configcat.fetch.ConfigService
+import com.configcat.fetch.RefreshResult
+import com.configcat.fetch.SettingResult
 import com.configcat.log.DefaultLogger
 import com.configcat.log.InternalLogger
 import com.configcat.log.LogLevel
@@ -11,6 +13,8 @@ import com.configcat.override.OverrideBehavior
 import io.ktor.client.engine.*
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Configuration options for [ConfigCatClient].
@@ -19,7 +23,7 @@ public class ClientOptions {
     /**
      * Default: 30s. The maximum wait time for an HTTP response.
      */
-    public var requestTimeoutMs: Long = 30_000
+    public var requestTimeout: Duration = 30.seconds
 
     /**
      * The base ConfigCat CDN url.
@@ -68,6 +72,16 @@ public class ClientOptions {
      */
     public var httpProxy: ProxyConfig? = null
 
+    /**
+     * The default user, used as fallback when there's no user parameter is passed to the [ConfigCatClient.getValue] method.
+     */
+    public var defaultUser: ConfigCatUser? = null
+
+    /**
+     * Hooks for events fired by [ConfigCatClient].
+     */
+    public var hooks: Hooks = Hooks()
+
     internal var sdkKey: String? = null
 }
 
@@ -111,7 +125,7 @@ public interface ConfigCatClient {
     /**
      * Downloads the latest feature flag and configuration values.
      */
-    public suspend fun refresh()
+    public suspend fun forceRefresh(): RefreshResult
 
     /**
      * Companion object of [ConfigCatClient].
@@ -143,9 +157,7 @@ public suspend inline fun <reified T> ConfigCatClient.getValue(
     key: String,
     defaultValue: T,
     user: ConfigCatUser? = null
-): T {
-    return this.getAnyValueOrNull(key, user) as? T ?: defaultValue
-}
+): T = this.getAnyValueOrNull(key, user) as? T ?: defaultValue
 
 internal class Client private constructor(
     private val sdkKey: String,
@@ -155,31 +167,35 @@ internal class Client private constructor(
     private val service: ConfigService?
     private val flagOverrides: FlagOverrides?
     private val evaluator: Evaluator
+    private val hooks: Hooks
+    private var defaultUser: ConfigCatUser?
 
     init {
         options.sdkKey = sdkKey
-        val logger = InternalLogger(options.logger, options.logLevel)
+        val logger = InternalLogger(options.logger, options.logLevel, options.hooks)
+        hooks = options.hooks
+        defaultUser = options.defaultUser
         flagOverrides = options.flagOverrides?.let { FlagOverrides().apply(it) }
         service = if (flagOverrides != null && flagOverrides.behavior == OverrideBehavior.LOCAL_ONLY) {
             null
         } else {
-            ConfigService(options, ConfigFetcher(options, logger), logger)
+            ConfigService(options, ConfigFetcher(options, logger), logger, options.hooks)
         }
         evaluator = Evaluator(logger)
     }
 
     override suspend fun getAnyValueOrNull(key: String, user: ConfigCatUser?): Any? {
-        val setting = getSettings()[key] ?: return null
-        return evaluator.evaluate(setting, key, user).first
+        val setting = getSettings().settings[key] ?: return null
+        return evaluator.evaluate(setting, key, user ?: defaultUser).first
     }
 
     override suspend fun getVariationId(key: String, defaultVariationId: String?, user: ConfigCatUser?): String? {
-        val setting = getSettings()[key] ?: return defaultVariationId
-        return evaluator.evaluate(setting, key, user).second ?: defaultVariationId
+        val setting = getSettings().settings[key] ?: return defaultVariationId
+        return evaluator.evaluate(setting, key, user ?: defaultUser).second ?: defaultVariationId
     }
 
     override suspend fun getKeyAndValue(variationId: String): Pair<String, Any>? {
-        val settings = getSettings()
+        val settings = getSettings().settings
         if (settings.isEmpty()) {
             return null
         }
@@ -202,50 +218,50 @@ internal class Client private constructor(
     }
 
     override suspend fun getAllKeys(): Collection<String> {
-        return getSettings().keys
+        return getSettings().settings.keys
     }
 
     override suspend fun getAllValues(user: ConfigCatUser?): Map<String, Any> {
-        return getSettings().map {
-            val evaluated = evaluator.evaluate(it.value, it.key, user)
+        return getSettings().settings.map {
+            val evaluated = evaluator.evaluate(it.value, it.key, user ?: defaultUser)
             it.key to evaluated.first
         }.toMap()
     }
 
     override suspend fun getAllVariationIds(user: ConfigCatUser?): Collection<String> {
-        return getSettings().map {
-            val evaluated = evaluator.evaluate(it.value, it.key, user)
+        return getSettings().settings.map {
+            val evaluated = evaluator.evaluate(it.value, it.key, user ?: defaultUser)
             evaluated.second
         }.filterNotNull()
     }
 
-    override suspend fun refresh() {
-        service?.refresh()
-    }
+    override suspend fun forceRefresh(): RefreshResult = service?.refresh() ?: RefreshResult(false, "The ConfigCat SDK is in local-only mode. Calling .forceRefresh() has no effect.")
 
     override fun close() {
         service?.close()
     }
 
-    private suspend fun getSettings(): Map<String, Setting> {
+    private suspend fun getSettings(): SettingResult {
         if (flagOverrides != null) {
             return when (flagOverrides.behavior) {
-                OverrideBehavior.LOCAL_ONLY -> flagOverrides.dataSource.getOverrides()
+                OverrideBehavior.LOCAL_ONLY -> SettingResult(flagOverrides.dataSource.getOverrides(), Constants.distantPast)
                 OverrideBehavior.LOCAL_OVER_REMOTE -> {
-                    val remote = service?.getSettings() ?: mapOf()
+                    val result = service?.getSettings()
+                    val remote = result?.settings ?: mapOf()
                     val local = flagOverrides.dataSource.getOverrides()
-                    remote + local
+                    SettingResult(remote + local, result?.fetchTime ?: Constants.distantPast)
                 }
 
                 OverrideBehavior.REMOTE_OVER_LOCAL -> {
-                    val remote = service?.getSettings() ?: mapOf()
+                    val result = service?.getSettings()
+                    val remote = result?.settings ?: mapOf()
                     val local = flagOverrides.dataSource.getOverrides()
-                    local + remote
+                    SettingResult(local + remote, result?.fetchTime ?: Constants.distantPast)
                 }
             }
         }
 
-        return service?.getSettings() ?: mapOf()
+        return service?.getSettings() ?: SettingResult(mapOf(), Constants.distantPast)
     }
 
     companion object {

@@ -4,7 +4,7 @@ package com.configcat
  * An object containing attributes to properly identify a given user for variation evaluation.
  * Its only mandatory attribute is the [identifier].
  */
-public class ConfigCatUser public constructor(
+public class ConfigCatUser(
     public val identifier: String,
     email: String? = null,
     country: String? = null,

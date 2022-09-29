@@ -14,20 +14,13 @@ internal object Constants {
     const val configFileName: String = "config_v5"
     const val globalCdnUrl = "https://cdn-global.configcat.com"
     const val euCdnUrl = "https://cdn-eu.configcat.com"
-    val minDate = DateTime.fromUnix(0)
-}
-
-internal fun String.parseConfigJson(): Pair<Config, Throwable?> {
-    return try {
-        val json = Json {
-            ignoreUnknownKeys = true
-            serializersModule = SerializersModule {
-                contextual(Any::class, FlagValueSerializer)
-            }
+    val distantPast = DateTime.fromUnix(0)
+    val distantFuture = DateTime.now().add(10_000, 0.0)
+    val json = Json {
+        ignoreUnknownKeys = true
+        serializersModule = SerializersModule {
+            contextual(Any::class, FlagValueSerializer)
         }
-        Pair(json.decodeFromString(this), null)
-    } catch (e: Exception) {
-        Pair(Config.empty, e)
     }
 }
 
