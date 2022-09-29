@@ -5,8 +5,15 @@ import com.soywiz.krypto.sha1
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
 
+internal data class EvaluationResult(
+    public val value: Any,
+    public val variationId: String?,
+    public val targetingRule: RolloutRule? = null,
+    public val percentageRule: PercentageRule? = null
+)
+
 internal class Evaluator(private val logger: InternalLogger) {
-    fun evaluate(setting: Setting, key: String, user: ConfigCatUser?): Pair<Any, String?> {
+    fun evaluate(setting: Setting, key: String, user: ConfigCatUser?): EvaluationResult {
         val infoLogBuilder = StringBuilder()
         infoLogBuilder.appendLine("Evaluating '$key'")
         try {
@@ -19,7 +26,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                     )
                 }
                 infoLogBuilder.appendLine("Returning ${setting.value}")
-                return Pair(setting.value, setting.variationId)
+                return EvaluationResult(setting.value, setting.variationId)
             }
             infoLogBuilder.appendLine("User object: $user")
             val valueFromTargetingRules = processTargetingRules(setting, user, infoLogBuilder)
@@ -29,7 +36,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             if (valueFromPercentageRules != null) return valueFromPercentageRules
 
             infoLogBuilder.appendLine("Returning ${setting.value}")
-            return Pair(setting.value, setting.variationId)
+            return EvaluationResult(setting.value, setting.variationId)
         } finally {
             logger.info(infoLogBuilder.toString())
         }
@@ -40,7 +47,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         setting: Setting,
         user: ConfigCatUser,
         infoLogBuilder: StringBuilder
-    ): Pair<Any, String?>? {
+    ): EvaluationResult? {
         if (setting.rolloutRules.isEmpty()) {
             return null
         }
@@ -118,7 +125,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         userValue: String,
         infoLogBuilder: StringBuilder,
         comparator: Comparator
-    ): Pair<Any, String?>? {
+    ): EvaluationResult? {
         val split = rule.comparisonValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
         val matchCondition = when (comparator) {
             Comparator.ONE_OF -> split.contains(userValue)
@@ -135,7 +142,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                     rule.value
                 )
             )
-            return Pair(rule.value, rule.variationId)
+            return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
         }
         return null
     }
@@ -145,7 +152,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         userValue: String,
         infoLogBuilder: StringBuilder,
         comparator: Comparator
-    ): Pair<Any, String?>? {
+    ): EvaluationResult? {
         val matchCondition = when (comparator) {
             Comparator.CONTAINS -> userValue.contains(rule.comparisonValue)
             Comparator.NOT_CONTAINS -> !userValue.contains(rule.comparisonValue)
@@ -161,7 +168,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                     rule.value
                 )
             )
-            return Pair(rule.value, rule.variationId)
+            return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
         }
         return null
     }
@@ -171,7 +178,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         userValue: String,
         infoLogBuilder: StringBuilder,
         comparator: Comparator
-    ): Pair<Any, String?>? {
+    ): EvaluationResult? {
         try {
             val userVersion = userValue.toVersion()
             val split = rule.comparisonValue.split(",")
@@ -192,7 +199,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                         rule.value
                     )
                 )
-                return Pair(rule.value, rule.variationId)
+                return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
             }
         } catch (e: VersionFormatException) {
             infoLogBuilder.appendLine(
@@ -213,7 +220,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         userValue: String,
         infoLogBuilder: StringBuilder,
         comparator: Comparator
-    ): Pair<Any, String?>? {
+    ): EvaluationResult? {
         try {
             val userVersion = userValue.toVersion()
             val comparisonVersion = rule.comparisonValue.trim().toVersion()
@@ -234,7 +241,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                         rule.value
                     )
                 )
-                return Pair(rule.value, rule.variationId)
+                return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
             }
         } catch (e: VersionFormatException) {
             infoLogBuilder.appendLine(
@@ -255,7 +262,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         userValue: String,
         infoLogBuilder: StringBuilder,
         comparator: Comparator
-    ): Pair<Any, String?>? {
+    ): EvaluationResult? {
         try {
             val userNumber = userValue.replace(",", ".").toDouble()
             val comparisonNumber = rule.comparisonValue.trim().replace(",", ".").toDouble()
@@ -278,7 +285,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                         rule.value
                     )
                 )
-                return Pair(rule.value, rule.variationId)
+                return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
             }
         } catch (e: NumberFormatException) {
             infoLogBuilder.appendLine(
@@ -299,7 +306,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         userValue: String,
         infoLogBuilder: StringBuilder,
         comparator: Comparator
-    ): Pair<Any, String?>? {
+    ): EvaluationResult? {
         val split = rule.comparisonValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
         val userValueHash = userValue.encodeToByteArray().sha1().hex
         val matchCondition = when (comparator) {
@@ -317,7 +324,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                     rule.value
                 )
             )
-            return Pair(rule.value, rule.variationId)
+            return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
         }
         return null
     }
@@ -327,7 +334,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         user: ConfigCatUser,
         key: String,
         infoLogBuilder: StringBuilder
-    ): Pair<Any, String?>? {
+    ): EvaluationResult? {
         if (setting.percentageItems.isEmpty()) {
             return null
         }
@@ -342,7 +349,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             bucket += rule.percentage
             if (scale < bucket) {
                 infoLogBuilder.appendLine("Evaluating % options. Returning ${rule.value}.")
-                return Pair(rule.value, rule.variationId)
+                return EvaluationResult(rule.value, rule.variationId, percentageRule = rule)
             }
         }
         return null
