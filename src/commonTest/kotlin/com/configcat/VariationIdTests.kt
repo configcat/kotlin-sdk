@@ -10,7 +10,7 @@ import kotlin.test.*
 class VariationIdTests {
     @AfterTest
     fun tearDown() {
-        ConfigCatClient.close()
+        ConfigCatClient.closeAll()
     }
 
     @Test

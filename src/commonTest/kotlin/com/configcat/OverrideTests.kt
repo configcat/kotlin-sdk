@@ -14,13 +14,13 @@ import kotlin.test.assertEquals
 class OverrideTests {
     @AfterTest
     fun tearDown() {
-        ConfigCatClient.close()
+        ConfigCatClient.closeAll()
     }
 
     @Test
     fun testLocalOnly() = runTest {
         val mockEngine = MockEngine {
-            respond(content = Utils.formatJsonBody(false), status = HttpStatusCode.OK)
+            respond(content = Data.formatJsonBody(false), status = HttpStatusCode.OK)
         }
         val client = ConfigCatClient("local") {
             httpEngine = mockEngine
@@ -49,7 +49,7 @@ class OverrideTests {
     @Test
     fun testLocalOverRemote() = runTest {
         val mockEngine = MockEngine {
-            respond(content = Utils.formatJsonBody(false), status = HttpStatusCode.OK)
+            respond(content = Data.formatJsonBody(false), status = HttpStatusCode.OK)
         }
         val client = ConfigCatClient("local") {
             httpEngine = mockEngine
@@ -72,7 +72,7 @@ class OverrideTests {
     @Test
     fun testRemoteOverLocal() = runTest {
         val mockEngine = MockEngine {
-            respond(content = Utils.formatJsonBody(false), status = HttpStatusCode.OK)
+            respond(content = Data.formatJsonBody(false), status = HttpStatusCode.OK)
         }
         val client = ConfigCatClient("local") {
             httpEngine = mockEngine

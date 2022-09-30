@@ -8,6 +8,8 @@ import com.configcat.log.InternalLogger
 import com.soywiz.klock.DateTime
 import com.soywiz.krypto.sha1
 import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.locks.reentrantLock
+import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -24,24 +26,23 @@ internal class ConfigService constructor(
 ) : Closeable {
     private val cacheKey: String = "kotlin_${options.sdkKey}_${Constants.configFileName}".encodeToByteArray().sha1().hex
     private val mutex = Mutex()
+    private val syncLock = reentrantLock()
     private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val closed = atomic(false)
     private val initialized = atomic(false)
     private val mode = options.pollingMode
+    private var pollingJob: Job? = null
     private var cachedEntry = Entry.empty
     private var cachedJsonString = ""
     private var fetchJob: Deferred<Pair<Entry, String?>>? = null
     private var fetching = false
     private var offline = false
 
+    val isOffline: Boolean get() = offline
+
     init {
         if (mode is AutoPollMode) {
-            coroutineScope.launch {
-                while (isActive) {
-                    refresh()
-                    delay(mode.configuration.pollingInterval)
-                }
-            }
+            startPoll(mode)
         } else {
             setInitialized()
         }
@@ -60,6 +61,26 @@ internal class ConfigService constructor(
                 val result = fetchIfOlder(Constants.distantPast, preferCached = true)
                 SettingResult(result.first.config.settings, result.first.fetchTime)
             }
+        }
+    }
+
+    fun offline() {
+        syncLock.withLock {
+            if (offline) return
+            offline = true
+            pollingJob?.cancel()
+            logger.debug("Switched to OFFLINE mode.")
+        }
+    }
+
+    fun online() {
+        syncLock.withLock {
+            if (!offline) return
+            offline = false
+            if (mode is AutoPollMode) {
+                startPoll(mode)
+            }
+            logger.debug("Switched to ONLINE mode.")
         }
     }
 
@@ -112,8 +133,9 @@ internal class ConfigService constructor(
                                 fetchConfig(eTag)
                             }
                             if (result == null) { // We got a timeout
-                                logger.warning("Max init wait time for the very first fetch " +
-                                        "reached (${mode.configuration.maxInitWaitTime.inWholeMilliseconds}ms). Returning cached config.")
+                                logger.warning("Max init wait time for the very first fetch reached " +
+                                        "(${mode.configuration.maxInitWaitTime.inWholeMilliseconds}ms). " +
+                                        "Returning cached config.")
                                 setInitialized()
                             } // We got a timeout
                             result ?: Pair(Entry.empty, null)
@@ -127,7 +149,7 @@ internal class ConfigService constructor(
         val result = fetchJob?.await()
 
         mutex.withLock {
-            return if (result != null && !result.first.isEmpty()) result else Pair(cachedEntry, null)
+            return result ?: Pair(cachedEntry, null)
         }
     }
 
@@ -136,7 +158,7 @@ internal class ConfigService constructor(
         mutex.withLock {
             setInitialized()
             fetching = false
-            if (response.isFetched && response.entry != cachedEntry) {
+            if (response.isFetched) {
                 cachedEntry = response.entry
                 writeCache(response.entry)
                 return Pair(response.entry, null)
@@ -157,6 +179,18 @@ internal class ConfigService constructor(
         } catch (e: Exception) {
             logger.error("An error occurred during the cache read. ${e.message}")
             Entry.empty
+        }
+    }
+
+    private fun startPoll(mode: AutoPollMode) {
+        pollingJob = coroutineScope.launch {
+            while (isActive) {
+                fetchIfOlder(
+                    DateTime.now()
+                        .add(0, -mode.configuration.pollingInterval.inWholeMilliseconds.toDouble())
+                )
+                delay(mode.configuration.pollingInterval)
+            }
         }
     }
 

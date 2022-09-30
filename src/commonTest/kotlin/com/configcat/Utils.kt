@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
-internal object Utils {
+internal object TestUtils {
     suspend fun awaitUntil(timeoutMs: Long = 5_000, condTarget: suspend () -> Boolean): Long {
         val start = DateTime.now()
         withContext(Dispatchers.Default) {
@@ -23,9 +23,16 @@ internal object Utils {
         }
         return (DateTime.now() - start).milliseconds.toLong()
     }
+}
 
+
+internal object Data {
     fun formatJsonBody(value: Any): String {
         return """{ "f": { "fakeKey": { "v": $value, "p": [], "r": [] } } }"""
+    }
+
+    fun formatCacheEntry(value: Any): String {
+        return """{"config":{"f":{"fakeKey":{"v":$value}}},"eTag":"$value","fetchTime":${DateTime.now().unixMillisLong}}"""
     }
 }
 
@@ -36,7 +43,7 @@ internal object Services {
         val opts = options ?: ClientOptions()
         opts.httpEngine = engine
         opts.baseUrl = customUrl
-        val fetcher = ConfigFetcher(opts, InternalLogger(opts.logger, opts.logLevel))
+        val fetcher = ConfigFetcher(opts, InternalLogger(opts.logger, opts.logLevel, opts.hooks))
         closeables.add(fetcher)
         return fetcher
     }
@@ -44,15 +51,18 @@ internal object Services {
     fun createConfigService(
         engine: MockEngine,
         mode: PollingMode = autoPoll(),
-        cache: ConfigCache = EmptyConfigCache()
+        cache: ConfigCache = EmptyConfigCache(),
+        hooks: Hooks = Hooks()
     ): ConfigService {
         val options = ClientOptions()
         options.pollingMode = mode
         options.configCache = cache
+        options.hooks = hooks
         val service = ConfigService(
             options,
             createFetcher(engine, options = options),
-            InternalLogger(options.logger, options.logLevel)
+            InternalLogger(options.logger, options.logLevel, hooks),
+            hooks
         )
         closeables.add(service)
         return service

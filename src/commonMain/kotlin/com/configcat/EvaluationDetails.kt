@@ -3,7 +3,7 @@ package com.configcat
 /**
  * Additional information about flag evaluation.
  */
-public abstract class EvaluationDetailsBase internal constructor(
+public open class EvaluationDetailsBase internal constructor(
     public val key: String,
     public val variationId: String?,
     public val user: ConfigCatUser?,
@@ -14,7 +14,10 @@ public abstract class EvaluationDetailsBase internal constructor(
     public val matchedEvaluationPercentageRule: PercentageRule?,
 )
 
-public class TypedEvaluationDetails<T> internal constructor(
+/**
+ * Additional information about flag evaluation.
+ */
+public class TypedEvaluationDetails<T> public constructor(
     key: String,
     variationId: String?,
     user: ConfigCatUser?,
@@ -24,13 +27,12 @@ public class TypedEvaluationDetails<T> internal constructor(
     fetchTimeUnixMilliseconds: Long,
     matchedEvaluationRule: RolloutRule?,
     matchedEvaluationPercentageRule: PercentageRule?,
-): EvaluationDetailsBase(key, variationId, user, isDefaultValue, error, fetchTimeUnixMilliseconds, matchedEvaluationRule, matchedEvaluationPercentageRule) {
-    internal companion object {
-        internal fun <T> makeError(key: String, defaultValue: T, error: String, user: ConfigCatUser?): TypedEvaluationDetails<T> =
-            TypedEvaluationDetails(key, "", user, true, error, defaultValue, Constants.distantPast.unixMillisLong, null, null)
-    }
-}
+): EvaluationDetailsBase(key, variationId, user, isDefaultValue, error, fetchTimeUnixMilliseconds,
+    matchedEvaluationRule, matchedEvaluationPercentageRule)
 
+/**
+ * Additional information about flag evaluation.
+ */
 public class EvaluationDetails internal constructor(
     key: String,
     variationId: String?,
@@ -41,9 +43,11 @@ public class EvaluationDetails internal constructor(
     fetchTimeUnixMilliseconds: Long,
     matchedEvaluationRule: RolloutRule?,
     matchedEvaluationPercentageRule: PercentageRule?,
-): EvaluationDetailsBase(key, variationId, user, isDefaultValue, error, fetchTimeUnixMilliseconds, matchedEvaluationRule, matchedEvaluationPercentageRule) {
+): EvaluationDetailsBase(key, variationId, user, isDefaultValue, error,
+    fetchTimeUnixMilliseconds, matchedEvaluationRule, matchedEvaluationPercentageRule) {
     internal companion object {
-        internal fun makeError(key: String, defaultValue: Any, error: String, user: ConfigCatUser?): EvaluationDetails =
-            EvaluationDetails(key, "", user, true, error, defaultValue, Constants.distantPast.unixMillisLong, null, null)
+        internal fun makeError(key: String, defaultValue: Any, error: String, user: ConfigCatUser?):
+                EvaluationDetails = EvaluationDetails(key, "", user, true, error,
+            defaultValue, Constants.distantPast.unixMillisLong, null, null)
     }
 }

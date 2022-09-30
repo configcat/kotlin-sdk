@@ -74,7 +74,8 @@ public class ClientOptions {
     public var httpProxy: ProxyConfig? = null
 
     /**
-     * The default user, used as fallback when there's no user parameter is passed to the [ConfigCatClient.getValue] method.
+     * The default user, used as fallback when there's no user
+     * parameter is passed to the [ConfigCatClient.getValue] method.
      */
     public var defaultUser: ConfigCatUser? = null
 
@@ -135,6 +136,36 @@ public interface ConfigCatClient {
     public suspend fun forceRefresh(): RefreshResult
 
     /**
+     * Configures the SDK to allow HTTP requests.
+     */
+    public fun setOnline()
+
+    /**
+     * Configures the SDK to not initiate HTTP requests.
+     */
+    public fun setOffline()
+
+    /**
+     * True when the SDK is configured not to initiate HTTP requests, otherwise false.
+     */
+    public val isOffline: Boolean
+
+    /**
+     * Gets the [Hooks] object for subscribing events.
+     */
+    public val hooks: Hooks
+
+    /**
+     * Sets the default user.
+     */
+    public fun setDefaultUser(user: ConfigCatUser)
+
+    /**
+     * Sets the default user to null.
+     */
+    public fun clearDefaultUser()
+
+    /**
      * Closes the client.
      */
     public fun close()
@@ -168,6 +199,28 @@ public suspend inline fun <reified T: Any> ConfigCatClient.getValue(
     user: ConfigCatUser? = null
 ): T = this.getAnyValue(key, defaultValue, user) as? T ?: defaultValue
 
+/**
+ * Gets the value and evaluation details of a feature flag or setting identified by the given [key].
+ * The [user] param identifies the caller.
+ */
+public suspend inline fun <reified T: Any> ConfigCatClient.getValueDetails(
+    key: String,
+    defaultValue: T,
+    user: ConfigCatUser? = null
+): TypedEvaluationDetails<T> {
+    val details = this.getAnyValueDetails(key, defaultValue, user)
+    val value = details.value as? T
+    return TypedEvaluationDetails(details.key,
+        details.variationId,
+        user,
+        value == null,
+        details.error,
+        value ?: defaultValue,
+        details.fetchTimeUnixMilliseconds,
+        details.matchedEvaluationRule,
+        details.matchedEvaluationPercentageRule)
+}
+
 internal class Client private constructor(
     private val sdkKey: String,
     options: ClientOptions
@@ -176,9 +229,10 @@ internal class Client private constructor(
     private val service: ConfigService?
     private val flagOverrides: FlagOverrides?
     private val evaluator: Evaluator
-    private val hooks: Hooks
     private val logger: InternalLogger
     private var defaultUser: ConfigCatUser?
+    
+    override val hooks: Hooks
 
     init {
         options.sdkKey = sdkKey
@@ -205,7 +259,8 @@ internal class Client private constructor(
 
         val setting = result.settings[key]
         if (setting == null) {
-            val message = "Value not found for key '$key'. Here are the available keys: ${result.settings.keys.joinToString(", ")}"
+            val message = "Value not found for key '$key'. Here are the available keys: " +
+                    result.settings.keys.joinToString(", ")
             logger.error(message)
             hooks.invokeOnFlagEvaluated(EvaluationDetails.makeError(key, defaultValue, message, user))
             return defaultValue
@@ -226,7 +281,8 @@ internal class Client private constructor(
 
         val setting = result.settings[key]
         if (setting == null) {
-            val message = "Value not found for key '$key'. Here are the available keys: ${result.settings.keys.joinToString(", ")}"
+            val message = "Value not found for key '$key'. Here are the available keys: " +
+                    result.settings.keys.joinToString(", ")
             val details = EvaluationDetails.makeError(key, defaultValue, message, user)
             logger.error(message)
             hooks.invokeOnFlagEvaluated(details)
@@ -245,7 +301,8 @@ internal class Client private constructor(
 
         val setting = result.settings[key]
         if (setting == null) {
-            logger.error("Value not found for key '$key'. Here are the available keys: ${result.settings.keys.joinToString(", ")}")
+            logger.error("Value not found for key '$key'. Here are the available keys: " +
+                    result.settings.keys.joinToString(", "))
             return defaultVariationId
         }
 
@@ -295,7 +352,27 @@ internal class Client private constructor(
         }.filterNotNull()
     }
 
-    override suspend fun forceRefresh(): RefreshResult = service?.refresh() ?: RefreshResult(false, "The ConfigCat SDK is in local-only mode. Calling .forceRefresh() has no effect.")
+    override suspend fun forceRefresh(): RefreshResult = service?.refresh() ?: RefreshResult(false,
+        "The ConfigCat SDK is in local-only mode. Calling .forceRefresh() has no effect.")
+
+    override fun setOffline() {
+        service?.offline()
+    }
+
+    override fun setOnline() {
+        service?.online()
+    }
+
+    override val isOffline: Boolean
+        get() = service?.isOffline ?: true
+
+    override fun setDefaultUser(user: ConfigCatUser) {
+        defaultUser = user
+    }
+
+    override fun clearDefaultUser() {
+        defaultUser = null
+    }
 
     override fun close() {
         closeResources()
@@ -309,7 +386,8 @@ internal class Client private constructor(
 
     private fun evaluate(setting: Setting, key: String, user: ConfigCatUser?, fetchTime: DateTime): EvaluationDetails {
         val (value, variationId, targetingRule, percentageRule) = evaluator.evaluate(setting, key, user)
-        val details = EvaluationDetails(key, variationId, user, false, null, value, fetchTime.unixMillisLong, targetingRule, percentageRule)
+        val details = EvaluationDetails(key, variationId, user, false, null, value,
+            fetchTime.unixMillisLong, targetingRule, percentageRule)
         hooks.invokeOnFlagEvaluated(details)
         return details
     }
@@ -317,7 +395,8 @@ internal class Client private constructor(
     private suspend fun getSettings(): SettingResult {
         if (flagOverrides != null) {
             return when (flagOverrides.behavior) {
-                OverrideBehavior.LOCAL_ONLY -> SettingResult(flagOverrides.dataSource.getOverrides(), Constants.distantPast)
+                OverrideBehavior.LOCAL_ONLY -> SettingResult(flagOverrides.dataSource.getOverrides(),
+                    Constants.distantPast)
                 OverrideBehavior.LOCAL_OVER_REMOTE -> {
                     val result = service?.getSettings()
                     val remote = result?.settings ?: mapOf()
@@ -355,10 +434,9 @@ internal class Client private constructor(
             }
         }
 
-        fun removeFromInstances(client: ConfigCatClient) {
+        fun removeFromInstances(client: Client) {
             lock.withLock {
-                val c = client as Client
-                instances.remove(c.sdkKey)
+                instances.remove(client.sdkKey)
             }
         }
 

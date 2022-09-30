@@ -5,14 +5,20 @@ style:
     active: false
   ReturnCount:
     max: 8
+  DestructuringDeclarationWithTooManyEntries:
+    maxDestructuringEntries: 5
+
 
 complexity:
   ComplexCondition:
     threshold: 5
   TooManyFunctions:
-    thresholdInClasses: 15
+    thresholdInClasses: 17
+    thresholdInInterfaces: 17
   LongMethod:
     threshold: 70
+  LongParameterList:
+    constructorThreshold: 10
 
 exceptions:
   TooGenericExceptionCaught:
