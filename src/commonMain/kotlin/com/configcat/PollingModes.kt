@@ -23,7 +23,7 @@ public data class AutoPollConfiguration(
      */
     public var pollingInterval: Duration = 60.seconds,
     /**
-     * The maximum waiting time between initialization and the first config acquisition in seconds.
+     * The maximum waiting time between initialization and the first config acquisition.
      */
     public var maxInitWaitTime: Duration = 5.seconds,
 )

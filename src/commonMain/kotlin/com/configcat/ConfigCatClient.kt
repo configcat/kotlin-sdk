@@ -213,7 +213,7 @@ public suspend inline fun <reified T: Any> ConfigCatClient.getValueDetails(
     return TypedEvaluationDetails(details.key,
         details.variationId,
         user,
-        value == null,
+        details.isDefaultValue || value == null,
         details.error,
         value ?: defaultValue,
         details.fetchTimeUnixMilliseconds,

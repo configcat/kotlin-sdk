@@ -216,6 +216,75 @@ class ConfigServiceTests {
     }
 
     @Test
+    fun testPollIntervalRespectsCacheExpiration() = runTest {
+        val mockEngine = MockEngine.create {
+            this.addHandler {
+                respond(content = Data.formatJsonBody("test"), status = HttpStatusCode.OK)
+            }
+        } as MockEngine
+
+        val cache = SingleValueCache(Data.formatCacheEntry("test"))
+        val service = Services.createConfigService(mockEngine, autoPoll { pollingInterval = 1.seconds }, cache)
+
+        val setting = service.getSettings().settings["fakeKey"]
+        assertEquals("test", setting?.value)
+
+        assertEquals(0, mockEngine.requestHistory.size)
+
+        TestUtils.awaitUntil {
+            mockEngine.requestHistory.size == 1
+        }
+    }
+
+    @Test
+    fun testAutoPollOnlineOffline() = runTest {
+        val mockEngine = MockEngine.create {
+            this.addHandler {
+                respond(content = Data.formatJsonBody("test"), status = HttpStatusCode.OK)
+            }
+        } as MockEngine
+
+        val service = Services.createConfigService(mockEngine, autoPoll { pollingInterval = 1.seconds })
+
+        TestUtils.awaitUntil {
+            mockEngine.requestHistory.size == 1
+        }
+
+        service.offline()
+        TestUtils.wait(2.seconds)
+
+        assertEquals(1, mockEngine.requestHistory.size)
+        service.online()
+
+        TestUtils.awaitUntil {
+            mockEngine.requestHistory.size == 2
+        }
+    }
+
+    @Test
+    fun testInitWaitTimeIgnoredWhenCacheIsNotExpired() = runTest {
+        val mockEngine = MockEngine {
+            delay(5000)
+            respond(content = Data.formatJsonBody("test"), status = HttpStatusCode.OK)
+        }
+        val start = DateTime.now()
+        val cache = SingleValueCache(Data.formatCacheEntry("test"))
+        val service = Services.createConfigService(
+            mockEngine,
+            autoPoll {
+                pollingInterval = 60.seconds
+                maxInitWaitTime = 1.seconds
+            },
+            cache
+        )
+        val result = service.getSettings()
+        val elapsed = DateTime.now() - start
+        assertEquals("test", result.settings["fakeKey"]?.value)
+        println(elapsed.seconds)
+        assertTrue(elapsed.seconds < 1)
+    }
+
+    @Test
     fun testLazyCacheWrite() = runTest {
         val mockEngine = MockEngine.create {
             this.addHandler {
@@ -240,6 +309,81 @@ class ConfigServiceTests {
     }
 
     @Test
+    fun testCacheExpirationRespectedInTTLCalc() = runTest {
+        val mockEngine = MockEngine {
+            respond(content = Data.formatJsonBody("test"), status = HttpStatusCode.OK)
+        }
+        val cache = SingleValueCache(Data.formatCacheEntry("test"))
+        val service = Services.createConfigService(
+            mockEngine,
+            lazyLoad {
+                cacheRefreshInterval = 1.seconds
+            },
+            cache
+        )
+        service.getSettings()
+        service.getSettings()
+
+        assertEquals(0, mockEngine.requestHistory.size)
+        TestUtils.wait(1.seconds)
+
+        service.getSettings()
+        service.getSettings()
+
+        assertEquals(1, mockEngine.requestHistory.size)
+    }
+
+    @Test
+    fun testCacheExpirationRespectedInTTLCalc304() = runTest {
+        val mockEngine = MockEngine {
+            respond(content = "", status = HttpStatusCode.NotModified)
+        }
+        val cache = SingleValueCache(Data.formatCacheEntry("test"))
+        val service = Services.createConfigService(
+            mockEngine,
+            lazyLoad {
+                cacheRefreshInterval = 1.seconds
+            },
+            cache
+        )
+        service.getSettings()
+        service.getSettings()
+
+        assertEquals(0, mockEngine.requestHistory.size)
+        TestUtils.wait(1.seconds)
+
+        service.getSettings()
+        service.getSettings()
+
+        assertEquals(1, mockEngine.requestHistory.size)
+    }
+
+    @Test
+    fun testLazyOnlineOffline() = runTest {
+        val mockEngine = MockEngine.create {
+            this.addHandler {
+                respond(content = Data.formatJsonBody("test"), status = HttpStatusCode.OK)
+            }
+        } as MockEngine
+
+        val service = Services.createConfigService(mockEngine, lazyLoad { cacheRefreshInterval = 1.seconds })
+
+        service.getSettings()
+
+        assertEquals(1, mockEngine.requestHistory.size)
+        service.offline()
+
+        TestUtils.wait(1.5.seconds)
+        service.getSettings()
+
+        assertEquals(1, mockEngine.requestHistory.size)
+        service.online()
+        service.getSettings()
+
+        assertEquals(2, mockEngine.requestHistory.size)
+    }
+
+    @Test
     fun testManualCacheWrite() = runTest {
         val mockEngine = MockEngine.create {
             this.addHandler {
@@ -257,6 +401,31 @@ class ConfigServiceTests {
 
         service.refresh()
         assertTrue(cache.store.values.first().contains("test2"))
+
+        assertEquals(2, mockEngine.requestHistory.size)
+    }
+
+    @Test
+    fun testManualOnlineOffline() = runTest {
+        val mockEngine = MockEngine.create {
+            this.addHandler {
+                respond(content = Data.formatJsonBody("test"), status = HttpStatusCode.OK)
+            }
+        } as MockEngine
+
+        val service = Services.createConfigService(mockEngine, manualPoll())
+
+        service.refresh()
+
+        assertEquals(1, mockEngine.requestHistory.size)
+
+        service.offline()
+        service.refresh()
+
+        assertEquals(1, mockEngine.requestHistory.size)
+
+        service.online()
+        service.refresh()
 
         assertEquals(2, mockEngine.requestHistory.size)
     }

@@ -161,6 +161,7 @@ internal class ConfigService constructor(
             if (response.isFetched) {
                 cachedEntry = response.entry
                 writeCache(response.entry)
+                hooks.invokeOnConfigChanged(response.entry.config.settings)
                 return Pair(response.entry, null)
             } else if (response.isNotModified) {
                 cachedEntry = cachedEntry.copy(fetchTime = DateTime.now())
@@ -183,6 +184,7 @@ internal class ConfigService constructor(
     }
 
     private fun startPoll(mode: AutoPollMode) {
+        logger.debug("Start polling with ${mode.configuration.pollingInterval.inWholeMilliseconds}ms interval.")
         pollingJob = coroutineScope.launch {
             while (isActive) {
                 fetchIfOlder(

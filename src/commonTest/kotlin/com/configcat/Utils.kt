@@ -8,20 +8,29 @@ import io.ktor.client.engine.mock.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 internal object TestUtils {
-    suspend fun awaitUntil(timeoutMs: Long = 5_000, condTarget: suspend () -> Boolean): Long {
+    suspend fun awaitUntil(timeout: Duration = 5.seconds, condTarget: suspend () -> Boolean): Long {
         val start = DateTime.now()
         withContext(Dispatchers.Default) {
             while (!condTarget()) {
                 delay(200)
                 val elapsed = DateTime.now() - start
-                if (elapsed.milliseconds > timeoutMs) {
+                if (elapsed.milliseconds > timeout.inWholeMilliseconds) {
                     throw Exception("Test await timed out.")
                 }
             }
         }
         return (DateTime.now() - start).milliseconds.toLong()
+    }
+
+    suspend fun wait(timeout: Duration) {
+        withContext(Dispatchers.Default) {
+            delay(timeout)
+        }
     }
 }
 
@@ -29,6 +38,32 @@ internal object TestUtils {
 internal object Data {
     fun formatJsonBody(value: Any): String {
         return """{ "f": { "fakeKey": { "v": $value, "p": [], "r": [] } } }"""
+    }
+
+    fun formatConfigWithRules(): String {
+        val config = Config(null, mapOf(
+            "key" to Setting(
+                value = "default",
+                variationId = "defaultId",
+                rolloutRules = listOf(
+                    RolloutRule(
+                        comparator = 2,
+                        comparisonAttribute = "Identifier",
+                        comparisonValue = "@test1.com",
+                        value = "fake1",
+                        variationId = "fakeId1"
+                    ),
+                    RolloutRule(
+                        comparator = 2,
+                        comparisonAttribute = "Identifier",
+                        comparisonValue = "@test2.com",
+                        value = "fake2",
+                        variationId = "fakeId2"
+                    )
+                )
+            )
+        ))
+        return Constants.json.encodeToString(config)
     }
 
     fun formatCacheEntry(value: Any): String {
