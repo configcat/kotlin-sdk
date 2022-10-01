@@ -280,7 +280,6 @@ class ConfigServiceTests {
         val result = service.getSettings()
         val elapsed = DateTime.now() - start
         assertEquals("test", result.settings["fakeKey"]?.value)
-        println(elapsed.seconds)
         assertTrue(elapsed.seconds < 1)
     }
 
