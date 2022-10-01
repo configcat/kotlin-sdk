@@ -1,7 +1,6 @@
 package com.configcat
 
 import com.soywiz.klock.DateTime
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 
@@ -23,6 +22,3 @@ internal object Constants {
         }
     }
 }
-
-internal fun Int.toLongMillis(): Long = this.toLong() * 1000
-internal fun Int.toDoubleMillis(): Double = this.toDouble() * 1000
