@@ -635,9 +635,9 @@ class ConfigCatClientTests {
         val client = ConfigCatClient("test") {
             httpEngine = mockEngine
             pollingMode = manualPoll()
-            hooks.onConfigChanged.add { changed = true }
-            hooks.onReady.add { ready = true }
-            hooks.onError.add { err -> error = err }
+            hooks.addOnConfigChanged { changed = true }
+            hooks.addOnReady { ready = true }
+            hooks.addOnError { err -> error = err }
         }
 
         client.forceRefresh()
@@ -666,8 +666,8 @@ class ConfigCatClientTests {
             pollingMode = manualPoll()
         }
 
-        client.hooks.onConfigChanged.add { changed = true }
-        client.hooks.onError.add { err -> error = err }
+        client.hooks.addOnConfigChanged { changed = true }
+        client.hooks.addOnError { err -> error = err }
 
         client.forceRefresh()
         client.forceRefresh()
@@ -686,7 +686,7 @@ class ConfigCatClientTests {
         val client = ConfigCatClient("test") {
             httpEngine = mockEngine
             pollingMode = manualPoll()
-            hooks.onFlagEvaluated.add { details ->
+            hooks.addOnFlagEvaluated { details ->
                 called = true
                 assertTrue(details.isDefaultValue)
                 assertEquals("", details.value)
@@ -735,7 +735,7 @@ class ConfigCatClientTests {
         val client = ConfigCatClient("test") {
             httpEngine = mockEngine
             pollingMode = manualPoll()
-            hooks.onFlagEvaluated.add { details ->
+            hooks.addOnFlagEvaluated { details ->
                 assertFalse(details.isDefaultValue)
                 assertEquals("fake1", details.value)
                 assertEquals("key", details.key)
