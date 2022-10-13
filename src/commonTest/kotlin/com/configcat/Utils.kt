@@ -87,12 +87,14 @@ internal object Services {
         engine: MockEngine,
         mode: PollingMode = autoPoll(),
         cache: ConfigCache = EmptyConfigCache(),
-        hooks: Hooks = Hooks()
+        hooks: Hooks = Hooks(),
+        offline: Boolean = false,
     ): ConfigService {
         val options = ClientOptions()
         options.pollingMode = mode
         options.configCache = cache
         options.hooks = hooks
+        options.offline = offline
         val service = ConfigService(
             options,
             createFetcher(engine, options = options),

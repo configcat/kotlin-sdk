@@ -80,6 +80,11 @@ public class ClientOptions {
     public var defaultUser: ConfigCatUser? = null
 
     /**
+     * Indicates whether the SDK should be initialized in offline mode or not.
+     */
+    public var offline: Boolean = false
+
+    /**
      * Hooks for events fired by [ConfigCatClient].
      */
     public var hooks: Hooks = Hooks()

@@ -36,7 +36,7 @@ internal class ConfigService constructor(
     private var cachedJsonString = ""
     private var fetchJob: Deferred<Pair<Entry, String?>>? = null
     private var fetching = false
-    private var offline = false
+    private var offline = options.offline
 
     val isOffline: Boolean get() = offline
 

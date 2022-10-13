@@ -262,6 +262,26 @@ class ConfigServiceTests {
     }
 
     @Test
+    fun testAutoPollInitOffline() = runTest {
+        val mockEngine = MockEngine.create {
+            this.addHandler {
+                respond(content = Data.formatJsonBody("test"), status = HttpStatusCode.OK)
+            }
+        } as MockEngine
+
+        val service = Services.createConfigService(mockEngine, autoPoll { pollingInterval = 1.seconds }, offline = true)
+
+        TestUtils.wait(2.seconds)
+
+        assertEquals(0, mockEngine.requestHistory.size)
+        service.online()
+
+        TestUtils.awaitUntil {
+            mockEngine.requestHistory.size == 2
+        }
+    }
+
+    @Test
     fun testInitWaitTimeIgnoredWhenCacheIsNotExpired() = runTest {
         val mockEngine = MockEngine {
             delay(5000)
@@ -383,6 +403,30 @@ class ConfigServiceTests {
     }
 
     @Test
+    fun testLazyInitOffline() = runTest {
+        val mockEngine = MockEngine.create {
+            this.addHandler {
+                respond(content = Data.formatJsonBody("test"), status = HttpStatusCode.OK)
+            }
+        } as MockEngine
+
+        val service = Services.createConfigService(mockEngine, lazyLoad { cacheRefreshInterval = 1.seconds }, offline = true)
+
+        service.getSettings()
+
+        assertEquals(0, mockEngine.requestHistory.size)
+
+        TestUtils.wait(1.5.seconds)
+        service.getSettings()
+
+        assertEquals(0, mockEngine.requestHistory.size)
+        service.online()
+        service.getSettings()
+
+        assertEquals(1, mockEngine.requestHistory.size)
+    }
+
+    @Test
     fun testManualCacheWrite() = runTest {
         val mockEngine = MockEngine.create {
             this.addHandler {
@@ -427,6 +471,30 @@ class ConfigServiceTests {
         service.refresh()
 
         assertEquals(2, mockEngine.requestHistory.size)
+    }
+
+    @Test
+    fun testManualInitOffline() = runTest {
+        val mockEngine = MockEngine.create {
+            this.addHandler {
+                respond(content = Data.formatJsonBody("test"), status = HttpStatusCode.OK)
+            }
+        } as MockEngine
+
+        val service = Services.createConfigService(mockEngine, manualPoll(), offline = true)
+
+        service.refresh()
+
+        assertEquals(0, mockEngine.requestHistory.size)
+
+        service.refresh()
+
+        assertEquals(0, mockEngine.requestHistory.size)
+
+        service.online()
+        service.refresh()
+
+        assertEquals(1, mockEngine.requestHistory.size)
     }
 
     @Test
