@@ -41,7 +41,7 @@ internal class ConfigService constructor(
     val isOffline: Boolean get() = offline
 
     init {
-        if (mode is AutoPollMode) {
+        if (mode is AutoPollMode && !options.offline) {
             startPoll(mode)
         } else {
             setInitialized()
