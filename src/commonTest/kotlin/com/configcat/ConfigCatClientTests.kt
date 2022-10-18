@@ -810,6 +810,20 @@ class ConfigCatClientTests {
         assertTrue(called)
     }
 
+    @Test
+    fun testSingleton() {
+        var client1 = ConfigCatClient("test")
+        val client2 = ConfigCatClient("test")
+
+        assertSame(client1, client2)
+
+        ConfigCatClient.closeAll()
+
+        client1 = ConfigCatClient("test")
+
+        assertNotSame(client1, client2)
+    }
+
     companion object {
         const val testMultipleBody =
             """{ "f": { "key1": { "v": true, "i": "fakeId1" }, "key2": { "v": false, "i": "fakeId2" } } }"""
