@@ -198,7 +198,7 @@ internal class ConfigService constructor(
 
     private fun setInitialized() {
         if (!initialized.compareAndSet(expect = false, update = true)) return
-        hooks.invokeOnReady()
+        hooks.invokeOnClientReady()
     }
 
     private suspend fun writeCache(entry: Entry) {

@@ -691,7 +691,7 @@ class ConfigCatClientTests {
             httpEngine = mockEngine
             pollingMode = manualPoll()
             hooks.addOnConfigChanged { changed = true }
-            hooks.addOnReady { ready = true }
+            hooks.addOnClientReady { ready = true }
             hooks.addOnError { err -> error = err }
         }
 

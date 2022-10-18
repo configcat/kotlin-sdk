@@ -8,7 +8,7 @@ import kotlinx.atomicfu.locks.withLock
  * Events fired by [ConfigCatClient].
  */
 public class Hooks {
-    private val onReady: MutableList<() -> Unit> = mutableListOf()
+    private val onClientReady: MutableList<() -> Unit> = mutableListOf()
     private val onConfigChanged: MutableList<(Map<String, Setting>) -> Unit> = mutableListOf()
     private val onFlagEvaluated: MutableList<(EvaluationDetails) -> Unit> = mutableListOf()
     private val onError: MutableList<(String) -> Unit> = mutableListOf()
@@ -21,9 +21,9 @@ public class Hooks {
      * memory either from cache or from HTTP. If the config couldn't be loaded neither from cache nor
      * from HTTP the `onClientReady` event fires when the auto polling's `maxInitWaitTimeInSeconds` is reached.
      */
-    public fun addOnReady(handler: () -> Unit) {
+    public fun addOnClientReady(handler: () -> Unit) {
         lock.withLock {
-            onReady.add(handler)
+            onClientReady.add(handler)
         }
     }
 
@@ -56,9 +56,9 @@ public class Hooks {
         }
     }
 
-    internal fun invokeOnReady() {
+    internal fun invokeOnClientReady() {
         lock.withLock {
-            for (method in onReady) {
+            for (method in onClientReady) {
                 method()
             }
         }
@@ -90,7 +90,7 @@ public class Hooks {
 
     internal fun clear() {
         lock.withLock {
-            onReady.clear()
+            onClientReady.clear()
             onConfigChanged.clear()
             onFlagEvaluated.clear()
             onError.clear()
