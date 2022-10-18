@@ -1,6 +1,7 @@
 package com.configcat
 
 import com.configcat.log.LogLevel
+import com.configcat.override.OverrideBehavior
 import com.soywiz.klock.DateTime
 import com.soywiz.krypto.sha1
 import io.ktor.client.engine.mock.*
@@ -812,14 +813,14 @@ class ConfigCatClientTests {
 
     @Test
     fun testSingleton() {
-        var client1 = ConfigCatClient("test") { pollingMode = manualPoll() }
-        val client2 = ConfigCatClient("test") { pollingMode = manualPoll() }
+        var client1 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        val client2 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         assertSame(client1, client2)
 
         ConfigCatClient.closeAll()
 
-        client1 = ConfigCatClient("test") { pollingMode = manualPoll() }
+        client1 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         assertNotSame(client1, client2)
     }
