@@ -74,8 +74,8 @@ internal object Data {
 internal object Services {
     private val closeables: MutableList<Closeable> = mutableListOf()
 
-    fun createFetcher(engine: MockEngine, customUrl: String? = null, options: ClientOptions? = null): ConfigFetcher {
-        val opts = options ?: ClientOptions()
+    fun createFetcher(engine: MockEngine, customUrl: String? = null, options: ConfigCatOptions? = null): ConfigFetcher {
+        val opts = options ?: ConfigCatOptions()
         opts.httpEngine = engine
         opts.baseUrl = customUrl
         val fetcher = ConfigFetcher(opts, InternalLogger(opts.logger, opts.logLevel, opts.hooks))
@@ -90,7 +90,7 @@ internal object Services {
         hooks: Hooks = Hooks(),
         offline: Boolean = false,
     ): ConfigService {
-        val options = ClientOptions()
+        val options = ConfigCatOptions()
         options.pollingMode = mode
         options.configCache = cache
         options.hooks = hooks

@@ -19,7 +19,7 @@ import kotlinx.serialization.encodeToString
 internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: DateTime)
 
 internal class ConfigService constructor(
-    private val options: ClientOptions,
+    private val options: ConfigCatOptions,
     private val configFetcher: ConfigFetcher,
     private val logger: InternalLogger,
     private val hooks: Hooks,

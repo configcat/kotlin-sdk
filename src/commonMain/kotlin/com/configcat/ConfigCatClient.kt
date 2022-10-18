@@ -20,7 +20,7 @@ import kotlin.time.Duration.Companion.seconds
 /**
  * Configuration options for [ConfigCatClient].
  */
-public class ClientOptions {
+public class ConfigCatOptions {
     /**
      * Default: 30s. The maximum wait time for an HTTP response.
      */
@@ -191,7 +191,7 @@ public interface ConfigCatClient {
  */
 public fun ConfigCatClient(
     sdkKey: String,
-    block: ClientOptions.() -> Unit = {}
+    block: ConfigCatOptions.() -> Unit = {}
 ): ConfigCatClient = Client.get(sdkKey, block)
 
 /**
@@ -228,7 +228,7 @@ public suspend inline fun <reified T: Any> ConfigCatClient.getValueDetails(
 
 internal class Client private constructor(
     private val sdkKey: String,
-    options: ClientOptions
+    options: ConfigCatOptions
 ) : ConfigCatClient, Closeable {
 
     private val service: ConfigService?
@@ -425,7 +425,7 @@ internal class Client private constructor(
         private val instances = mutableMapOf<String, Client>()
         private val lock = reentrantLock()
 
-        fun get(sdkKey: String, block: ClientOptions.() -> Unit = {}): Client {
+        fun get(sdkKey: String, block: ConfigCatOptions.() -> Unit = {}): Client {
             if (sdkKey.isEmpty()) {
                 throw IllegalArgumentException("'sdkKey' cannot be null or empty.")
             }
@@ -433,7 +433,7 @@ internal class Client private constructor(
                 val instance = instances[sdkKey]
                 if (instance != null)
                     return instance
-                val client = Client(sdkKey, ClientOptions().apply(block))
+                val client = Client(sdkKey, ConfigCatOptions().apply(block))
                 instances[sdkKey] = client
                 return client
             }

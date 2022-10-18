@@ -14,7 +14,7 @@ import kotlinx.atomicfu.*
 import kotlinx.serialization.decodeFromString
 
 internal class ConfigFetcher constructor(
-    private val options: ClientOptions,
+    private val options: ConfigCatOptions,
     private val logger: InternalLogger,
 ) : Closeable {
     private val httpClient = createClient()
