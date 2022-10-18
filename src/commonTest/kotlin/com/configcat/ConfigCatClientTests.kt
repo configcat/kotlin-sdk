@@ -812,14 +812,14 @@ class ConfigCatClientTests {
 
     @Test
     fun testSingleton() {
-        var client1 = ConfigCatClient("test")
-        val client2 = ConfigCatClient("test")
+        var client1 = ConfigCatClient("test") { pollingMode = manualPoll() }
+        val client2 = ConfigCatClient("test") { pollingMode = manualPoll() }
 
         assertSame(client1, client2)
 
         ConfigCatClient.closeAll()
 
-        client1 = ConfigCatClient("test")
+        client1 = ConfigCatClient("test") { pollingMode = manualPoll() }
 
         assertNotSame(client1, client2)
     }
