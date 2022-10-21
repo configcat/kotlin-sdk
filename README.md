@@ -67,7 +67,7 @@ suspend fun main() {
 
 ### 6. Close the client on application exit
 ```kotlin
-ConfigCatClient.close()
+client.close()
 ```
 
 ## Getting user-specific setting values with Targeting

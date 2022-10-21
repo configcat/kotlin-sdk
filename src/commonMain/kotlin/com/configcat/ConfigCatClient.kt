@@ -427,7 +427,7 @@ internal class Client private constructor(
 
         fun get(sdkKey: String, block: ConfigCatOptions.() -> Unit = {}): Client {
             if (sdkKey.isEmpty()) {
-                throw IllegalArgumentException("'sdkKey' cannot be null or empty.")
+                throw IllegalArgumentException("'sdkKey' cannot be empty.")
             }
             lock.withLock {
                 val instance = instances[sdkKey]
