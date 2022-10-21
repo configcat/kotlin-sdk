@@ -122,25 +122,22 @@ internal class ConfigService constructor(
                 fetching = true
                 val eTag = cachedEntry.eTag
                 fetchJob = coroutineScope.async {
-                    if (mode is AutoPollMode) {
-                        if (initialized.value) { // The service is initialized, start fetch without timeout.
+                    if (mode is AutoPollMode && !initialized.value) {
+                        // Waiting for the client initialization.
+                        // After the maxInitWaitTimeInSeconds timeout the client will be initialized and while
+                        // the config is not ready the default value will be returned.
+                        val result = withTimeoutOrNull(mode.configuration.maxInitWaitTime) {
                             fetchConfig(eTag)
-                        } else {
-                            // Waiting for the client initialization.
-                            // After the maxInitWaitTimeInSeconds timeout the client will be initialized and while
-                            // the config is not ready the default value will be returned.
-                            val result = withTimeoutOrNull(mode.configuration.maxInitWaitTime) {
-                                fetchConfig(eTag)
-                            }
-                            if (result == null) { // We got a timeout
-                                logger.warning("Max init wait time for the very first fetch reached " +
-                                        "(${mode.configuration.maxInitWaitTime.inWholeMilliseconds}ms). " +
-                                        "Returning cached config.")
-                                setInitialized()
-                            } // We got a timeout
-                            result ?: Pair(Entry.empty, null)
                         }
+                        if (result == null) { // We got a timeout
+                            logger.warning("Max init wait time for the very first fetch reached " +
+                                    "(${mode.configuration.maxInitWaitTime.inWholeMilliseconds}ms). " +
+                                    "Returning cached config.")
+                            setInitialized()
+                        }
+                        result ?: Pair(Entry.empty, null)
                     } else {
+                        // The service is initialized, start fetch without timeout.
                         fetchConfig(eTag)
                     }
                 }
