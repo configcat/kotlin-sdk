@@ -441,7 +441,9 @@ internal class Client private constructor(
 
         fun removeFromInstances(client: Client) {
             lock.withLock {
-                instances.remove(client.sdkKey)
+                if (instances[client.sdkKey] == client) {
+                    instances.remove(client.sdkKey)
+                }
             }
         }
 

@@ -1,6 +1,5 @@
 package com.configcat
 
-import com.configcat.log.LogLevel
 import com.configcat.override.OverrideBehavior
 import com.soywiz.klock.DateTime
 import com.soywiz.krypto.sha1
@@ -823,6 +822,23 @@ class ConfigCatClientTests {
         client1 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         assertNotSame(client1, client2)
+    }
+
+    @Test
+    fun testRemoveTheClosingInstanceOnly() {
+        var client1 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+
+        client1.close()
+
+        val client2 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+
+        assertNotSame(client1, client2)
+
+        client1.close()
+
+        val client3 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+
+        assertSame(client2, client3)
     }
 
     companion object {
