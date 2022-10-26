@@ -575,8 +575,10 @@ class ConfigCatClientTests {
         client.setOffline()
         assertTrue(client.isOffline)
 
-        client.forceRefresh()
+        val result = client.forceRefresh()
 
+        assertFalse(result.isSuccess)
+        assertEquals("The SDK is in offline mode, it can't initiate HTTP calls.", result.error)
         assertEquals(1, mockEngine.requestHistory.size)
 
         client.setOnline()
