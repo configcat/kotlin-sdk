@@ -30,15 +30,15 @@ internal class ConfigService constructor(
     private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val closed = atomic(false)
     private val initialized = atomic(false)
+    private val offline = atomic(options.offline)
     private val mode = options.pollingMode
     private var pollingJob: Job? = null
     private var cachedEntry = Entry.empty
     private var cachedJsonString = ""
     private var fetchJob: Deferred<Pair<Entry, String?>>? = null
     private var fetching = false
-    private var offline = options.offline
 
-    val isOffline: Boolean get() = offline
+    val isOffline: Boolean get() = offline.value
 
     init {
         if (mode is AutoPollMode && !options.offline) {
@@ -66,8 +66,7 @@ internal class ConfigService constructor(
 
     fun offline() {
         syncLock.withLock {
-            if (offline) return
-            offline = true
+            if (!offline.compareAndSet(expect = false, update = true)) return
             pollingJob?.cancel()
             logger.debug("Switched to OFFLINE mode.")
         }
@@ -75,8 +74,7 @@ internal class ConfigService constructor(
 
     fun online() {
         syncLock.withLock {
-            if (!offline) return
-            offline = false
+            if (!offline.compareAndSet(expect = true, update = false)) return
             if (mode is AutoPollMode) {
                 startPoll(mode)
             }
@@ -85,6 +83,11 @@ internal class ConfigService constructor(
     }
 
     suspend fun refresh(): RefreshResult {
+        if (offline.value) {
+            val offlineMessage = "The SDK is in offline mode, it can't initiate HTTP calls."
+            logger.warning(offlineMessage)
+            return RefreshResult(false, offlineMessage)
+        }
         val result = fetchIfOlder(Constants.distantFuture)
         return RefreshResult(result.second == null, result.second)
     }
@@ -112,8 +115,8 @@ internal class ConfigService constructor(
                 return Pair(cachedEntry, null)
             }
             // If we are in offline mode we are not allowed to initiate fetch.
-            if (offline) {
-                return Pair(cachedEntry, "The SDK is in offline mode, it can't initiate HTTP calls.")
+            if (offline.value) {
+                return Pair(cachedEntry, null)
             }
 
             val runningJob = fetchJob
