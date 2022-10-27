@@ -132,20 +132,24 @@ internal class ConfigService constructor(
                         val result = withTimeoutOrNull(mode.configuration.maxInitWaitTime) {
                             fetchConfig(eTag)
                         }
-                        if (result == null) { // We got a timeout
-                            logger.warning("Max init wait time for the very first fetch reached " +
-                                    "(${mode.configuration.maxInitWaitTime.inWholeMilliseconds}ms). " +
-                                    "Returning cached config.")
-                            setInitialized()
+                        if (result != null) {
+                            return@async result
                         }
-                        result ?: Pair(Entry.empty, null)
+                        // We got a timeout
+                        val message = "Max init wait time for the very first fetch reached " +
+                                "(${mode.configuration.maxInitWaitTime.inWholeMilliseconds}ms). " +
+                                "Returning cached config."
+                        logger.warning(message)
+                        setInitialized()
+                        return@async Pair(Entry.empty, message)
                     } else {
                         // The service is initialized, start fetch without timeout.
-                        fetchConfig(eTag)
+                        return@async fetchConfig(eTag)
                     }
                 }
             }
         }
+        // Await the fetch routine.
         val result = fetchJob?.await()
 
         mutex.withLock {
