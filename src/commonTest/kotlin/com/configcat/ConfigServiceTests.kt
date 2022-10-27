@@ -192,6 +192,29 @@ class ConfigServiceTests {
     }
 
     @Test
+    fun testAutoPollInitWaitTimeTimeoutReturnsWithCached() = runTest {
+        val mockEngine = MockEngine {
+            delay(5000)
+            respond(content = Data.formatJsonBody("test1"), status = HttpStatusCode.OK)
+        }
+        val cache = SingleValueCache(Data.formatCacheEntryWithDate("test", Constants.distantPast))
+        val service = Services.createConfigService(
+            mockEngine,
+            autoPoll {
+                pollingInterval = 60.seconds
+                maxInitWaitTime = 1.seconds
+            },
+            cache
+        )
+        val start = DateTime.now()
+        val result = service.getSettings()
+        val elapsed = DateTime.now() - start
+        assertEquals("test", result.settings["fakeKey"]?.value)
+        println(elapsed)
+        assertTrue(elapsed.seconds in 1.0..2.0)
+    }
+
+    @Test
     fun testAutoPollCacheWrite() = runTest {
         val mockEngine = MockEngine.create {
             this.addHandler {

@@ -149,7 +149,12 @@ internal class ConfigService constructor(
         val result = fetchJob?.await()
 
         mutex.withLock {
-            return result ?: Pair(cachedEntry, null)
+            return result?.let { value ->
+                when {
+                    value.first.isEmpty() -> Pair(cachedEntry, value.second)
+                    else -> value
+                }
+            } ?: Pair(cachedEntry, null)
         }
     }
 
