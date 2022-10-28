@@ -19,6 +19,6 @@ class FeatureFlags {
     }
 
     fun close() {
-        ConfigCatClient.close()
+        client.close()
     }
 }

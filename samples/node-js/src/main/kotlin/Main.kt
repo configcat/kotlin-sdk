@@ -18,5 +18,5 @@ suspend fun main() {
     val isPOCFeatureEnabled = client.getValue(key = "isPOCFeatureEnabled", defaultValue = false, user = user)
     println("isPOCFeatureEnabled: $isPOCFeatureEnabled")
 
-    ConfigCatClient.close()
+    client.close()
 }
