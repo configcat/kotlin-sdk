@@ -1,10 +1,27 @@
 package com.configcat
 
+import com.soywiz.klock.DateTime
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
+
+@Serializable
+internal data class Entry(
+    val config: Config,
+    val eTag: String,
+    @Serializable(with = DateTimeSerializer::class)
+    val fetchTime: DateTime,
+) {
+    fun isEmpty(): Boolean = this === empty
+
+    companion object {
+        val empty: Entry = Entry(Config.empty, "", Constants.distantPast)
+    }
+}
 
 @Serializable
 internal data class Config(
@@ -49,7 +66,7 @@ public data class Setting(
 
     /** Collection of percentage rules that belongs to the feature flag / setting. */
     @SerialName("p")
-    val percentageItems: List<RolloutPercentageItem> = listOf(),
+    val percentageItems: List<PercentageRule> = listOf(),
 
     /** Collection of targeting rules that belongs to the feature flag / setting. */
     @SerialName("r")
@@ -62,7 +79,7 @@ public data class Setting(
 
 /** Describes a percentage rule. */
 @Serializable
-public data class RolloutPercentageItem(
+public data class PercentageRule(
     /** Value served when the rule is selected during evaluation. */
     @Contextual
     @SerialName("v")
@@ -151,4 +168,17 @@ internal object FlagValueSerializer : KSerializer<Any> {
     @OptIn(ExperimentalSerializationApi::class)
     override val descriptor: SerialDescriptor =
         ContextualSerializer(Any::class, null, emptyArray()).descriptor
+}
+
+internal object DateTimeSerializer : KSerializer<DateTime> {
+    override val descriptor: SerialDescriptor
+        get() = PrimitiveSerialDescriptor("DateSerializer", PrimitiveKind.LONG)
+
+    override fun serialize(encoder: Encoder, value: DateTime) {
+        encoder.encodeLong(value.unixMillisLong)
+    }
+
+    override fun deserialize(decoder: Decoder): DateTime {
+        return DateTime(decoder.decodeLong())
+    }
 }

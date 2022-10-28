@@ -1,34 +1,6 @@
 package com.configcat.fetch
 
-import com.configcat.Config
-import com.configcat.Constants
-import com.soywiz.klock.DateTime
-
-internal data class Entry constructor(
-    val config: Config,
-    val json: String,
-    val eTag: String,
-    val fetchTime: DateTime,
-) {
-    override fun equals(other: Any?): Boolean {
-        return when (val config = other as? Entry) {
-            null -> false
-            else -> eTag == config.eTag && json == config.json
-        }
-    }
-
-    override fun hashCode(): Int {
-        var result = json.hashCode()
-        result = 31 * result + eTag.hashCode()
-        return result
-    }
-
-    fun isEmpty(): Boolean = this == empty
-
-    companion object {
-        val empty: Entry = Entry(Config.empty, "", "", Constants.minDate)
-    }
-}
+import com.configcat.Entry
 
 internal enum class FetchStatus {
     FETCHED,
@@ -42,7 +14,7 @@ internal enum class RedirectMode {
     FORCE_REDIRECT,
 }
 
-internal class FetchResponse(status: FetchStatus, val entry: Entry = Entry.empty) {
+internal class FetchResponse(status: FetchStatus, val entry: Entry = Entry.empty, val error: String? = null) {
     val isFetched: Boolean = status == FetchStatus.FETCHED
     val isNotModified: Boolean = status == FetchStatus.NOT_MODIFIED
     val isFailed: Boolean = status == FetchStatus.FAILED
@@ -50,6 +22,6 @@ internal class FetchResponse(status: FetchStatus, val entry: Entry = Entry.empty
     companion object {
         fun success(entry: Entry): FetchResponse = FetchResponse(FetchStatus.FETCHED, entry)
         fun notModified(): FetchResponse = FetchResponse(FetchStatus.NOT_MODIFIED)
-        fun failure(): FetchResponse = FetchResponse(FetchStatus.FAILED)
+        fun failure(error: String): FetchResponse = FetchResponse(FetchStatus.FAILED, error = error)
     }
 }

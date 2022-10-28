@@ -1,9 +1,11 @@
 package com.configcat.log
 
+import com.configcat.Hooks
 import com.soywiz.klock.DateTime
 
-internal class InternalLogger(private val logger: Logger, private val level: LogLevel) {
+internal class InternalLogger(private val logger: Logger, private val level: LogLevel, private val hooks: Hooks) {
     fun error(message: String) {
+        hooks.invokeOnError(message)
         if (shouldLog(LogLevel.ERROR)) {
             logger.error(message)
         }

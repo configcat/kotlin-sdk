@@ -28,3 +28,9 @@ jobs:
       - name: Run all tests
         run: ./gradlew allTests --stacktrace
         shell: bash
+      - name: Archive results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: build/reports/tests

@@ -1,5 +1,6 @@
 package com.configcat
 
+import com.configcat.override.OverrideBehavior
 import com.soywiz.klock.DateTime
 import com.soywiz.krypto.sha1
 import io.ktor.client.engine.mock.*
@@ -10,19 +11,21 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlin.test.*
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ConfigCatClientTests {
     @AfterTest
     fun tearDown() {
-        ConfigCatClient.close()
+        ConfigCatClient.closeAll()
     }
 
     @Test
     fun testGetValue() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Utils.formatJsonBody(true),
+                content = Data.formatJsonBody(true),
                 status = HttpStatusCode.OK
             )
         }
@@ -44,7 +47,7 @@ class ConfigCatClientTests {
     fun testGetIntValue() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Utils.formatJsonBody(10),
+                content = Data.formatJsonBody(10),
                 status = HttpStatusCode.OK
             )
         }
@@ -76,7 +79,7 @@ class ConfigCatClientTests {
     fun testGetValueTypeMismatch() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Utils.formatJsonBody("fake"),
+                content = Data.formatJsonBody("fake"),
                 status = HttpStatusCode.OK
             )
         }
@@ -124,7 +127,7 @@ class ConfigCatClientTests {
     fun testGetStringValue() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Utils.formatJsonBody("test"),
+                content = Data.formatJsonBody("test"),
                 status = HttpStatusCode.OK
             )
         }
@@ -156,7 +159,7 @@ class ConfigCatClientTests {
     fun testGetDoubleValue() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Utils.formatJsonBody(3.14),
+                content = Data.formatJsonBody(3.14),
                 status = HttpStatusCode.OK
             )
         }
@@ -188,7 +191,7 @@ class ConfigCatClientTests {
     fun testGetBoolValue() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Utils.formatJsonBody(true),
+                content = Data.formatJsonBody(true),
                 status = HttpStatusCode.OK
             )
         }
@@ -220,7 +223,7 @@ class ConfigCatClientTests {
     fun testGetValueInvalidType() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Utils.formatJsonBody(true),
+                content = Data.formatJsonBody(true),
                 status = HttpStatusCode.OK
             )
         }
@@ -236,11 +239,11 @@ class ConfigCatClientTests {
     fun testRequestTimeout() = runTest {
         val mockEngine = MockEngine {
             delay(3000)
-            respond(content = Utils.formatJsonBody(true), status = HttpStatusCode.OK)
+            respond(content = Data.formatJsonBody(true), status = HttpStatusCode.OK)
         }
         val client = ConfigCatClient("test") {
             httpEngine = mockEngine
-            requestTimeoutMs = 1000
+            requestTimeout = 1.seconds
         }
 
         val start = DateTime.now()
@@ -261,14 +264,20 @@ class ConfigCatClientTests {
         val sdkKey = "test"
         val cacheKey: String = "kotlin_${sdkKey}_${Constants.configFileName}".encodeToByteArray().sha1().hex
         val cache = InMemoryCache()
-        cache.write(cacheKey, Utils.formatJsonBody(true))
+        cache.write(cacheKey, Data.formatCacheEntry(true))
         val client = ConfigCatClient(sdkKey) {
             httpEngine = mockEngine
             configCache = cache
+            pollingMode = autoPoll {
+                pollingInterval = 100.milliseconds
+            }
         }
 
         assertEquals(true, client.getValue("fakeKey", false))
-        assertEquals(1, mockEngine.requestHistory.size)
+
+        TestUtils.awaitUntil {
+            mockEngine.requestHistory.size == 1
+        }
     }
 
     @Test
@@ -282,13 +291,15 @@ class ConfigCatClientTests {
         val sdkKey = "test"
         val cacheKey: String = "kotlin_${sdkKey}_${Constants.configFileName}".encodeToByteArray().sha1().hex
         val cache = InMemoryCache()
-        cache.write(cacheKey, Utils.formatJsonBody(true))
+        cache.write(cacheKey, Data.formatCacheEntry(true))
         val client = ConfigCatClient(sdkKey) {
             httpEngine = mockEngine
             configCache = cache
         }
 
-        client.refresh()
+        val result = client.forceRefresh()
+        assertFalse(result.isSuccess)
+        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received unexpected response: 400 Bad Request", result.error)
         assertEquals(true, client.getValue("fakeKey", false))
         assertTrue(mockEngine.requestHistory.size == 1 || mockEngine.requestHistory.size == 2)
     }
@@ -297,7 +308,7 @@ class ConfigCatClientTests {
     fun testGetLatestOnFail() = runTest {
         val mockEngine = MockEngine.create {
             this.addHandler {
-                respond(content = Utils.formatJsonBody("test1"), status = HttpStatusCode.OK)
+                respond(content = Data.formatJsonBody("test1"), status = HttpStatusCode.OK)
             }
             this.addHandler {
                 respond(content = "", status = HttpStatusCode.BadGateway)
@@ -308,7 +319,9 @@ class ConfigCatClientTests {
         }
 
         assertEquals("test1", client.getValue("fakeKey", ""))
-        client.refresh()
+        val result = client.forceRefresh()
+        assertFalse(result.isSuccess)
+        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received unexpected response: 502 Bad Gateway", result.error)
         assertEquals("test1", client.getValue("fakeKey", ""))
         assertEquals(2, mockEngine.requestHistory.size)
     }
@@ -317,10 +330,10 @@ class ConfigCatClientTests {
     fun testForceRefreshLazy() = runTest {
         val mockEngine = MockEngine.create {
             this.addHandler {
-                respond(content = Utils.formatJsonBody("test1"), status = HttpStatusCode.OK)
+                respond(content = Data.formatJsonBody("test1"), status = HttpStatusCode.OK)
             }
             this.addHandler {
-                respond(content = Utils.formatJsonBody("test2"), status = HttpStatusCode.OK)
+                respond(content = Data.formatJsonBody("test2"), status = HttpStatusCode.OK)
             }
         } as MockEngine
         val client = ConfigCatClient("test") {
@@ -329,7 +342,8 @@ class ConfigCatClientTests {
         }
 
         assertEquals("test1", client.getValue("fakeKey", ""))
-        client.refresh()
+        val result = client.forceRefresh()
+        assertTrue(result.isSuccess)
         assertEquals("test2", client.getValue("fakeKey", ""))
         assertEquals(2, mockEngine.requestHistory.size)
     }
@@ -338,10 +352,10 @@ class ConfigCatClientTests {
     fun testForceRefreshAuto() = runTest {
         val mockEngine = MockEngine.create {
             this.addHandler {
-                respond(content = Utils.formatJsonBody("test1"), status = HttpStatusCode.OK)
+                respond(content = Data.formatJsonBody("test1"), status = HttpStatusCode.OK)
             }
             this.addHandler {
-                respond(content = Utils.formatJsonBody("test2"), status = HttpStatusCode.OK)
+                respond(content = Data.formatJsonBody("test2"), status = HttpStatusCode.OK)
             }
         } as MockEngine
         val client = ConfigCatClient("test") {
@@ -350,7 +364,8 @@ class ConfigCatClientTests {
         }
 
         assertEquals("test1", client.getValue("fakeKey", ""))
-        client.refresh()
+        val result = client.forceRefresh()
+        assertTrue(result.isSuccess)
         assertEquals("test2", client.getValue("fakeKey", ""))
         assertEquals(2, mockEngine.requestHistory.size)
     }
@@ -383,7 +398,9 @@ class ConfigCatClientTests {
             httpEngine = mockEngine
         }
 
-        client.refresh()
+        val result = client.forceRefresh()
+        assertFalse(result.isSuccess)
+        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received unexpected response: 400 Bad Request", result.error)
         assertEquals(false, client.getValue("fakeKey", false))
         assertTrue(mockEngine.requestHistory.size == 1 || mockEngine.requestHistory.size == 2)
     }
@@ -418,29 +435,11 @@ class ConfigCatClientTests {
             pollingMode = lazyLoad()
         }
 
-        client.refresh()
+        val result = client.forceRefresh()
+        assertFalse(result.isSuccess)
+        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received unexpected response: 400 Bad Request", result.error)
         assertEquals(false, client.getValue("fakeKey", false))
         assertEquals(2, mockEngine.requestHistory.size)
-    }
-
-    @Test
-    fun testAutoPollUserAgent() = runTest {
-        val mockEngine = MockEngine {
-            respond(
-                content = Utils.formatJsonBody(true),
-                status = HttpStatusCode.OK
-            )
-        }
-        val client = ConfigCatClient("test") {
-            httpEngine = mockEngine
-            pollingMode = autoPoll()
-        }
-
-        client.getValue("fakeKey", false)
-        assertEquals(
-            "ConfigCat-Kotlin/a-${Constants.version}",
-            mockEngine.requestHistory.last().headers["X-ConfigCat-UserAgent"]
-        )
     }
 
     @Test
@@ -478,10 +477,30 @@ class ConfigCatClientTests {
     }
 
     @Test
+    fun testAutoPollUserAgent() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = Data.formatJsonBody(true),
+                status = HttpStatusCode.OK
+            )
+        }
+        val client = ConfigCatClient("test") {
+            httpEngine = mockEngine
+            pollingMode = autoPoll()
+        }
+
+        client.getValue("fakeKey", false)
+        assertEquals(
+            "ConfigCat-Kotlin/a-${Constants.version}",
+            mockEngine.requestHistory.last().headers["X-ConfigCat-UserAgent"]
+        )
+    }
+
+    @Test
     fun testLazyUserAgent() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Utils.formatJsonBody(true),
+                content = Data.formatJsonBody(true),
                 status = HttpStatusCode.OK
             )
         }
@@ -501,7 +520,7 @@ class ConfigCatClientTests {
     fun testManualPollUserAgent() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Utils.formatJsonBody(true),
+                content = Data.formatJsonBody(true),
                 status = HttpStatusCode.OK
             )
         }
@@ -510,11 +529,318 @@ class ConfigCatClientTests {
             pollingMode = manualPoll()
         }
 
-        client.refresh()
+        client.forceRefresh()
         assertEquals(
             "ConfigCat-Kotlin/m-${Constants.version}",
             mockEngine.requestHistory.last().headers["X-ConfigCat-UserAgent"]
         )
+    }
+
+    @Test
+    fun testGetValueDetailsWithError() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = "",
+                status = HttpStatusCode.BadRequest
+            )
+        }
+        val client = ConfigCatClient("test") {
+            httpEngine = mockEngine
+        }
+
+        val details = client.getValueDetails("fakeKey", "")
+
+        assertEquals("", details.value)
+        assertTrue(details.isDefaultValue)
+        assertEquals("Config JSON is not present. Returning defaultValue: ''.", details.error)
+    }
+
+    @Test
+    fun testOnlineOffline() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = Data.formatJsonBody(true),
+                status = HttpStatusCode.OK
+            )
+        }
+        val client = ConfigCatClient("test") {
+            httpEngine = mockEngine
+            pollingMode = autoPoll { pollingInterval = 2.seconds }
+        }
+
+        TestUtils.awaitUntil {
+            mockEngine.requestHistory.size == 1
+        }
+
+        client.setOffline()
+        assertTrue(client.isOffline)
+
+        val result = client.forceRefresh()
+
+        assertFalse(result.isSuccess)
+        assertEquals("The SDK is in offline mode, it can't initiate HTTP calls.", result.error)
+        assertEquals(1, mockEngine.requestHistory.size)
+
+        client.setOnline()
+        assertFalse(client.isOffline)
+
+        TestUtils.awaitUntil {
+            mockEngine.requestHistory.size > 1
+        }
+    }
+
+    @Test
+    fun testInitOffline() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = Data.formatJsonBody(true),
+                status = HttpStatusCode.OK
+            )
+        }
+        val client = ConfigCatClient("test") {
+            httpEngine = mockEngine
+            pollingMode = autoPoll { pollingInterval = 2.seconds }
+            offline = true
+        }
+
+        assertTrue(client.isOffline)
+
+        client.forceRefresh()
+
+        assertEquals(0, mockEngine.requestHistory.size)
+
+        client.setOnline()
+        assertFalse(client.isOffline)
+
+        TestUtils.awaitUntil {
+            mockEngine.requestHistory.size > 1
+        }
+    }
+
+    @Test
+    fun testDefaultUser() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = Data.formatConfigWithRules(),
+                status = HttpStatusCode.OK
+            )
+        }
+        val client = ConfigCatClient("test") {
+            httpEngine = mockEngine
+            pollingMode = manualPoll()
+        }
+        client.forceRefresh()
+
+        val user1 = ConfigCatUser("test@test1.com")
+        val user2 = ConfigCatUser("test@test2.com")
+
+        client.setDefaultUser(user1)
+
+        var value = client.getValue("key", "")
+        assertEquals("fake1", value)
+
+        value = client.getValue("key", "", user2)
+        assertEquals("fake2", value)
+
+        client.clearDefaultUser()
+
+        value = client.getValue("key", "")
+        assertEquals("default", value)
+    }
+
+    @Test
+    fun testDefaultUserVariationId() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = Data.formatConfigWithRules(),
+                status = HttpStatusCode.OK
+            )
+        }
+        val client = ConfigCatClient("test") {
+            httpEngine = mockEngine
+            pollingMode = manualPoll()
+        }
+        client.forceRefresh()
+
+        val user1 = ConfigCatUser("test@test1.com")
+        val user2 = ConfigCatUser("test@test2.com")
+
+        client.setDefaultUser(user1)
+
+        assertEquals("fakeId1", client.getVariationId("key", ""))
+        assertEquals("fakeId2", client.getVariationId("key", "", user2))
+
+        client.clearDefaultUser()
+
+        assertEquals("defaultId", client.getVariationId("key", ""))
+    }
+
+    @Test
+    fun testHooks() = runTest {
+        val mockEngine = MockEngine.create {
+            this.addHandler {
+                respond(content = Data.formatJsonBody("test"), status = HttpStatusCode.OK)
+            }
+            this.addHandler {
+                respond(content = "", status = HttpStatusCode.BadRequest)
+            }
+        }
+        var error = ""
+        var changed = false
+        var ready = false
+
+        val client = ConfigCatClient("test") {
+            httpEngine = mockEngine
+            pollingMode = manualPoll()
+            hooks.addOnConfigChanged { changed = true }
+            hooks.addOnClientReady { ready = true }
+            hooks.addOnError { err -> error = err }
+        }
+
+        client.forceRefresh()
+        client.forceRefresh()
+
+        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received unexpected response: 400 Bad Request", error)
+        assertTrue(changed)
+        assertTrue(ready)
+    }
+
+    @Test
+    fun testHooksSub() = runTest {
+        val mockEngine = MockEngine.create {
+            this.addHandler {
+                respond(content = Data.formatJsonBody("test"), status = HttpStatusCode.OK)
+            }
+            this.addHandler {
+                respond(content = "", status = HttpStatusCode.BadRequest)
+            }
+        }
+        var error = ""
+        var changed = false
+
+        val client = ConfigCatClient("test") {
+            httpEngine = mockEngine
+            pollingMode = manualPoll()
+        }
+
+        client.hooks.addOnConfigChanged { changed = true }
+        client.hooks.addOnError { err -> error = err }
+
+        client.forceRefresh()
+        client.forceRefresh()
+
+        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received unexpected response: 400 Bad Request", error)
+        assertTrue(changed)
+    }
+
+    @Test
+    fun testOnFlagEvalError() = runTest {
+        val mockEngine = MockEngine {
+            respond(content = "", status = HttpStatusCode.BadRequest)
+        }
+        var called = false
+
+        val client = ConfigCatClient("test") {
+            httpEngine = mockEngine
+            pollingMode = manualPoll()
+            hooks.addOnFlagEvaluated { details ->
+                called = true
+                assertTrue(details.isDefaultValue)
+                assertEquals("", details.value)
+                assertEquals("ID", details.user?.identifier)
+                assertEquals("Config JSON is not present. Returning defaultValue: ''.", details.error)
+            }
+        }
+
+        client.forceRefresh()
+        client.getValue("fakeKey", "", ConfigCatUser("ID"))
+
+        assertTrue(called)
+    }
+
+    @Test
+    fun testEvalDetails() = runTest {
+        val mockEngine = MockEngine {
+            respond(content = Data.formatConfigWithRules(), status = HttpStatusCode.OK)
+        }
+        val client = ConfigCatClient("test") {
+            httpEngine = mockEngine
+            pollingMode = manualPoll()
+        }
+
+        client.forceRefresh()
+        val details = client.getValueDetails("key", "", ConfigCatUser("test@test1.com"))
+
+        assertFalse(details.isDefaultValue)
+        assertEquals("fake1", details.value)
+        assertEquals("key", details.key)
+        assertEquals("fakeId1", details.variationId)
+        assertNull(details.error)
+        assertEquals("Identifier", details.matchedEvaluationRule?.comparisonAttribute)
+        assertEquals(2, details.matchedEvaluationRule?.comparator)
+        assertEquals("@test1.com", details.matchedEvaluationRule?.comparisonValue)
+        assertNull(details.matchedEvaluationPercentageRule)
+        assertEquals("test@test1.com", details.user?.identifier)
+    }
+
+    @Test
+    fun testEvalDetailsHook() = runTest {
+        val mockEngine = MockEngine {
+            respond(content = Data.formatConfigWithRules(), status = HttpStatusCode.OK)
+        }
+        var called = false
+        val client = ConfigCatClient("test") {
+            httpEngine = mockEngine
+            pollingMode = manualPoll()
+            hooks.addOnFlagEvaluated { details ->
+                assertFalse(details.isDefaultValue)
+                assertEquals("fake1", details.value)
+                assertEquals("key", details.key)
+                assertEquals("fakeId1", details.variationId)
+                assertNull(details.error)
+                assertEquals("Identifier", details.matchedEvaluationRule?.comparisonAttribute)
+                assertEquals(2, details.matchedEvaluationRule?.comparator)
+                assertEquals("@test1.com", details.matchedEvaluationRule?.comparisonValue)
+                assertNull(details.matchedEvaluationPercentageRule)
+                assertEquals("test@test1.com", details.user?.identifier)
+                called = true
+            }
+        }
+
+        client.forceRefresh()
+        client.getValue("key", "", ConfigCatUser("test@test1.com"))
+        assertTrue(called)
+    }
+
+    @Test
+    fun testSingleton() {
+        var client1 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        val client2 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+
+        assertSame(client1, client2)
+
+        ConfigCatClient.closeAll()
+
+        client1 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+
+        assertNotSame(client1, client2)
+    }
+
+    @Test
+    fun testRemoveTheClosingInstanceOnly() {
+        var client1 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+
+        client1.close()
+
+        val client2 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+
+        assertNotSame(client1, client2)
+
+        client1.close()
+
+        val client3 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+
+        assertSame(client2, client3)
     }
 
     companion object {

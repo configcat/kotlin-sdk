@@ -1,5 +1,8 @@
 package com.configcat
 
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+
 /**
  * Describes a polling mode configuration.
  */
@@ -18,15 +21,11 @@ public data class AutoPollConfiguration(
     /**
      * The interval of how often this policy should fetch the latest configuration and refresh the cache.
      */
-    public var pollingIntervalSeconds: Int = 60,
+    public var pollingInterval: Duration = 60.seconds,
     /**
-     * The maximum waiting time between initialization and the first config acquisition in seconds.
+     * The maximum waiting time between initialization and the first config acquisition.
      */
-    public var maxInitWaitTimeSeconds: Int = 5,
-    /**
-     * The configuration changed event handler.
-     */
-    public var onConfigChanged: (() -> Unit)? = null,
+    public var maxInitWaitTime: Duration = 5.seconds,
 )
 
 /**
@@ -36,7 +35,7 @@ public data class LazyLoadConfiguration(
     /**
      * The interval of how long the cache will store its value before fetching the latest from the network again.
      */
-    public var cacheRefreshIntervalSeconds: Int = 60,
+    public var cacheRefreshInterval: Duration = 60.seconds,
 )
 
 /**
@@ -60,8 +59,8 @@ internal class AutoPollMode constructor(val configuration: AutoPollConfiguration
     override val identifier: String = "a"
 
     init {
-        if (configuration.pollingIntervalSeconds < 1) configuration.pollingIntervalSeconds = 1
-        if (configuration.maxInitWaitTimeSeconds < 0) configuration.maxInitWaitTimeSeconds = 0
+        if (configuration.pollingInterval.inWholeSeconds < 1) configuration.pollingInterval = 1.seconds
+        if (configuration.maxInitWaitTime.inWholeSeconds < 0) configuration.maxInitWaitTime = 0.seconds
     }
 }
 
@@ -69,7 +68,7 @@ internal class LazyLoadMode constructor(val configuration: LazyLoadConfiguration
     override val identifier: String = "l"
 
     init {
-        if (configuration.cacheRefreshIntervalSeconds < 1) configuration.cacheRefreshIntervalSeconds = 1
+        if (configuration.cacheRefreshInterval.inWholeSeconds < 1) configuration.cacheRefreshInterval = 1.seconds
     }
 }
 

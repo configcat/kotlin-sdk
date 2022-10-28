@@ -16,7 +16,7 @@ import kotlin.test.fail
 class RolloutMatrixTests {
     @AfterTest
     fun tearDown() {
-        ConfigCatClient.close()
+        ConfigCatClient.closeAll()
     }
 
     @Test
@@ -57,7 +57,7 @@ class RolloutMatrixTests {
             pollingMode = manualPoll()
             httpEngine = mockEngine
         }
-        client.refresh()
+        client.forceRefresh()
 
         val rows = matrix.data.lines()
         val header = rows[0].split(";")
@@ -90,7 +90,7 @@ class RolloutMatrixTests {
 
             for ((j, settingKey) in settingKeys.withIndex()) {
                 if (isValueKind) {
-                    val value = client.getAnyValueOrNull(settingKey, user)
+                    val value = client.getAnyValue(settingKey, "", user)
                     val boolVal = value as? Boolean
                     if (boolVal != null) {
                         val expected = testObjects[j + 4].lowercase().toBooleanStrictOrNull()

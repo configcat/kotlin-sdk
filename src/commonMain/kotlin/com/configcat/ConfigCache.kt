@@ -7,7 +7,7 @@ public interface ConfigCache {
     /**
      * Gets the actual value from the cache identified by the given [key].
      */
-    public suspend fun read(key: String): String
+    public suspend fun read(key: String): String?
 
     /**
      * Writes the given [value] to the cache by the given [key].
@@ -16,6 +16,6 @@ public interface ConfigCache {
 }
 
 internal class EmptyConfigCache : ConfigCache {
-    override suspend fun read(key: String): String = ""
+    override suspend fun read(key: String): String? = null
     override suspend fun write(key: String, value: String) { /* do nothing */ }
 }
