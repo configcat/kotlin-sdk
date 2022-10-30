@@ -328,7 +328,7 @@ fun getHostType(): Host {
 
 enum class Host { WINDOWS, MAC_OS, LINUX }
 
-fun String.isDarwin(): Boolean = name.startsWith("macos") ||
+fun String.isDarwin(): Boolean = this.startsWith("macos") ||
         this.startsWith("ios") ||
         this.startsWith("watchos") ||
         this.startsWith("tvos")
