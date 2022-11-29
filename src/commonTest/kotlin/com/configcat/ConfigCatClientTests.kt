@@ -618,6 +618,28 @@ class ConfigCatClientTests {
     }
 
     @Test
+    fun testInitOfflineCallsReady() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = Data.formatJsonBody(true),
+                status = HttpStatusCode.OK
+            )
+        }
+        var ready = false
+        val client = ConfigCatClient("test") {
+            httpEngine = mockEngine
+            pollingMode = autoPoll { pollingInterval = 2.seconds }
+            offline = true
+            hooks.addOnClientReady { ready = true }
+        }
+
+        assertEquals(0, mockEngine.requestHistory.size)
+        TestUtils.awaitUntil {
+            ready
+        }
+    }
+
+    @Test
     fun testDefaultUser() = runTest {
         val mockEngine = MockEngine {
             respond(
