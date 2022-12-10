@@ -19,3 +19,5 @@ internal class EmptyConfigCache : ConfigCache {
     override suspend fun read(key: String): String? = null
     override suspend fun write(key: String, value: String) { /* do nothing */ }
 }
+
+internal expect fun defaultCache(): ConfigCache

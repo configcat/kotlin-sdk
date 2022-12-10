@@ -44,7 +44,7 @@ public class ConfigCatOptions {
     /**
      * The cache implementation used to cache the downloaded configurations.
      */
-    public var configCache: ConfigCache = EmptyConfigCache()
+    public var configCache: ConfigCache = defaultCache()
 
     /**
      * Default: [DataGovernance.GLOBAL]. Set this parameter to be in sync with the
