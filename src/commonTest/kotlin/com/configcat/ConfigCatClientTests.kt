@@ -285,7 +285,7 @@ class ConfigCatClientTests {
         val mockEngine = MockEngine {
             respond(
                 content = "",
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.NotFound
             )
         }
         val sdkKey = "test"
@@ -299,7 +299,7 @@ class ConfigCatClientTests {
 
         val result = client.forceRefresh()
         assertFalse(result.isSuccess)
-        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received unexpected response: 400 Bad Request", result.error)
+        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received response: 404 Not Found", result.error)
         assertEquals(true, client.getValue("fakeKey", false))
         assertTrue(mockEngine.requestHistory.size == 1 || mockEngine.requestHistory.size == 2)
     }
@@ -311,7 +311,7 @@ class ConfigCatClientTests {
                 respond(content = Data.formatJsonBody("test1"), status = HttpStatusCode.OK)
             }
             this.addHandler {
-                respond(content = "", status = HttpStatusCode.BadGateway)
+                respond(content = "", status = HttpStatusCode.Forbidden)
             }
         } as MockEngine
         val client = ConfigCatClient("test") {
@@ -321,7 +321,7 @@ class ConfigCatClientTests {
         assertEquals("test1", client.getValue("fakeKey", ""))
         val result = client.forceRefresh()
         assertFalse(result.isSuccess)
-        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received unexpected response: 502 Bad Gateway", result.error)
+        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received response: 403 Forbidden", result.error)
         assertEquals("test1", client.getValue("fakeKey", ""))
         assertEquals(2, mockEngine.requestHistory.size)
     }
@@ -391,7 +391,7 @@ class ConfigCatClientTests {
         val mockEngine = MockEngine {
             respond(
                 content = "",
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.NotFound
             )
         }
         val client = ConfigCatClient("test") {
@@ -400,7 +400,7 @@ class ConfigCatClientTests {
 
         val result = client.forceRefresh()
         assertFalse(result.isSuccess)
-        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received unexpected response: 400 Bad Request", result.error)
+        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received response: 404 Not Found", result.error)
         assertEquals(false, client.getValue("fakeKey", false))
         assertTrue(mockEngine.requestHistory.size == 1 || mockEngine.requestHistory.size == 2)
     }
@@ -427,7 +427,7 @@ class ConfigCatClientTests {
         val mockEngine = MockEngine {
             respond(
                 content = "",
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.NotFound
             )
         }
         val client = ConfigCatClient("test") {
@@ -437,7 +437,7 @@ class ConfigCatClientTests {
 
         val result = client.forceRefresh()
         assertFalse(result.isSuccess)
-        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received unexpected response: 400 Bad Request", result.error)
+        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received response: 404 Not Found", result.error)
         assertEquals(false, client.getValue("fakeKey", false))
         assertEquals(2, mockEngine.requestHistory.size)
     }
@@ -704,7 +704,7 @@ class ConfigCatClientTests {
                 respond(content = Data.formatJsonBody("test"), status = HttpStatusCode.OK)
             }
             this.addHandler {
-                respond(content = "", status = HttpStatusCode.BadRequest)
+                respond(content = "", status = HttpStatusCode.NotFound)
             }
         }
         var error = ""
@@ -722,7 +722,7 @@ class ConfigCatClientTests {
         client.forceRefresh()
         client.forceRefresh()
 
-        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received unexpected response: 400 Bad Request", error)
+        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received response: 404 Not Found", error)
         assertTrue(changed)
         assertTrue(ready)
     }
@@ -734,7 +734,7 @@ class ConfigCatClientTests {
                 respond(content = Data.formatJsonBody("test"), status = HttpStatusCode.OK)
             }
             this.addHandler {
-                respond(content = "", status = HttpStatusCode.BadRequest)
+                respond(content = "", status = HttpStatusCode.NotFound)
             }
         }
         var error = ""
@@ -751,8 +751,30 @@ class ConfigCatClientTests {
         client.forceRefresh()
         client.forceRefresh()
 
-        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received unexpected response: 400 Bad Request", error)
+        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received response: 404 Not Found", error)
         assertTrue(changed)
+    }
+
+    @Test
+    fun testFail400() = runTest {
+        val mockEngine = MockEngine.create {
+            this.addHandler {
+                respond(content = Data.formatJsonBody("test"), status = HttpStatusCode.OK)
+            }
+            this.addHandler {
+                respond(content = "", status = HttpStatusCode.BadRequest)
+            }
+        }
+
+        val client = ConfigCatClient("test") {
+            httpEngine = mockEngine
+            pollingMode = manualPoll()
+        }
+
+        client.forceRefresh()
+        val error = client.forceRefresh()
+
+        assertEquals("Unexpected HTTP response was received: 400 Bad Request", error.error)
     }
 
     @Test
