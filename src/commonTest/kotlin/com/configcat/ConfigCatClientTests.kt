@@ -477,6 +477,24 @@ class ConfigCatClientTests {
     }
 
     @Test
+    fun testGetAllValueDetails() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = testMultipleBody,
+                status = HttpStatusCode.OK
+            )
+        }
+        val client = ConfigCatClient("test") {
+            httpEngine = mockEngine
+        }
+
+        val details = client.getAllValueDetails()
+        assertEquals(2, details.size)
+        assertTrue { details.elementAt(0).value as? Boolean ?: false }
+        assertFalse(details.elementAt(1).value as? Boolean ?: true )
+    }
+
+    @Test
     fun testAutoPollUserAgent() = runTest {
         val mockEngine = MockEngine {
             respond(
