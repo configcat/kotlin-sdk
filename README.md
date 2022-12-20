@@ -96,6 +96,7 @@ suspend fun main() {
 
 ## Sample / Demo app
 * [Kotlin Multiplatform Mobile app](https://github.com/configcat/kotlin-sdk/tree/main/samples/kmm)
+* [Android app](https://github.com/configcat/kotlin-sdk/tree/main/samples/android)
 * [Kotlin app](https://github.com/configcat/kotlin-sdk/tree/main/samples/kotlin)
 * [React app](https://github.com/configcat/kotlin-sdk/tree/main/samples/js)
 * [Node.js app](https://github.com/configcat/kotlin-sdk/tree/main/samples/node-js)

@@ -44,7 +44,7 @@ public class ConfigCatOptions {
     /**
      * The cache implementation used to cache the downloaded configurations.
      */
-    public var configCache: ConfigCache = EmptyConfigCache()
+    public var configCache: ConfigCache? = defaultCache()
 
     /**
      * Default: [DataGovernance.GLOBAL]. Set this parameter to be in sync with the
@@ -109,9 +109,16 @@ public interface ConfigCatClient {
     public suspend fun getAnyValueDetails(key: String, defaultValue: Any, user: ConfigCatUser?): EvaluationDetails
 
     /**
+     * Gets the values along with evaluation details of all feature flags and settings.
+     * The [user] param identifies the caller.
+     */
+    public suspend fun getAllValueDetails(user: ConfigCatUser? = null): Collection<EvaluationDetails>
+
+    /**
      * Gets the Variation ID (analytics) of a feature flag or setting based on its [key].
      * In case of any failure, [defaultVariationId] will be returned. The [user] param identifies the caller.
      */
+    @Deprecated("This method is obsolete and will be removed in a future major version. Please use getValueDetails() instead.")
     public suspend fun getVariationId(key: String, defaultVariationId: String?, user: ConfigCatUser? = null): String?
 
     /**
@@ -133,6 +140,7 @@ public interface ConfigCatClient {
      * Gets the Variation IDs (analytics) of all feature flags or settings.
      * The [user] param identifies the caller.
      */
+    @Deprecated("This method is obsolete and will be removed in a future major version. Please use getAllValueDetails() instead.")
     public suspend fun getAllVariationIds(user: ConfigCatUser? = null): Collection<String>
 
     /**
@@ -255,10 +263,11 @@ internal class Client private constructor(
 
     override suspend fun getAnyValue(key: String, defaultValue: Any, user: ConfigCatUser?): Any {
         val result = getSettings()
+        val evalUser = user ?: defaultUser
         if (result.settings.isEmpty()) {
             val message = "Config JSON is not present. Returning defaultValue: '$defaultValue'."
             logger.error(message)
-            hooks.invokeOnFlagEvaluated(EvaluationDetails.makeError(key, defaultValue, message, user))
+            hooks.invokeOnFlagEvaluated(EvaluationDetails.makeError(key, defaultValue, message, evalUser))
             return defaultValue
         }
 
@@ -267,18 +276,19 @@ internal class Client private constructor(
             val message = "Value not found for key '$key'. Here are the available keys: " +
                     result.settings.keys.joinToString(", ")
             logger.error(message)
-            hooks.invokeOnFlagEvaluated(EvaluationDetails.makeError(key, defaultValue, message, user))
+            hooks.invokeOnFlagEvaluated(EvaluationDetails.makeError(key, defaultValue, message, evalUser))
             return defaultValue
         }
 
-        return evaluate(setting, key, user ?: defaultUser, result.fetchTime).value
+        return evaluate(setting, key, evalUser, result.fetchTime).value
     }
 
     override suspend fun getAnyValueDetails(key: String, defaultValue: Any, user: ConfigCatUser?): EvaluationDetails {
         val result = getSettings()
+        val evalUser = user ?: defaultUser
         if (result.settings.isEmpty()) {
             val message = "Config JSON is not present. Returning defaultValue: '$defaultValue'."
-            val details = EvaluationDetails.makeError(key, defaultValue, message, user)
+            val details = EvaluationDetails.makeError(key, defaultValue, message, evalUser)
             logger.error(message)
             hooks.invokeOnFlagEvaluated(details)
             return details
@@ -288,15 +298,23 @@ internal class Client private constructor(
         if (setting == null) {
             val message = "Value not found for key '$key'. Here are the available keys: " +
                     result.settings.keys.joinToString(", ")
-            val details = EvaluationDetails.makeError(key, defaultValue, message, user)
+            val details = EvaluationDetails.makeError(key, defaultValue, message, evalUser)
             logger.error(message)
             hooks.invokeOnFlagEvaluated(details)
             return details
         }
 
-        return evaluate(setting, key, user ?: defaultUser, result.fetchTime)
+        return evaluate(setting, key, evalUser, result.fetchTime)
     }
 
+    override suspend fun getAllValueDetails(user: ConfigCatUser?): Collection<EvaluationDetails> {
+        val result = getSettings()
+        return result.settings.map {
+            evaluate(it.value, it.key, user ?: defaultUser, result.fetchTime)
+        }
+    }
+
+    @Deprecated("This method is obsolete and will be removed in a future major version. Please use getValueDetails() instead.")
     override suspend fun getVariationId(key: String, defaultVariationId: String?, user: ConfigCatUser?): String? {
         val result = getSettings()
         if (result.settings.isEmpty()) {
@@ -349,6 +367,7 @@ internal class Client private constructor(
         }.toMap()
     }
 
+    @Deprecated("This method is obsolete and will be removed in a future major version. Please use getAllValueDetails() instead.")
     override suspend fun getAllVariationIds(user: ConfigCatUser?): Collection<String> {
         val result = getSettings()
         return result.settings.map {

@@ -192,6 +192,25 @@ class ConfigServiceTests {
     }
 
     @Test
+    fun testNullCache() = runTest {
+        val mockEngine = MockEngine.create {
+            this.addHandler {
+                respond(content = Data.formatJsonBody("test1"), status = HttpStatusCode.OK)
+            }
+            this.addHandler {
+                respond(content = Data.formatJsonBody("test2"), status = HttpStatusCode.OK)
+            }
+        } as MockEngine
+        val service = Services.createConfigService(mockEngine, autoPoll { pollingInterval = 1.seconds }, null)
+
+        TestUtils.awaitUntil {
+            service.getSettings().settings.values.first().value == "test2"
+        }
+
+        assertTrue(mockEngine.requestHistory.size in 2..3)
+    }
+
+    @Test
     fun testAutoPollInitWaitTimeTimeoutReturnsWithCached() = runTest {
         val mockEngine = MockEngine {
             delay(5000)

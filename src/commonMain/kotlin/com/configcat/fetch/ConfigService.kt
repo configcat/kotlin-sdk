@@ -172,23 +172,11 @@ internal class ConfigService constructor(
                 writeCache(response.entry)
                 hooks.invokeOnConfigChanged(response.entry.config.settings)
                 return Pair(response.entry, null)
-            } else if (response.isNotModified) {
+            } else if ((response.isNotModified || !response.isTransientError) && !cachedEntry.isEmpty()) {
                 cachedEntry = cachedEntry.copy(fetchTime = DateTime.now())
                 writeCache(cachedEntry)
             }
             return Pair(cachedEntry, response.error)
-        }
-    }
-
-    private suspend fun readCache(): Entry {
-        return try {
-            val cached = options.configCache.read(cacheKey) ?: return Entry.empty
-            if (cached.isEmpty() || cached == cachedJsonString) return Entry.empty
-            cachedJsonString = cached
-            Constants.json.decodeFromString(cached)
-        } catch (e: Exception) {
-            logger.error("An error occurred during the cache read. ${e.message}")
-            Entry.empty
         }
     }
 
@@ -210,13 +198,27 @@ internal class ConfigService constructor(
         hooks.invokeOnClientReady()
     }
 
-    private suspend fun writeCache(entry: Entry) {
-        try {
-            val json = Constants.json.encodeToString(entry)
-            cachedJsonString = json
-            options.configCache.write(cacheKey, json)
+    private suspend fun readCache(): Entry {
+        return try {
+            val cached = options.configCache?.read(cacheKey) ?: ""
+            if (cached.isEmpty() || cached == cachedJsonString) return Entry.empty
+            cachedJsonString = cached
+            Constants.json.decodeFromString(cached)
         } catch (e: Exception) {
-            logger.error("An error occurred during the cache write. ${e.message}")
+            logger.error("An error occurred during the cache read. ${e.message}")
+            Entry.empty
+        }
+    }
+
+    private suspend fun writeCache(entry: Entry) {
+        options.configCache?.let { cache ->
+            try {
+                val json = Constants.json.encodeToString(entry)
+                cachedJsonString = json
+                cache.write(cacheKey, json)
+            } catch (e: Exception) {
+                logger.error("An error occurred during the cache write. ${e.message}")
+            }
         }
     }
 

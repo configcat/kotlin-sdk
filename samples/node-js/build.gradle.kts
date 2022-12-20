@@ -7,13 +7,14 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven {
         url = uri("https://oss.sonatype.org/content/repositories/snapshots")
     }
 }
 
 dependencies {
-    implementation("com.configcat:configcat-kotlin-client:1.0.0")
+    implementation("com.configcat:configcat-kotlin-client:1.1.0")
 }
 
 kotlin {

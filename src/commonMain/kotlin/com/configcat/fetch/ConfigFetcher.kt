@@ -66,7 +66,7 @@ internal class ConfigFetcher constructor(
         }
         val message = "Redirect loop during config.json fetch. Please contact support@configcat.com."
         logger.error(message)
-        return FetchResponse.failure(message)
+        return FetchResponse.failure(message, true)
     }
 
     private suspend fun fetchHTTP(baseUrl: String, eTag: String): FetchResponse {
@@ -88,27 +88,31 @@ internal class ConfigFetcher constructor(
                 val newETag = response.etag()
                 val (config, err) = parseConfigJson(body)
                 if (err != null) {
-                    return FetchResponse.failure(err)
+                    return FetchResponse.failure(err, true)
                 }
                 val entry = Entry(config, newETag ?: "", DateTime.now())
                 return FetchResponse.success(entry)
             } else if (response.status == HttpStatusCode.NotModified) {
                 logger.debug("Fetch was successful: config not modified.")
                 return FetchResponse.notModified()
-            } else {
+            } else if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.Forbidden) {
                 val message = "Double-check your API KEY at https://app.configcat.com/apikey. " +
-                        "Received unexpected response: ${response.status}"
+                        "Received response: ${response.status}"
                 logger.error(message)
-                return FetchResponse.failure(message)
+                return FetchResponse.failure(message, false)
+            } else {
+                val message = "Unexpected HTTP response was received: ${response.status}"
+                logger.error(message)
+                return FetchResponse.failure(message, true)
             }
         } catch (_: HttpRequestTimeoutException) {
             val message = "Request timed out. Timeout value: ${options.requestTimeout.inWholeMilliseconds}ms"
             logger.error(message)
-            return FetchResponse.failure(message)
+            return FetchResponse.failure(message, true)
         } catch (e: Exception) {
             val message = "Error during config JSON download. ${e.message}"
             logger.error(message)
-            return FetchResponse.failure(message)
+            return FetchResponse.failure(message, true)
         }
     }
 
