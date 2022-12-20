@@ -118,7 +118,8 @@ public interface ConfigCatClient {
      * Gets the Variation ID (analytics) of a feature flag or setting based on its [key].
      * In case of any failure, [defaultVariationId] will be returned. The [user] param identifies the caller.
      */
-    @Deprecated("This method is obsolete and will be removed in a future major version. Please use getValueDetails() instead.")
+    @Deprecated("This method is obsolete and will be removed in a future major version. " +
+            "Please use getValueDetails() instead.")
     public suspend fun getVariationId(key: String, defaultVariationId: String?, user: ConfigCatUser? = null): String?
 
     /**
@@ -140,7 +141,8 @@ public interface ConfigCatClient {
      * Gets the Variation IDs (analytics) of all feature flags or settings.
      * The [user] param identifies the caller.
      */
-    @Deprecated("This method is obsolete and will be removed in a future major version. Please use getAllValueDetails() instead.")
+    @Deprecated("This method is obsolete and will be removed in a future major version. " +
+            "Please use getAllValueDetails() instead.")
     public suspend fun getAllVariationIds(user: ConfigCatUser? = null): Collection<String>
 
     /**
@@ -314,7 +316,8 @@ internal class Client private constructor(
         }
     }
 
-    @Deprecated("This method is obsolete and will be removed in a future major version. Please use getValueDetails() instead.")
+    @Deprecated("This method is obsolete and will be removed in a future major version. " +
+            "Please use getValueDetails() instead.")
     override suspend fun getVariationId(key: String, defaultVariationId: String?, user: ConfigCatUser?): String? {
         val result = getSettings()
         if (result.settings.isEmpty()) {
@@ -367,7 +370,8 @@ internal class Client private constructor(
         }.toMap()
     }
 
-    @Deprecated("This method is obsolete and will be removed in a future major version. Please use getAllValueDetails() instead.")
+    @Deprecated("This method is obsolete and will be removed in a future major version. " +
+            "Please use getAllValueDetails() instead.")
     override suspend fun getAllVariationIds(user: ConfigCatUser?): Collection<String> {
         val result = getSettings()
         return result.settings.map {
@@ -445,9 +449,7 @@ internal class Client private constructor(
         private val lock = reentrantLock()
 
         fun get(sdkKey: String, block: ConfigCatOptions.() -> Unit = {}): Client {
-            if (sdkKey.isEmpty()) {
-                throw IllegalArgumentException("'sdkKey' cannot be empty.")
-            }
+            require(sdkKey.isNotEmpty()) { "'sdkKey' cannot be empty." }
             lock.withLock {
                 val instance = instances[sdkKey]
                 if (instance != null)
