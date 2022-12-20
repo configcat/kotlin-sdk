@@ -51,6 +51,7 @@ $dokka.location:com.configcat/ConfigCatClient/clearDefaultUser/#/PointingToDecla
 $dokka.location:com.configcat/ConfigCatClient/close/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/close.html
 $dokka.location:com.configcat/ConfigCatClient/forceRefresh/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/force-refresh.html
 $dokka.location:com.configcat/ConfigCatClient/getAllKeys/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/get-all-keys.html
+$dokka.location:com.configcat/ConfigCatClient/getAllValueDetails/#com.configcat.ConfigCatUser?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/get-all-value-details.html
 $dokka.location:com.configcat/ConfigCatClient/getAllValues/#com.configcat.ConfigCatUser?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/get-all-values.html
 $dokka.location:com.configcat/ConfigCatClient/getAllVariationIds/#com.configcat.ConfigCatUser?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/get-all-variation-ids.html
 $dokka.location:com.configcat/ConfigCatClient/getAnyValue/#kotlin.String#kotlin.Any#com.configcat.ConfigCatUser?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/get-any-value.html
@@ -77,6 +78,10 @@ $dokka.location:com.configcat/ConfigCatOptions/logger/#/PointingToDeclaration/c
 $dokka.location:com.configcat/ConfigCatOptions/offline/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-options/offline.html
 $dokka.location:com.configcat/ConfigCatOptions/pollingMode/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-options/polling-mode.html
 $dokka.location:com.configcat/ConfigCatOptions/requestTimeout/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-options/request-timeout.html
+$dokka.location:com.configcat/ConfigCatPreferencesCache///PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-preferences-cache/index.html
+$dokka.location:com.configcat/ConfigCatPreferencesCache/ConfigCatPreferencesCache/#android.content.Context/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-preferences-cache/-config-cat-preferences-cache.html
+$dokka.location:com.configcat/ConfigCatPreferencesCache/read/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-preferences-cache/read.html
+$dokka.location:com.configcat/ConfigCatPreferencesCache/write/#kotlin.String#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-preferences-cache/write.html
 $dokka.location:com.configcat/ConfigCatUser///PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-user/index.html
 $dokka.location:com.configcat/ConfigCatUser/ConfigCatUser/#kotlin.String#kotlin.String?#kotlin.String?#kotlin.collections.Map[kotlin.String,kotlin.String]?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-user/-config-cat-user.html
 $dokka.location:com.configcat/ConfigCatUser/identifier/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-user/identifier.html
