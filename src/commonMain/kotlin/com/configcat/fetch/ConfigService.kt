@@ -200,7 +200,7 @@ internal class ConfigService constructor(
 
     private suspend fun readCache(): Entry {
         return try {
-            val cached = options.configCache?.read(cacheKey) ?: return Entry.empty
+            val cached = options.configCache?.read(cacheKey) ?: ""
             if (cached.isEmpty() || cached == cachedJsonString) return Entry.empty
             cachedJsonString = cached
             Constants.json.decodeFromString(cached)

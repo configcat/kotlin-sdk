@@ -90,7 +90,7 @@ internal object Services {
     fun createConfigService(
         engine: MockEngine,
         mode: PollingMode = autoPoll(),
-        cache: ConfigCache = EmptyConfigCache(),
+        cache: ConfigCache? = EmptyConfigCache(),
         hooks: Hooks = Hooks(),
         offline: Boolean = false,
     ): ConfigService {
