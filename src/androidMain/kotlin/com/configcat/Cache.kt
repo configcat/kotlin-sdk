@@ -7,6 +7,9 @@ internal actual fun defaultCache(): ConfigCache {
     return EmptyConfigCache()
 }
 
+/**
+ * [ConfigCache] implementation that uses [SharedPreferences] as persistent storage.
+ */
 public class ConfigCatPreferencesCache(context: Context) : ConfigCache {
     private val sharedPreferences : SharedPreferences
 
@@ -19,5 +22,4 @@ public class ConfigCatPreferencesCache(context: Context) : ConfigCache {
     override suspend fun write(key: String, value: String) {
         sharedPreferences.edit().putString(key, value).apply()
     }
-
 }

@@ -6,7 +6,10 @@ internal actual fun defaultCache(): ConfigCache {
     return UserDefaultsCache()
 }
 
-internal class UserDefaultsCache : ConfigCache {
+/**
+ * [ConfigCache] implementation that uses [NSUserDefaults] as persistent storage.
+ */
+public class UserDefaultsCache : ConfigCache {
     private val userDefaults = NSUserDefaults.standardUserDefaults
     private val prefix = "com.configcat"
 

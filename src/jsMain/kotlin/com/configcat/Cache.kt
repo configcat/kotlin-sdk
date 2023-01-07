@@ -9,7 +9,10 @@ internal actual fun defaultCache(): ConfigCache = when {
     else -> EmptyConfigCache()
 }
 
-internal class LocalStorageCache: ConfigCache {
+/**
+ * [ConfigCache] implementation that uses [localStorage] as persistent storage.
+ */
+public class LocalStorageCache: ConfigCache {
     override suspend fun read(key: String): String? = localStorage[key]
 
     override suspend fun write(key: String, value: String) {
