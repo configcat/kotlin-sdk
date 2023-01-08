@@ -82,10 +82,6 @@ $dokka.location:com.configcat/ConfigCatOptions/logger/#/PointingToDeclaration/c
 $dokka.location:com.configcat/ConfigCatOptions/offline/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-options/offline.html
 $dokka.location:com.configcat/ConfigCatOptions/pollingMode/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-options/polling-mode.html
 $dokka.location:com.configcat/ConfigCatOptions/requestTimeout/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-options/request-timeout.html
-$dokka.location:com.configcat/ConfigCatPreferencesCache///PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-preferences-cache/index.html
-$dokka.location:com.configcat/ConfigCatPreferencesCache/ConfigCatPreferencesCache/#android.content.Context/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-preferences-cache/-config-cat-preferences-cache.html
-$dokka.location:com.configcat/ConfigCatPreferencesCache/read/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-preferences-cache/read.html
-$dokka.location:com.configcat/ConfigCatPreferencesCache/write/#kotlin.String#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-preferences-cache/write.html
 $dokka.location:com.configcat/ConfigCatUser///PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-user/index.html
 $dokka.location:com.configcat/ConfigCatUser/ConfigCatUser/#kotlin.String#kotlin.String?#kotlin.String?#kotlin.collections.Map[kotlin.String,kotlin.String]?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-user/-config-cat-user.html
 $dokka.location:com.configcat/ConfigCatUser/identifier/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-user/identifier.html
@@ -140,6 +136,10 @@ $dokka.location:com.configcat/Setting/rolloutRules/#/PointingToDeclaration/conf
 $dokka.location:com.configcat/Setting/type/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-setting/type.html
 $dokka.location:com.configcat/Setting/value/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-setting/value.html
 $dokka.location:com.configcat/Setting/variationId/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-setting/variation-id.html
+$dokka.location:com.configcat/SharedPreferencesCache///PointingToDeclaration/configcat-kotlin-client/com.configcat/-shared-preferences-cache/index.html
+$dokka.location:com.configcat/SharedPreferencesCache/SharedPreferencesCache/#android.content.Context/PointingToDeclaration/configcat-kotlin-client/com.configcat/-shared-preferences-cache/-shared-preferences-cache.html
+$dokka.location:com.configcat/SharedPreferencesCache/read/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-shared-preferences-cache/read.html
+$dokka.location:com.configcat/SharedPreferencesCache/write/#kotlin.String#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-shared-preferences-cache/write.html
 $dokka.location:com.configcat/TypedEvaluationDetails///PointingToDeclaration/configcat-kotlin-client/com.configcat/-typed-evaluation-details/index.html
 $dokka.location:com.configcat/TypedEvaluationDetails/TypedEvaluationDetails/#kotlin.String#kotlin.String?#com.configcat.ConfigCatUser?#kotlin.Boolean#kotlin.String?#TypeParam(bounds=[kotlin.Any?])#kotlin.Long#com.configcat.RolloutRule?#com.configcat.PercentageRule?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-typed-evaluation-details/-typed-evaluation-details.html
 $dokka.location:com.configcat/TypedEvaluationDetails/value/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-typed-evaluation-details/value.html
