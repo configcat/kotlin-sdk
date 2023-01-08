@@ -10,7 +10,7 @@ internal actual fun defaultCache(): ConfigCache {
 /**
  * [ConfigCache] implementation that uses [SharedPreferences] as persistent storage.
  */
-public class ConfigCatPreferencesCache(context: Context) : ConfigCache {
+public class SharedPreferencesCache(context: Context) : ConfigCache {
     private val sharedPreferences : SharedPreferences
 
     init {

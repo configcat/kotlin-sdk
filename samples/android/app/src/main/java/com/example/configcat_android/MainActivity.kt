@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
 
         this.client = ConfigCatClient("PKDVCLf-Hq-h-kCzMp-L7Q/HhOWfwVtZ0mb30i9wi17GQ") {
             // Use ConfigCat's shared preferences cache.
-            configCache = ConfigCatPreferencesCache(this@MainActivity)
+            configCache = SharedPreferencesCache(this@MainActivity)
 
             // Info level logging helps to inspect the feature flag evaluation process.
             // Use the default Warning level to avoid too detailed logging in your application.
