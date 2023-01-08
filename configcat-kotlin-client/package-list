@@ -115,6 +115,10 @@ $dokka.location:com.configcat/Hooks/addOnFlagEvaluated/#kotlin.Function1[com.con
 $dokka.location:com.configcat/LazyLoadConfiguration///PointingToDeclaration/configcat-kotlin-client/com.configcat/-lazy-load-configuration/index.html
 $dokka.location:com.configcat/LazyLoadConfiguration/LazyLoadConfiguration/#kotlin.time.Duration/PointingToDeclaration/configcat-kotlin-client/com.configcat/-lazy-load-configuration/-lazy-load-configuration.html
 $dokka.location:com.configcat/LazyLoadConfiguration/cacheRefreshInterval/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-lazy-load-configuration/cache-refresh-interval.html
+$dokka.location:com.configcat/LocalStorageCache///PointingToDeclaration/configcat-kotlin-client/com.configcat/-local-storage-cache/index.html
+$dokka.location:com.configcat/LocalStorageCache/LocalStorageCache/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-local-storage-cache/-local-storage-cache.html
+$dokka.location:com.configcat/LocalStorageCache/read/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-local-storage-cache/read.html
+$dokka.location:com.configcat/LocalStorageCache/write/#kotlin.String#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-local-storage-cache/write.html
 $dokka.location:com.configcat/PercentageRule///PointingToDeclaration/configcat-kotlin-client/com.configcat/-percentage-rule/index.html
 $dokka.location:com.configcat/PercentageRule/PercentageRule/#kotlin.Any#kotlin.Double#kotlin.String?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-percentage-rule/-percentage-rule.html
 $dokka.location:com.configcat/PercentageRule/percentage/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-percentage-rule/percentage.html
@@ -139,6 +143,10 @@ $dokka.location:com.configcat/Setting/variationId/#/PointingToDeclaration/confi
 $dokka.location:com.configcat/TypedEvaluationDetails///PointingToDeclaration/configcat-kotlin-client/com.configcat/-typed-evaluation-details/index.html
 $dokka.location:com.configcat/TypedEvaluationDetails/TypedEvaluationDetails/#kotlin.String#kotlin.String?#com.configcat.ConfigCatUser?#kotlin.Boolean#kotlin.String?#TypeParam(bounds=[kotlin.Any?])#kotlin.Long#com.configcat.RolloutRule?#com.configcat.PercentageRule?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-typed-evaluation-details/-typed-evaluation-details.html
 $dokka.location:com.configcat/TypedEvaluationDetails/value/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-typed-evaluation-details/value.html
+$dokka.location:com.configcat/UserDefaultsCache///PointingToDeclaration/configcat-kotlin-client/com.configcat/-user-defaults-cache/index.html
+$dokka.location:com.configcat/UserDefaultsCache/UserDefaultsCache/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-user-defaults-cache/-user-defaults-cache.html
+$dokka.location:com.configcat/UserDefaultsCache/read/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-user-defaults-cache/read.html
+$dokka.location:com.configcat/UserDefaultsCache/write/#kotlin.String#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-user-defaults-cache/write.html
 com.configcat
 com.configcat.fetch
 com.configcat.log
