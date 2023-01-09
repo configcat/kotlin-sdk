@@ -2,6 +2,7 @@ import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.KotlinTargetPreset
+import java.net.URL
 
 buildscript {
     val atomicfu_version: String by project
@@ -208,6 +209,41 @@ android {
 
 tasks.getByName<DokkaTask>("dokkaHtml") {
     outputDirectory.set(file(buildDir.resolve("dokka")))
+
+    dokkaSourceSets {
+        named("darwinMain") {
+            platform.set(org.jetbrains.dokka.Platform.native)
+            sourceLink {
+                localDirectory.set(file("src/darwinMain/kotlin"))
+                remoteUrl.set(URL("https://github.com/configcat/kotlin-sdk/blob/main/src/darwinMain/kotlin"))
+                remoteLineSuffix.set("#L")
+            }
+        }
+
+        named("commonMain") {
+            sourceLink {
+                localDirectory.set(file("src/commonMain/kotlin"))
+                remoteUrl.set(URL("https://github.com/configcat/kotlin-sdk/blob/main/src/commonMain/kotlin"))
+                remoteLineSuffix.set("#L")
+            }
+        }
+
+        named("jsMain") {
+            sourceLink {
+                localDirectory.set(file("src/jsMain/kotlin"))
+                remoteUrl.set(URL("https://github.com/configcat/kotlin-sdk/blob/main/src/jsMain/kotlin"))
+                remoteLineSuffix.set("#L")
+            }
+        }
+
+        named("androidMain") {
+            sourceLink {
+                localDirectory.set(file("src/androidMain/kotlin"))
+                remoteUrl.set(URL("https://github.com/configcat/kotlin-sdk/blob/main/src/androidMain/kotlin"))
+                remoteLineSuffix.set("#L")
+            }
+        }
+    }
 }
 
 val javadocJar = tasks.register<Jar>("javadocJar") {
