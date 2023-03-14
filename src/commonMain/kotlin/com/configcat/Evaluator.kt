@@ -19,11 +19,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         try {
             if (user == null) {
                 if (setting.rolloutRules.isNotEmpty() || setting.percentageItems.isNotEmpty()) {
-                    logger.warning(
-                        "UserObject missing! You should pass a UserObject to getValue() " +
-                                "in order to make targeting work properly. " +
-                                "Read more: https://configcat.com/docs/advanced/user-object."
-                    )
+                    logger.warning(3001, "Cannot evaluate targeting rules and % options for setting '$key' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/")
                 }
                 infoLogBuilder.appendLine("Returning ${setting.value}")
                 return EvaluationResult(setting.value, setting.variationId)
@@ -38,7 +34,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             infoLogBuilder.appendLine("Returning ${setting.value}")
             return EvaluationResult(setting.value, setting.variationId)
         } finally {
-            logger.info(infoLogBuilder.toString())
+            logger.info(5000, infoLogBuilder.toString())
         }
     }
 
@@ -384,7 +380,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     ): String {
         val message = "Evaluating rule: [$attribute:$userValue] [${comparator.value}] " +
                 "[$comparisonValue] => SKIP rule. Validation error: ${error.message}"
-        logger.warning(message)
+        logger.warning(0, message)
         return message
     }
 
@@ -396,7 +392,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     ): String {
         val message =
             "Evaluating rule: [$attribute:$userValue] [$comparisonValue] => SKIP rule. Invalid comparator: $comparator"
-        logger.warning(message)
+        logger.warning(0, message)
         return message
     }
 

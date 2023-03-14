@@ -68,7 +68,7 @@ internal class ConfigService constructor(
         syncLock.withLock {
             if (!offline.compareAndSet(expect = false, update = true)) return
             pollingJob?.cancel()
-            logger.debug("Switched to OFFLINE mode.")
+            logger.info(5200, "Switched to OFFLINE mode.")
         }
     }
 
@@ -78,14 +78,14 @@ internal class ConfigService constructor(
             if (mode is AutoPollMode) {
                 startPoll(mode)
             }
-            logger.debug("Switched to ONLINE mode.")
+            logger.info(5200, "Switched to ONLINE mode.")
         }
     }
 
     suspend fun refresh(): RefreshResult {
         if (offline.value) {
-            val offlineMessage = "The SDK is in offline mode, it can't initiate HTTP calls."
-            logger.warning(offlineMessage)
+            val offlineMessage = "Client is in offline mode, it cannot initiate HTTP calls."
+            logger.warning(3200, offlineMessage)
             return RefreshResult(false, offlineMessage)
         }
         val result = fetchIfOlder(Constants.distantFuture)
@@ -136,10 +136,8 @@ internal class ConfigService constructor(
                             return@async result
                         }
                         // We got a timeout
-                        val message = "Max init wait time for the very first fetch reached " +
-                                "(${mode.configuration.maxInitWaitTime.inWholeMilliseconds}ms). " +
-                                "Returning cached config."
-                        logger.warning(message)
+                        val message = "`maxInitWaitTime` for the very first fetch reached (${mode.configuration.maxInitWaitTime.inWholeMilliseconds}ms). Returning cached config."
+                        logger.warning(4200, message)
                         setInitialized()
                         return@async Pair(Entry.empty, message)
                     } else {
@@ -205,7 +203,7 @@ internal class ConfigService constructor(
             cachedJsonString = cached
             Constants.json.decodeFromString(cached)
         } catch (e: Exception) {
-            logger.error("An error occurred during the cache read. ${e.message}")
+            logger.error(2200, "Error occurred while reading the cache. ${e.message}")
             Entry.empty
         }
     }
@@ -217,7 +215,7 @@ internal class ConfigService constructor(
                 cachedJsonString = json
                 cache.write(cacheKey, json)
             } catch (e: Exception) {
-                logger.error("An error occurred during the cache write. ${e.message}")
+                logger.error(2201, "Error occurred while writing the cache. ${e.message}")
             }
         }
     }

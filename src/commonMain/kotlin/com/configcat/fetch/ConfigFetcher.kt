@@ -56,16 +56,11 @@ internal class ConfigFetcher constructor(
             currentBaseUrl = preferences.baseUrl
             if (preferences.redirect == RedirectMode.NO_REDIRECT.ordinal) return response
             else if (preferences.redirect == RedirectMode.SHOULD_REDIRECT.ordinal) {
-                logger.warning(
-                    "Your \'dataGovernance\' parameter at ConfigCatClient initialization is " +
-                            "not in sync with your preferences on the ConfigCat Dashboard: " +
-                            "https://app.configcat.com/organization/data-governance. " +
-                            "Only Organization Admins can access this preference."
-                )
+                logger.warning(3002, "The `dataGovernance` parameter specified at the client initialization is not in sync with the preferences on the ConfigCat Dashboard. Read more: https://configcat.com/docs/advanced/data-governance/")
             }
         }
-        val message = "Redirect loop during config.json fetch. Please contact support@configcat.com."
-        logger.error(message)
+        val message = "Redirection loop encountered while trying to fetch config JSON. Please contact us at https://configcat.com/support/"
+        logger.error(1104, message)
         return FetchResponse.failure(message, true)
     }
 
@@ -96,22 +91,22 @@ internal class ConfigFetcher constructor(
                 logger.debug("Fetch was successful: config not modified.")
                 return FetchResponse.notModified()
             } else if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.Forbidden) {
-                val message = "Double-check your API KEY at https://app.configcat.com/apikey. " +
+                val message = "Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. " +
                         "Received response: ${response.status}"
-                logger.error(message)
+                logger.error(1100, message)
                 return FetchResponse.failure(message, false)
             } else {
-                val message = "Unexpected HTTP response was received: ${response.status}"
-                logger.error(message)
+                val message = "Unexpected HTTP response was received while trying to fetch config JSON: ${response.status}"
+                logger.error(1101, message)
                 return FetchResponse.failure(message, true)
             }
         } catch (_: HttpRequestTimeoutException) {
-            val message = "Request timed out. Timeout value: ${options.requestTimeout.inWholeMilliseconds}ms"
-            logger.error(message)
+            val message = "Request timed out while trying to fetch config JSON. Timeout value: ${options.requestTimeout.inWholeMilliseconds}ms"
+            logger.error(1102, message)
             return FetchResponse.failure(message, true)
         } catch (e: Exception) {
-            val message = "Error during config JSON download. ${e.message}"
-            logger.error(message)
+            val message = "Unexpected error occurred while trying to fetch config JSON. ${e.message}"
+            logger.error(1103, message)
             return FetchResponse.failure(message, true)
         }
     }
@@ -133,7 +128,7 @@ internal class ConfigFetcher constructor(
         return try {
             Pair(Constants.json.decodeFromString(jsonString), null)
         } catch (e: Exception) {
-            logger.error("JSON parsing failed. ${e.message}")
+            logger.error(1105, "Fetching config JSON was successful but the HTTP response content was invalid. JSON parsing failed. ${e.message}")
             Pair(Config.empty, e.message)
         }
     }

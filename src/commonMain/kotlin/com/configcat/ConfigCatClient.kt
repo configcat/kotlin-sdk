@@ -267,17 +267,17 @@ internal class Client private constructor(
         val result = getSettings()
         val evalUser = user ?: defaultUser
         if (result.settings.isEmpty()) {
-            val message = "Config JSON is not present. Returning defaultValue: '$defaultValue'."
-            logger.error(message)
+            val message = "Config JSON is not present. Returning the `defaultValue` parameter that you specified in your application: '$defaultValue'."
+            logger.error(1000, message)
             hooks.invokeOnFlagEvaluated(EvaluationDetails.makeError(key, defaultValue, message, evalUser))
             return defaultValue
         }
 
         val setting = result.settings[key]
         if (setting == null) {
-            val message = "Value not found for key '$key'. Here are the available keys: " +
+            val message = "Failed to evaluate setting '$key' (the key was not found in config JSON). Returning the `defaultValue` parameter that you specified in your application: '$defaultValue'. Available keys: " +
                     result.settings.keys.joinToString(", ")
-            logger.error(message)
+            logger.error(1001, message)
             hooks.invokeOnFlagEvaluated(EvaluationDetails.makeError(key, defaultValue, message, evalUser))
             return defaultValue
         }
@@ -289,19 +289,19 @@ internal class Client private constructor(
         val result = getSettings()
         val evalUser = user ?: defaultUser
         if (result.settings.isEmpty()) {
-            val message = "Config JSON is not present. Returning defaultValue: '$defaultValue'."
+            val message = "Config JSON is not present. Returning the `defaultValue` parameter that you specified in your application: '$defaultValue'."
             val details = EvaluationDetails.makeError(key, defaultValue, message, evalUser)
-            logger.error(message)
+            logger.error(1000, message)
             hooks.invokeOnFlagEvaluated(details)
             return details
         }
 
         val setting = result.settings[key]
         if (setting == null) {
-            val message = "Value not found for key '$key'. Here are the available keys: " +
+            val message = "Failed to evaluate setting '$key' (the key was not found in config JSON). Returning the `defaultValue` parameter that you specified in your application: '$defaultValue'. Available keys: " +
                     result.settings.keys.joinToString(", ")
             val details = EvaluationDetails.makeError(key, defaultValue, message, evalUser)
-            logger.error(message)
+            logger.error(1001, message)
             hooks.invokeOnFlagEvaluated(details)
             return details
         }
@@ -321,13 +321,13 @@ internal class Client private constructor(
     override suspend fun getVariationId(key: String, defaultVariationId: String?, user: ConfigCatUser?): String? {
         val result = getSettings()
         if (result.settings.isEmpty()) {
-            logger.error("Config JSON is not present. Returning defaultVariationId: '$defaultVariationId'.")
+            logger.error(1000, "Config JSON is not present. Returning the `defaultVariationId` parameter that you specified in your application: '$defaultVariationId'.")
             return defaultVariationId
         }
 
         val setting = result.settings[key]
         if (setting == null) {
-            logger.error("Value not found for key '$key'. Here are the available keys: " +
+            logger.error(1001, "Failed to evaluate setting '$key' (the key was not found in config JSON). Returning the `defaultVariationId` parameter that you specified in your application: '$defaultVariationId'. Available keys: " +
                     result.settings.keys.joinToString(", "))
             return defaultVariationId
         }
