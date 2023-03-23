@@ -275,8 +275,8 @@ internal class Client private constructor(
 
         val setting = result.settings[key]
         if (setting == null) {
-            val message = "Failed to evaluate setting '$key' (the key was not found in config JSON). Returning the `defaultValue` parameter that you specified in your application: '$defaultValue'. Available keys: " +
-                    result.settings.keys.joinToString(", ")
+            val message = "Failed to evaluate setting '$key' (the key was not found in config JSON). Returning the `defaultValue` parameter that you specified in your application: '$defaultValue'. Available keys: [" +
+                    result.settings.keys.joinToString(", ") + "]."
             logger.error(1001, message)
             hooks.invokeOnFlagEvaluated(EvaluationDetails.makeError(key, defaultValue, message, evalUser))
             return defaultValue
@@ -298,8 +298,8 @@ internal class Client private constructor(
 
         val setting = result.settings[key]
         if (setting == null) {
-            val message = "Failed to evaluate setting '$key' (the key was not found in config JSON). Returning the `defaultValue` parameter that you specified in your application: '$defaultValue'. Available keys: " +
-                    result.settings.keys.joinToString(", ")
+            val message = "Failed to evaluate setting '$key' (the key was not found in config JSON). Returning the `defaultValue` parameter that you specified in your application: '$defaultValue'. Available keys: [" +
+                    result.settings.keys.joinToString(", ") + "]."
             val details = EvaluationDetails.makeError(key, defaultValue, message, evalUser)
             logger.error(1001, message)
             hooks.invokeOnFlagEvaluated(details)
@@ -327,8 +327,8 @@ internal class Client private constructor(
 
         val setting = result.settings[key]
         if (setting == null) {
-            logger.error(1001, "Failed to evaluate setting '$key' (the key was not found in config JSON). Returning the `defaultVariationId` parameter that you specified in your application: '$defaultVariationId'. Available keys: " +
-                    result.settings.keys.joinToString(", "))
+            logger.error(1001, "Failed to evaluate setting '$key' (the key was not found in config JSON). Returning the `defaultVariationId` parameter that you specified in your application: '$defaultVariationId'. Available keys: [" +
+                    result.settings.keys.joinToString(", ") + "].")
             return defaultVariationId
         }
 
