@@ -644,7 +644,7 @@ class ConfigCatClientTests {
             )
         }
         var ready = false
-        val client = ConfigCatClient("test") {
+        ConfigCatClient("test") {
             httpEngine = mockEngine
             pollingMode = autoPoll { pollingInterval = 2.seconds }
             offline = true

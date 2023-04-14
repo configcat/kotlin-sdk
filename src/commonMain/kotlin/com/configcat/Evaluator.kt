@@ -7,10 +7,10 @@ import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
 
 internal data class EvaluationResult(
-    public val value: Any,
-    public val variationId: String?,
-    public val targetingRule: RolloutRule? = null,
-    public val percentageRule: PercentageRule? = null
+    val value: Any,
+    val variationId: String?,
+    val targetingRule: RolloutRule? = null,
+    val percentageRule: PercentageRule? = null
 )
 
 internal class Evaluator(private val logger: InternalLogger) {
@@ -18,7 +18,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     //evaluatorLogger: EvaluatorLogger;
 
     fun evaluate(setting: Setting, key: String, user: ConfigCatUser?): EvaluationResult {
-        val evaluatorLogger = EvaluatorLogger(key);
+        val evaluatorLogger = EvaluatorLogger(key)
         try {
             if (user == null) {
                 if (setting.rolloutRules.isNotEmpty() || setting.percentageItems.isNotEmpty()) {
@@ -37,7 +37,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             evaluatorLogger.logReturnValue(setting.value)
             return EvaluationResult(setting.value, setting.variationId)
         } finally {
-            logger.info(5000, evaluatorLogger.print());
+            logger.info(5000, evaluatorLogger.print())
         }
     }
 
@@ -335,7 +335,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         return null
     }
 
-    public enum class Comparator(val value: String) {
+    enum class Comparator(val value: String) {
         ONE_OF("IS ONE OF"),
         NOT_ONE_OF("IS NOT ONE OF"),
         CONTAINS("CONTAINS"),
@@ -362,7 +362,7 @@ internal class Evaluator(private val logger: InternalLogger) {
 internal class EvaluatorLogger constructor(
     key: String
 ) {
-    private val entries = StringBuilder();
+    private val entries = StringBuilder()
 
     init {
         entries.appendLine("Evaluating '$key'")
@@ -427,6 +427,6 @@ internal class EvaluatorLogger constructor(
     }
 
     fun print(): String {
-        return entries.toString();
+        return entries.toString()
     }
 }

@@ -85,7 +85,7 @@ internal class ConfigService constructor(
 
     suspend fun refresh(): RefreshResult {
         if (offline.value) {
-            val offlineMessage = ConfigCatLogMessages.CONFIG_SERVICE_CANNOT_INITIATE_HTTP_CALLS_WARN;
+            val offlineMessage = ConfigCatLogMessages.CONFIG_SERVICE_CANNOT_INITIATE_HTTP_CALLS_WARN
             logger.warning(3200, offlineMessage)
             return RefreshResult(false, offlineMessage)
         }

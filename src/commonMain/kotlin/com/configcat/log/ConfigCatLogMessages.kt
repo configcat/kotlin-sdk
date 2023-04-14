@@ -46,9 +46,6 @@ internal object ConfigCatLogMessages {
     const val FETCH_FAILED_DUE_TO_INVALID_SDK_KEY_ERROR =
         "Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey."
 
-    private fun ConfigCatLogMessages() { /* prevent from instantiation*/
-    }
-
     /**
      * Log message for Config Json Is Not Presented errors when the method returns with default value. The log eventId is 1000.
      *
