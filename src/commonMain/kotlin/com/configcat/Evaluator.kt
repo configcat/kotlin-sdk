@@ -1,5 +1,6 @@
 package com.configcat
 
+import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.soywiz.krypto.sha1
 import io.github.z4kn4fein.semver.VersionFormatException
@@ -21,10 +22,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         try {
             if (user == null) {
                 if (setting.rolloutRules.isNotEmpty() || setting.percentageItems.isNotEmpty()) {
-                    logger.warning(
-                        3001,
-                        "Cannot evaluate targeting rules and % options for setting '$key' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/"
-                    )
+                    logger.warning(3001,ConfigCatLogMessages.getTargetingIsNotPossible(key))
                 }
                 evaluatorLogger.logReturnValue(setting.value)
                 return EvaluationResult(setting.value, setting.variationId)

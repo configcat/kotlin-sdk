@@ -4,10 +4,9 @@ import com.configcat.fetch.ConfigFetcher
 import com.configcat.fetch.ConfigService
 import com.configcat.fetch.RefreshResult
 import com.configcat.fetch.SettingResult
+import com.configcat.log.*
 import com.configcat.log.DefaultLogger
 import com.configcat.log.InternalLogger
-import com.configcat.log.LogLevel
-import com.configcat.log.Logger
 import com.configcat.override.FlagOverrides
 import com.configcat.override.OverrideBehavior
 import com.soywiz.klock.DateTime
@@ -118,8 +117,10 @@ public interface ConfigCatClient {
      * Gets the Variation ID (analytics) of a feature flag or setting based on its [key].
      * In case of any failure, [defaultVariationId] will be returned. The [user] param identifies the caller.
      */
-    @Deprecated("This method is obsolete and will be removed in a future major version. " +
-            "Please use getValueDetails() instead.")
+    @Deprecated(
+        "This method is obsolete and will be removed in a future major version. " +
+                "Please use getValueDetails() instead."
+    )
     public suspend fun getVariationId(key: String, defaultVariationId: String?, user: ConfigCatUser? = null): String?
 
     /**
@@ -141,8 +142,10 @@ public interface ConfigCatClient {
      * Gets the Variation IDs (analytics) of all feature flags or settings.
      * The [user] param identifies the caller.
      */
-    @Deprecated("This method is obsolete and will be removed in a future major version. " +
-            "Please use getAllValueDetails() instead.")
+    @Deprecated(
+        "This method is obsolete and will be removed in a future major version. " +
+                "Please use getAllValueDetails() instead."
+    )
     public suspend fun getAllVariationIds(user: ConfigCatUser? = null): Collection<String>
 
     /**
@@ -208,7 +211,7 @@ public fun ConfigCatClient(
  * Gets the value of a feature flag or setting as [T] identified by the given [key].
  * In case of any failure, [defaultValue] will be returned. The [user] param identifies the caller.
  */
-public suspend inline fun <reified T: Any> ConfigCatClient.getValue(
+public suspend inline fun <reified T : Any> ConfigCatClient.getValue(
     key: String,
     defaultValue: T,
     user: ConfigCatUser? = null
@@ -218,14 +221,15 @@ public suspend inline fun <reified T: Any> ConfigCatClient.getValue(
  * Gets the value and evaluation details of a feature flag or setting identified by the given [key].
  * The [user] param identifies the caller.
  */
-public suspend inline fun <reified T: Any> ConfigCatClient.getValueDetails(
+public suspend inline fun <reified T : Any> ConfigCatClient.getValueDetails(
     key: String,
     defaultValue: T,
     user: ConfigCatUser? = null
 ): TypedEvaluationDetails<T> {
     val details = this.getAnyValueDetails(key, defaultValue, user)
     val value = details.value as? T
-    return TypedEvaluationDetails(details.key,
+    return TypedEvaluationDetails(
+        details.key,
         details.variationId,
         user,
         details.isDefaultValue || value == null,
@@ -233,7 +237,8 @@ public suspend inline fun <reified T: Any> ConfigCatClient.getValueDetails(
         value ?: defaultValue,
         details.fetchTimeUnixMilliseconds,
         details.matchedEvaluationRule,
-        details.matchedEvaluationPercentageRule)
+        details.matchedEvaluationPercentageRule
+    )
 }
 
 internal class Client private constructor(
@@ -246,7 +251,7 @@ internal class Client private constructor(
     private val evaluator: Evaluator
     private val logger: InternalLogger
     private var defaultUser: ConfigCatUser?
-    
+
     override val hooks: Hooks
 
     init {
@@ -267,7 +272,8 @@ internal class Client private constructor(
         val result = getSettings()
         val evalUser = user ?: defaultUser
         if (result.settings.isEmpty()) {
-            val message = "Config JSON is not present. Returning the `defaultValue` parameter that you specified in your application: '$defaultValue'."
+            val message =
+                ConfigCatLogMessages.getConfigJsonIsNotPresentedWithDefaultValue(key, "defaultValue", defaultValue)
             logger.error(1000, message)
             hooks.invokeOnFlagEvaluated(EvaluationDetails.makeError(key, defaultValue, message, evalUser))
             return defaultValue
@@ -275,8 +281,10 @@ internal class Client private constructor(
 
         val setting = result.settings[key]
         if (setting == null) {
-            val message = "Failed to evaluate setting '$key' (the key was not found in config JSON). Returning the `defaultValue` parameter that you specified in your application: '$defaultValue'. Available keys: [" +
-                    result.settings.keys.joinToString(", ") + "]."
+            val message = ConfigCatLogMessages.getSettingEvaluationFailedDueToMissingKey(
+                key, "defaultValue",
+                defaultValue, result.settings.keys
+            )
             logger.error(1001, message)
             hooks.invokeOnFlagEvaluated(EvaluationDetails.makeError(key, defaultValue, message, evalUser))
             return defaultValue
@@ -289,7 +297,8 @@ internal class Client private constructor(
         val result = getSettings()
         val evalUser = user ?: defaultUser
         if (result.settings.isEmpty()) {
-            val message = "Config JSON is not present. Returning the `defaultValue` parameter that you specified in your application: '$defaultValue'."
+            val message =
+                ConfigCatLogMessages.getConfigJsonIsNotPresentedWithDefaultValue(key, "defaultValue", defaultValue)
             val details = EvaluationDetails.makeError(key, defaultValue, message, evalUser)
             logger.error(1000, message)
             hooks.invokeOnFlagEvaluated(details)
@@ -298,8 +307,10 @@ internal class Client private constructor(
 
         val setting = result.settings[key]
         if (setting == null) {
-            val message = "Failed to evaluate setting '$key' (the key was not found in config JSON). Returning the `defaultValue` parameter that you specified in your application: '$defaultValue'. Available keys: [" +
-                    result.settings.keys.joinToString(", ") + "]."
+            val message = ConfigCatLogMessages.getSettingEvaluationFailedDueToMissingKey(
+                key, "defaultValue",
+                defaultValue, result.settings.keys
+            )
             val details = EvaluationDetails.makeError(key, defaultValue, message, evalUser)
             logger.error(1001, message)
             hooks.invokeOnFlagEvaluated(details)
@@ -316,19 +327,29 @@ internal class Client private constructor(
         }
     }
 
-    @Deprecated("This method is obsolete and will be removed in a future major version. " +
-            "Please use getValueDetails() instead.")
+    @Deprecated(
+        "This method is obsolete and will be removed in a future major version. " +
+                "Please use getValueDetails() instead."
+    )
     override suspend fun getVariationId(key: String, defaultVariationId: String?, user: ConfigCatUser?): String? {
         val result = getSettings()
         if (result.settings.isEmpty()) {
-            logger.error(1000, "Config JSON is not present. Returning the `defaultVariationId` parameter that you specified in your application: '$defaultVariationId'.")
+            logger.error(
+                1000, ConfigCatLogMessages.getConfigJsonIsNotPresentedWithDefaultValue(
+                    key, "defaultVariationId", defaultVariationId
+                )
+            )
             return defaultVariationId
         }
 
         val setting = result.settings[key]
         if (setting == null) {
-            logger.error(1001, "Failed to evaluate setting '$key' (the key was not found in config JSON). Returning the `defaultVariationId` parameter that you specified in your application: '$defaultVariationId'. Available keys: [" +
-                    result.settings.keys.joinToString(", ") + "].")
+            logger.error(
+                1001, ConfigCatLogMessages.getSettingEvaluationFailedDueToMissingKey(
+                    key, "defaultVariationId",
+                    defaultVariationId, result.settings.keys
+                )
+            )
             return defaultVariationId
         }
 
@@ -370,8 +391,10 @@ internal class Client private constructor(
         }.toMap()
     }
 
-    @Deprecated("This method is obsolete and will be removed in a future major version. " +
-            "Please use getAllValueDetails() instead.")
+    @Deprecated(
+        "This method is obsolete and will be removed in a future major version. " +
+                "Please use getAllValueDetails() instead."
+    )
     override suspend fun getAllVariationIds(user: ConfigCatUser?): Collection<String> {
         val result = getSettings()
         return result.settings.map {
@@ -380,8 +403,10 @@ internal class Client private constructor(
         }.filterNotNull()
     }
 
-    override suspend fun forceRefresh(): RefreshResult = service?.refresh() ?: RefreshResult(false,
-        "The ConfigCat SDK is in local-only mode. Calling .forceRefresh() has no effect.")
+    override suspend fun forceRefresh(): RefreshResult = service?.refresh() ?: RefreshResult(
+        false,
+        "The ConfigCat SDK is in local-only mode. Calling .forceRefresh() has no effect."
+    )
 
     override fun setOffline() {
         service?.offline()
@@ -414,8 +439,10 @@ internal class Client private constructor(
 
     private fun evaluate(setting: Setting, key: String, user: ConfigCatUser?, fetchTime: DateTime): EvaluationDetails {
         val (value, variationId, targetingRule, percentageRule) = evaluator.evaluate(setting, key, user)
-        val details = EvaluationDetails(key, variationId, user, false, null, value,
-            fetchTime.unixMillisLong, targetingRule, percentageRule)
+        val details = EvaluationDetails(
+            key, variationId, user, false, null, value,
+            fetchTime.unixMillisLong, targetingRule, percentageRule
+        )
         hooks.invokeOnFlagEvaluated(details)
         return details
     }
@@ -423,8 +450,11 @@ internal class Client private constructor(
     private suspend fun getSettings(): SettingResult {
         if (flagOverrides != null) {
             return when (flagOverrides.behavior) {
-                OverrideBehavior.LOCAL_ONLY -> SettingResult(flagOverrides.dataSource.getOverrides(),
-                    Constants.distantPast)
+                OverrideBehavior.LOCAL_ONLY -> SettingResult(
+                    flagOverrides.dataSource.getOverrides(),
+                    Constants.distantPast
+                )
+
                 OverrideBehavior.LOCAL_OVER_REMOTE -> {
                     val result = service?.getSettings()
                     val remote = result?.settings ?: mapOf()
@@ -452,8 +482,10 @@ internal class Client private constructor(
             require(sdkKey.isNotEmpty()) { "'sdkKey' cannot be empty." }
             lock.withLock {
                 val instance = instances[sdkKey]
-                if (instance != null)
+                if (instance != null) {
+                    instance.logger.warning(3000, ConfigCatLogMessages.getClientIsAlreadyCreated(sdkKey))
                     return instance
+                }
                 val client = Client(sdkKey, ConfigCatOptions().apply(block))
                 instances[sdkKey] = client
                 return client
@@ -477,4 +509,5 @@ internal class Client private constructor(
             }
         }
     }
+
 }

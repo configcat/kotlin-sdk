@@ -4,6 +4,7 @@ import com.configcat.*
 import com.configcat.AutoPollMode
 import com.configcat.LazyLoadMode
 import com.configcat.Constants
+import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.soywiz.klock.DateTime
 import com.soywiz.krypto.sha1
@@ -68,7 +69,7 @@ internal class ConfigService constructor(
         syncLock.withLock {
             if (!offline.compareAndSet(expect = false, update = true)) return
             pollingJob?.cancel()
-            logger.info(5200, "Switched to OFFLINE mode.")
+            logger.info(5200, ConfigCatLogMessages.getConfigServiceStatusChanged("OFFLINE"))
         }
     }
 
@@ -78,13 +79,13 @@ internal class ConfigService constructor(
             if (mode is AutoPollMode) {
                 startPoll(mode)
             }
-            logger.info(5200, "Switched to ONLINE mode.")
+            logger.info(5200, ConfigCatLogMessages.getConfigServiceStatusChanged("ONLINE"))
         }
     }
 
     suspend fun refresh(): RefreshResult {
         if (offline.value) {
-            val offlineMessage = "Client is in offline mode, it cannot initiate HTTP calls."
+            val offlineMessage = ConfigCatLogMessages.CONFIG_SERVICE_CANNOT_INITIATE_HTTP_CALLS_WARN;
             logger.warning(3200, offlineMessage)
             return RefreshResult(false, offlineMessage)
         }
@@ -136,7 +137,7 @@ internal class ConfigService constructor(
                             return@async result
                         }
                         // We got a timeout
-                        val message = "`maxInitWaitTime` for the very first fetch reached (${mode.configuration.maxInitWaitTime.inWholeMilliseconds}ms). Returning cached config."
+                        val message = ConfigCatLogMessages.getAutoPollMaxInitWaitTimeReached(mode.configuration.maxInitWaitTime.inWholeMilliseconds)
                         logger.warning(4200, message)
                         setInitialized()
                         return@async Pair(Entry.empty, message)
@@ -203,7 +204,7 @@ internal class ConfigService constructor(
             cachedJsonString = cached
             Constants.json.decodeFromString(cached)
         } catch (e: Exception) {
-            logger.error(2200, "Error occurred while reading the cache. ${e.message}")
+            logger.error(2200, ConfigCatLogMessages.CONFIG_SERVICE_CACHE_READ_ERROR, e)
             Entry.empty
         }
     }
@@ -215,7 +216,7 @@ internal class ConfigService constructor(
                 cachedJsonString = json
                 cache.write(cacheKey, json)
             } catch (e: Exception) {
-                logger.error(2201, "Error occurred while writing the cache. ${e.message}")
+                logger.error(2201, ConfigCatLogMessages.CONFIG_SERVICE_CACHE_WRITE_ERROR, e)
             }
         }
     }

@@ -11,6 +11,13 @@ internal class InternalLogger(private val logger: Logger, private val level: Log
         }
     }
 
+    fun error(eventId: Int, message: String, throwable: Throwable) {
+        hooks.invokeOnError(message)
+        if (shouldLog(LogLevel.ERROR)) {
+            logger.error("[$eventId] $message ${throwable.message}")
+        }
+    }
+
     fun warning(eventId: Int, message: String) {
         if (shouldLog(LogLevel.WARNING)) {
             logger.warning("[$eventId] $message")

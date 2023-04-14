@@ -3,6 +3,7 @@ package com.configcat.fetch
 import com.configcat.*
 import com.configcat.Closeable
 import com.configcat.Constants
+import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.soywiz.klock.DateTime
 import io.ktor.client.*
@@ -56,10 +57,10 @@ internal class ConfigFetcher constructor(
             currentBaseUrl = preferences.baseUrl
             if (preferences.redirect == RedirectMode.NO_REDIRECT.ordinal) return response
             else if (preferences.redirect == RedirectMode.SHOULD_REDIRECT.ordinal) {
-                logger.warning(3002, "The `dataGovernance` parameter specified at the client initialization is not in sync with the preferences on the ConfigCat Dashboard. Read more: https://configcat.com/docs/advanced/data-governance/")
+                logger.warning(3002, ConfigCatLogMessages.DATA_GOVERNANCE_IS_OUT_OF_SYNC_WARN)
             }
         }
-        val message = "Redirection loop encountered while trying to fetch config JSON. Please contact us at https://configcat.com/support/"
+        val message = ConfigCatLogMessages.FETCH_FAILED_DUE_TO_REDIRECT_LOOP_ERROR
         logger.error(1104, message)
         return FetchResponse.failure(message, true)
     }
@@ -91,22 +92,22 @@ internal class ConfigFetcher constructor(
                 logger.debug("Fetch was successful: config not modified.")
                 return FetchResponse.notModified()
             } else if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.Forbidden) {
-                val message = "Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. " +
-                        "Received response: ${response.status}"
+                val message = ConfigCatLogMessages.FETCH_FAILED_DUE_TO_INVALID_SDK_KEY_ERROR +
+                        " Received response: ${response.status}"
                 logger.error(1100, message)
                 return FetchResponse.failure(message, false)
             } else {
-                val message = "Unexpected HTTP response was received while trying to fetch config JSON: ${response.status}"
+                val message = ConfigCatLogMessages.getFetchFailedDueToUnexpectedHttpResponse(response.status.value, response.bodyAsText())
                 logger.error(1101, message)
                 return FetchResponse.failure(message, true)
             }
         } catch (_: HttpRequestTimeoutException) {
-            val message = "Request timed out while trying to fetch config JSON. Timeout value: ${options.requestTimeout.inWholeMilliseconds}ms"
+            val message = ConfigCatLogMessages.getFetchFailedDueToRequestTimeout(options.requestTimeout.inWholeMilliseconds, options.requestTimeout.inWholeMilliseconds,options.requestTimeout.inWholeMilliseconds)
             logger.error(1102, message)
             return FetchResponse.failure(message, true)
         } catch (e: Exception) {
-            val message = "Unexpected error occurred while trying to fetch config JSON. ${e.message}"
-            logger.error(1103, message)
+            val message = ConfigCatLogMessages.FETCH_FAILED_DUE_TO_UNEXPECTED_ERROR
+            logger.error(1103, message, e)
             return FetchResponse.failure(message, true)
         }
     }
@@ -128,7 +129,7 @@ internal class ConfigFetcher constructor(
         return try {
             Pair(Constants.json.decodeFromString(jsonString), null)
         } catch (e: Exception) {
-            logger.error(1105, "Fetching config JSON was successful but the HTTP response content was invalid. JSON parsing failed. ${e.message}")
+            logger.error(1105, ConfigCatLogMessages.FETCH_RECEIVED_200_WITH_INVALID_BODY_ERROR, e)
             Pair(Config.empty, e.message)
         }
     }

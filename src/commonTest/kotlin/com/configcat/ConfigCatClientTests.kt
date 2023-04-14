@@ -570,7 +570,7 @@ class ConfigCatClientTests {
 
         assertEquals("", details.value)
         assertTrue(details.isDefaultValue)
-        assertEquals("Config JSON is not present. Returning the `defaultValue` parameter that you specified in your application: ''.", details.error)
+        assertEquals("Config JSON is not present when evaluating setting 'fakeKey'. Returning the `defaultValue` parameter that you specified in your application: ''.", details.error)
     }
 
     @Test
@@ -792,7 +792,7 @@ class ConfigCatClientTests {
         client.forceRefresh()
         val error = client.forceRefresh()
 
-        assertEquals("Unexpected HTTP response was received while trying to fetch config JSON: 400 Bad Request", error.error)
+        assertEquals("Unexpected HTTP response was received while trying to fetch config JSON: 400 ", error.error)
     }
 
     @Test
@@ -810,7 +810,7 @@ class ConfigCatClientTests {
                 assertTrue(details.isDefaultValue)
                 assertEquals("", details.value)
                 assertEquals("ID", details.user?.identifier)
-                assertEquals("Config JSON is not present. Returning the `defaultValue` parameter that you specified in your application: ''.", details.error)
+                assertEquals("Config JSON is not present when evaluating setting 'fakeKey'. Returning the `defaultValue` parameter that you specified in your application: ''.", details.error)
             }
         }
 
