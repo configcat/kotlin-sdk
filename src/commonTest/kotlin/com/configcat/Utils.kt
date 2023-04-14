@@ -1,7 +1,6 @@
 package com.configcat
 
 import com.configcat.fetch.ConfigFetcher
-import com.configcat.fetch.ConfigService
 import com.configcat.log.InternalLogger
 import com.soywiz.klock.DateTime
 import io.ktor.client.engine.mock.*

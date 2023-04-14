@@ -1,9 +1,8 @@
-package com.configcat.fetch
+package com.configcat
 
 import com.configcat.*
-import com.configcat.AutoPollMode
-import com.configcat.LazyLoadMode
-import com.configcat.Constants
+import com.configcat.fetch.ConfigFetcher
+import com.configcat.fetch.RefreshResult
 import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.soywiz.klock.DateTime

@@ -53,6 +53,10 @@ internal class DefaultLogger : Logger {
         printMessage(enrichMessage(message, LogLevel.ERROR))
     }
 
+    override fun error(message: String, throwable: Throwable) {
+        printMessage(enrichMessage("$message $throwable", LogLevel.ERROR))
+    }
+
     override fun warning(message: String) {
         printMessage(enrichMessage(message, LogLevel.WARNING))
     }

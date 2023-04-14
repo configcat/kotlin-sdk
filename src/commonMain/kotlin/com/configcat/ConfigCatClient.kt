@@ -1,9 +1,7 @@
 package com.configcat
 
 import com.configcat.fetch.ConfigFetcher
-import com.configcat.fetch.ConfigService
 import com.configcat.fetch.RefreshResult
-import com.configcat.fetch.SettingResult
 import com.configcat.log.*
 import com.configcat.log.DefaultLogger
 import com.configcat.log.InternalLogger
@@ -11,6 +9,7 @@ import com.configcat.override.FlagOverrides
 import com.configcat.override.OverrideBehavior
 import com.soywiz.klock.DateTime
 import io.ktor.client.engine.*
+import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
 import kotlin.time.Duration
@@ -189,6 +188,11 @@ public interface ConfigCatClient {
     public fun close()
 
     /**
+     * Get the client closed status.
+     */
+    public fun isClosed(): Boolean
+
+    /**
      * Companion object of [ConfigCatClient].
      */
     public companion object {
@@ -251,6 +255,8 @@ internal class Client private constructor(
     private val evaluator: Evaluator
     private val logger: InternalLogger
     private var defaultUser: ConfigCatUser?
+    private val isClosed = atomic(false)
+
 
     override val hooks: Hooks
 
@@ -409,27 +415,50 @@ internal class Client private constructor(
     )
 
     override fun setOffline() {
-        service?.offline()
+        if (service == null || isClosed()) {
+            this.logger.warning(3201, ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("setOffline"))
+            return;
+        }
+        service!!.offline()
     }
 
     override fun setOnline() {
-        service?.online()
+        if (service == null || isClosed()) {
+            this.logger.warning(3201, ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("setOnline"))
+            return;
+        }
+        service!!.online()
     }
 
     override val isOffline: Boolean
         get() = service?.isOffline ?: true
 
     override fun setDefaultUser(user: ConfigCatUser) {
+        if (isClosed()) {
+            this.logger.warning(3201, ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("setDefaultUser"))
+            return;
+        }
         defaultUser = user
     }
 
     override fun clearDefaultUser() {
+        if (isClosed()) {
+            this.logger.warning(3201, ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("clearDefaultUser"))
+            return;
+        }
         defaultUser = null
     }
 
     override fun close() {
+        if (!this.isClosed.compareAndSet(false, update = true)) {
+            return;
+        }
         closeResources()
         removeFromInstances(this)
+    }
+
+    override fun isClosed(): Boolean {
+        return isClosed.value;
     }
 
     private fun closeResources() {
