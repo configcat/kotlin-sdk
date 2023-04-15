@@ -11,8 +11,8 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlin.test.*
-import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ConfigCatClientTests {
@@ -904,6 +904,15 @@ class ConfigCatClientTests {
 
         assertSame(client2, client3)
     }
+
+    @Test
+    fun testClose() {
+        val client1 = ConfigCatClient("test")
+        assertFalse(client1.isClosed())
+        client1.close()
+        assertTrue(client1.isClosed())
+    }
+
 
     companion object {
         const val testMultipleBody =
