@@ -907,7 +907,7 @@ class ConfigCatClientTests {
 
     @Test
     fun testClose() {
-        val client1 = ConfigCatClient("test")
+        val client1 = ConfigCatClient("test")  { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
         assertFalse(client1.isClosed())
         client1.close()
         assertTrue(client1.isClosed())
