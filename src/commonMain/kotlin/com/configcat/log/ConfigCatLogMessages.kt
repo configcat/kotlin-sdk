@@ -78,8 +78,8 @@ internal object ConfigCatLogMessages {
         availableKeysSet: Set<String?>
     ): String {
         return "Failed to evaluate setting '$key' (the key was not found in config JSON). Returning the `$defaultParamName` parameter that you specified in your application: '$defaultParamValue'. Available keys: [" + availableKeysSet.joinToString(
-            ",",
-            transform = { availableKey -> "$availableKey" }) + "]."
+            ", ",
+            transform = { availableKey -> "'$availableKey'" }) + "]."
     }
 
     /**
