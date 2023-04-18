@@ -68,7 +68,7 @@ internal object ConfigCatLogMessages {
      * @param emptyResult The empty result.
      * @return The formatted error message.
      */
-    fun getConfigJsonIsNotPresentedWithEmptyResult(emptyResult: String): String? {
+    fun getConfigJsonIsNotPresentedWithEmptyResult(emptyResult: String): String {
         return "Config JSON is not present. Returning $emptyResult."
     }
 

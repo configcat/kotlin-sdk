@@ -283,7 +283,7 @@ internal class Client private constructor(
         }
         val setting = settingResult.settings[key]
 
-        return evaluate(setting!!, key, evalUser, settingResult.fetchTime)
+        return evaluate(setting!!, key, evalUser, settingResult.fetchTime).value
     }
 
     override suspend fun getAnyValueDetails(key: String, defaultValue: Any, user: ConfigCatUser?): EvaluationDetails {
