@@ -63,6 +63,17 @@ internal object ConfigCatLogMessages {
     }
 
     /**
+     * Log message for Config Json Is Not Presented errors when the method returns with empty value. The log eventId is 1000.
+     *
+     * @param emptyResult The empty result.
+     * @return The formatted error message.
+     */
+    fun getConfigJsonIsNotPresentedWithEmptyResult(emptyResult: String): String? {
+        return "Config JSON is not present. Returning $emptyResult."
+    }
+
+
+    /**
      * Log message for Setting Evaluation Failed Due To Missing Key error. The log eventId is 1001.
      *
      * @param key               The feature flag key.

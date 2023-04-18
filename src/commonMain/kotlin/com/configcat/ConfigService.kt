@@ -7,6 +7,7 @@ import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.soywiz.klock.DateTime
 import com.soywiz.krypto.sha1
+import io.ktor.util.*
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
@@ -16,7 +17,12 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 
-internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: DateTime)
+internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: DateTime) {
+    fun isEmpty(): Boolean = this === SettingResult.empty
+    companion object {
+        val empty: SettingResult =SettingResult(emptyMap(), Constants.distantPast)
+    }
+}
 
 internal class ConfigService constructor(
     private val options: ConfigCatOptions,
@@ -55,11 +61,20 @@ internal class ConfigService constructor(
                     DateTime.now()
                         .add(0, -mode.configuration.cacheRefreshInterval.inWholeMilliseconds.toDouble())
                 )
-                SettingResult(result.first.config.settings, result.first.fetchTime)
+                if(result.first.isEmpty()){
+                    SettingResult.empty
+                }else{
+                    SettingResult(result.first.config.settings, result.first.fetchTime)
+                }
+
             }
             else -> {
                 val result = fetchIfOlder(Constants.distantPast, preferCached = true)
-                SettingResult(result.first.config.settings, result.first.fetchTime)
+                if(result.first.isEmpty()){
+                    SettingResult.empty
+                }else{
+                    SettingResult(result.first.config.settings, result.first.fetchTime)
+                }
             }
         }
     }

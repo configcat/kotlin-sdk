@@ -3,8 +3,6 @@ package com.configcat
 import com.configcat.fetch.ConfigFetcher
 import com.configcat.fetch.RefreshResult
 import com.configcat.log.*
-import com.configcat.log.DefaultLogger
-import com.configcat.log.InternalLogger
 import com.configcat.override.FlagOverrides
 import com.configcat.override.OverrideBehavior
 import com.soywiz.klock.DateTime
@@ -275,61 +273,40 @@ internal class Client private constructor(
     }
 
     override suspend fun getAnyValue(key: String, defaultValue: Any, user: ConfigCatUser?): Any {
-        val result = getSettings()
+        val settingResult = getSettings()
         val evalUser = user ?: defaultUser
-        if (result.settings.isEmpty()) {
-            val message =
-                ConfigCatLogMessages.getConfigJsonIsNotPresentedWithDefaultValue(key, "defaultValue", defaultValue)
-            logger.error(1000, message)
-            hooks.invokeOnFlagEvaluated(EvaluationDetails.makeError(key, defaultValue, message, evalUser))
+        val checkSettingAvailableMessage = checkSettingAvailable(settingResult, key, defaultValue)
+        if(checkSettingAvailableMessage != null){
+            val details = EvaluationDetails.makeError(key, defaultValue, checkSettingAvailableMessage, evalUser)
+            hooks.invokeOnFlagEvaluated(details)
             return defaultValue
         }
+        val setting = settingResult.settings[key]
 
-        val setting = result.settings[key]
-        if (setting == null) {
-            val message = ConfigCatLogMessages.getSettingEvaluationFailedDueToMissingKey(
-                key, "defaultValue",
-                defaultValue, result.settings.keys
-            )
-            logger.error(1001, message)
-            hooks.invokeOnFlagEvaluated(EvaluationDetails.makeError(key, defaultValue, message, evalUser))
-            return defaultValue
-        }
-
-        return evaluate(setting, key, evalUser, result.fetchTime).value
+        return evaluate(setting!!, key, evalUser, settingResult.fetchTime)
     }
 
     override suspend fun getAnyValueDetails(key: String, defaultValue: Any, user: ConfigCatUser?): EvaluationDetails {
-        val result = getSettings()
+        val settingResult = getSettings()
         val evalUser = user ?: defaultUser
-        if (result.settings.isEmpty()) {
-            val message =
-                ConfigCatLogMessages.getConfigJsonIsNotPresentedWithDefaultValue(key, "defaultValue", defaultValue)
-            val details = EvaluationDetails.makeError(key, defaultValue, message, evalUser)
-            logger.error(1000, message)
+        val checkSettingAvailableMessage = checkSettingAvailable(settingResult, key, defaultValue)
+        if(checkSettingAvailableMessage != null){
+            val details = EvaluationDetails.makeError(key, defaultValue, checkSettingAvailableMessage, evalUser)
             hooks.invokeOnFlagEvaluated(details)
             return details
         }
+        val setting = settingResult.settings[key]
 
-        val setting = result.settings[key]
-        if (setting == null) {
-            val message = ConfigCatLogMessages.getSettingEvaluationFailedDueToMissingKey(
-                key, "defaultValue",
-                defaultValue, result.settings.keys
-            )
-            val details = EvaluationDetails.makeError(key, defaultValue, message, evalUser)
-            logger.error(1001, message)
-            hooks.invokeOnFlagEvaluated(details)
-            return details
-        }
-
-        return evaluate(setting, key, evalUser, result.fetchTime)
+        return evaluate(setting!!, key, evalUser, settingResult.fetchTime)
     }
 
     override suspend fun getAllValueDetails(user: ConfigCatUser?): Collection<EvaluationDetails> {
-        val result = getSettings()
-        return result.settings.map {
-            evaluate(it.value, it.key, user ?: defaultUser, result.fetchTime)
+        val settingResult = getSettings()
+        if (!checkSettingsAvailable(settingResult, "empty list")) {
+            return emptyList()
+        }
+        return settingResult.settings.map {
+            evaluate(it.value, it.key, user ?: defaultUser, settingResult.fetchTime)
         }
     }
 
@@ -363,10 +340,11 @@ internal class Client private constructor(
     }
 
     override suspend fun getKeyAndValue(variationId: String): Pair<String, Any>? {
-        val settings = getSettings().settings
-        if (settings.isEmpty()) {
+        val settingResult = getSettings()
+        if (!checkSettingsAvailable(settingResult, "null")) {
             return null
         }
+        val settings = settingResult.settings
         for (setting in settings) {
             if (setting.value.variationId == variationId) {
                 return Pair(setting.key, setting.value.value)
@@ -386,13 +364,19 @@ internal class Client private constructor(
     }
 
     override suspend fun getAllKeys(): Collection<String> {
-        return getSettings().settings.keys
+        val settingResult = getSettings()
+        if (!checkSettingsAvailable(settingResult, "empty array"))
+            return emptyList()
+        return settingResult.settings.keys
     }
 
     override suspend fun getAllValues(user: ConfigCatUser?): Map<String, Any> {
-        val result = getSettings()
-        return result.settings.map {
-            val evaluated = evaluate(it.value, it.key, user ?: defaultUser, result.fetchTime)
+        val settingResult = getSettings()
+        if (!checkSettingsAvailable(settingResult, "empty map")) {
+            return emptyMap();
+        }
+        return settingResult.settings.map {
+            val evaluated = evaluate(it.value, it.key, user ?: defaultUser, settingResult.fetchTime)
             it.key to evaluated.value
         }.toMap()
     }
@@ -416,7 +400,10 @@ internal class Client private constructor(
 
     override fun setOffline() {
         if (service == null || isClosed()) {
-            this.logger.warning(3201, ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("setOffline"))
+            this.logger.warning(
+                3201,
+                ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("setOffline")
+            )
             return;
         }
         service!!.offline()
@@ -424,7 +411,10 @@ internal class Client private constructor(
 
     override fun setOnline() {
         if (service == null || isClosed()) {
-            this.logger.warning(3201, ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("setOnline"))
+            this.logger.warning(
+                3201,
+                ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("setOnline")
+            )
             return;
         }
         service!!.online()
@@ -435,7 +425,10 @@ internal class Client private constructor(
 
     override fun setDefaultUser(user: ConfigCatUser) {
         if (isClosed()) {
-            this.logger.warning(3201, ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("setDefaultUser"))
+            this.logger.warning(
+                3201,
+                ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("setDefaultUser")
+            )
             return;
         }
         defaultUser = user
@@ -443,7 +436,10 @@ internal class Client private constructor(
 
     override fun clearDefaultUser() {
         if (isClosed()) {
-            this.logger.warning(3201, ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("clearDefaultUser"))
+            this.logger.warning(
+                3201,
+                ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("clearDefaultUser")
+            )
             return;
         }
         defaultUser = null
@@ -502,6 +498,40 @@ internal class Client private constructor(
 
         return service?.getSettings() ?: SettingResult(mapOf(), Constants.distantPast)
     }
+
+    private fun checkSettingsAvailable(settingResult: SettingResult, emptyResult: String): Boolean {
+        if (settingResult.isEmpty()) {
+            this.logger.error(1000, ConfigCatLogMessages.getConfigJsonIsNotPresentedWithEmptyResult(emptyResult))
+            return false
+        }
+        return true
+    }
+
+    private fun <T> checkSettingAvailable(
+        settingResult: SettingResult,
+        key: String,
+        defaultValue: T
+    ): String? {
+        if (settingResult.isEmpty()) {
+            val errorMessage =
+                ConfigCatLogMessages.getConfigJsonIsNotPresentedWithDefaultValue(key, "defaultValue", defaultValue)
+            logger.error(1000, errorMessage)
+            return errorMessage
+        }
+        val setting = settingResult.settings[key]
+        if (setting == null) {
+            val errorMessage = ConfigCatLogMessages.getSettingEvaluationFailedDueToMissingKey(
+                key,
+                "defaultValue",
+                defaultValue,
+                settingResult.settings.keys
+            )
+            logger.error(1001, errorMessage)
+            return errorMessage
+        }
+        return null
+    }
+
 
     companion object {
         private val instances = mutableMapOf<String, Client>()
