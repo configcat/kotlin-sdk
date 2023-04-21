@@ -101,7 +101,8 @@ internal class ConfigFetcher constructor(
                 return FetchResponse.failure(message, false)
             } else {
                 val message = ConfigCatLogMessages.getFetchFailedDueToUnexpectedHttpResponse(
-                    response.status.value, response.bodyAsText()
+                    response.status.value,
+                    response.bodyAsText()
                 )
                 logger.error(1101, message)
                 return FetchResponse.failure(message, true)

@@ -17,7 +17,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 
 internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: DateTime) {
-    fun isEmpty(): Boolean = this === SettingResult.empty
+    fun isEmpty(): Boolean = this === empty
 
     companion object {
         val empty: SettingResult = SettingResult(emptyMap(), Constants.distantPast)

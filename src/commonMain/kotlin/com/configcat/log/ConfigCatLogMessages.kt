@@ -12,8 +12,8 @@ internal object ConfigCatLogMessages {
      */
     const val DATA_GOVERNANCE_IS_OUT_OF_SYNC_WARN =
         "The `builder.dataGovernance()` parameter specified at the client initialization is not in sync " +
-                "with the preferences on the ConfigCat Dashboard. " +
-                "Read more: https://configcat.com/docs/advanced/data-governance/"
+            "with the preferences on the ConfigCat Dashboard. " +
+            "Read more: https://configcat.com/docs/advanced/data-governance/"
 
     /**
      * Log message for Config Service Cache Write error. The log eventId is 2201.
@@ -36,7 +36,7 @@ internal object ConfigCatLogMessages {
      */
     const val FETCH_FAILED_DUE_TO_REDIRECT_LOOP_ERROR =
         "Redirection loop encountered while trying to fetch config JSON. " +
-                "Please contact us at https://configcat.com/support/"
+            "Please contact us at https://configcat.com/support/"
 
     /**
      * Log message for Fetch Failed Due To Unexpected error. The log eventId is 1103.
@@ -64,8 +64,8 @@ internal object ConfigCatLogMessages {
         defaultParamValue: Any?
     ): String {
         return "Config JSON is not present when evaluating setting '$key'. " +
-                "Returning the `$defaultParamName` parameter that you specified in your " +
-                "application: '$defaultParamValue'."
+            "Returning the `$defaultParamName` parameter that you specified in your " +
+            "application: '$defaultParamValue'."
     }
 
     /**
@@ -95,8 +95,8 @@ internal object ConfigCatLogMessages {
         availableKeysSet: Set<String?>
     ): String {
         return "Failed to evaluate setting '$key' (the key was not found in config JSON). " +
-                "Returning the `$defaultParamName` parameter that you specified in your " +
-                "application: '$defaultParamValue'" + ". Available keys: [" + availableKeysSet.joinToString(
+            "Returning the `$defaultParamName` parameter that you specified in your " +
+            "application: '$defaultParamValue'" + ". Available keys: [" + availableKeysSet.joinToString(
             ", ",
             transform = { availableKey -> "'$availableKey'" }
         ) + "]."
@@ -127,8 +127,8 @@ internal object ConfigCatLogMessages {
         writeTimeoutMillis: Long
     ): String {
         return "Request timed out while trying to fetch config JSON. " +
-                "Timeout values: [connect: " + connectTimeoutMillis + "ms, " +
-                "read: " + readTimeoutMillis + "ms, write: " + writeTimeoutMillis + "ms]"
+            "Timeout values: [connect: " + connectTimeoutMillis + "ms, " +
+            "read: " + readTimeoutMillis + "ms, write: " + writeTimeoutMillis + "ms]"
     }
 
     /**
@@ -139,8 +139,8 @@ internal object ConfigCatLogMessages {
      */
     fun getClientIsAlreadyCreated(sdkKey: String): String {
         return "There is an existing client instance for the specified SDK Key. No new client instance will be " +
-                "created and the specified options callback is ignored. " +
-                "Returning the existing client instance. SDK Key: '$sdkKey'."
+            "created and the specified options callback is ignored. " +
+            "Returning the existing client instance. SDK Key: '$sdkKey'."
     }
 
     /**
@@ -151,8 +151,8 @@ internal object ConfigCatLogMessages {
      */
     fun getTargetingIsNotPossible(key: String): String {
         return "Cannot evaluate targeting rules and % options for setting '$key' (User Object is missing). " +
-                "You should pass a User Object to the evaluation methods like `getValue()`/`getValueAsync()` " +
-                "in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/"
+            "You should pass a User Object to the evaluation methods like `getValue()`/`getValueAsync()` " +
+            "in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/"
     }
 
     /**
@@ -173,7 +173,7 @@ internal object ConfigCatLogMessages {
      */
     fun getAutoPollMaxInitWaitTimeReached(maxInitWaitTimeSeconds: Long): String {
         return "`maxInitWaitTimeSeconds` for the very first fetch reached (" + maxInitWaitTimeSeconds + "s)." +
-                " Returning cached config."
+            " Returning cached config."
     }
 
     /**

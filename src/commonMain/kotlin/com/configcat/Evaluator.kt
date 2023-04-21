@@ -401,8 +401,10 @@ internal class EvaluatorLogger constructor(
         comparator: Evaluator.Comparator,
         comparisonValue: String
     ) {
-        entries.appendLine("Evaluating rule: " +
-                "[$attribute:$userValue] [${comparator.value}] [$comparisonValue] => no match")
+        entries.appendLine(
+            "Evaluating rule: " +
+                "[$attribute:$userValue] [${comparator.value}] [$comparisonValue] => no match"
+        )
     }
 
     fun logFormatError(
