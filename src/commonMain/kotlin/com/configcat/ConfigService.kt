@@ -18,6 +18,7 @@ import kotlinx.serialization.encodeToString
 
 internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: DateTime) {
     fun isEmpty(): Boolean = this === SettingResult.empty
+
     companion object {
         val empty: SettingResult = SettingResult(emptyMap(), Constants.distantPast)
     }
@@ -66,6 +67,7 @@ internal class ConfigService constructor(
                     SettingResult(result.first.config.settings, result.first.fetchTime)
                 }
             }
+
             else -> {
                 val result = fetchIfOlder(Constants.distantPast, preferCached = true)
                 if (result.first.isEmpty()) {
@@ -149,7 +151,9 @@ internal class ConfigService constructor(
                             return@async result
                         }
                         // We got a timeout
-                        val message = ConfigCatLogMessages.getAutoPollMaxInitWaitTimeReached(mode.configuration.maxInitWaitTime.inWholeMilliseconds)
+                        val message = ConfigCatLogMessages.getAutoPollMaxInitWaitTimeReached(
+                            mode.configuration.maxInitWaitTime.inWholeMilliseconds
+                        )
                         logger.warning(4200, message)
                         setInitialized()
                         return@async Pair(Entry.empty, message)

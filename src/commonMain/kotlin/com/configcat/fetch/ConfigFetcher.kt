@@ -100,12 +100,18 @@ internal class ConfigFetcher constructor(
                 logger.error(1100, message)
                 return FetchResponse.failure(message, false)
             } else {
-                val message = ConfigCatLogMessages.getFetchFailedDueToUnexpectedHttpResponse(response.status.value, response.bodyAsText())
+                val message = ConfigCatLogMessages.getFetchFailedDueToUnexpectedHttpResponse(
+                    response.status.value, response.bodyAsText()
+                )
                 logger.error(1101, message)
                 return FetchResponse.failure(message, true)
             }
         } catch (_: HttpRequestTimeoutException) {
-            val message = ConfigCatLogMessages.getFetchFailedDueToRequestTimeout(options.requestTimeout.inWholeMilliseconds, options.requestTimeout.inWholeMilliseconds, options.requestTimeout.inWholeMilliseconds)
+            val message = ConfigCatLogMessages.getFetchFailedDueToRequestTimeout(
+                options.requestTimeout.inWholeMilliseconds,
+                options.requestTimeout.inWholeMilliseconds,
+                options.requestTimeout.inWholeMilliseconds
+            )
             logger.error(1102, message)
             return FetchResponse.failure(message, true)
         } catch (e: Exception) {
