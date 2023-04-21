@@ -132,6 +132,16 @@ internal object ConfigCatLogMessages {
     }
 
     /**
+     * Log message for Setting For Variation Id Is Not Present error. The log eventId is 2011.
+     *
+     * @param variationId The variation id.
+     * @return The formatted error message.
+     */
+    fun getSettingForVariationIdIsNotPresent(variationId: String): String {
+        return "Could not find the setting for the specified variation ID: '$variationId'."
+    }
+
+    /**
      * Log message for Client Is Already Created warning. The log eventId 3000.
      *
      * @param sdkKey The ConfigCat client SDK key.

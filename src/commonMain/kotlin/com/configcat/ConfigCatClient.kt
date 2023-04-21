@@ -365,6 +365,7 @@ internal class Client private constructor(
                 }
             }
         }
+        this.logger.error(2011, ConfigCatLogMessages.getSettingForVariationIdIsNotPresent(variationId))
         return null
     }
 
