@@ -46,7 +46,7 @@ internal class DefaultLogger : Logger {
         LogLevel.ERROR to "ERROR",
         LogLevel.WARNING to "WARNING",
         LogLevel.INFO to "INFO",
-        LogLevel.DEBUG to "DEBUG",
+        LogLevel.DEBUG to "DEBUG"
     )
 
     override fun error(message: String) {

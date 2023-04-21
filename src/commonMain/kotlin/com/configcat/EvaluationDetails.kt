@@ -11,7 +11,7 @@ public open class EvaluationDetailsBase internal constructor(
     public val error: String?,
     public val fetchTimeUnixMilliseconds: Long,
     public val matchedEvaluationRule: RolloutRule?,
-    public val matchedEvaluationPercentageRule: PercentageRule?,
+    public val matchedEvaluationPercentageRule: PercentageRule?
 )
 
 /**
@@ -26,9 +26,17 @@ public class TypedEvaluationDetails<T> public constructor(
     public val value: T,
     fetchTimeUnixMilliseconds: Long,
     matchedEvaluationRule: RolloutRule?,
-    matchedEvaluationPercentageRule: PercentageRule?,
-): EvaluationDetailsBase(key, variationId, user, isDefaultValue, error, fetchTimeUnixMilliseconds,
-    matchedEvaluationRule, matchedEvaluationPercentageRule)
+    matchedEvaluationPercentageRule: PercentageRule?
+) : EvaluationDetailsBase(
+    key,
+    variationId,
+    user,
+    isDefaultValue,
+    error,
+    fetchTimeUnixMilliseconds,
+    matchedEvaluationRule,
+    matchedEvaluationPercentageRule
+)
 
 /**
  * Additional information about flag evaluation.
@@ -42,12 +50,22 @@ public class EvaluationDetails internal constructor(
     public val value: Any,
     fetchTimeUnixMilliseconds: Long,
     matchedEvaluationRule: RolloutRule?,
-    matchedEvaluationPercentageRule: PercentageRule?,
-): EvaluationDetailsBase(key, variationId, user, isDefaultValue, error,
-    fetchTimeUnixMilliseconds, matchedEvaluationRule, matchedEvaluationPercentageRule) {
+    matchedEvaluationPercentageRule: PercentageRule?
+) : EvaluationDetailsBase(
+    key,
+    variationId,
+    user,
+    isDefaultValue,
+    error,
+    fetchTimeUnixMilliseconds,
+    matchedEvaluationRule,
+    matchedEvaluationPercentageRule
+) {
     internal companion object {
         internal fun makeError(key: String, defaultValue: Any, error: String, user: ConfigCatUser?):
-                EvaluationDetails = EvaluationDetails(key, "", user, true, error,
-            defaultValue, Constants.distantPast.unixMillisLong, null, null)
+            EvaluationDetails = EvaluationDetails(
+            key, "", user, true, error,
+            defaultValue, Constants.distantPast.unixMillisLong, null, null
+        )
     }
 }

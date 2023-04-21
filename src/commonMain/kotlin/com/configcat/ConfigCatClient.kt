@@ -116,7 +116,7 @@ public interface ConfigCatClient {
      */
     @Deprecated(
         "This method is obsolete and will be removed in a future major version. " +
-                "Please use getValueDetails() instead."
+            "Please use getValueDetails() instead."
     )
     public suspend fun getVariationId(key: String, defaultVariationId: String?, user: ConfigCatUser? = null): String?
 
@@ -141,7 +141,7 @@ public interface ConfigCatClient {
      */
     @Deprecated(
         "This method is obsolete and will be removed in a future major version. " +
-                "Please use getAllValueDetails() instead."
+            "Please use getAllValueDetails() instead."
     )
     public suspend fun getAllVariationIds(user: ConfigCatUser? = null): Collection<String>
 
@@ -255,7 +255,6 @@ internal class Client private constructor(
     private var defaultUser: ConfigCatUser?
     private val isClosed = atomic(false)
 
-
     override val hooks: Hooks
 
     init {
@@ -276,7 +275,7 @@ internal class Client private constructor(
         val settingResult = getSettings()
         val evalUser = user ?: defaultUser
         val checkSettingAvailableMessage = checkSettingAvailable(settingResult, key, defaultValue)
-        if(checkSettingAvailableMessage != null){
+        if (checkSettingAvailableMessage != null) {
             val details = EvaluationDetails.makeError(key, defaultValue, checkSettingAvailableMessage, evalUser)
             hooks.invokeOnFlagEvaluated(details)
             return defaultValue
@@ -290,7 +289,7 @@ internal class Client private constructor(
         val settingResult = getSettings()
         val evalUser = user ?: defaultUser
         val checkSettingAvailableMessage = checkSettingAvailable(settingResult, key, defaultValue)
-        if(checkSettingAvailableMessage != null){
+        if (checkSettingAvailableMessage != null) {
             val details = EvaluationDetails.makeError(key, defaultValue, checkSettingAvailableMessage, evalUser)
             hooks.invokeOnFlagEvaluated(details)
             return details
@@ -312,14 +311,17 @@ internal class Client private constructor(
 
     @Deprecated(
         "This method is obsolete and will be removed in a future major version. " +
-                "Please use getValueDetails() instead."
+            "Please use getValueDetails() instead."
     )
     override suspend fun getVariationId(key: String, defaultVariationId: String?, user: ConfigCatUser?): String? {
         val result = getSettings()
         if (result.settings.isEmpty()) {
             logger.error(
-                1000, ConfigCatLogMessages.getConfigJsonIsNotPresentedWithDefaultValue(
-                    key, "defaultVariationId", defaultVariationId
+                1000,
+                ConfigCatLogMessages.getConfigJsonIsNotPresentedWithDefaultValue(
+                    key,
+                    "defaultVariationId",
+                    defaultVariationId
                 )
             )
             return defaultVariationId
@@ -328,9 +330,12 @@ internal class Client private constructor(
         val setting = result.settings[key]
         if (setting == null) {
             logger.error(
-                1001, ConfigCatLogMessages.getSettingEvaluationFailedDueToMissingKey(
-                    key, "defaultVariationId",
-                    defaultVariationId, result.settings.keys
+                1001,
+                ConfigCatLogMessages.getSettingEvaluationFailedDueToMissingKey(
+                    key,
+                    "defaultVariationId",
+                    defaultVariationId,
+                    result.settings.keys
                 )
             )
             return defaultVariationId
@@ -365,15 +370,16 @@ internal class Client private constructor(
 
     override suspend fun getAllKeys(): Collection<String> {
         val settingResult = getSettings()
-        if (!checkSettingsAvailable(settingResult, "empty array"))
+        if (!checkSettingsAvailable(settingResult, "empty array")) {
             return emptyList()
+        }
         return settingResult.settings.keys
     }
 
     override suspend fun getAllValues(user: ConfigCatUser?): Map<String, Any> {
         val settingResult = getSettings()
         if (!checkSettingsAvailable(settingResult, "empty map")) {
-            return emptyMap();
+            return emptyMap()
         }
         return settingResult.settings.map {
             val evaluated = evaluate(it.value, it.key, user ?: defaultUser, settingResult.fetchTime)
@@ -383,7 +389,7 @@ internal class Client private constructor(
 
     @Deprecated(
         "This method is obsolete and will be removed in a future major version. " +
-                "Please use getAllValueDetails() instead."
+            "Please use getAllValueDetails() instead."
     )
     override suspend fun getAllVariationIds(user: ConfigCatUser?): Collection<String> {
         val result = getSettings()
@@ -404,9 +410,9 @@ internal class Client private constructor(
                 3201,
                 ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("setOffline")
             )
-            return;
+            return
         }
-        service!!.offline()
+        service.offline()
     }
 
     override fun setOnline() {
@@ -415,9 +421,9 @@ internal class Client private constructor(
                 3201,
                 ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("setOnline")
             )
-            return;
+            return
         }
-        service!!.online()
+        service.online()
     }
 
     override val isOffline: Boolean
@@ -429,7 +435,7 @@ internal class Client private constructor(
                 3201,
                 ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("setDefaultUser")
             )
-            return;
+            return
         }
         defaultUser = user
     }
@@ -440,21 +446,21 @@ internal class Client private constructor(
                 3201,
                 ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("clearDefaultUser")
             )
-            return;
+            return
         }
         defaultUser = null
     }
 
     override fun close() {
         if (!this.isClosed.compareAndSet(false, update = true)) {
-            return;
+            return
         }
         closeResources()
         removeFromInstances(this)
     }
 
     override fun isClosed(): Boolean {
-        return isClosed.value;
+        return isClosed.value
     }
 
     private fun closeResources() {
@@ -532,7 +538,6 @@ internal class Client private constructor(
         return null
     }
 
-
     companion object {
         private val instances = mutableMapOf<String, Client>()
         private val lock = reentrantLock()
@@ -568,5 +573,4 @@ internal class Client private constructor(
             }
         }
     }
-
 }

@@ -15,14 +15,14 @@ internal data class EvaluationResult(
 
 internal class Evaluator(private val logger: InternalLogger) {
 
-    //evaluatorLogger: EvaluatorLogger;
+    // evaluatorLogger: EvaluatorLogger;
 
     fun evaluate(setting: Setting, key: String, user: ConfigCatUser?): EvaluationResult {
         val evaluatorLogger = EvaluatorLogger(key)
         try {
             if (user == null) {
                 if (setting.rolloutRules.isNotEmpty() || setting.percentageItems.isNotEmpty()) {
-                    logger.warning(3001,ConfigCatLogMessages.getTargetingIsNotPossible(key))
+                    logger.warning(3001, ConfigCatLogMessages.getTargetingIsNotPossible(key))
                 }
                 evaluatorLogger.logReturnValue(setting.value)
                 return EvaluationResult(setting.value, setting.variationId)
@@ -66,7 +66,9 @@ internal class Evaluator(private val logger: InternalLogger) {
             if (userValue.isNullOrEmpty() || rule.comparisonValue.isEmpty()) {
                 evaluatorLogger.logNoMatch(
                     rule.comparisonAttribute,
-                    userValue ?: "", comparator, rule.comparisonValue
+                    userValue ?: "",
+                    comparator,
+                    rule.comparisonValue
                 )
                 continue
             }
@@ -353,7 +355,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         GT_NUM("> (Number)"),
         GTE_NUM(">= (Number)"),
         ONE_OF_SENS("IS ONE OF (Sensitive)"),
-        NOT_ONE_OF_SENS("IS NOT ONE OF (Sensitive)"),
+        NOT_ONE_OF_SENS("IS NOT ONE OF (Sensitive)")
     }
 
     private fun Int.toComparatorOrNull(): Comparator? = Comparator.values().firstOrNull { it.ordinal == this }
@@ -389,7 +391,7 @@ internal class EvaluatorLogger constructor(
     ) {
         entries.appendLine(
             "Evaluating rule: [$attribute:$userValue] " +
-                    "[${comparator.value}] [$comparisonValue] => match, returning: $value"
+                "[${comparator.value}] [$comparisonValue] => match, returning: $value"
         )
     }
 
@@ -411,7 +413,7 @@ internal class EvaluatorLogger constructor(
     ) {
         entries.appendLine(
             "Evaluating rule: [$attribute:$userValue] [${comparator.value}] " +
-                    "[$comparisonValue] => SKIP rule. Validation error: ${error.message}"
+                "[$comparisonValue] => SKIP rule. Validation error: ${error.message}"
         )
     }
 

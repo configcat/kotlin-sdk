@@ -72,7 +72,6 @@ internal object ConfigCatLogMessages {
         return "Config JSON is not present. Returning $emptyResult."
     }
 
-
     /**
      * Log message for Setting Evaluation Failed Due To Missing Key error. The log eventId is 1001.
      *
@@ -90,7 +89,8 @@ internal object ConfigCatLogMessages {
     ): String {
         return "Failed to evaluate setting '$key' (the key was not found in config JSON). Returning the `$defaultParamName` parameter that you specified in your application: '$defaultParamValue'. Available keys: [" + availableKeysSet.joinToString(
             ", ",
-            transform = { availableKey -> "'$availableKey'" }) + "]."
+            transform = { availableKey -> "'$availableKey'" }
+        ) + "]."
     }
 
     /**
@@ -119,8 +119,6 @@ internal object ConfigCatLogMessages {
     ): String {
         return "Request timed out while trying to fetch config JSON. Timeout values: [connect: " + connectTimeoutMillis + "ms, read: " + readTimeoutMillis + "ms, write: " + writeTimeoutMillis + "ms]"
     }
-
-
 
     /**
      * Log message for Client Is Already Created warning. The log eventId 3000.
@@ -171,5 +169,4 @@ internal object ConfigCatLogMessages {
     fun getConfigServiceStatusChanged(mode: String): String {
         return "Switched to $mode mode."
     }
-
 }

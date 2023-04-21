@@ -58,7 +58,7 @@ class OverrideTests {
                 dataSource = OverrideDataSource.map(
                     mapOf(
                         "fakeKey" to true,
-                        "nonexisting" to true,
+                        "nonexisting" to true
                     )
                 )
             }
@@ -81,7 +81,7 @@ class OverrideTests {
                 dataSource = OverrideDataSource.map(
                     mapOf(
                         "fakeKey" to true,
-                        "nonexisting" to true,
+                        "nonexisting" to true
                     )
                 )
             }

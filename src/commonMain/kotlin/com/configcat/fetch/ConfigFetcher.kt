@@ -16,7 +16,7 @@ import kotlinx.serialization.decodeFromString
 
 internal class ConfigFetcher constructor(
     private val options: ConfigCatOptions,
-    private val logger: InternalLogger,
+    private val logger: InternalLogger
 ) : Closeable {
     private val httpClient = createClient()
     private val closed = atomic(false)
@@ -52,11 +52,14 @@ internal class ConfigFetcher constructor(
                 response.entry.isEmpty() ||
                 preferences == null ||
                 preferences.baseUrl == currentBaseUrl
-            ) return response
+            ) {
+                return response
+            }
             if (isUrlCustom && preferences.redirect != RedirectMode.FORCE_REDIRECT.ordinal) return response
             currentBaseUrl = preferences.baseUrl
-            if (preferences.redirect == RedirectMode.NO_REDIRECT.ordinal) return response
-            else if (preferences.redirect == RedirectMode.SHOULD_REDIRECT.ordinal) {
+            if (preferences.redirect == RedirectMode.NO_REDIRECT.ordinal) {
+                return response
+            } else if (preferences.redirect == RedirectMode.SHOULD_REDIRECT.ordinal) {
                 logger.warning(3002, ConfigCatLogMessages.DATA_GOVERNANCE_IS_OUT_OF_SYNC_WARN)
             }
         }
@@ -93,7 +96,7 @@ internal class ConfigFetcher constructor(
                 return FetchResponse.notModified()
             } else if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.Forbidden) {
                 val message = ConfigCatLogMessages.FETCH_FAILED_DUE_TO_INVALID_SDK_KEY_ERROR +
-                        " Received response: ${response.status}"
+                    " Received response: ${response.status}"
                 logger.error(1100, message)
                 return FetchResponse.failure(message, false)
             } else {
@@ -102,7 +105,7 @@ internal class ConfigFetcher constructor(
                 return FetchResponse.failure(message, true)
             }
         } catch (_: HttpRequestTimeoutException) {
-            val message = ConfigCatLogMessages.getFetchFailedDueToRequestTimeout(options.requestTimeout.inWholeMilliseconds, options.requestTimeout.inWholeMilliseconds,options.requestTimeout.inWholeMilliseconds)
+            val message = ConfigCatLogMessages.getFetchFailedDueToRequestTimeout(options.requestTimeout.inWholeMilliseconds, options.requestTimeout.inWholeMilliseconds, options.requestTimeout.inWholeMilliseconds)
             logger.error(1102, message)
             return FetchResponse.failure(message, true)
         } catch (e: Exception) {

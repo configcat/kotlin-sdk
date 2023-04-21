@@ -1,6 +1,5 @@
 package com.configcat
 
-import com.configcat.*
 import com.configcat.fetch.ConfigFetcher
 import com.configcat.fetch.RefreshResult
 import com.configcat.log.ConfigCatLogMessages
@@ -20,7 +19,7 @@ import kotlinx.serialization.encodeToString
 internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: DateTime) {
     fun isEmpty(): Boolean = this === SettingResult.empty
     companion object {
-        val empty: SettingResult =SettingResult(emptyMap(), Constants.distantPast)
+        val empty: SettingResult = SettingResult(emptyMap(), Constants.distantPast)
     }
 }
 
@@ -28,7 +27,7 @@ internal class ConfigService constructor(
     private val options: ConfigCatOptions,
     private val configFetcher: ConfigFetcher,
     private val logger: InternalLogger,
-    private val hooks: Hooks,
+    private val hooks: Hooks
 ) : Closeable {
     private val cacheKey: String = "kotlin_${options.sdkKey}_${Constants.configFileName}".encodeToByteArray().sha1().hex
     private val mutex = Mutex()
@@ -61,18 +60,17 @@ internal class ConfigService constructor(
                     DateTime.now()
                         .add(0, -mode.configuration.cacheRefreshInterval.inWholeMilliseconds.toDouble())
                 )
-                if(result.first.isEmpty()){
+                if (result.first.isEmpty()) {
                     SettingResult.empty
-                }else{
+                } else {
                     SettingResult(result.first.config.settings, result.first.fetchTime)
                 }
-
             }
             else -> {
                 val result = fetchIfOlder(Constants.distantPast, preferCached = true)
-                if(result.first.isEmpty()){
+                if (result.first.isEmpty()) {
                     SettingResult.empty
-                }else{
+                } else {
                     SettingResult(result.first.config.settings, result.first.fetchTime)
                 }
             }

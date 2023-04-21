@@ -23,6 +23,7 @@ plugins {
     id("org.sonarqube") version "3.5.0.2730"
     id("org.jetbrains.kotlinx.kover") version "0.6.1"
     id("io.gitlab.arturbosch.detekt") version "1.22.0"
+    id("org.jlleitschuh.gradle.ktlint") version "11.3.1"
 }
 
 val atomicfu_version: String by project
@@ -253,7 +254,7 @@ val javadocJar = tasks.register<Jar>("javadocJar") {
 }
 
 detekt {
-    config = files("${rootDir}/detekt.yml")
+    config = files("$rootDir/detekt.yml")
     buildUponDefaultConfig = true
     parallel = true
     isIgnoreFailures = true
@@ -365,6 +366,6 @@ fun getHostType(): Host {
 enum class Host { WINDOWS, MAC_OS, LINUX }
 
 fun String.isDarwin(): Boolean = this.startsWith("macos") ||
-        this.startsWith("ios") ||
-        this.startsWith("watchos") ||
-        this.startsWith("tvos")
+    this.startsWith("ios") ||
+    this.startsWith("watchos") ||
+    this.startsWith("tvos")

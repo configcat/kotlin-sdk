@@ -491,7 +491,7 @@ class ConfigCatClientTests {
         val details = client.getAllValueDetails()
         assertEquals(2, details.size)
         assertTrue { details.elementAt(0).value as? Boolean ?: false }
-        assertFalse(details.elementAt(1).value as? Boolean ?: true )
+        assertFalse(details.elementAt(1).value as? Boolean ?: true)
     }
 
     @Test
@@ -907,12 +907,11 @@ class ConfigCatClientTests {
 
     @Test
     fun testClose() {
-        val client1 = ConfigCatClient("test")  { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        val client1 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
         assertFalse(client1.isClosed())
         client1.close()
         assertTrue(client1.isClosed())
     }
-
 
     companion object {
         const val testMultipleBody =

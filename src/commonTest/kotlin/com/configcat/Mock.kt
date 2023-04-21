@@ -18,5 +18,4 @@ class SingleValueCache(private var value: String) : ConfigCache {
     override suspend fun write(key: String, value: String) {
         this.value = value
     }
-
 }
