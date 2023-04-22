@@ -110,15 +110,6 @@ public interface ConfigCatClient {
      */
     public suspend fun getAllValueDetails(user: ConfigCatUser? = null): Collection<EvaluationDetails>
 
-    /**
-     * Gets the Variation ID (analytics) of a feature flag or setting based on its [key].
-     * In case of any failure, [defaultVariationId] will be returned. The [user] param identifies the caller.
-     */
-    @Deprecated(
-        "This method is obsolete and will be removed in a future major version. " +
-            "Please use getValueDetails() instead."
-    )
-    public suspend fun getVariationId(key: String, defaultVariationId: String?, user: ConfigCatUser? = null): String?
 
     /**
      * Gets the key of a setting and its value identified by the given [variationId] (analytics).
@@ -134,16 +125,6 @@ public interface ConfigCatClient {
      * Gets the values of all feature flags or settings. The [user] param identifies the caller.
      */
     public suspend fun getAllValues(user: ConfigCatUser? = null): Map<String, Any>
-
-    /**
-     * Gets the Variation IDs (analytics) of all feature flags or settings.
-     * The [user] param identifies the caller.
-     */
-    @Deprecated(
-        "This method is obsolete and will be removed in a future major version. " +
-            "Please use getAllValueDetails() instead."
-    )
-    public suspend fun getAllVariationIds(user: ConfigCatUser? = null): Collection<String>
 
     /**
      * Downloads the latest feature flag and configuration values.
@@ -309,41 +290,6 @@ internal class Client private constructor(
         }
     }
 
-    @Deprecated(
-        "This method is obsolete and will be removed in a future major version. " +
-            "Please use getValueDetails() instead."
-    )
-    override suspend fun getVariationId(key: String, defaultVariationId: String?, user: ConfigCatUser?): String? {
-        val result = getSettings()
-        if (result.settings.isEmpty()) {
-            logger.error(
-                1000,
-                ConfigCatLogMessages.getConfigJsonIsNotPresentedWithDefaultValue(
-                    key,
-                    "defaultVariationId",
-                    defaultVariationId
-                )
-            )
-            return defaultVariationId
-        }
-
-        val setting = result.settings[key]
-        if (setting == null) {
-            logger.error(
-                1001,
-                ConfigCatLogMessages.getSettingEvaluationFailedDueToMissingKey(
-                    key,
-                    "defaultVariationId",
-                    defaultVariationId,
-                    result.settings.keys
-                )
-            )
-            return defaultVariationId
-        }
-
-        return evaluate(setting, key, user ?: defaultUser, result.fetchTime).variationId
-    }
-
     override suspend fun getKeyAndValue(variationId: String): Pair<String, Any>? {
         val settingResult = getSettings()
         if (!checkSettingsAvailable(settingResult, "null")) {
@@ -386,18 +332,6 @@ internal class Client private constructor(
             val evaluated = evaluate(it.value, it.key, user ?: defaultUser, settingResult.fetchTime)
             it.key to evaluated.value
         }.toMap()
-    }
-
-    @Deprecated(
-        "This method is obsolete and will be removed in a future major version. " +
-            "Please use getAllValueDetails() instead."
-    )
-    override suspend fun getAllVariationIds(user: ConfigCatUser?): Collection<String> {
-        val result = getSettings()
-        return result.settings.map {
-            val evaluated = evaluate(it.value, it.key, user ?: defaultUser, result.fetchTime)
-            evaluated.variationId
-        }.filterNotNull()
     }
 
     override suspend fun forceRefresh(): RefreshResult = service?.refresh() ?: RefreshResult(

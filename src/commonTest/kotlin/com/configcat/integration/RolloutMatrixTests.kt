@@ -120,11 +120,6 @@ class RolloutMatrixTests {
                     if (value != expected) {
                         errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
                     }
-                } else {
-                    val variationId = client.getVariationId(settingKey, null, user)
-                    if (variationId != testObjects[j + 4]) {
-                        errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: ${testObjects[j + 4]}, Result: $variationId")
-                    }
                 }
             }
         }

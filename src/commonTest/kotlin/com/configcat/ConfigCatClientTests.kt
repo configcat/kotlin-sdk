@@ -689,33 +689,6 @@ class ConfigCatClientTests {
     }
 
     @Test
-    fun testDefaultUserVariationId() = runTest {
-        val mockEngine = MockEngine {
-            respond(
-                content = Data.formatConfigWithRules(),
-                status = HttpStatusCode.OK
-            )
-        }
-        val client = ConfigCatClient("test") {
-            httpEngine = mockEngine
-            pollingMode = manualPoll()
-        }
-        client.forceRefresh()
-
-        val user1 = ConfigCatUser("test@test1.com")
-        val user2 = ConfigCatUser("test@test2.com")
-
-        client.setDefaultUser(user1)
-
-        assertEquals("fakeId1", client.getVariationId("key", ""))
-        assertEquals("fakeId2", client.getVariationId("key", "", user2))
-
-        client.clearDefaultUser()
-
-        assertEquals("defaultId", client.getVariationId("key", ""))
-    }
-
-    @Test
     fun testHooks() = runTest {
         val mockEngine = MockEngine.create {
             this.addHandler {
