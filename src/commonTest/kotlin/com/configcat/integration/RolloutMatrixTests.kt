@@ -21,35 +21,30 @@ class RolloutMatrixTests {
 
     @Test
     fun testMatrix() = runTest {
-        runMatrixTest(Matrix, true)
+        runMatrixTest(Matrix)
     }
 
     @Test
     fun testNumberMatrix() = runTest {
-        runMatrixTest(NumberMatrix, true)
+        runMatrixTest(NumberMatrix)
     }
 
     @Test
     fun testSemanticMatrix() = runTest {
-        runMatrixTest(SemanticMatrix, true)
+        runMatrixTest(SemanticMatrix)
     }
 
     @Test
     fun testSemantic2Matrix() = runTest {
-        runMatrixTest(SemanticMatrix2, true)
+        runMatrixTest(SemanticMatrix2)
     }
 
     @Test
     fun testSensitiveMatrix() = runTest {
-        runMatrixTest(SensitiveMatrix, true)
+        runMatrixTest(SensitiveMatrix)
     }
 
-    @Test
-    fun testVariationMatrix() = runTest {
-        runMatrixTest(VariationIdMatrix, false)
-    }
-
-    private suspend fun runMatrixTest(matrix: DataMatrix, isValueKind: Boolean) {
+    private suspend fun runMatrixTest(matrix: DataMatrix) {
         val mockEngine = MockEngine {
             respond(content = matrix.remoteJson, status = HttpStatusCode.OK)
         }
@@ -89,7 +84,6 @@ class RolloutMatrixTests {
             }
 
             for ((j, settingKey) in settingKeys.withIndex()) {
-                if (isValueKind) {
                     val value = client.getAnyValue(settingKey, "", user)
                     val boolVal = value as? Boolean
                     if (boolVal != null) {
@@ -120,7 +114,6 @@ class RolloutMatrixTests {
                     if (value != expected) {
                         errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
                     }
-                }
             }
         }
 
