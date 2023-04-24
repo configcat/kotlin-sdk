@@ -4,28 +4,35 @@ import com.configcat.Hooks
 import com.soywiz.klock.DateTime
 
 internal class InternalLogger(private val logger: Logger, private val level: LogLevel, private val hooks: Hooks) {
-    fun error(message: String) {
+    fun error(eventId: Int, message: String) {
         hooks.invokeOnError(message)
         if (shouldLog(LogLevel.ERROR)) {
-            logger.error(message)
+            logger.error("[$eventId] $message")
         }
     }
 
-    fun warning(message: String) {
+    fun error(eventId: Int, message: String, throwable: Throwable) {
+        hooks.invokeOnError(message)
+        if (shouldLog(LogLevel.ERROR)) {
+            logger.error("[$eventId] $message ${throwable.message}")
+        }
+    }
+
+    fun warning(eventId: Int, message: String) {
         if (shouldLog(LogLevel.WARNING)) {
-            logger.warning(message)
+            logger.warning("[$eventId] $message")
         }
     }
 
-    fun info(message: String) {
+    fun info(eventId: Int, message: String) {
         if (shouldLog(LogLevel.INFO)) {
-            logger.info(message)
+            logger.info("[$eventId] $message")
         }
     }
 
     fun debug(message: String) {
         if (shouldLog(LogLevel.DEBUG)) {
-            logger.debug(message)
+            logger.debug("[0] $message")
         }
     }
 
@@ -39,11 +46,15 @@ internal class DefaultLogger : Logger {
         LogLevel.ERROR to "ERROR",
         LogLevel.WARNING to "WARNING",
         LogLevel.INFO to "INFO",
-        LogLevel.DEBUG to "DEBUG",
+        LogLevel.DEBUG to "DEBUG"
     )
 
     override fun error(message: String) {
         printMessage(enrichMessage(message, LogLevel.ERROR))
+    }
+
+    override fun error(message: String, throwable: Throwable) {
+        printMessage(enrichMessage("$message $throwable", LogLevel.ERROR))
     }
 
     override fun warning(message: String) {

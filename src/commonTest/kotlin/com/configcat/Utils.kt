@@ -1,7 +1,6 @@
 package com.configcat
 
 import com.configcat.fetch.ConfigFetcher
-import com.configcat.fetch.ConfigService
 import com.configcat.log.InternalLogger
 import com.soywiz.klock.DateTime
 import io.ktor.client.engine.mock.*
@@ -34,35 +33,37 @@ internal object TestUtils {
     }
 }
 
-
 internal object Data {
     fun formatJsonBody(value: Any): String {
         return """{ "f": { "fakeKey": { "v": $value, "p": [], "r": [] } } }"""
     }
 
     fun formatConfigWithRules(): String {
-        val config = Config(null, mapOf(
-            "key" to Setting(
-                value = "default",
-                variationId = "defaultId",
-                rolloutRules = listOf(
-                    RolloutRule(
-                        comparator = 2,
-                        comparisonAttribute = "Identifier",
-                        comparisonValue = "@test1.com",
-                        value = "fake1",
-                        variationId = "fakeId1"
-                    ),
-                    RolloutRule(
-                        comparator = 2,
-                        comparisonAttribute = "Identifier",
-                        comparisonValue = "@test2.com",
-                        value = "fake2",
-                        variationId = "fakeId2"
+        val config = Config(
+            null,
+            mapOf(
+                "key" to Setting(
+                    value = "default",
+                    variationId = "defaultId",
+                    rolloutRules = listOf(
+                        RolloutRule(
+                            comparator = 2,
+                            comparisonAttribute = "Identifier",
+                            comparisonValue = "@test1.com",
+                            value = "fake1",
+                            variationId = "fakeId1"
+                        ),
+                        RolloutRule(
+                            comparator = 2,
+                            comparisonAttribute = "Identifier",
+                            comparisonValue = "@test2.com",
+                            value = "fake2",
+                            variationId = "fakeId2"
+                        )
                     )
                 )
             )
-        ))
+        )
         return Constants.json.encodeToString(config)
     }
 
@@ -92,7 +93,7 @@ internal object Services {
         mode: PollingMode = autoPoll(),
         cache: ConfigCache? = EmptyConfigCache(),
         hooks: Hooks = Hooks(),
-        offline: Boolean = false,
+        offline: Boolean = false
     ): ConfigService {
         val options = ConfigCatOptions()
         options.pollingMode = mode

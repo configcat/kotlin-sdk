@@ -2,8 +2,8 @@ package com.configcat.integration
 
 import com.configcat.ConfigCatClient
 import com.configcat.ConfigCatUser
-import com.configcat.manualPoll
 import com.configcat.integration.matrix.*
+import com.configcat.manualPoll
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi

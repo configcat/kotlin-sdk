@@ -1,44 +1,43 @@
 package com.configcat
 
+import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.soywiz.krypto.sha1
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
 
 internal data class EvaluationResult(
-    public val value: Any,
-    public val variationId: String?,
-    public val targetingRule: RolloutRule? = null,
-    public val percentageRule: PercentageRule? = null
+    val value: Any,
+    val variationId: String?,
+    val targetingRule: RolloutRule? = null,
+    val percentageRule: PercentageRule? = null
 )
 
 internal class Evaluator(private val logger: InternalLogger) {
+
+    // evaluatorLogger: EvaluatorLogger;
+
     fun evaluate(setting: Setting, key: String, user: ConfigCatUser?): EvaluationResult {
-        val infoLogBuilder = StringBuilder()
-        infoLogBuilder.appendLine("Evaluating '$key'")
+        val evaluatorLogger = EvaluatorLogger(key)
         try {
             if (user == null) {
                 if (setting.rolloutRules.isNotEmpty() || setting.percentageItems.isNotEmpty()) {
-                    logger.warning(
-                        "UserObject missing! You should pass a UserObject to getValue() " +
-                                "in order to make targeting work properly. " +
-                                "Read more: https://configcat.com/docs/advanced/user-object."
-                    )
+                    logger.warning(3001, ConfigCatLogMessages.getTargetingIsNotPossible(key))
                 }
-                infoLogBuilder.appendLine("Returning ${setting.value}")
+                evaluatorLogger.logReturnValue(setting.value)
                 return EvaluationResult(setting.value, setting.variationId)
             }
-            infoLogBuilder.appendLine("User object: $user")
-            val valueFromTargetingRules = processTargetingRules(setting, user, infoLogBuilder)
+            evaluatorLogger.logUserObject(user)
+            val valueFromTargetingRules = processTargetingRules(setting, user, evaluatorLogger)
             if (valueFromTargetingRules != null) return valueFromTargetingRules
 
-            val valueFromPercentageRules = processPercentageRules(setting, user, key, infoLogBuilder)
+            val valueFromPercentageRules = processPercentageRules(setting, user, key, evaluatorLogger)
             if (valueFromPercentageRules != null) return valueFromPercentageRules
 
-            infoLogBuilder.appendLine("Returning ${setting.value}")
+            evaluatorLogger.logReturnValue(setting.value)
             return EvaluationResult(setting.value, setting.variationId)
         } finally {
-            logger.info(infoLogBuilder.toString())
+            logger.info(5000, evaluatorLogger.print())
         }
     }
 
@@ -46,7 +45,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun processTargetingRules(
         setting: Setting,
         user: ConfigCatUser,
-        infoLogBuilder: StringBuilder
+        evaluatorLogger: EvaluatorLogger
     ): EvaluationResult? {
         if (setting.rolloutRules.isEmpty()) {
             return null
@@ -56,22 +55,20 @@ internal class Evaluator(private val logger: InternalLogger) {
             val comparator = rule.comparator.toComparatorOrNull()
 
             if (comparator == null) {
-                infoLogBuilder.appendLine(
-                    logComparatorError(
-                        rule.comparisonAttribute,
-                        userValue ?: "",
-                        rule.comparator,
-                        rule.comparisonValue
-                    )
+                evaluatorLogger.logComparatorError(
+                    rule.comparisonAttribute,
+                    userValue ?: "",
+                    rule.comparator,
+                    rule.comparisonValue
                 )
                 continue
             }
             if (userValue.isNullOrEmpty() || rule.comparisonValue.isEmpty()) {
-                infoLogBuilder.appendLine(
-                    logNoMatch(
-                        rule.comparisonAttribute,
-                        userValue ?: "", comparator, rule.comparisonValue
-                    )
+                evaluatorLogger.logNoMatch(
+                    rule.comparisonAttribute,
+                    userValue ?: "",
+                    comparator,
+                    rule.comparisonValue
                 )
                 continue
             }
@@ -79,40 +76,43 @@ internal class Evaluator(private val logger: InternalLogger) {
             when (comparator) {
                 Comparator.ONE_OF,
                 Comparator.NOT_ONE_OF -> {
-                    val value = processOneOf(rule, userValue, infoLogBuilder, comparator)
+                    val value = processOneOf(rule, userValue, evaluatorLogger, comparator)
                     if (value != null) return value
                 }
 
                 Comparator.CONTAINS,
                 Comparator.NOT_CONTAINS -> {
-                    val value = processContains(rule, userValue, infoLogBuilder, comparator)
+                    val value = processContains(rule, userValue, evaluatorLogger, comparator)
                     if (value != null) return value
                 }
 
                 Comparator.ONE_OF_SEMVER,
                 Comparator.NOT_ONE_OF_SEMVER -> {
-                    val value = processSemverOneOf(rule, userValue, infoLogBuilder, comparator)
+                    val value = processSemverOneOf(rule, userValue, evaluatorLogger, comparator)
                     if (value != null) return value
                 }
+
                 Comparator.LT_SEMVER,
                 Comparator.LTE_SEMVER,
                 Comparator.GT_SEMVER,
                 Comparator.GTE_SEMVER -> {
-                    val value = processSemverCompare(rule, userValue, infoLogBuilder, comparator)
+                    val value = processSemverCompare(rule, userValue, evaluatorLogger, comparator)
                     if (value != null) return value
                 }
+
                 Comparator.EQ_NUM,
                 Comparator.NOT_EQ_NUM,
                 Comparator.LT_NUM,
                 Comparator.LTE_NUM,
                 Comparator.GT_NUM,
                 Comparator.GTE_NUM -> {
-                    val value = processNumber(rule, userValue, infoLogBuilder, comparator)
+                    val value = processNumber(rule, userValue, evaluatorLogger, comparator)
                     if (value != null) return value
                 }
+
                 Comparator.ONE_OF_SENS,
                 Comparator.NOT_ONE_OF_SENS -> {
-                    val value = processSensitiveOneOf(rule, userValue, infoLogBuilder, comparator)
+                    val value = processSensitiveOneOf(rule, userValue, evaluatorLogger, comparator)
                     if (value != null) return value
                 }
             }
@@ -123,7 +123,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun processOneOf(
         rule: RolloutRule,
         userValue: String,
-        infoLogBuilder: StringBuilder,
+        evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
     ): EvaluationResult? {
         val split = rule.comparisonValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
@@ -133,14 +133,12 @@ internal class Evaluator(private val logger: InternalLogger) {
             else -> false
         }
         if (matchCondition) {
-            infoLogBuilder.appendLine(
-                logMatch(
-                    rule.comparisonAttribute,
-                    userValue,
-                    comparator,
-                    rule.comparisonValue,
-                    rule.value
-                )
+            evaluatorLogger.logMatch(
+                rule.comparisonAttribute,
+                userValue,
+                comparator,
+                rule.comparisonValue,
+                rule.value
             )
             return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
         }
@@ -150,7 +148,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun processContains(
         rule: RolloutRule,
         userValue: String,
-        infoLogBuilder: StringBuilder,
+        evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
     ): EvaluationResult? {
         val matchCondition = when (comparator) {
@@ -159,14 +157,12 @@ internal class Evaluator(private val logger: InternalLogger) {
             else -> false
         }
         if (matchCondition) {
-            infoLogBuilder.appendLine(
-                logMatch(
-                    rule.comparisonAttribute,
-                    userValue,
-                    comparator,
-                    rule.comparisonValue,
-                    rule.value
-                )
+            evaluatorLogger.logMatch(
+                rule.comparisonAttribute,
+                userValue,
+                comparator,
+                rule.comparisonValue,
+                rule.value
             )
             return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
         }
@@ -176,7 +172,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun processSemverOneOf(
         rule: RolloutRule,
         userValue: String,
-        infoLogBuilder: StringBuilder,
+        evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
     ): EvaluationResult? {
         try {
@@ -190,26 +186,22 @@ internal class Evaluator(private val logger: InternalLogger) {
             if ((matched && comparator == Comparator.ONE_OF_SEMVER) ||
                 (!matched && comparator == Comparator.NOT_ONE_OF_SEMVER)
             ) {
-                infoLogBuilder.appendLine(
-                    logMatch(
-                        rule.comparisonAttribute,
-                        userValue,
-                        comparator,
-                        rule.comparisonValue,
-                        rule.value
-                    )
-                )
-                return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
-            }
-        } catch (e: VersionFormatException) {
-            infoLogBuilder.appendLine(
-                logFormatError(
+                evaluatorLogger.logMatch(
                     rule.comparisonAttribute,
                     userValue,
                     comparator,
                     rule.comparisonValue,
-                    e
+                    rule.value
                 )
+                return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
+            }
+        } catch (e: VersionFormatException) {
+            evaluatorLogger.logFormatError(
+                rule.comparisonAttribute,
+                userValue,
+                comparator,
+                rule.comparisonValue,
+                e
             )
         }
         return null
@@ -218,7 +210,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun processSemverCompare(
         rule: RolloutRule,
         userValue: String,
-        infoLogBuilder: StringBuilder,
+        evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
     ): EvaluationResult? {
         try {
@@ -232,26 +224,22 @@ internal class Evaluator(private val logger: InternalLogger) {
                 else -> false
             }
             if (matchCondition) {
-                infoLogBuilder.appendLine(
-                    logMatch(
-                        rule.comparisonAttribute,
-                        userValue,
-                        comparator,
-                        rule.comparisonValue,
-                        rule.value
-                    )
-                )
-                return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
-            }
-        } catch (e: VersionFormatException) {
-            infoLogBuilder.appendLine(
-                logFormatError(
+                evaluatorLogger.logMatch(
                     rule.comparisonAttribute,
                     userValue,
                     comparator,
                     rule.comparisonValue,
-                    e
+                    rule.value
                 )
+                return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
+            }
+        } catch (e: VersionFormatException) {
+            evaluatorLogger.logFormatError(
+                rule.comparisonAttribute,
+                userValue,
+                comparator,
+                rule.comparisonValue,
+                e
             )
         }
         return null
@@ -260,7 +248,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun processNumber(
         rule: RolloutRule,
         userValue: String,
-        infoLogBuilder: StringBuilder,
+        evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
     ): EvaluationResult? {
         try {
@@ -276,26 +264,22 @@ internal class Evaluator(private val logger: InternalLogger) {
                 else -> false
             }
             if (matchCondition) {
-                infoLogBuilder.appendLine(
-                    logMatch(
-                        rule.comparisonAttribute,
-                        userValue,
-                        comparator,
-                        rule.comparisonValue,
-                        rule.value
-                    )
-                )
-                return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
-            }
-        } catch (e: NumberFormatException) {
-            infoLogBuilder.appendLine(
-                logFormatError(
+                evaluatorLogger.logMatch(
                     rule.comparisonAttribute,
                     userValue,
                     comparator,
                     rule.comparisonValue,
-                    e
+                    rule.value
                 )
+                return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
+            }
+        } catch (e: NumberFormatException) {
+            evaluatorLogger.logFormatError(
+                rule.comparisonAttribute,
+                userValue,
+                comparator,
+                rule.comparisonValue,
+                e
             )
         }
         return null
@@ -304,7 +288,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun processSensitiveOneOf(
         rule: RolloutRule,
         userValue: String,
-        infoLogBuilder: StringBuilder,
+        evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
     ): EvaluationResult? {
         val split = rule.comparisonValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
@@ -315,14 +299,12 @@ internal class Evaluator(private val logger: InternalLogger) {
             else -> false
         }
         if (matchCondition) {
-            infoLogBuilder.appendLine(
-                logMatch(
-                    rule.comparisonAttribute,
-                    userValue,
-                    comparator,
-                    rule.comparisonValue,
-                    rule.value
-                )
+            evaluatorLogger.logMatch(
+                rule.comparisonAttribute,
+                userValue,
+                comparator,
+                rule.comparisonValue,
+                rule.value
             )
             return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
         }
@@ -333,7 +315,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         setting: Setting,
         user: ConfigCatUser,
         key: String,
-        infoLogBuilder: StringBuilder
+        evaluatorLogger: EvaluatorLogger
     ): EvaluationResult? {
         if (setting.percentageItems.isEmpty()) {
             return null
@@ -348,59 +330,14 @@ internal class Evaluator(private val logger: InternalLogger) {
         for (rule in setting.percentageItems) {
             bucket += rule.percentage
             if (scale < bucket) {
-                infoLogBuilder.appendLine("Evaluating % options. Returning ${rule.value}.")
+                evaluatorLogger.logPercentageEvaluationReturnValue(rule.value)
                 return EvaluationResult(rule.value, rule.variationId, percentageRule = rule)
             }
         }
         return null
     }
 
-    private fun logMatch(
-        attribute: String,
-        userValue: String,
-        comparator: Comparator,
-        comparisonValue: String,
-        value: Any?
-    ): String {
-        return "Evaluating rule: [$attribute:$userValue] " +
-                "[${comparator.value}] [$comparisonValue] => match, returning: $value"
-    }
-
-    private fun logNoMatch(
-        attribute: String,
-        userValue: String,
-        comparator: Comparator,
-        comparisonValue: String
-    ): String {
-        return "Evaluating rule: [$attribute:$userValue] [${comparator.value}] [$comparisonValue] => no match"
-    }
-
-    private fun logFormatError(
-        attribute: String,
-        userValue: String,
-        comparator: Comparator,
-        comparisonValue: String,
-        error: Throwable
-    ): String {
-        val message = "Evaluating rule: [$attribute:$userValue] [${comparator.value}] " +
-                "[$comparisonValue] => SKIP rule. Validation error: ${error.message}"
-        logger.warning(message)
-        return message
-    }
-
-    private fun logComparatorError(
-        attribute: String,
-        userValue: String,
-        comparator: Int,
-        comparisonValue: String
-    ): String {
-        val message =
-            "Evaluating rule: [$attribute:$userValue] [$comparisonValue] => SKIP rule. Invalid comparator: $comparator"
-        logger.warning(message)
-        return message
-    }
-
-    private enum class Comparator(val value: String) {
+    enum class Comparator(val value: String) {
         ONE_OF("IS ONE OF"),
         NOT_ONE_OF("IS NOT ONE OF"),
         CONTAINS("CONTAINS"),
@@ -418,8 +355,83 @@ internal class Evaluator(private val logger: InternalLogger) {
         GT_NUM("> (Number)"),
         GTE_NUM(">= (Number)"),
         ONE_OF_SENS("IS ONE OF (Sensitive)"),
-        NOT_ONE_OF_SENS("IS NOT ONE OF (Sensitive)"),
+        NOT_ONE_OF_SENS("IS NOT ONE OF (Sensitive)")
     }
 
     private fun Int.toComparatorOrNull(): Comparator? = Comparator.values().firstOrNull { it.ordinal == this }
+}
+
+internal class EvaluatorLogger constructor(
+    key: String
+) {
+    private val entries = StringBuilder()
+
+    init {
+        entries.appendLine("Evaluating '$key'")
+    }
+
+    fun logReturnValue(value: Any) {
+        entries.appendLine("Returning $value")
+    }
+
+    fun logPercentageEvaluationReturnValue(value: Any) {
+        entries.appendLine("Evaluating % options. Returning $value.")
+    }
+
+    fun logUserObject(user: ConfigCatUser) {
+        entries.appendLine("User object: $user")
+    }
+
+    fun logMatch(
+        attribute: String,
+        userValue: String,
+        comparator: Evaluator.Comparator,
+        comparisonValue: String,
+        value: Any?
+    ) {
+        entries.appendLine(
+            "Evaluating rule: [$attribute:$userValue] " +
+                "[${comparator.value}] [$comparisonValue] => match, returning: $value"
+        )
+    }
+
+    fun logNoMatch(
+        attribute: String,
+        userValue: String,
+        comparator: Evaluator.Comparator,
+        comparisonValue: String
+    ) {
+        entries.appendLine(
+            "Evaluating rule: " +
+                "[$attribute:$userValue] [${comparator.value}] [$comparisonValue] => no match"
+        )
+    }
+
+    fun logFormatError(
+        attribute: String,
+        userValue: String,
+        comparator: Evaluator.Comparator,
+        comparisonValue: String,
+        error: Throwable
+    ) {
+        entries.appendLine(
+            "Evaluating rule: [$attribute:$userValue] [${comparator.value}] " +
+                "[$comparisonValue] => SKIP rule. Validation error: ${error.message}"
+        )
+    }
+
+    fun logComparatorError(
+        attribute: String,
+        userValue: String,
+        comparator: Int,
+        comparisonValue: String
+    ) {
+        entries.appendLine(
+            "Evaluating rule: [$attribute:$userValue] [$comparisonValue] => SKIP rule. Invalid comparator: $comparator"
+        )
+    }
+
+    fun print(): String {
+        return entries.toString()
+    }
 }

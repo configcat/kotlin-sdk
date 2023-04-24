@@ -1,12 +1,12 @@
-package com.configcat.fetch
+package com.configcat
 
-import com.configcat.*
-import com.configcat.AutoPollMode
-import com.configcat.LazyLoadMode
-import com.configcat.Constants
+import com.configcat.fetch.ConfigFetcher
+import com.configcat.fetch.RefreshResult
+import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.soywiz.klock.DateTime
 import com.soywiz.krypto.sha1
+import io.ktor.util.*
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
@@ -16,13 +16,19 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 
-internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: DateTime)
+internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: DateTime) {
+    fun isEmpty(): Boolean = this === empty
+
+    companion object {
+        val empty: SettingResult = SettingResult(emptyMap(), Constants.distantPast)
+    }
+}
 
 internal class ConfigService constructor(
     private val options: ConfigCatOptions,
     private val configFetcher: ConfigFetcher,
     private val logger: InternalLogger,
-    private val hooks: Hooks,
+    private val hooks: Hooks
 ) : Closeable {
     private val cacheKey: String = "kotlin_${options.sdkKey}_${Constants.configFileName}".encodeToByteArray().sha1().hex
     private val mutex = Mutex()
@@ -55,11 +61,20 @@ internal class ConfigService constructor(
                     DateTime.now()
                         .add(0, -mode.configuration.cacheRefreshInterval.inWholeMilliseconds.toDouble())
                 )
-                SettingResult(result.first.config.settings, result.first.fetchTime)
+                if (result.first.isEmpty()) {
+                    SettingResult.empty
+                } else {
+                    SettingResult(result.first.config.settings, result.first.fetchTime)
+                }
             }
+
             else -> {
                 val result = fetchIfOlder(Constants.distantPast, preferCached = true)
-                SettingResult(result.first.config.settings, result.first.fetchTime)
+                if (result.first.isEmpty()) {
+                    SettingResult.empty
+                } else {
+                    SettingResult(result.first.config.settings, result.first.fetchTime)
+                }
             }
         }
     }
@@ -68,7 +83,7 @@ internal class ConfigService constructor(
         syncLock.withLock {
             if (!offline.compareAndSet(expect = false, update = true)) return
             pollingJob?.cancel()
-            logger.debug("Switched to OFFLINE mode.")
+            logger.info(5200, ConfigCatLogMessages.getConfigServiceStatusChanged("OFFLINE"))
         }
     }
 
@@ -78,14 +93,14 @@ internal class ConfigService constructor(
             if (mode is AutoPollMode) {
                 startPoll(mode)
             }
-            logger.debug("Switched to ONLINE mode.")
+            logger.info(5200, ConfigCatLogMessages.getConfigServiceStatusChanged("ONLINE"))
         }
     }
 
     suspend fun refresh(): RefreshResult {
         if (offline.value) {
-            val offlineMessage = "The SDK is in offline mode, it can't initiate HTTP calls."
-            logger.warning(offlineMessage)
+            val offlineMessage = ConfigCatLogMessages.CONFIG_SERVICE_CANNOT_INITIATE_HTTP_CALLS_WARN
+            logger.warning(3200, offlineMessage)
             return RefreshResult(false, offlineMessage)
         }
         val result = fetchIfOlder(Constants.distantFuture)
@@ -136,10 +151,10 @@ internal class ConfigService constructor(
                             return@async result
                         }
                         // We got a timeout
-                        val message = "Max init wait time for the very first fetch reached " +
-                                "(${mode.configuration.maxInitWaitTime.inWholeMilliseconds}ms). " +
-                                "Returning cached config."
-                        logger.warning(message)
+                        val message = ConfigCatLogMessages.getAutoPollMaxInitWaitTimeReached(
+                            mode.configuration.maxInitWaitTime.inWholeMilliseconds
+                        )
+                        logger.warning(4200, message)
                         setInitialized()
                         return@async Pair(Entry.empty, message)
                     } else {
@@ -205,7 +220,7 @@ internal class ConfigService constructor(
             cachedJsonString = cached
             Constants.json.decodeFromString(cached)
         } catch (e: Exception) {
-            logger.error("An error occurred during the cache read. ${e.message}")
+            logger.error(2200, ConfigCatLogMessages.CONFIG_SERVICE_CACHE_READ_ERROR, e)
             Entry.empty
         }
     }
@@ -217,7 +232,7 @@ internal class ConfigService constructor(
                 cachedJsonString = json
                 cache.write(cacheKey, json)
             } catch (e: Exception) {
-                logger.error("An error occurred during the cache write. ${e.message}")
+                logger.error(2201, ConfigCatLogMessages.CONFIG_SERVICE_CACHE_WRITE_ERROR, e)
             }
         }
     }

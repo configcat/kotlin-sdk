@@ -14,7 +14,7 @@ internal data class Entry(
     val config: Config,
     val eTag: String,
     @Serializable(with = DateTimeSerializer::class)
-    val fetchTime: DateTime,
+    val fetchTime: DateTime
 ) {
     fun isEmpty(): Boolean = this === empty
 
@@ -28,7 +28,7 @@ internal data class Config(
     @SerialName("p")
     val preferences: Preferences? = null,
     @SerialName("f")
-    val settings: Map<String, Setting>,
+    val settings: Map<String, Setting>
 ) {
     internal fun isEmpty(): Boolean = this == empty
 
@@ -42,7 +42,7 @@ internal data class Preferences(
     @SerialName("u")
     val baseUrl: String,
     @SerialName("r")
-    val redirect: Int,
+    val redirect: Int
 )
 
 /** Describes a feature flag / setting. */
@@ -74,7 +74,7 @@ public data class Setting(
 
     /** Variation ID (for analytical purposes). */
     @SerialName("i")
-    val variationId: String? = null,
+    val variationId: String? = null
 )
 
 /** Describes a percentage rule. */
@@ -91,7 +91,7 @@ public data class PercentageRule(
 
     /** The rule's variation ID (for analytical purposes). */
     @SerialName("i")
-    val variationId: String? = null,
+    val variationId: String? = null
 )
 
 /** Describes a targeting rule. */
@@ -137,7 +137,7 @@ public data class RolloutRule(
 
     /** The rule's variation ID (for analytical purposes). */
     @SerialName("i")
-    val variationId: String? = null,
+    val variationId: String? = null
 )
 
 internal object FlagValueSerializer : KSerializer<Any> {

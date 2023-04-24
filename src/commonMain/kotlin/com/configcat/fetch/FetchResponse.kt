@@ -11,7 +11,7 @@ internal enum class FetchStatus {
 internal enum class RedirectMode {
     NO_REDIRECT,
     SHOULD_REDIRECT,
-    FORCE_REDIRECT,
+    FORCE_REDIRECT
 }
 
 internal class FetchResponse(

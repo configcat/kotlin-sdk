@@ -11,8 +11,8 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlin.test.*
-import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ConfigCatClientTests {
@@ -299,7 +299,7 @@ class ConfigCatClientTests {
 
         val result = client.forceRefresh()
         assertFalse(result.isSuccess)
-        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received response: 404 Not Found", result.error)
+        assertEquals("Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. Received response: 404 Not Found", result.error)
         assertEquals(true, client.getValue("fakeKey", false))
         assertTrue(mockEngine.requestHistory.size == 1 || mockEngine.requestHistory.size == 2)
     }
@@ -321,7 +321,7 @@ class ConfigCatClientTests {
         assertEquals("test1", client.getValue("fakeKey", ""))
         val result = client.forceRefresh()
         assertFalse(result.isSuccess)
-        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received response: 403 Forbidden", result.error)
+        assertEquals("Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. Received response: 403 Forbidden", result.error)
         assertEquals("test1", client.getValue("fakeKey", ""))
         assertEquals(2, mockEngine.requestHistory.size)
     }
@@ -400,7 +400,7 @@ class ConfigCatClientTests {
 
         val result = client.forceRefresh()
         assertFalse(result.isSuccess)
-        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received response: 404 Not Found", result.error)
+        assertEquals("Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. Received response: 404 Not Found", result.error)
         assertEquals(false, client.getValue("fakeKey", false))
         assertTrue(mockEngine.requestHistory.size == 1 || mockEngine.requestHistory.size == 2)
     }
@@ -437,7 +437,7 @@ class ConfigCatClientTests {
 
         val result = client.forceRefresh()
         assertFalse(result.isSuccess)
-        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received response: 404 Not Found", result.error)
+        assertEquals("Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. Received response: 404 Not Found", result.error)
         assertEquals(false, client.getValue("fakeKey", false))
         assertEquals(2, mockEngine.requestHistory.size)
     }
@@ -491,7 +491,7 @@ class ConfigCatClientTests {
         val details = client.getAllValueDetails()
         assertEquals(2, details.size)
         assertTrue { details.elementAt(0).value as? Boolean ?: false }
-        assertFalse(details.elementAt(1).value as? Boolean ?: true )
+        assertFalse(details.elementAt(1).value as? Boolean ?: true)
     }
 
     @Test
@@ -570,7 +570,7 @@ class ConfigCatClientTests {
 
         assertEquals("", details.value)
         assertTrue(details.isDefaultValue)
-        assertEquals("Config JSON is not present. Returning defaultValue: ''.", details.error)
+        assertEquals("Config JSON is not present when evaluating setting 'fakeKey'. Returning the `defaultValue` parameter that you specified in your application: ''.", details.error)
     }
 
     @Test
@@ -596,7 +596,7 @@ class ConfigCatClientTests {
         val result = client.forceRefresh()
 
         assertFalse(result.isSuccess)
-        assertEquals("The SDK is in offline mode, it can't initiate HTTP calls.", result.error)
+        assertEquals("Client is in offline mode, it cannot initiate HTTP calls.", result.error)
         assertEquals(1, mockEngine.requestHistory.size)
 
         client.setOnline()
@@ -644,7 +644,7 @@ class ConfigCatClientTests {
             )
         }
         var ready = false
-        val client = ConfigCatClient("test") {
+        ConfigCatClient("test") {
             httpEngine = mockEngine
             pollingMode = autoPoll { pollingInterval = 2.seconds }
             offline = true
@@ -740,7 +740,7 @@ class ConfigCatClientTests {
         client.forceRefresh()
         client.forceRefresh()
 
-        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received response: 404 Not Found", error)
+        assertEquals("Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. Received response: 404 Not Found", error)
         assertTrue(changed)
         assertTrue(ready)
     }
@@ -769,7 +769,7 @@ class ConfigCatClientTests {
         client.forceRefresh()
         client.forceRefresh()
 
-        assertEquals("Double-check your API KEY at https://app.configcat.com/apikey. Received response: 404 Not Found", error)
+        assertEquals("Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. Received response: 404 Not Found", error)
         assertTrue(changed)
     }
 
@@ -792,7 +792,7 @@ class ConfigCatClientTests {
         client.forceRefresh()
         val error = client.forceRefresh()
 
-        assertEquals("Unexpected HTTP response was received: 400 Bad Request", error.error)
+        assertEquals("Unexpected HTTP response was received while trying to fetch config JSON: 400 ", error.error)
     }
 
     @Test
@@ -810,7 +810,7 @@ class ConfigCatClientTests {
                 assertTrue(details.isDefaultValue)
                 assertEquals("", details.value)
                 assertEquals("ID", details.user?.identifier)
-                assertEquals("Config JSON is not present. Returning defaultValue: ''.", details.error)
+                assertEquals("Config JSON is not present when evaluating setting 'fakeKey'. Returning the `defaultValue` parameter that you specified in your application: ''.", details.error)
             }
         }
 
@@ -903,6 +903,14 @@ class ConfigCatClientTests {
         val client3 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         assertSame(client2, client3)
+    }
+
+    @Test
+    fun testClose() {
+        val client1 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        assertFalse(client1.isClosed())
+        client1.close()
+        assertTrue(client1.isClosed())
     }
 
     companion object {

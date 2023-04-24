@@ -70,13 +70,16 @@ class ConfigServiceTests {
                 respond(content = Data.formatJsonBody("test2"), status = HttpStatusCode.OK)
             }
         } as MockEngine
-        val service = Services.createConfigService(mockEngine, autoPoll {
-            pollingInterval = 2.seconds
-        })
+        val service = Services.createConfigService(
+            mockEngine,
+            autoPoll {
+                pollingInterval = 2.seconds
+            }
+        )
 
         val result = service.getSettings()
         assertEquals("test1", result.settings["fakeKey"]?.value)
-        
+
         assertTrue(mockEngine.requestHistory.size in 1..2)
     }
 
