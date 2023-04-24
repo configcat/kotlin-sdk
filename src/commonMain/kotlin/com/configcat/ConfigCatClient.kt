@@ -110,7 +110,6 @@ public interface ConfigCatClient {
      */
     public suspend fun getAllValueDetails(user: ConfigCatUser? = null): Collection<EvaluationDetails>
 
-
     /**
      * Gets the key of a setting and its value identified by the given [variationId] (analytics).
      */
