@@ -84,36 +84,36 @@ class RolloutMatrixTests {
             }
 
             for ((j, settingKey) in settingKeys.withIndex()) {
-                    val value = client.getAnyValue(settingKey, "", user)
-                    val boolVal = value as? Boolean
-                    if (boolVal != null) {
-                        val expected = testObjects[j + 4].lowercase().toBooleanStrictOrNull()
-                        if (boolVal != expected) {
-                            errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
-                        }
-                        continue
-                    }
-                    val doubleVal = value as? Double
-                    if (doubleVal != null) {
-                        val expected = testObjects[j + 4].toDoubleOrNull()
-                        if (doubleVal != expected) {
-                            errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
-                        }
-                        continue
-                    }
-                    val intVal = value as? Int
-                    if (intVal != null) {
-                        val expected = testObjects[j + 4].toIntOrNull()
-                        if (intVal != expected) {
-                            errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
-                        }
-                        continue
-                    }
-
-                    val expected = testObjects[j + 4]
-                    if (value != expected) {
+                val value = client.getAnyValue(settingKey, "", user)
+                val boolVal = value as? Boolean
+                if (boolVal != null) {
+                    val expected = testObjects[j + 4].lowercase().toBooleanStrictOrNull()
+                    if (boolVal != expected) {
                         errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
                     }
+                    continue
+                }
+                val doubleVal = value as? Double
+                if (doubleVal != null) {
+                    val expected = testObjects[j + 4].toDoubleOrNull()
+                    if (doubleVal != expected) {
+                        errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
+                    }
+                    continue
+                }
+                val intVal = value as? Int
+                if (intVal != null) {
+                    val expected = testObjects[j + 4].toIntOrNull()
+                    if (intVal != expected) {
+                        errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
+                    }
+                    continue
+                }
+
+                val expected = testObjects[j + 4]
+                if (value != expected) {
+                    errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
+                }
             }
         }
 
