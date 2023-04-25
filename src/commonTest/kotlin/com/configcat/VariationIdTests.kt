@@ -14,6 +14,72 @@ class VariationIdTests {
     }
 
     @Test
+    fun testGetVariationId() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = variationIdBody,
+                status = HttpStatusCode.OK
+            )
+        }
+        val client = ConfigCatClient("test") {
+            httpEngine = mockEngine
+        }
+
+        val variationId = client.getValueDetails("key1", "defaultValue").variationId
+        assertEquals("fakeId1", variationId)
+    }
+
+    @Test
+    fun testGetVariationIdNotFound() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = variationIdBody,
+                status = HttpStatusCode.OK
+            )
+        }
+        val client = ConfigCatClient("test") {
+            httpEngine = mockEngine
+        }
+
+        val variationId = client.getValueDetails("nonexisting", "defaultValue").variationId
+        assertEquals("", variationId)
+    }
+
+    @Test
+    fun testGetAllVariationIds() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = variationIdBody,
+                status = HttpStatusCode.OK
+            )
+        }
+        val client = ConfigCatClient("test") {
+            httpEngine = mockEngine
+        }
+
+        val allValueDetails = client.getAllValueDetails()
+
+        assertEquals(2, allValueDetails.size)
+        assertEquals("fakeId1", allValueDetails.elementAt(0).variationId)
+        assertEquals("fakeId2", allValueDetails.elementAt(1).variationId)
+    }
+
+    @Test
+    fun testGetAllVariationIdsEmpty() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = "{}",
+                status = HttpStatusCode.OK
+            )
+        }
+        val client = ConfigCatClient("test") {
+            httpEngine = mockEngine
+        }
+
+        val allValueDetails = client.getAllValueDetails()
+        assertEquals(0, allValueDetails.size)
+    }
+    @Test
     fun testGetKeyAndValue() = runTest {
         val mockEngine = MockEngine {
             respond(

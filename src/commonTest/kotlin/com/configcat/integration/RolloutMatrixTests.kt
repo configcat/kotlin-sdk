@@ -2,6 +2,7 @@ package com.configcat.integration
 
 import com.configcat.ConfigCatClient
 import com.configcat.ConfigCatUser
+import com.configcat.getValueDetails
 import com.configcat.integration.matrix.*
 import com.configcat.manualPoll
 import io.ktor.client.engine.mock.*
@@ -21,30 +22,35 @@ class RolloutMatrixTests {
 
     @Test
     fun testMatrix() = runTest {
-        runMatrixTest(Matrix)
+        runMatrixTest(Matrix, true)
     }
 
     @Test
     fun testNumberMatrix() = runTest {
-        runMatrixTest(NumberMatrix)
+        runMatrixTest(NumberMatrix, true)
     }
 
     @Test
     fun testSemanticMatrix() = runTest {
-        runMatrixTest(SemanticMatrix)
+        runMatrixTest(SemanticMatrix, true)
     }
 
     @Test
     fun testSemantic2Matrix() = runTest {
-        runMatrixTest(SemanticMatrix2)
+        runMatrixTest(SemanticMatrix2, true)
     }
 
     @Test
     fun testSensitiveMatrix() = runTest {
-        runMatrixTest(SensitiveMatrix)
+        runMatrixTest(SensitiveMatrix, true)
     }
 
-    private suspend fun runMatrixTest(matrix: DataMatrix) {
+    @Test
+    fun testVariationMatrix() = runTest {
+        runMatrixTest(VariationIdMatrix, false)
+    }
+
+    private suspend fun runMatrixTest(matrix: DataMatrix, isValueKind: Boolean) {
         val mockEngine = MockEngine {
             respond(content = matrix.remoteJson, status = HttpStatusCode.OK)
         }
@@ -84,35 +90,42 @@ class RolloutMatrixTests {
             }
 
             for ((j, settingKey) in settingKeys.withIndex()) {
-                val value = client.getAnyValue(settingKey, "", user)
-                val boolVal = value as? Boolean
-                if (boolVal != null) {
-                    val expected = testObjects[j + 4].lowercase().toBooleanStrictOrNull()
-                    if (boolVal != expected) {
-                        errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
+                if (isValueKind) {
+                    val value = client.getAnyValue(settingKey, "", user)
+                    val boolVal = value as? Boolean
+                    if (boolVal != null) {
+                        val expected = testObjects[j + 4].lowercase().toBooleanStrictOrNull()
+                        if (boolVal != expected) {
+                            errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
+                        }
+                        continue
                     }
-                    continue
-                }
-                val doubleVal = value as? Double
-                if (doubleVal != null) {
-                    val expected = testObjects[j + 4].toDoubleOrNull()
-                    if (doubleVal != expected) {
-                        errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
+                    val doubleVal = value as? Double
+                    if (doubleVal != null) {
+                        val expected = testObjects[j + 4].toDoubleOrNull()
+                        if (doubleVal != expected) {
+                            errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
+                        }
+                        continue
                     }
-                    continue
-                }
-                val intVal = value as? Int
-                if (intVal != null) {
-                    val expected = testObjects[j + 4].toIntOrNull()
-                    if (intVal != expected) {
-                        errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
+                    val intVal = value as? Int
+                    if (intVal != null) {
+                        val expected = testObjects[j + 4].toIntOrNull()
+                        if (intVal != expected) {
+                            errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
+                        }
+                        continue
                     }
-                    continue
-                }
 
-                val expected = testObjects[j + 4]
-                if (value != expected) {
-                    errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
+                    val expected = testObjects[j + 4]
+                    if (value != expected) {
+                        errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
+                    }
+                } else {
+                    val variationId = client.getValueDetails(settingKey, "", user).variationId
+                    if (variationId != testObjects[j + 4]) {
+                        errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: ${testObjects[j + 4]}, Result: $variationId")
+                    }
                 }
             }
         }
