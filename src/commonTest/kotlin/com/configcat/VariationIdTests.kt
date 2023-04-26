@@ -79,6 +79,7 @@ class VariationIdTests {
         val allValueDetails = client.getAllValueDetails()
         assertEquals(0, allValueDetails.size)
     }
+
     @Test
     fun testGetKeyAndValue() = runTest {
         val mockEngine = MockEngine {
