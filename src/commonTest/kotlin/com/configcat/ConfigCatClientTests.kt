@@ -262,7 +262,7 @@ class ConfigCatClientTests {
             )
         }
         val sdkKey = "test"
-        val cacheKey: String = "kotlin_${sdkKey}_${Constants.configFileName}".encodeToByteArray().sha1().hex
+        val cacheKey: String = "${sdkKey}_${Constants.configFileName}_${Constants.serializationFormatVersion}".encodeToByteArray().sha1().hex
         val cache = InMemoryCache()
         cache.write(cacheKey, Data.formatCacheEntry(true))
         val client = ConfigCatClient(sdkKey) {
@@ -289,7 +289,7 @@ class ConfigCatClientTests {
             )
         }
         val sdkKey = "test"
-        val cacheKey: String = "kotlin_${sdkKey}_${Constants.configFileName}".encodeToByteArray().sha1().hex
+        val cacheKey: String = "${sdkKey}_${Constants.configFileName}_${Constants.serializationFormatVersion}".encodeToByteArray().sha1().hex
         val cache = InMemoryCache()
         cache.write(cacheKey, Data.formatCacheEntry(true))
         val client = ConfigCatClient(sdkKey) {

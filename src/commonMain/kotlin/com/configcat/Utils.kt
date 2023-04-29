@@ -14,6 +14,7 @@ internal object Constants {
     const val serializationFormatVersion: String = "v1"
     const val globalCdnUrl = "https://cdn-global.configcat.com"
     const val euCdnUrl = "https://cdn-eu.configcat.com"
+
     val distantPast = DateTime.fromUnix(0)
     val distantFuture = DateTime.now().add(10_000, 0.0)
     val json = Json {

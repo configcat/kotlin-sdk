@@ -18,16 +18,17 @@ internal class FetchResponse(
     status: FetchStatus,
     val entry: Entry = Entry.empty,
     val error: String? = null,
-    val isTransientError: Boolean = false
+    val isTransientError: Boolean = false,
+    val fetchTime: String? = null
 ) {
     val isFetched: Boolean = status == FetchStatus.FETCHED
     val isNotModified: Boolean = status == FetchStatus.NOT_MODIFIED
     val isFailed: Boolean = status == FetchStatus.FAILED
 
     companion object {
-        fun success(entry: Entry): FetchResponse = FetchResponse(FetchStatus.FETCHED, entry)
-        fun notModified(): FetchResponse = FetchResponse(FetchStatus.NOT_MODIFIED)
-        fun failure(error: String, isTransient: Boolean): FetchResponse =
-            FetchResponse(FetchStatus.FAILED, error = error, isTransientError = isTransient)
+        fun success(entry: Entry, fetchTime: String?): FetchResponse = FetchResponse(FetchStatus.FETCHED, entry, fetchTime)
+        fun notModified(fetchTime: String?): FetchResponse = FetchResponse(FetchStatus.NOT_MODIFIED, fetchTime = fetchTime)
+        fun failure(error: String, isTransient: Boolean, fetchTime: String?): FetchResponse =
+            FetchResponse(FetchStatus.FAILED, error = error, isTransientError = isTransient, fetchTime = fetchTime)
     }
 }

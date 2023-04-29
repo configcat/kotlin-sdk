@@ -68,11 +68,11 @@ internal object Data {
     }
 
     fun formatCacheEntry(value: Any): String {
-        return """{"config":{"f":{"fakeKey":{"v":$value}}},"eTag":"$value","fetchTime":${DateTime.now().unixMillisLong}}"""
+        return "${DateTimeUtils.format(DateTime.now())}\n$value\n" + """{"f":{"fakeKey":{"v":$value}}}"""
     }
 
     fun formatCacheEntryWithDate(value: Any, time: DateTime): String {
-        return """{"config":{"f":{"fakeKey":{"v":$value}}},"eTag":"$value","fetchTime":${time.unixMillisLong}}"""
+        return "${DateTimeUtils.format(time)}\n$value\n" + """{"f":{"fakeKey":{"v":$value}}}"""
     }
 }
 
