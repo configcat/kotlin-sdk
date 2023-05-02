@@ -9,7 +9,7 @@ internal object DateTimeUtils {
      *
      * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Date">mdn docs</a>
      */
-    private val dateFormat: DateFormat = DateFormat("EEE, dd MMM yyyy HH:mm:ss z") // Construct a new DateFormat from a String
+    private val dateFormat: DateFormat = DateFormat("EEE, dd MMM yyyy HH:mm:ss z")
 
     fun isValidDate(dateString: String): Boolean {
         try {

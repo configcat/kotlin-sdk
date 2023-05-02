@@ -70,7 +70,6 @@ internal class ConfigFetcher constructor(
 
     private suspend fun fetchHTTP(baseUrl: String, eTag: String): FetchResponse {
         val url = "$baseUrl/configuration-files/${options.sdkKey}/${Constants.configFileName}.json"
-        var fetchTime = DateTimeUtils.format(DateTime.now())
         try {
             val response = httpClient.get(url) {
                 headers {
@@ -81,9 +80,9 @@ internal class ConfigFetcher constructor(
                     if (eTag.isNotEmpty()) append(HttpHeaders.IfNoneMatch, eTag)
                 }
             }
-            val fetchTimeHeader = response.headers["date"]
-            if (!fetchTimeHeader.isNullOrEmpty() && DateTimeUtils.isValidDate(fetchTimeHeader)) {
-                fetchTime = fetchTimeHeader
+            var fetchTime = response.headers["date"]
+            if (fetchTime.isNullOrEmpty() || !DateTimeUtils.isValidDate(fetchTime)) {
+                fetchTime = DateTimeUtils.format(DateTime.now())
             }
             if (response.status.value in 200..299) {
                 logger.debug("Fetch was successful: new config fetched.")
