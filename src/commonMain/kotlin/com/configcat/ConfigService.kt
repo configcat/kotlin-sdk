@@ -13,8 +13,6 @@ import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 
 internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: DateTime) {
     fun isEmpty(): Boolean = this === empty
@@ -30,7 +28,7 @@ internal class ConfigService constructor(
     private val logger: InternalLogger,
     private val hooks: Hooks
 ) : Closeable {
-    private val cacheKey: String = "kotlin_${options.sdkKey}_${Constants.configFileName}".encodeToByteArray().sha1().hex
+    private val cacheKey: String = "${options.sdkKey}_${Constants.configFileName}_${Constants.serializationFormatVersion}".encodeToByteArray().sha1().hex
     private val mutex = Mutex()
     private val syncLock = reentrantLock()
     private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
@@ -64,7 +62,7 @@ internal class ConfigService constructor(
                 if (result.first.isEmpty()) {
                     SettingResult.empty
                 } else {
-                    SettingResult(result.first.config.settings, result.first.fetchTime)
+                    SettingResult(result.first.config.settings, result.first.getFetchTime())
                 }
             }
 
@@ -73,7 +71,7 @@ internal class ConfigService constructor(
                 if (result.first.isEmpty()) {
                     SettingResult.empty
                 } else {
-                    SettingResult(result.first.config.settings, result.first.fetchTime)
+                    SettingResult(result.first.config.settings, result.first.getFetchTime())
                 }
             }
         }
@@ -111,14 +109,14 @@ internal class ConfigService constructor(
     private suspend fun fetchIfOlder(time: DateTime, preferCached: Boolean = false): Pair<Entry, String?> {
         mutex.withLock {
             // Sync up with the cache and use it when it's not expired.
-            if (cachedEntry.isEmpty() || cachedEntry.fetchTime > time) {
+            if (cachedEntry.isEmpty() || cachedEntry.getFetchTime() > time) {
                 val entry = readCache()
                 if (!entry.isEmpty() && entry.eTag != cachedEntry.eTag) {
                     cachedEntry = entry
                     hooks.invokeOnConfigChanged(entry.config.settings)
                 }
                 // Cache isn't expired
-                if (cachedEntry.fetchTime > time) {
+                if (cachedEntry.getFetchTime() > time) {
                     setInitialized()
                     return Pair(cachedEntry, null)
                 }
@@ -188,7 +186,7 @@ internal class ConfigService constructor(
                 hooks.invokeOnConfigChanged(response.entry.config.settings)
                 return Pair(response.entry, null)
             } else if ((response.isNotModified || !response.isTransientError) && !cachedEntry.isEmpty()) {
-                cachedEntry = cachedEntry.copy(fetchTime = DateTime.now())
+                cachedEntry = cachedEntry.copy(fetchTimeRaw = response.fetchTime)
                 writeCache(cachedEntry)
             }
             return Pair(cachedEntry, response.error)
@@ -218,7 +216,7 @@ internal class ConfigService constructor(
             val cached = options.configCache?.read(cacheKey) ?: ""
             if (cached.isEmpty() || cached == cachedJsonString) return Entry.empty
             cachedJsonString = cached
-            Constants.json.decodeFromString(cached)
+            Entry.fromString(cached)
         } catch (e: Exception) {
             logger.error(2200, ConfigCatLogMessages.CONFIG_SERVICE_CACHE_READ_ERROR, e)
             Entry.empty
@@ -228,7 +226,7 @@ internal class ConfigService constructor(
     private suspend fun writeCache(entry: Entry) {
         options.configCache?.let { cache ->
             try {
-                val json = Constants.json.encodeToString(entry)
+                val json = entry.serialize()
                 cachedJsonString = json
                 cache.write(cacheKey, json)
             } catch (e: Exception) {

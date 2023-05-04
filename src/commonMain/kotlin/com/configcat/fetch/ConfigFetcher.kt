@@ -65,7 +65,7 @@ internal class ConfigFetcher constructor(
         }
         val message = ConfigCatLogMessages.FETCH_FAILED_DUE_TO_REDIRECT_LOOP_ERROR
         logger.error(1104, message)
-        return FetchResponse.failure(message, true)
+        return FetchResponse.failure(message, true, null)
     }
 
     private suspend fun fetchHTTP(baseUrl: String, eTag: String): FetchResponse {
@@ -80,32 +80,35 @@ internal class ConfigFetcher constructor(
                     if (eTag.isNotEmpty()) append(HttpHeaders.IfNoneMatch, eTag)
                 }
             }
-
+            var fetchTime = response.headers["date"]
+            if (fetchTime.isNullOrEmpty() || !DateTimeUtils.isValidDate(fetchTime)) {
+                fetchTime = DateTimeUtils.format(DateTime.now())
+            }
             if (response.status.value in 200..299) {
                 logger.debug("Fetch was successful: new config fetched.")
                 val body = response.bodyAsText()
                 val newETag = response.etag()
                 val (config, err) = parseConfigJson(body)
                 if (err != null) {
-                    return FetchResponse.failure(err, true)
+                    return FetchResponse.failure(err, true, null)
                 }
-                val entry = Entry(config, newETag ?: "", DateTime.now())
-                return FetchResponse.success(entry)
+                val entry = Entry(config, newETag ?: "", body, fetchTime)
+                return FetchResponse.success(entry, fetchTime)
             } else if (response.status == HttpStatusCode.NotModified) {
                 logger.debug("Fetch was successful: config not modified.")
-                return FetchResponse.notModified()
+                return FetchResponse.notModified(fetchTime)
             } else if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.Forbidden) {
                 val message = ConfigCatLogMessages.FETCH_FAILED_DUE_TO_INVALID_SDK_KEY_ERROR +
                     " Received response: ${response.status}"
                 logger.error(1100, message)
-                return FetchResponse.failure(message, false)
+                return FetchResponse.failure(message, false, fetchTime)
             } else {
                 val message = ConfigCatLogMessages.getFetchFailedDueToUnexpectedHttpResponse(
                     response.status.value,
                     response.bodyAsText()
                 )
                 logger.error(1101, message)
-                return FetchResponse.failure(message, true)
+                return FetchResponse.failure(message, true, null)
             }
         } catch (_: HttpRequestTimeoutException) {
             val message = ConfigCatLogMessages.getFetchFailedDueToRequestTimeout(
@@ -114,11 +117,11 @@ internal class ConfigFetcher constructor(
                 options.requestTimeout.inWholeMilliseconds
             )
             logger.error(1102, message)
-            return FetchResponse.failure(message, true)
+            return FetchResponse.failure(message, true, null)
         } catch (e: Exception) {
             val message = ConfigCatLogMessages.FETCH_FAILED_DUE_TO_UNEXPECTED_ERROR
             logger.error(1103, message, e)
-            return FetchResponse.failure(message, true)
+            return FetchResponse.failure(message, true, null)
         }
     }
 

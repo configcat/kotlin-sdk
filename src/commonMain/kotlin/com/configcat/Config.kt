@@ -2,8 +2,6 @@ package com.configcat
 
 import com.soywiz.klock.DateTime
 import kotlinx.serialization.*
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
@@ -13,13 +11,53 @@ import kotlinx.serialization.json.*
 internal data class Entry(
     val config: Config,
     val eTag: String,
-    @Serializable(with = DateTimeSerializer::class)
-    val fetchTime: DateTime
+    val configJson: String,
+    val fetchTimeRaw: String?
 ) {
     fun isEmpty(): Boolean = this === empty
 
     companion object {
-        val empty: Entry = Entry(Config.empty, "", Constants.distantPast)
+        val empty: Entry = Entry(Config.empty, "", "", "")
+
+        fun fromString(cacheValue: String?): Entry {
+            if (cacheValue.isNullOrEmpty()) {
+                return empty
+            }
+            val fetchTimeIndex = cacheValue.indexOf("\n")
+            val eTagIndex = cacheValue.indexOf("\n", fetchTimeIndex + 1)
+            if (fetchTimeIndex < 0 || eTagIndex < 0) {
+                throw IllegalArgumentException("Number of values is fewer than expected.")
+            }
+            val fetchTimeRaw = cacheValue.substring(0, fetchTimeIndex)
+            if (!DateTimeUtils.isValidDate(fetchTimeRaw)) {
+                throw IllegalArgumentException("Invalid fetch time: $fetchTimeRaw")
+            }
+            val eTag = cacheValue.substring(fetchTimeIndex + 1, eTagIndex)
+            if (eTag.isEmpty()) {
+                throw IllegalArgumentException("Empty eTag value.")
+            }
+            val configJson = cacheValue.substring(eTagIndex + 1)
+            if (configJson.isEmpty()) {
+                throw IllegalArgumentException("Empty config jsom value.")
+            }
+            return try {
+                val config: Config = Constants.json.decodeFromString(configJson)
+                Entry(config, eTag, configJson, fetchTimeRaw)
+            } catch (e: Exception) {
+                throw IllegalArgumentException("Invalid config JSON content: $configJson")
+            }
+        }
+    }
+
+    fun getFetchTime(): DateTime {
+        if (fetchTimeRaw.isNullOrEmpty()) {
+            return Constants.distantPast
+        }
+        return DateTimeUtils.parse(fetchTimeRaw)
+    }
+
+    fun serialize(): String {
+        return "${fetchTimeRaw}\n${eTag}\n$configJson"
     }
 }
 
@@ -168,17 +206,4 @@ internal object FlagValueSerializer : KSerializer<Any> {
     @OptIn(ExperimentalSerializationApi::class)
     override val descriptor: SerialDescriptor =
         ContextualSerializer(Any::class, null, emptyArray()).descriptor
-}
-
-internal object DateTimeSerializer : KSerializer<DateTime> {
-    override val descriptor: SerialDescriptor
-        get() = PrimitiveSerialDescriptor("DateSerializer", PrimitiveKind.LONG)
-
-    override fun serialize(encoder: Encoder, value: DateTime) {
-        encoder.encodeLong(value.unixMillisLong)
-    }
-
-    override fun deserialize(decoder: Decoder): DateTime {
-        return DateTime(decoder.decodeLong())
-    }
 }
