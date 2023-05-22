@@ -707,12 +707,12 @@ class ConfigCatClientTests {
 
         client.setDefaultUser(user1)
 
-        assertEquals("fakeId1", client.getVariationId("key", ""))
-        assertEquals("fakeId2", client.getVariationId("key", "", user2))
+        assertEquals("fakeId1", client.getValueDetails("key", "").variationId)
+        assertEquals("fakeId2", client.getValueDetails("key", "", user2).variationId)
 
         client.clearDefaultUser()
 
-        assertEquals("defaultId", client.getVariationId("key", ""))
+        assertEquals("defaultId", client.getValueDetails("key", "").variationId)
     }
 
     @Test

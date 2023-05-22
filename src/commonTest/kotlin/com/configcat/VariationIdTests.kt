@@ -25,7 +25,7 @@ class VariationIdTests {
             httpEngine = mockEngine
         }
 
-        val variationId = client.getVariationId("key1", defaultVariationId = null)
+        val variationId = client.getValueDetails("key1", "defaultValue").variationId
         assertEquals("fakeId1", variationId)
     }
 
@@ -41,8 +41,8 @@ class VariationIdTests {
             httpEngine = mockEngine
         }
 
-        val variationId = client.getVariationId("nonexisting", defaultVariationId = null)
-        assertNull(variationId)
+        val variationId = client.getValueDetails("nonexisting", "defaultValue").variationId
+        assertEquals("", variationId)
     }
 
     @Test
@@ -57,9 +57,11 @@ class VariationIdTests {
             httpEngine = mockEngine
         }
 
-        val variationIds = client.getAllVariationIds()
-        assertEquals(2, variationIds.size)
-        assertTrue { variationIds.contains("fakeId1") && variationIds.contains("fakeId2") }
+        val allValueDetails = client.getAllValueDetails()
+
+        assertEquals(2, allValueDetails.size)
+        assertEquals("fakeId1", allValueDetails.elementAt(0).variationId)
+        assertEquals("fakeId2", allValueDetails.elementAt(1).variationId)
     }
 
     @Test
@@ -74,8 +76,8 @@ class VariationIdTests {
             httpEngine = mockEngine
         }
 
-        val variationIds = client.getAllVariationIds()
-        assertEquals(0, variationIds.size)
+        val allValueDetails = client.getAllValueDetails()
+        assertEquals(0, allValueDetails.size)
     }
 
     @Test
