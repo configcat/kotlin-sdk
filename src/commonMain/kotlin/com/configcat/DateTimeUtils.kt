@@ -3,28 +3,12 @@ package com.configcat
 import com.soywiz.klock.*
 
 internal object DateTimeUtils {
-
-    /**
-     * HTTP Date header formatter. Date: day-name, day month year hour:minute:second GMT
-     *
-     * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Date">mdn docs</a>
-     */
-    private val dateFormat: DateFormat = DateFormat("EEE, dd MMM yyyy HH:mm:ss z")
-
-    fun isValidDate(dateString: String): Boolean {
+    fun isValidDate(fetchTimeUnixSecond: Double): Boolean {
         try {
-            dateFormat.parse(dateString)
+            DateTime(fetchTimeUnixSecond)
         } catch (e: DateException) {
             return false
         }
         return true
-    }
-
-    fun parse(dateTime: String): DateTime {
-        return dateFormat.parse(dateTime).utc
-    }
-
-    fun format(dateTime: DateTime): String {
-        return dateFormat.format(dateTime)
     }
 }

@@ -1,6 +1,5 @@
 package com.configcat
 
-import com.configcat.DateTimeUtils.format
 import com.soywiz.klock.DateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -18,30 +17,29 @@ class EntrySerializationTests {
     fun testSerialize() = runTest {
         val json: String = Data.formatJsonBody("test")
         val config: Config = Constants.json.decodeFromString(json)
-        val fetchTimeRaw = format(DateTime.now())
-        val entry = Entry(config, "fakeTag", json, fetchTimeRaw)
+        val fetchTimeNow = DateTime.now()
+        val entry = Entry(config, "fakeTag", json, fetchTimeNow)
 
         val serializedString = entry.serialize()
-
-        val expected = "$fetchTimeRaw\nfakeTag\n$json"
+        val fetchTimeNowUnixSecond = fetchTimeNow.unixMillis / 1000
+        val expected = "$fetchTimeNowUnixSecond\nfakeTag\n$json"
         assertEquals(expected, serializedString)
     }
 
     @Test
     fun testDeserialize() = runTest {
         val json: String = Data.formatJsonBody("test")
-        val dateTimeNow: DateTime = DateTime.now()
-        val fetchTimeRaw = format(dateTimeNow)
+        val dateTimeNowUnixSeconds: Double = DateTime.now().unixMillis / 1000
+        val fetchTimeUnixSeconds = DateTime(dateTimeNowUnixSeconds * 1000)
 
-        val cacheValue = "$fetchTimeRaw\nfakeTag\n$json"
+        val cacheValue = "$dateTimeNowUnixSeconds\nfakeTag\n$json"
 
         val entry: Entry = Entry.fromString(cacheValue)
         assertNotNull(entry)
-        assertEquals(fetchTimeRaw, entry.fetchTimeRaw)
+        assertEquals(fetchTimeUnixSeconds, entry.fetchTime)
         assertEquals("fakeTag", entry.eTag)
         assertEquals(json, entry.configJson)
         assertEquals(1, entry.config.settings.size)
-        assertEquals(dateTimeNow.date, entry.getFetchTime().date)
     }
 
     @Test

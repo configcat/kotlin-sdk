@@ -1,6 +1,7 @@
 package com.configcat.fetch
 
 import com.configcat.Entry
+import com.soywiz.klock.DateTime
 
 internal enum class FetchStatus {
     FETCHED,
@@ -19,16 +20,16 @@ internal class FetchResponse(
     val entry: Entry = Entry.empty,
     val error: String? = null,
     val isTransientError: Boolean = false,
-    val fetchTime: String? = null
+    val fetchTime: DateTime
 ) {
     val isFetched: Boolean = status == FetchStatus.FETCHED
     val isNotModified: Boolean = status == FetchStatus.NOT_MODIFIED
     val isFailed: Boolean = status == FetchStatus.FAILED
 
     companion object {
-        fun success(entry: Entry, fetchTime: String?): FetchResponse = FetchResponse(FetchStatus.FETCHED, entry, fetchTime)
-        fun notModified(fetchTime: String?): FetchResponse = FetchResponse(FetchStatus.NOT_MODIFIED, fetchTime = fetchTime)
-        fun failure(error: String, isTransient: Boolean, fetchTime: String?): FetchResponse =
+        fun success(entry: Entry, fetchTime: DateTime): FetchResponse = FetchResponse(FetchStatus.FETCHED, entry, fetchTime = fetchTime)
+        fun notModified(fetchTime: DateTime): FetchResponse = FetchResponse(FetchStatus.NOT_MODIFIED, fetchTime = fetchTime)
+        fun failure(error: String, isTransient: Boolean, fetchTime: DateTime): FetchResponse =
             FetchResponse(FetchStatus.FAILED, error = error, isTransientError = isTransient, fetchTime = fetchTime)
     }
 }

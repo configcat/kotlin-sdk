@@ -7,17 +7,16 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
-@Serializable
 internal data class Entry(
     val config: Config,
     val eTag: String,
     val configJson: String,
-    val fetchTimeRaw: String?
+    val fetchTime: DateTime
 ) {
     fun isEmpty(): Boolean = this === empty
 
     companion object {
-        val empty: Entry = Entry(Config.empty, "", "", "")
+        val empty: Entry = Entry(Config.empty, "", "", Constants.distantPast)
 
         fun fromString(cacheValue: String?): Entry {
             if (cacheValue.isNullOrEmpty()) {
@@ -28,9 +27,10 @@ internal data class Entry(
             if (fetchTimeIndex < 0 || eTagIndex < 0) {
                 throw IllegalArgumentException("Number of values is fewer than expected.")
             }
-            val fetchTimeRaw = cacheValue.substring(0, fetchTimeIndex)
-            if (!DateTimeUtils.isValidDate(fetchTimeRaw)) {
-                throw IllegalArgumentException("Invalid fetch time: $fetchTimeRaw")
+            val fetchTimeRaw = cacheValue.substring(0, fetchTimeIndex).toDouble()
+            val fetchTimeUnixSecond = fetchTimeRaw * 1000
+            if (!DateTimeUtils.isValidDate(fetchTimeUnixSecond)) {
+                throw IllegalArgumentException("Invalid fetch time: $fetchTimeUnixSecond")
             }
             val eTag = cacheValue.substring(fetchTimeIndex + 1, eTagIndex)
             if (eTag.isEmpty()) {
@@ -42,22 +42,16 @@ internal data class Entry(
             }
             return try {
                 val config: Config = Constants.json.decodeFromString(configJson)
-                Entry(config, eTag, configJson, fetchTimeRaw)
+                Entry(config, eTag, configJson, DateTime(fetchTimeUnixSecond))
             } catch (e: Exception) {
                 throw IllegalArgumentException("Invalid config JSON content: $configJson")
             }
         }
     }
 
-    fun getFetchTime(): DateTime {
-        if (fetchTimeRaw.isNullOrEmpty()) {
-            return Constants.distantPast
-        }
-        return DateTimeUtils.parse(fetchTimeRaw)
-    }
-
     fun serialize(): String {
-        return "${fetchTimeRaw}\n${eTag}\n$configJson"
+        val fetchTimeUnixSecond: Double = fetchTime.unixMillis / 1000
+        return "${fetchTimeUnixSecond}\n${eTag}\n$configJson"
     }
 }
 

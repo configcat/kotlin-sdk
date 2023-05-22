@@ -68,11 +68,13 @@ internal object Data {
     }
 
     fun formatCacheEntry(value: Any): String {
-        return "${DateTimeUtils.format(DateTime.now())}\n$value\n" + """{"f":{"fakeKey":{"v":$value}}}"""
+        val fetchTimeUnixSeconds = DateTime.now().unixMillis / 1000
+        return "${fetchTimeUnixSeconds}\n$value\n" + """{"f":{"fakeKey":{"v":$value}}}"""
     }
 
     fun formatCacheEntryWithDate(value: Any, time: DateTime): String {
-        return "${DateTimeUtils.format(time)}\n$value\n" + """{"f":{"fakeKey":{"v":$value}}}"""
+        val fetchTimeUnixSeconds = time.unixMillis / 1000
+        return "${fetchTimeUnixSeconds}\n$value\n" + """{"f":{"fakeKey":{"v":$value}}}"""
     }
 }
 
