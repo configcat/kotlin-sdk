@@ -82,8 +82,6 @@ class EntrySerializationTests {
             Entry.fromString(cacheValue)
         }
         assertEquals("Empty eTag value.", exception.message)
-
-
     }
 
     @Test
