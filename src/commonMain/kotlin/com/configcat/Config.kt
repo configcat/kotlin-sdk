@@ -27,9 +27,9 @@ internal data class Entry(
             if (fetchTimeIndex < 0 || eTagIndex < 0) {
                 throw IllegalArgumentException("Number of values is fewer than expected.")
             }
-            val fetchTimeRaw = cacheValue.substring(0, fetchTimeIndex).toDouble()
-            val fetchTimeUnixSecond = fetchTimeRaw * 1000
-            if (!DateTimeUtils.isValidDate(fetchTimeUnixSecond)) {
+            val fetchTimeUnixSecond = cacheValue.substring(0, fetchTimeIndex).toDouble()
+            val fetchTimeUnixMillis = fetchTimeUnixSecond * 1000
+            if (!DateTimeUtils.isValidDate(fetchTimeUnixMillis)) {
                 throw IllegalArgumentException("Invalid fetch time: $fetchTimeUnixSecond")
             }
             val eTag = cacheValue.substring(fetchTimeIndex + 1, eTagIndex)
@@ -42,7 +42,7 @@ internal data class Entry(
             }
             return try {
                 val config: Config = Constants.json.decodeFromString(configJson)
-                Entry(config, eTag, configJson, DateTime(fetchTimeUnixSecond))
+                Entry(config, eTag, configJson, DateTime(fetchTimeUnixMillis))
             } catch (e: Exception) {
                 throw IllegalArgumentException("Invalid config JSON content: $configJson")
             }
@@ -50,7 +50,7 @@ internal data class Entry(
     }
 
     fun serialize(): String {
-        val fetchTimeUnixSecond: Double = fetchTime.unixMillis / 1000
+        val fetchTimeUnixSecond = fetchTime.unixMillis / 1000
         return "${fetchTimeUnixSecond}\n${eTag}\n$configJson"
     }
 }
