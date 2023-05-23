@@ -52,44 +52,55 @@ class EntrySerializationTests {
 
     @Test
     fun testDeserializeWrongFormat() = runTest {
-        assertFailsWith<IllegalArgumentException> {
+        val exception = assertFailsWith<IllegalArgumentException> {
             Entry.fromString("value with no new line")
         }
-        assertFailsWith<IllegalArgumentException> {
+        assertEquals("Number of values is fewer than expected.", exception.message)
+        val exception2 = assertFailsWith<IllegalArgumentException> {
             Entry.fromString("value with one \n new line")
         }
+        assertEquals("Number of values is fewer than expected.", exception2.message)
     }
 
     @Test
     fun testDeserializeInvalidDate() = runTest {
         val cacheValue = "Invalid\nfakeTag\nTestjson"
 
-        assertFailsWith<IllegalArgumentException> {
+        val exception = assertFailsWith<IllegalArgumentException> {
             Entry.fromString(cacheValue)
         }
+
+        assertEquals("Invalid fetch time: Invalid", exception.message)
     }
 
     @Test
     fun testDeserializeInvalidETag() = runTest {
-        val cacheValue = "Invalid\n\nTestjson"
+        val fetchTimeTest = DateTime.now().unixMillis / 1000
+        val cacheValue = "${fetchTimeTest}\n\nTestjson"
 
-        assertFailsWith<IllegalArgumentException> {
+        val exception = assertFailsWith<IllegalArgumentException> {
             Entry.fromString(cacheValue)
         }
+        assertEquals("Empty eTag value.", exception.message)
+
+
     }
 
     @Test
     fun testDeserializeInvalidJson() = runTest {
-        val cacheValueEmptyJson = "Invalid\n\n"
+        val fetchTimeTest = DateTime.now().unixMillis / 1000
+        val cacheValueEmptyJson = "${fetchTimeTest}\nTestETag\n"
 
-        assertFailsWith<IllegalArgumentException> {
+        val exception = assertFailsWith<IllegalArgumentException> {
             Entry.fromString(cacheValueEmptyJson)
         }
+        assertEquals("Empty config jsom value.", exception.message)
 
-        val cacheValueWrongJson = "Invalid\n\nwrongjson"
+        val cacheValueWrongJson = "${fetchTimeTest}\nTestETag\nwrongjson"
 
-        assertFailsWith<IllegalArgumentException> {
+        val exception2 = assertFailsWith<IllegalArgumentException> {
             Entry.fromString(cacheValueWrongJson)
         }
+        assertEquals("Invalid config JSON content: wrongjson", exception2.message)
     }
 }

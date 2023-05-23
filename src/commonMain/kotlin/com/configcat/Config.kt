@@ -27,11 +27,11 @@ internal data class Entry(
             if (fetchTimeIndex < 0 || eTagIndex < 0) {
                 throw IllegalArgumentException("Number of values is fewer than expected.")
             }
-            val fetchTimeUnixSecond = cacheValue.substring(0, fetchTimeIndex).toDouble()
-            val fetchTimeUnixMillis = fetchTimeUnixSecond * 1000
-            if (!DateTimeUtils.isValidDate(fetchTimeUnixMillis)) {
-                throw IllegalArgumentException("Invalid fetch time: $fetchTimeUnixSecond")
+            val fetchTimeRaw = cacheValue.substring(0, fetchTimeIndex)
+            if (!DateTimeUtils.isValidDate(fetchTimeRaw)) {
+                throw IllegalArgumentException("Invalid fetch time: $fetchTimeRaw")
             }
+            val fetchTimeUnixMillis = fetchTimeRaw.toDouble()* 1000
             val eTag = cacheValue.substring(fetchTimeIndex + 1, eTagIndex)
             if (eTag.isEmpty()) {
                 throw IllegalArgumentException("Empty eTag value.")

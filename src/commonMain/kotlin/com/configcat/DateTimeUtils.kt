@@ -3,10 +3,11 @@ package com.configcat
 import com.soywiz.klock.*
 
 internal object DateTimeUtils {
-    fun isValidDate(fetchTimeUnixMillis: Double): Boolean {
+    fun isValidDate(fetchTime: String): Boolean {
         try {
-            DateTime(fetchTimeUnixMillis)
-        } catch (e: DateException) {
+            val fetchTimeSeconds = fetchTime.toDouble()
+            DateTime(fetchTimeSeconds * 1000)
+        } catch (e: Exception) {
             return false
         }
         return true
