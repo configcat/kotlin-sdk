@@ -186,7 +186,7 @@ internal class ConfigService constructor(
                 hooks.invokeOnConfigChanged(response.entry.config.settings)
                 return Pair(response.entry, null)
             } else if ((response.isNotModified || !response.isTransientError) && !cachedEntry.isEmpty()) {
-                cachedEntry = cachedEntry.copy(fetchTime = response.fetchTime)
+                cachedEntry = cachedEntry.copy(fetchTime = DateTime.now())
                 writeCache(cachedEntry)
             }
             return Pair(cachedEntry, response.error)
