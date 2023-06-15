@@ -96,7 +96,7 @@ internal object Services {
         cache: ConfigCache? = EmptyConfigCache(),
         hooks: Hooks = Hooks(),
         offline: Boolean = false,
-        options: ConfigCatOptions =  ConfigCatOptions()
+        options: ConfigCatOptions = ConfigCatOptions()
     ): ConfigService {
         options.pollingMode = mode
         options.configCache = cache

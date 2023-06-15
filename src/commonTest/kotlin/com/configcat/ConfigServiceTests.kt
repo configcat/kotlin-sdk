@@ -561,15 +561,14 @@ class ConfigServiceTests {
             respond(content = Data.formatJsonBody("test1"), status = HttpStatusCode.OK)
         }
         val configCatOptions = ConfigCatOptions()
-        //Test Data: SDKKey "test1", HASH "147c5b4c2b2d7c77e1605b1a4309f0ea6684a0c6"
+        // Test Data: SDKKey "test1", HASH "147c5b4c2b2d7c77e1605b1a4309f0ea6684a0c6"
         configCatOptions.sdkKey = "test1"
         val service = Services.createConfigService(mockEngine, options = configCatOptions)
         assertEquals("147c5b4c2b2d7c77e1605b1a4309f0ea6684a0c6", service.cacheKey)
 
-        //Test Data: SDKKey "test2", HASH "c09513b1756de9e4bc48815ec7a142b2441ed4d5"
+        // Test Data: SDKKey "test2", HASH "c09513b1756de9e4bc48815ec7a142b2441ed4d5"
         configCatOptions.sdkKey = "test2"
         val service2 = Services.createConfigService(mockEngine, options = configCatOptions)
         assertEquals("c09513b1756de9e4bc48815ec7a142b2441ed4d5", service2.cacheKey)
-
     }
 }

@@ -41,7 +41,7 @@ class EntrySerializationTests {
     @Test
     fun testDeserialize() = runTest {
         val json: String = Data.formatJsonBody("test")
-        val dateTimeNow = DateTime.now();
+        val dateTimeNow = DateTime.now()
         val dateTimeNowUnixSeconds: Long = dateTimeNow.unixMillis.toLong()
 
         val cacheValue = "$dateTimeNowUnixSeconds\nfakeTag\n$json"
