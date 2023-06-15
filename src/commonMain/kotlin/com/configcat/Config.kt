@@ -31,7 +31,7 @@ internal data class Entry(
             if (!DateTimeUtils.isValidDate(fetchTimeRaw)) {
                 throw IllegalArgumentException("Invalid fetch time: $fetchTimeRaw")
             }
-            val fetchTimeUnixMillis = fetchTimeRaw.toDouble() * 1000
+            val fetchTimeUnixMillis = fetchTimeRaw.toLong()
             val eTag = cacheValue.substring(fetchTimeIndex + 1, eTagIndex)
             if (eTag.isEmpty()) {
                 throw IllegalArgumentException("Empty eTag value.")
@@ -50,8 +50,7 @@ internal data class Entry(
     }
 
     fun serialize(): String {
-        val fetchTimeUnixSecond = fetchTime.unixMillis / 1000
-        return "${fetchTimeUnixSecond}\n${eTag}\n$configJson"
+        return "${fetchTime.unixMillis.toLong()}\n${eTag}\n$configJson"
     }
 }
 

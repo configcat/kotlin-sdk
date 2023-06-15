@@ -21,22 +21,34 @@ class EntrySerializationTests {
         val entry = Entry(config, "fakeTag", json, fetchTimeNow)
 
         val serializedString = entry.serialize()
-        val fetchTimeNowUnixSecond = fetchTimeNow.unixMillis / 1000
+        val fetchTimeNowUnixSecond = fetchTimeNow.unixMillis.toLong()
         val expected = "$fetchTimeNowUnixSecond\nfakeTag\n$json"
         assertEquals(expected, serializedString)
     }
 
     @Test
+    fun testPayloadSerializationPlatformIndependent() {
+        val payloadTestConfigJson =
+            "{\"p\":{\"u\":\"https://cdn-global.configcat.com\",\"r\":0},\"f\":{\"testKey\":{\"v\":\"testValue\",\"t\":1,\"p\":[],\"r\":[]}}}"
+        val config: Config = Constants.json.decodeFromString(payloadTestConfigJson)
+
+        val entry = Entry(config, "test-etag", payloadTestConfigJson, DateTime(1686756435844L))
+        val serializedString = entry.serialize()
+
+        assertEquals("1686756435844\ntest-etag\n$payloadTestConfigJson", serializedString)
+    }
+
+    @Test
     fun testDeserialize() = runTest {
         val json: String = Data.formatJsonBody("test")
-        val dateTimeNowUnixSeconds: Double = DateTime.now().unixMillis / 1000
-        val fetchTimeUnixSeconds = DateTime(dateTimeNowUnixSeconds * 1000)
+        val dateTimeNow = DateTime.now();
+        val dateTimeNowUnixSeconds: Long = dateTimeNow.unixMillis.toLong()
 
         val cacheValue = "$dateTimeNowUnixSeconds\nfakeTag\n$json"
 
         val entry: Entry = Entry.fromString(cacheValue)
         assertNotNull(entry)
-        assertEquals(fetchTimeUnixSeconds, entry.fetchTime)
+        assertEquals(dateTimeNow, entry.fetchTime)
         assertEquals("fakeTag", entry.eTag)
         assertEquals(json, entry.configJson)
         assertEquals(1, entry.config.settings.size)
@@ -75,7 +87,7 @@ class EntrySerializationTests {
 
     @Test
     fun testDeserializeInvalidETag() = runTest {
-        val fetchTimeTest = DateTime.now().unixMillis / 1000
+        val fetchTimeTest = DateTime.now().unixMillis.toLong()
         val cacheValue = "${fetchTimeTest}\n\nTestjson"
 
         val exception = assertFailsWith<IllegalArgumentException> {
@@ -86,7 +98,7 @@ class EntrySerializationTests {
 
     @Test
     fun testDeserializeInvalidJson() = runTest {
-        val fetchTimeTest = DateTime.now().unixMillis / 1000
+        val fetchTimeTest = DateTime.now().unixMillis.toLong()
         val cacheValueEmptyJson = "${fetchTimeTest}\nTestETag\n"
 
         val exception = assertFailsWith<IllegalArgumentException> {

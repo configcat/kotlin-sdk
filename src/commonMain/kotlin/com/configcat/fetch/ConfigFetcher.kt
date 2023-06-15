@@ -69,7 +69,7 @@ internal class ConfigFetcher constructor(
     }
 
     private suspend fun fetchHTTP(baseUrl: String, eTag: String): FetchResponse {
-        val url = "$baseUrl/configuration-files/${options.sdkKey}/${Constants.configFileName}.json"
+        val url = "$baseUrl/configuration-files/${options.sdkKey}/${Constants.configFileName}"
         try {
             val response = httpClient.get(url) {
                 headers {

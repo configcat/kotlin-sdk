@@ -28,7 +28,7 @@ internal class ConfigService constructor(
     private val logger: InternalLogger,
     private val hooks: Hooks
 ) : Closeable {
-    private val cacheKey: String = "${options.sdkKey}_${Constants.configFileName}_${Constants.serializationFormatVersion}".encodeToByteArray().sha1().hex
+    internal val cacheKey: String = "${options.sdkKey}_${Constants.configFileName}_${Constants.serializationFormatVersion}".encodeToByteArray().sha1().hex
     private val mutex = Mutex()
     private val syncLock = reentrantLock()
     private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
