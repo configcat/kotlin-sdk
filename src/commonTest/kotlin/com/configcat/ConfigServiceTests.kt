@@ -179,6 +179,8 @@ class ConfigServiceTests {
             delay(5000)
             respond(content = Data.formatJsonBody("test1"), status = HttpStatusCode.OK)
         }
+
+        val start = DateTime.now()
         val service = Services.createConfigService(
             mockEngine,
             autoPoll {
@@ -187,7 +189,6 @@ class ConfigServiceTests {
             }
         )
 
-        val start = DateTime.now()
         val result = service.getSettings()
         val elapsed = DateTime.now() - start
         assertNull(result.settings["fakeKey"]?.value)
@@ -220,6 +221,7 @@ class ConfigServiceTests {
             respond(content = Data.formatJsonBody("test1"), status = HttpStatusCode.OK)
         }
         val cache = SingleValueCache(Data.formatCacheEntryWithDate("test", Constants.distantPast))
+        val start = DateTime.now()
         val service = Services.createConfigService(
             mockEngine,
             autoPoll {
@@ -228,7 +230,6 @@ class ConfigServiceTests {
             },
             cache
         )
-        val start = DateTime.now()
         val result = service.getSettings()
         val elapsed = DateTime.now() - start
         assertEquals("test", result.settings["fakeKey"]?.value)
