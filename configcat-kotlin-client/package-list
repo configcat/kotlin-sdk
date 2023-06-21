@@ -16,6 +16,7 @@ $dokka.location:com.configcat.log/LogLevel/valueOf/#kotlin.String/PointingToDecl
 $dokka.location:com.configcat.log/LogLevel/values/#/PointingToDeclaration/configcat-kotlin-client/com.configcat.log/-log-level/values.html
 $dokka.location:com.configcat.log/Logger///PointingToDeclaration/configcat-kotlin-client/com.configcat.log/-logger/index.html
 $dokka.location:com.configcat.log/Logger/debug/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat.log/-logger/debug.html
+$dokka.location:com.configcat.log/Logger/error/#kotlin.String#kotlin.Throwable/PointingToDeclaration/configcat-kotlin-client/com.configcat.log/-logger/error.html
 $dokka.location:com.configcat.log/Logger/error/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat.log/-logger/error.html
 $dokka.location:com.configcat.log/Logger/info/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat.log/-logger/info.html
 $dokka.location:com.configcat.log/Logger/warning/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat.log/-logger/warning.html
@@ -57,12 +58,11 @@ $dokka.location:com.configcat/ConfigCatClient/forceRefresh/#/PointingToDeclarati
 $dokka.location:com.configcat/ConfigCatClient/getAllKeys/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/get-all-keys.html
 $dokka.location:com.configcat/ConfigCatClient/getAllValueDetails/#com.configcat.ConfigCatUser?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/get-all-value-details.html
 $dokka.location:com.configcat/ConfigCatClient/getAllValues/#com.configcat.ConfigCatUser?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/get-all-values.html
-$dokka.location:com.configcat/ConfigCatClient/getAllVariationIds/#com.configcat.ConfigCatUser?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/get-all-variation-ids.html
 $dokka.location:com.configcat/ConfigCatClient/getAnyValue/#kotlin.String#kotlin.Any#com.configcat.ConfigCatUser?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/get-any-value.html
 $dokka.location:com.configcat/ConfigCatClient/getAnyValueDetails/#kotlin.String#kotlin.Any#com.configcat.ConfigCatUser?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/get-any-value-details.html
 $dokka.location:com.configcat/ConfigCatClient/getKeyAndValue/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/get-key-and-value.html
-$dokka.location:com.configcat/ConfigCatClient/getVariationId/#kotlin.String#kotlin.String?#com.configcat.ConfigCatUser?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/get-variation-id.html
 $dokka.location:com.configcat/ConfigCatClient/hooks/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/hooks.html
+$dokka.location:com.configcat/ConfigCatClient/isClosed/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/is-closed.html
 $dokka.location:com.configcat/ConfigCatClient/isOffline/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/is-offline.html
 $dokka.location:com.configcat/ConfigCatClient/setDefaultUser/#com.configcat.ConfigCatUser/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/set-default-user.html
 $dokka.location:com.configcat/ConfigCatClient/setOffline/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/set-offline.html
