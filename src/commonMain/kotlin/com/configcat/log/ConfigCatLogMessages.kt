@@ -1,5 +1,6 @@
 package com.configcat.log
 
+@Suppress("TooManyFunctions")
 internal object ConfigCatLogMessages {
     /**
      * Log message for Config Service Cannot Initiate Http Calls warning. The log eventId 3200.

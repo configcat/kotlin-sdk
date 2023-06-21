@@ -28,7 +28,7 @@ internal class ConfigService constructor(
     private val logger: InternalLogger,
     private val hooks: Hooks
 ) : Closeable {
-    internal val cacheKey: String = "${options.sdkKey}_${Constants.configFileName}_${Constants.serializationFormatVersion}".encodeToByteArray().sha1().hex
+    internal val cacheKey: String = getCacheKey()
     private val mutex = Mutex()
     private val syncLock = reentrantLock()
     private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
@@ -234,6 +234,10 @@ internal class ConfigService constructor(
             }
         }
     }
+
+    private fun getCacheKey() =
+        "${options.sdkKey}_${Constants.configFileName}_${Constants.serializationFormatVersion}".encodeToByteArray()
+            .sha1().hex
 
     override fun close() {
         if (!closed.compareAndSet(expect = false, update = true)) return

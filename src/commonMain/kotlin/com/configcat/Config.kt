@@ -24,27 +24,19 @@ internal data class Entry(
             }
             val fetchTimeIndex = cacheValue.indexOf("\n")
             val eTagIndex = cacheValue.indexOf("\n", fetchTimeIndex + 1)
-            if (fetchTimeIndex < 0 || eTagIndex < 0) {
-                throw IllegalArgumentException("Number of values is fewer than expected.")
-            }
+            require(fetchTimeIndex > 0 && eTagIndex > 0) { "Number of values is fewer than expected." }
             val fetchTimeRaw = cacheValue.substring(0, fetchTimeIndex)
-            if (!DateTimeUtils.isValidDate(fetchTimeRaw)) {
-                throw IllegalArgumentException("Invalid fetch time: $fetchTimeRaw")
-            }
+            require(DateTimeUtils.isValidDate(fetchTimeRaw)) { "Invalid fetch time: $fetchTimeRaw" }
             val fetchTimeUnixMillis = fetchTimeRaw.toLong()
             val eTag = cacheValue.substring(fetchTimeIndex + 1, eTagIndex)
-            if (eTag.isEmpty()) {
-                throw IllegalArgumentException("Empty eTag value.")
-            }
+            require(eTag.isNotEmpty()) { "Empty eTag value." }
             val configJson = cacheValue.substring(eTagIndex + 1)
-            if (configJson.isEmpty()) {
-                throw IllegalArgumentException("Empty config jsom value.")
-            }
+            require(configJson.isNotEmpty()) { "Empty config jsom value." }
             return try {
                 val config: Config = Constants.json.decodeFromString(configJson)
                 Entry(config, eTag, configJson, DateTime(fetchTimeUnixMillis))
             } catch (e: Exception) {
-                throw IllegalArgumentException("Invalid config JSON content: $configJson")
+                throw IllegalArgumentException("Invalid config JSON content: $configJson", e)
             }
         }
     }
