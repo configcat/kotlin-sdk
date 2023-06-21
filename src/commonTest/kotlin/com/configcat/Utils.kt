@@ -68,11 +68,13 @@ internal object Data {
     }
 
     fun formatCacheEntry(value: Any): String {
-        return "${DateTimeUtils.format(DateTime.now())}\n$value\n" + """{"f":{"fakeKey":{"v":$value}}}"""
+        val fetchTimeUnixSeconds = DateTime.now().unixMillis.toLong()
+        return "${fetchTimeUnixSeconds}\n$value\n" + """{"f":{"fakeKey":{"v":$value}}}"""
     }
 
     fun formatCacheEntryWithDate(value: Any, time: DateTime): String {
-        return "${DateTimeUtils.format(time)}\n$value\n" + """{"f":{"fakeKey":{"v":$value}}}"""
+        val fetchTimeUnixSeconds = time.unixMillis.toLong()
+        return "${fetchTimeUnixSeconds}\n$value\n" + """{"f":{"fakeKey":{"v":$value}}}"""
     }
 }
 
@@ -93,9 +95,9 @@ internal object Services {
         mode: PollingMode = autoPoll(),
         cache: ConfigCache? = EmptyConfigCache(),
         hooks: Hooks = Hooks(),
-        offline: Boolean = false
+        offline: Boolean = false,
+        options: ConfigCatOptions = ConfigCatOptions()
     ): ConfigService {
-        val options = ConfigCatOptions()
         options.pollingMode = mode
         options.configCache = cache
         options.hooks = hooks

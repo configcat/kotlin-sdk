@@ -7,17 +7,16 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
-@Serializable
 internal data class Entry(
     val config: Config,
     val eTag: String,
     val configJson: String,
-    val fetchTimeRaw: String?
+    val fetchTime: DateTime
 ) {
     fun isEmpty(): Boolean = this === empty
 
     companion object {
-        val empty: Entry = Entry(Config.empty, "", "", "")
+        val empty: Entry = Entry(Config.empty, "", "", Constants.distantPast)
 
         fun fromString(cacheValue: String?): Entry {
             if (cacheValue.isNullOrEmpty()) {
@@ -25,39 +24,25 @@ internal data class Entry(
             }
             val fetchTimeIndex = cacheValue.indexOf("\n")
             val eTagIndex = cacheValue.indexOf("\n", fetchTimeIndex + 1)
-            if (fetchTimeIndex < 0 || eTagIndex < 0) {
-                throw IllegalArgumentException("Number of values is fewer than expected.")
-            }
+            require(fetchTimeIndex > 0 && eTagIndex > 0) { "Number of values is fewer than expected." }
             val fetchTimeRaw = cacheValue.substring(0, fetchTimeIndex)
-            if (!DateTimeUtils.isValidDate(fetchTimeRaw)) {
-                throw IllegalArgumentException("Invalid fetch time: $fetchTimeRaw")
-            }
+            require(DateTimeUtils.isValidDate(fetchTimeRaw)) { "Invalid fetch time: $fetchTimeRaw" }
+            val fetchTimeUnixMillis = fetchTimeRaw.toLong()
             val eTag = cacheValue.substring(fetchTimeIndex + 1, eTagIndex)
-            if (eTag.isEmpty()) {
-                throw IllegalArgumentException("Empty eTag value.")
-            }
+            require(eTag.isNotEmpty()) { "Empty eTag value." }
             val configJson = cacheValue.substring(eTagIndex + 1)
-            if (configJson.isEmpty()) {
-                throw IllegalArgumentException("Empty config jsom value.")
-            }
+            require(configJson.isNotEmpty()) { "Empty config jsom value." }
             return try {
                 val config: Config = Constants.json.decodeFromString(configJson)
-                Entry(config, eTag, configJson, fetchTimeRaw)
+                Entry(config, eTag, configJson, DateTime(fetchTimeUnixMillis))
             } catch (e: Exception) {
-                throw IllegalArgumentException("Invalid config JSON content: $configJson")
+                throw IllegalArgumentException("Invalid config JSON content: $configJson", e)
             }
         }
-    }
-
-    fun getFetchTime(): DateTime {
-        if (fetchTimeRaw.isNullOrEmpty()) {
-            return Constants.distantPast
-        }
-        return DateTimeUtils.parse(fetchTimeRaw)
     }
 
     fun serialize(): String {
-        return "${fetchTimeRaw}\n${eTag}\n$configJson"
+        return "${fetchTime.unixMillis.toLong()}\n${eTag}\n$configJson"
     }
 }
 

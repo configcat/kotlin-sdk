@@ -28,7 +28,7 @@ internal class ConfigService constructor(
     private val logger: InternalLogger,
     private val hooks: Hooks
 ) : Closeable {
-    private val cacheKey: String = "${options.sdkKey}_${Constants.configFileName}_${Constants.serializationFormatVersion}".encodeToByteArray().sha1().hex
+    internal val cacheKey: String = getCacheKey()
     private val mutex = Mutex()
     private val syncLock = reentrantLock()
     private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
@@ -62,7 +62,7 @@ internal class ConfigService constructor(
                 if (result.first.isEmpty()) {
                     SettingResult.empty
                 } else {
-                    SettingResult(result.first.config.settings, result.first.getFetchTime())
+                    SettingResult(result.first.config.settings, result.first.fetchTime)
                 }
             }
 
@@ -71,7 +71,7 @@ internal class ConfigService constructor(
                 if (result.first.isEmpty()) {
                     SettingResult.empty
                 } else {
-                    SettingResult(result.first.config.settings, result.first.getFetchTime())
+                    SettingResult(result.first.config.settings, result.first.fetchTime)
                 }
             }
         }
@@ -109,14 +109,14 @@ internal class ConfigService constructor(
     private suspend fun fetchIfOlder(time: DateTime, preferCached: Boolean = false): Pair<Entry, String?> {
         mutex.withLock {
             // Sync up with the cache and use it when it's not expired.
-            if (cachedEntry.isEmpty() || cachedEntry.getFetchTime() > time) {
+            if (cachedEntry.isEmpty() || cachedEntry.fetchTime > time) {
                 val entry = readCache()
                 if (!entry.isEmpty() && entry.eTag != cachedEntry.eTag) {
                     cachedEntry = entry
                     hooks.invokeOnConfigChanged(entry.config.settings)
                 }
                 // Cache isn't expired
-                if (cachedEntry.getFetchTime() > time) {
+                if (cachedEntry.fetchTime > time) {
                     setInitialized()
                     return Pair(cachedEntry, null)
                 }
@@ -186,7 +186,7 @@ internal class ConfigService constructor(
                 hooks.invokeOnConfigChanged(response.entry.config.settings)
                 return Pair(response.entry, null)
             } else if ((response.isNotModified || !response.isTransientError) && !cachedEntry.isEmpty()) {
-                cachedEntry = cachedEntry.copy(fetchTimeRaw = response.fetchTime)
+                cachedEntry = cachedEntry.copy(fetchTime = DateTime.now())
                 writeCache(cachedEntry)
             }
             return Pair(cachedEntry, response.error)
@@ -234,6 +234,10 @@ internal class ConfigService constructor(
             }
         }
     }
+
+    private fun getCacheKey() =
+        "${options.sdkKey}_${Constants.configFileName}_${Constants.serializationFormatVersion}".encodeToByteArray()
+            .sha1().hex
 
     override fun close() {
         if (!closed.compareAndSet(expect = false, update = true)) return
