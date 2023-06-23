@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.configcat:configcat-kotlin-client:1.1.0")
+    implementation("com.configcat:configcat-kotlin-client:2.0.0")
 }
 
 kotlin {
