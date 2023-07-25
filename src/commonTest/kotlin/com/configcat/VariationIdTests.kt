@@ -21,7 +21,7 @@ class VariationIdTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -37,7 +37,7 @@ class VariationIdTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -53,7 +53,7 @@ class VariationIdTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -72,7 +72,7 @@ class VariationIdTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -88,7 +88,7 @@ class VariationIdTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -113,7 +113,7 @@ class VariationIdTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 

@@ -20,7 +20,7 @@ internal class ConfigFetcher constructor(
 ) : Closeable {
     private val httpClient = createClient()
     private val closed = atomic(false)
-    private val isUrlCustom = !options.baseUrl.isNullOrEmpty()
+    private val isUrlCustom = options.isBaseURLCustom()
     private val baseUrl = atomic(
         options.baseUrl?.let { it.ifEmpty { null } }
             ?: if (options.dataGovernance == DataGovernance.GLOBAL) {

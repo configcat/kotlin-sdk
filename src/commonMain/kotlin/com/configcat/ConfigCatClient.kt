@@ -86,6 +86,9 @@ public class ConfigCatOptions {
     public var hooks: Hooks = Hooks()
 
     internal var sdkKey: String? = null
+    internal fun isBaseURLCustom(): Boolean {
+        return !baseUrl.isNullOrEmpty()
+    }
 }
 
 /**
@@ -477,19 +480,33 @@ internal class Client private constructor(
         private val lock = reentrantLock()
 
         fun get(sdkKey: String, block: ConfigCatOptions.() -> Unit = {}): Client {
-            require(sdkKey.isNotEmpty()) { "'sdkKey' cannot be empty." }
+            require(sdkKey.isNotEmpty()) { "SDK Key cannot be empty." }
+            val options = ConfigCatOptions().apply(block)
+            require(isValidKey(sdkKey, options.isBaseURLCustom())){ "SDK Key '$sdkKey' is invalid." }
+
             lock.withLock {
                 val instance = instances[sdkKey]
                 if (instance != null) {
                     instance.logger.warning(3000, ConfigCatLogMessages.getClientIsAlreadyCreated(sdkKey))
                     return instance
                 }
-                val client = Client(sdkKey, ConfigCatOptions().apply(block))
+                val client = Client(sdkKey, options)
                 instances[sdkKey] = client
                 return client
             }
         }
-
+        private fun isValidKey(sdkKey: String, isCustomBaseURL: Boolean): Boolean {
+            //configcat-proxy/ rules
+            if (isCustomBaseURL && sdkKey.length > Constants.SDK_KEY_PROXY_PREFIX.length && sdkKey.startsWith(Constants.SDK_KEY_PROXY_PREFIX)) {
+                return true
+            }
+            val splitSDKKey = sdkKey.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            //22/22 rules
+            return if (splitSDKKey.size == 2 && splitSDKKey[0].length == Constants.SDK_KEY_SECTION_LENGTH && splitSDKKey[1].length == Constants.SDK_KEY_SECTION_LENGTH) {
+                true
+            //configcat-sdk-1/22/22 rules
+            } else splitSDKKey.size == 3 && splitSDKKey[0] == Constants.SDK_KEY_PREFIX && splitSDKKey[1].length == Constants.SDK_KEY_SECTION_LENGTH && splitSDKKey[2].length == Constants.SDK_KEY_SECTION_LENGTH
+        }
         fun removeFromInstances(client: Client) {
             lock.withLock {
                 if (instances[client.sdkKey] == client) {

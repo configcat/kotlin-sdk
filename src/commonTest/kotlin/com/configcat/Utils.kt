@@ -34,6 +34,8 @@ internal object TestUtils {
 }
 
 internal object Data {
+    const val SDK_KEY = "configcat-sdk-1/TEST_KEY-0123456789012/1234567890123456789012"
+
     fun formatJsonBody(value: Any): String {
         return """{ "f": { "fakeKey": { "v": $value, "p": [], "r": [] } } }"""
     }

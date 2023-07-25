@@ -29,7 +29,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
         val op1 = async { client.getValue("fakeKey", false) }
@@ -51,7 +51,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -67,7 +67,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadGateway
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -83,7 +83,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -99,7 +99,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -115,7 +115,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadRequest
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -131,7 +131,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -147,7 +147,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadGateway
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -163,7 +163,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -179,7 +179,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadGateway
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -195,7 +195,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -211,7 +211,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadGateway
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -227,7 +227,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -241,7 +241,7 @@ class ConfigCatClientTests {
             delay(3000)
             respond(content = Data.formatJsonBody(true), status = HttpStatusCode.OK)
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             requestTimeout = 1.seconds
         }
@@ -261,7 +261,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadRequest
             )
         }
-        val sdkKey = "test"
+        val sdkKey = Data.SDK_KEY
         val cacheKey: String = "${sdkKey}_${Constants.configFileName}_${Constants.serializationFormatVersion}".encodeToByteArray().sha1().hex
         val cache = InMemoryCache()
         cache.write(cacheKey, Data.formatCacheEntry(true))
@@ -288,7 +288,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.NotFound
             )
         }
-        val sdkKey = "test"
+        val sdkKey = Data.SDK_KEY
         val cacheKey: String = "${sdkKey}_${Constants.configFileName}_${Constants.serializationFormatVersion}".encodeToByteArray().sha1().hex
         val cache = InMemoryCache()
         cache.write(cacheKey, Data.formatCacheEntry(true))
@@ -314,7 +314,7 @@ class ConfigCatClientTests {
                 respond(content = "", status = HttpStatusCode.Forbidden)
             }
         } as MockEngine
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -336,7 +336,7 @@ class ConfigCatClientTests {
                 respond(content = Data.formatJsonBody("test2"), status = HttpStatusCode.OK)
             }
         } as MockEngine
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = lazyLoad()
         }
@@ -358,7 +358,7 @@ class ConfigCatClientTests {
                 respond(content = Data.formatJsonBody("test2"), status = HttpStatusCode.OK)
             }
         } as MockEngine
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = autoPoll()
         }
@@ -378,7 +378,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadRequest
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -394,7 +394,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.NotFound
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -413,7 +413,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadRequest
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = lazyLoad()
         }
@@ -430,7 +430,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.NotFound
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = lazyLoad()
         }
@@ -450,7 +450,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -466,7 +466,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -484,7 +484,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -502,7 +502,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = autoPoll()
         }
@@ -522,7 +522,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = lazyLoad()
         }
@@ -542,7 +542,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = manualPoll()
         }
@@ -562,7 +562,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadRequest
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -581,7 +581,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = autoPoll { pollingInterval = 2.seconds }
         }
@@ -615,7 +615,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = autoPoll { pollingInterval = 2.seconds }
             offline = true
@@ -644,7 +644,7 @@ class ConfigCatClientTests {
             )
         }
         var ready = false
-        ConfigCatClient("test") {
+        ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = autoPoll { pollingInterval = 2.seconds }
             offline = true
@@ -665,7 +665,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = manualPoll()
         }
@@ -696,7 +696,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = manualPoll()
         }
@@ -729,7 +729,7 @@ class ConfigCatClientTests {
         var changed = false
         var ready = false
 
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = manualPoll()
             hooks.addOnConfigChanged { changed = true }
@@ -758,7 +758,7 @@ class ConfigCatClientTests {
         var error = ""
         var changed = false
 
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = manualPoll()
         }
@@ -784,7 +784,7 @@ class ConfigCatClientTests {
             }
         }
 
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = manualPoll()
         }
@@ -802,7 +802,7 @@ class ConfigCatClientTests {
         }
         var called = false
 
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = manualPoll()
             hooks.addOnFlagEvaluated { details ->
@@ -825,7 +825,7 @@ class ConfigCatClientTests {
         val mockEngine = MockEngine {
             respond(content = Data.formatConfigWithRules(), status = HttpStatusCode.OK)
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = manualPoll()
         }
@@ -851,7 +851,7 @@ class ConfigCatClientTests {
             respond(content = Data.formatConfigWithRules(), status = HttpStatusCode.OK)
         }
         var called = false
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = manualPoll()
             hooks.addOnFlagEvaluated { details ->
@@ -876,41 +876,87 @@ class ConfigCatClientTests {
 
     @Test
     fun testSingleton() {
-        var client1 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
-        val client2 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        var client1 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        val client2 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         assertSame(client1, client2)
 
         ConfigCatClient.closeAll()
 
-        client1 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        client1 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         assertNotSame(client1, client2)
     }
 
     @Test
     fun testRemoveTheClosingInstanceOnly() {
-        var client1 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        val client1 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         client1.close()
 
-        val client2 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        val client2 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         assertNotSame(client1, client2)
 
         client1.close()
 
-        val client3 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        val client3 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         assertSame(client2, client3)
     }
 
     @Test
     fun testClose() {
-        val client1 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        val client1 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
         assertFalse(client1.isClosed())
         client1.close()
         assertTrue(client1.isClosed())
+    }
+
+    @Test
+    fun testSDKKeyIsNotEmpty() {
+        assertFailsWith(IllegalArgumentException::class, "SDK Key cannot be empty.", block = {
+            ConfigCatClient("")
+        })
+    }
+
+    @Test
+    fun testSDKKeyIsValid() {
+        //TEST VALID KEYS
+        var client = ConfigCatClient("sdk-key-90123456789012/1234567890123456789012")
+        assertNotNull(client)
+        client = ConfigCatClient("configcat-sdk-1/sdk-key-90123456789012/1234567890123456789012")
+        assertNotNull(client)
+        client =ConfigCatClient("configcat-proxy/sdk-key-90123456789012") { baseUrl = "https://my-configcat-proxy"}
+        assertNotNull(client)
+
+        ConfigCatClient.closeAll()
+
+        //TEST INVALID KEYS
+        val wrongSDKKeys: List<String> = listOf(
+            "sdk-key-90123456789012",
+            "sdk-key-9012345678901/1234567890123456789012",
+            "sdk-key-90123456789012/123456789012345678901",
+            "sdk-key-90123456789012/12345678901234567890123",
+            "sdk-key-901234567890123/1234567890123456789012",
+            "configcat-sdk-1/sdk-key-90123456789012",
+            "configcat-sdk-1/sdk-key-9012345678901/1234567890123456789012",
+            "configcat-sdk-1/sdk-key-90123456789012/123456789012345678901",
+            "configcat-sdk-1/sdk-key-90123456789012/12345678901234567890123",
+            "configcat-sdk-1/sdk-key-901234567890123/1234567890123456789012",
+            "configcat-sdk-2/sdk-key-90123456789012/1234567890123456789012",
+            "configcat-proxy/",
+            "configcat-proxy/sdk-key-90123456789012"
+        )
+        wrongSDKKeys.forEach {
+            assertFailsWith(IllegalArgumentException::class, "SDK Key '$it' is invalid.", block = {
+                ConfigCatClient(it)
+            })
+        }
+
+        assertFailsWith(IllegalArgumentException::class, "SDK Key 'configcat-proxy/' is invalid.", block = {
+            ConfigCatClient("configcat-proxy/"){baseUrl = "https://my-configcat-proxy"}
+        })
     }
 
     companion object {
