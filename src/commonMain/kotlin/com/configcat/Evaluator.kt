@@ -1,5 +1,6 @@
 package com.configcat
 
+import com.configcat.DateTimeUtils.toDateTimeUTCString
 import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.soywiz.krypto.sha1
@@ -74,12 +75,6 @@ internal class Evaluator(private val logger: InternalLogger) {
             }
 
             when (comparator) {
-                Comparator.ONE_OF,
-                Comparator.NOT_ONE_OF -> {
-                    val value = processOneOf(rule, userValue, evaluatorLogger, comparator)
-                    if (value != null) return value
-                }
-
                 Comparator.CONTAINS,
                 Comparator.NOT_CONTAINS -> {
                     val value = processContains(rule, userValue, evaluatorLogger, comparator)
@@ -115,35 +110,35 @@ internal class Evaluator(private val logger: InternalLogger) {
                     val value = processSensitiveOneOf(rule, userValue, evaluatorLogger, comparator)
                     if (value != null) return value
                 }
+
+                Comparator.DATE_BEFORE,
+                Comparator.DATE_AFTER -> {
+                    val value = processDateCompare(rule, userValue, evaluatorLogger, comparator)
+                    if (value != null) return value
+                }
+
+                Comparator.HASHED_EQUALS,
+                Comparator.HASHED_NOT_EQUALS -> {
+                    val value = processHashedEqualsCompare(rule, userValue, evaluatorLogger, comparator)
+                    if (value != null) return value
+                }
+
+                Comparator.HASHED_STARTS_WITH,
+                Comparator.HASHED_ENDS_WITH -> {
+                    val value = processHashedStartEndsWithCompare(rule, userValue, evaluatorLogger, comparator)
+                    if (value != null) return value
+                }
+
+                Comparator.HASHED_ARRAY_CONTAINS,
+                Comparator.HASHED_ARRAY_NOT_CONTAINS -> {
+                    val value = processHashedArrayContainsCompare(rule, userValue, evaluatorLogger, comparator)
+                    if (value != null) return value
+                }
             }
         }
         return null
     }
 
-    private fun processOneOf(
-        rule: RolloutRule,
-        userValue: String,
-        evaluatorLogger: EvaluatorLogger,
-        comparator: Comparator
-    ): EvaluationResult? {
-        val split = rule.comparisonValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-        val matchCondition = when (comparator) {
-            Comparator.ONE_OF -> split.contains(userValue)
-            Comparator.NOT_ONE_OF -> !split.contains(userValue)
-            else -> false
-        }
-        if (matchCondition) {
-            evaluatorLogger.logMatch(
-                rule.comparisonAttribute,
-                userValue,
-                comparator,
-                rule.comparisonValue,
-                rule.value
-            )
-            return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
-        }
-        return null
-    }
 
     private fun processContains(
         rule: RolloutRule,
@@ -151,9 +146,10 @@ internal class Evaluator(private val logger: InternalLogger) {
         evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
     ): EvaluationResult? {
+        val split = rule.comparisonValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
         val matchCondition = when (comparator) {
-            Comparator.CONTAINS -> userValue.contains(rule.comparisonValue)
-            Comparator.NOT_CONTAINS -> !userValue.contains(rule.comparisonValue)
+            Comparator.CONTAINS -> split.contains(userValue)
+            Comparator.NOT_CONTAINS -> !split.contains(userValue)
             else -> false
         }
         if (matchCondition) {
@@ -291,11 +287,160 @@ internal class Evaluator(private val logger: InternalLogger) {
         evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
     ): EvaluationResult? {
+        //TODO add salt and salt error handle
         val split = rule.comparisonValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
         val userValueHash = userValue.encodeToByteArray().sha1().hex
         val matchCondition = when (comparator) {
             Comparator.ONE_OF_SENS -> split.contains(userValueHash)
             Comparator.NOT_ONE_OF_SENS -> !split.contains(userValueHash)
+            else -> false
+        }
+        if (matchCondition) {
+            evaluatorLogger.logMatch(
+                rule.comparisonAttribute,
+                userValue,
+                comparator,
+                rule.comparisonValue,
+                rule.value
+            )
+            return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
+        }
+        return null
+    }
+
+    private fun processDateCompare(
+        rule: RolloutRule,
+        userValue: String,
+        evaluatorLogger: EvaluatorLogger,
+        comparator: Comparator
+    ): EvaluationResult? {
+        try {
+            val userDateDouble = userValue.replace(",", ".").toDouble()
+            val comparisonDateDouble = rule.comparisonValue.trim().replace(",", ".").toDouble()
+            val matchCondition = when (comparator) {
+                Comparator.DATE_BEFORE -> userDateDouble < comparisonDateDouble
+                Comparator.DATE_AFTER -> userDateDouble > comparisonDateDouble
+                else -> false
+            }
+            if (matchCondition) {
+                evaluatorLogger.logMatch(
+                    rule.comparisonAttribute,
+                    userDateDouble,
+                    comparator,
+                    comparisonDateDouble,
+                    rule.value
+                )
+                return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
+            }
+        } catch (e: NumberFormatException) {
+            evaluatorLogger.logFormatError(
+                rule.comparisonAttribute,
+                userValue,
+                comparator,
+                rule.comparisonValue,
+                e
+            )
+        }
+        return null
+    }
+
+    private fun processHashedEqualsCompare(
+        rule: RolloutRule,
+        userValue: String,
+        evaluatorLogger: EvaluatorLogger,
+        comparator: Comparator
+    ): EvaluationResult? {
+        //TODO add salt and salt error handle
+        val userValueHash = userValue.encodeToByteArray().sha1().hex
+        val matchCondition = when (comparator) {
+            Comparator.HASHED_EQUALS -> userValueHash == rule.comparisonValue
+            Comparator.HASHED_NOT_EQUALS -> userValueHash != rule.comparisonValue
+            else -> false
+        }
+        if (matchCondition) {
+            evaluatorLogger.logMatch(
+                rule.comparisonAttribute,
+                userValue,
+                comparator,
+                rule.comparisonValue,
+                rule.value
+            )
+            return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
+        }
+        return null
+    }
+
+    private fun processHashedStartEndsWithCompare(
+        rule: RolloutRule,
+        userValue: String,
+        evaluatorLogger: EvaluatorLogger,
+        comparator: Comparator
+    ): EvaluationResult? {
+        //TODO add salt and salt error handle
+        try {
+            val comparedTextLength = rule.comparisonValue.substringBeforeLast("_")
+            if (comparedTextLength == rule.comparisonValue)
+                return null
+            val comparedTextLengthInt: Int = comparedTextLength.toInt()
+            val comparisonHashValue = rule.comparisonValue.substringAfterLast("_")
+            if (comparisonHashValue.isEmpty())
+                return null
+            val matchCondition = when (comparator) {
+                Comparator.HASHED_EQUALS -> {
+                    val userValueStartWithHash =
+                        userValue.substring(0, comparedTextLengthInt).encodeToByteArray().sha1().hex
+                    userValueStartWithHash == comparisonHashValue
+                }
+
+                Comparator.HASHED_NOT_EQUALS -> {
+                    val userValueEndsWithHash =
+                        userValue.substring(userValue.length - comparedTextLengthInt).encodeToByteArray().sha1().hex
+                    userValueEndsWithHash == comparisonHashValue
+                }
+
+                else -> false
+            }
+            if (matchCondition) {
+                evaluatorLogger.logMatch(
+                    rule.comparisonAttribute,
+                    userValue,
+                    comparator,
+                    rule.comparisonValue,
+                    rule.value
+                )
+                return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
+            }
+        } catch (e: NumberFormatException) {
+            evaluatorLogger.logFormatError(
+                rule.comparisonAttribute,
+                userValue,
+                comparator,
+                rule.comparisonValue,
+                e
+            )
+        }
+        return null
+    }
+
+    private fun processHashedArrayContainsCompare(
+        rule: RolloutRule,
+        userValue: String,
+        evaluatorLogger: EvaluatorLogger,
+        comparator: Comparator
+    ): EvaluationResult? {
+        //TODO add salt and salt error handle
+        val userCSVNotContainsHashSplit = userValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+        if (userCSVNotContainsHashSplit.isEmpty()) {
+            return null
+        }
+        var contains = false
+        userCSVNotContainsHashSplit.forEach {
+            val hashedUserValue = it.encodeToByteArray().sha1().hex
+            contains = hashedUserValue == rule.comparisonValue
+        }
+        val matchCondition = when (comparator) {
+            Comparator.HASHED_EQUALS -> contains
+            Comparator.HASHED_NOT_EQUALS -> !contains
             else -> false
         }
         if (matchCondition) {
@@ -317,6 +462,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         key: String,
         evaluatorLogger: EvaluatorLogger
     ): EvaluationResult? {
+        //TODO add salt and salt error handle
         if (setting.percentageItems.isEmpty()) {
             return null
         }
@@ -337,28 +483,35 @@ internal class Evaluator(private val logger: InternalLogger) {
         return null
     }
 
-    enum class Comparator(val value: String) {
-        ONE_OF("IS ONE OF"),
-        NOT_ONE_OF("IS NOT ONE OF"),
-        CONTAINS("CONTAINS"),
-        NOT_CONTAINS("DOES NOT CONTAIN"),
-        ONE_OF_SEMVER("IS ONE OF (SemVer)"),
-        NOT_ONE_OF_SEMVER("IS NOT ONE OF (SemVer)"),
-        LT_SEMVER("< (SemVer)"),
-        LTE_SEMVER("<= (SemVer)"),
-        GT_SEMVER("> (SemVer)"),
-        GTE_SEMVER(">= (SemVer)"),
-        EQ_NUM("= (Number)"),
-        NOT_EQ_NUM("<> (Number)"),
-        LT_NUM("< (Number)"),
-        LTE_NUM("<= (Number)"),
-        GT_NUM("> (Number)"),
-        GTE_NUM(">= (Number)"),
-        ONE_OF_SENS("IS ONE OF (Sensitive)"),
-        NOT_ONE_OF_SENS("IS NOT ONE OF (Sensitive)")
+    enum class Comparator(val id: Int, val value: String) {
+        CONTAINS(2, "CONTAINS"),
+        NOT_CONTAINS(3, "DOES NOT CONTAIN"),
+        ONE_OF_SEMVER(4, "IS ONE OF (SemVer)"),
+        NOT_ONE_OF_SEMVER(5, "IS NOT ONE OF (SemVer)"),
+        LT_SEMVER(6, "< (SemVer)"),
+        LTE_SEMVER(7, "<= (SemVer)"),
+        GT_SEMVER(8, "> (SemVer)"),
+        GTE_SEMVER(9, ">= (SemVer)"),
+        EQ_NUM(10, "= (Number)"),
+        NOT_EQ_NUM(11, "<> (Number)"),
+        LT_NUM(12, "< (Number)"),
+        LTE_NUM(13, "<= (Number)"),
+        GT_NUM(14, "> (Number)"),
+        GTE_NUM(15, ">= (Number)"),
+        ONE_OF_SENS(16, "IS ONE OF (Sensitive)"),
+        NOT_ONE_OF_SENS(17, "IS NOT ONE OF (Sensitive)"),
+        DATE_BEFORE(18, "BEFORE (UTC DateTime)"),
+        DATE_AFTER(19, "AFTER (UTC DateTime)"),
+        HASHED_EQUALS(20, "EQUALS (hashed)"),
+        HASHED_NOT_EQUALS(21, "NOT EQUALS (hashed)"),
+        HASHED_STARTS_WITH(22, "STARTS WITH ANY OF (hashed)"),
+        HASHED_ENDS_WITH(23, "ENDS WITH ANY OF (hashed)"),
+        HASHED_ARRAY_CONTAINS(24, "ARRAY CONTAINS (hashed)"),
+        HASHED_ARRAY_NOT_CONTAINS(25, "ARRAY NOT CONTAINS (hashed)")
+
     }
 
-    private fun Int.toComparatorOrNull(): Comparator? = Comparator.values().firstOrNull { it.ordinal == this }
+    private fun Int.toComparatorOrNull(): Comparator? = Comparator.values().firstOrNull { it.id == this }
 }
 
 internal class EvaluatorLogger constructor(
@@ -391,7 +544,20 @@ internal class EvaluatorLogger constructor(
     ) {
         entries.appendLine(
             "Evaluating rule: [$attribute:$userValue] " +
-                "[${comparator.value}] [$comparisonValue] => match, returning: $value"
+                    "[${comparator.value}] [$comparisonValue] => match, returning: $value"
+        )
+    }
+
+    fun logMatch(
+        attribute: String,
+        userValue: Double,
+        comparator: Evaluator.Comparator,
+        comparisonValue: Double,
+        value: Any?
+    ) {
+        entries.appendLine(
+            "Evaluating rule: [$attribute:$userValue (${userValue.toDateTimeUTCString()})] " +
+                    "[${comparator.value}] [$comparisonValue (${comparisonValue.toDateTimeUTCString()})] => match, returning: $value"
         )
     }
 
@@ -403,7 +569,7 @@ internal class EvaluatorLogger constructor(
     ) {
         entries.appendLine(
             "Evaluating rule: " +
-                "[$attribute:$userValue] [${comparator.value}] [$comparisonValue] => no match"
+                    "[$attribute:$userValue] [${comparator.value}] [$comparisonValue] => no match"
         )
     }
 
@@ -416,7 +582,7 @@ internal class EvaluatorLogger constructor(
     ) {
         entries.appendLine(
             "Evaluating rule: [$attribute:$userValue] [${comparator.value}] " +
-                "[$comparisonValue] => SKIP rule. Validation error: ${error.message}"
+                    "[$comparisonValue] => SKIP rule. Validation error: ${error.message}"
         )
     }
 
@@ -434,4 +600,6 @@ internal class EvaluatorLogger constructor(
     fun print(): String {
         return entries.toString()
     }
+
+
 }

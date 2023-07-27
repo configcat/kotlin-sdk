@@ -132,8 +132,6 @@ public data class RolloutRule(
     /**
      * The operator used in the comparison.
      *
-     * 0  -> 'IS ONE OF',
-     * 1  -> 'IS NOT ONE OF',
      * 2  -> 'CONTAINS',
      * 3  -> 'DOES NOT CONTAIN',
      * 4  -> 'IS ONE OF (SemVer)',
@@ -149,7 +147,15 @@ public data class RolloutRule(
      * 14 -> '> (Number)',
      * 15 -> '>= (Number)',
      * 16 -> 'IS ONE OF (Sensitive)',
-     * 17 -> 'IS NOT ONE OF (Sensitive)'
+     * 17 -> 'IS NOT ONE OF (Sensitive)',
+     * 18 -> 'BEFORE (UTC DateTime)',
+     * 19 -> 'AFTER (UTC DateTime)',
+     * 20 -> 'EQUALS (hashed)',
+     * 21 -> 'NOT EQUALS (hashed)',
+     * 22 -> 'STARTS WITH ANY OF (hashed)',
+     * 23 -> 'ENDS WITH ANY OF (hashed)',
+     * 24 -> 'ARRAY CONTAINS (hashed)',
+     * 25 -> 'ARRAY NOT CONTAINS (hashed)'
      */
     @SerialName("t")
     val comparator: Int,
