@@ -75,8 +75,8 @@ internal class Evaluator(private val logger: InternalLogger) {
             }
 
             when (comparator) {
-                Comparator.CONTAINS,
-                Comparator.NOT_CONTAINS -> {
+                Comparator.CONTAINS_ANY_OF,
+                Comparator.NOT_CONTAINS_ANY_OF -> {
                     val value = processContains(rule, userValue, evaluatorLogger, comparator)
                     if (value != null) return value
                 }
@@ -148,8 +148,8 @@ internal class Evaluator(private val logger: InternalLogger) {
     ): EvaluationResult? {
         val split = rule.comparisonValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
         val matchCondition = when (comparator) {
-            Comparator.CONTAINS -> split.contains(userValue)
-            Comparator.NOT_CONTAINS -> !split.contains(userValue)
+            Comparator.CONTAINS_ANY_OF -> split.contains(userValue)
+            Comparator.NOT_CONTAINS_ANY_OF -> !split.contains(userValue)
             else -> false
         }
         if (matchCondition) {
@@ -484,8 +484,8 @@ internal class Evaluator(private val logger: InternalLogger) {
     }
 
     enum class Comparator(val id: Int, val value: String) {
-        CONTAINS(2, "CONTAINS"),
-        NOT_CONTAINS(3, "DOES NOT CONTAIN"),
+        CONTAINS_ANY_OF(2, "CONTAINS ANY OF"),
+        NOT_CONTAINS_ANY_OF(3, "NOT CONTAINS ANY OF"),
         ONE_OF_SEMVER(4, "IS ONE OF (SemVer)"),
         NOT_ONE_OF_SEMVER(5, "IS NOT ONE OF (SemVer)"),
         LT_SEMVER(6, "< (SemVer)"),
@@ -498,8 +498,8 @@ internal class Evaluator(private val logger: InternalLogger) {
         LTE_NUM(13, "<= (Number)"),
         GT_NUM(14, "> (Number)"),
         GTE_NUM(15, ">= (Number)"),
-        ONE_OF_SENS(16, "IS ONE OF (Sensitive)"),
-        NOT_ONE_OF_SENS(17, "IS NOT ONE OF (Sensitive)"),
+        ONE_OF_SENS(16, "IS ONE OF (hashed)"),
+        NOT_ONE_OF_SENS(17, "IS NOT ONE OF (hashed)"),
         DATE_BEFORE(18, "BEFORE (UTC DateTime)"),
         DATE_AFTER(19, "AFTER (UTC DateTime)"),
         HASHED_EQUALS(20, "EQUALS (hashed)"),
