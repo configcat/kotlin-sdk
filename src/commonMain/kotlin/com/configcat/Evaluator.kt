@@ -124,7 +124,9 @@ internal class Evaluator(private val logger: InternalLogger) {
                 }
 
                 Comparator.HASHED_STARTS_WITH,
-                Comparator.HASHED_ENDS_WITH -> {
+                Comparator.HASHED_NOT_STARTS_WITH,
+                Comparator.HASHED_ENDS_WITH,
+                Comparator.HASHED_NOT_ENDS_WITH -> {
                     val value = processHashedStartEndsWithCompare(rule, userValue, evaluatorLogger, comparator)
                     if (value != null) return value
                 }
@@ -210,7 +212,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         comparator: Comparator
     ): EvaluationResult? {
         try {
-            val userVersion = userValue.toVersion()
+            val userVersion = userValue.trim().toVersion()
             val comparisonVersion = rule.comparisonValue.trim().toVersion()
             val matchCondition = when (comparator) {
                 Comparator.LT_SEMVER -> userVersion < comparisonVersion
@@ -248,7 +250,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         comparator: Comparator
     ): EvaluationResult? {
         try {
-            val userNumber = userValue.replace(",", ".").toDouble()
+            val userNumber = userValue.trim().replace(",", ".").toDouble()
             val comparisonNumber = rule.comparisonValue.trim().replace(",", ".").toDouble()
             val matchCondition = when (comparator) {
                 Comparator.EQ_NUM -> userNumber == comparisonNumber
@@ -315,7 +317,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         comparator: Comparator
     ): EvaluationResult? {
         try {
-            val userDateDouble = userValue.replace(",", ".").toDouble()
+            val userDateDouble = userValue.trim().replace(",", ".").toDouble()
             val comparisonDateDouble = rule.comparisonValue.trim().replace(",", ".").toDouble()
             val matchCondition = when (comparator) {
                 Comparator.DATE_BEFORE -> userDateDouble < comparisonDateDouble
@@ -333,6 +335,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                 return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
             }
         } catch (e: NumberFormatException) {
+            //TODO add date specific error '{userAttributeValue}' is not a valid Unix timestamp (number of seconds elapsed since Unix epoch)
             evaluatorLogger.logFormatError(
                 rule.comparisonAttribute,
                 userValue,
@@ -377,47 +380,53 @@ internal class Evaluator(private val logger: InternalLogger) {
         comparator: Comparator
     ): EvaluationResult? {
         //TODO add salt and salt error handle
-        try {
-            val comparedTextLength = rule.comparisonValue.substringBeforeLast("_")
-            if (comparedTextLength == rule.comparisonValue)
-                return null
-            val comparedTextLengthInt: Int = comparedTextLength.toInt()
-            val comparisonHashValue = rule.comparisonValue.substringAfterLast("_")
-            if (comparisonHashValue.isEmpty())
-                return null
-            val matchCondition = when (comparator) {
-                Comparator.HASHED_EQUALS -> {
-                    val userValueStartWithHash =
-                        userValue.substring(0, comparedTextLengthInt).encodeToByteArray().sha1().hex
-                    userValueStartWithHash == comparisonHashValue
-                }
+        //TODO handle NOT as well
 
-                Comparator.HASHED_NOT_EQUALS -> {
-                    val userValueEndsWithHash =
-                        userValue.substring(userValue.length - comparedTextLengthInt).encodeToByteArray().sha1().hex
-                    userValueEndsWithHash == comparisonHashValue
-                }
+        val withValuesSplit = rule.comparisonValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+        var matchCondition = false
+        for (comparisonValueHashedStartsEnds in withValuesSplit) {
+            try {
+                val comparedTextLength = comparisonValueHashedStartsEnds.substringBeforeLast("_")
+                if (comparedTextLength == comparisonValueHashedStartsEnds)
+                    return null
+                val comparedTextLengthInt: Int = comparedTextLength.toInt()
+                val comparisonHashValue = comparisonValueHashedStartsEnds.substringAfterLast("_")
+                if (comparisonHashValue.isEmpty())
+                    return null
 
-                else -> false
-            }
-            if (matchCondition) {
-                evaluatorLogger.logMatch(
+                val userValueHashed = if( comparator == Comparator.HASHED_STARTS_WITH || comparator == Comparator.HASHED_NOT_STARTS_WITH )
+                    userValue.substring(0, comparedTextLengthInt).encodeToByteArray().sha1().hex
+                else
+                // Comparator.HASHED_ENDS_WITH, Comparator.HASHED_NOT_ENDS_WITH
+                    userValue.substring(userValue.length - comparedTextLengthInt).encodeToByteArray().sha1().hex
+
+                if(userValueHashed == comparisonHashValue)
+                    matchCondition = true
+
+            } catch (e: NumberFormatException) {
+                evaluatorLogger.logFormatError(
                     rule.comparisonAttribute,
                     userValue,
                     comparator,
                     rule.comparisonValue,
-                    rule.value
+                    e
                 )
-                return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
             }
-        } catch (e: NumberFormatException) {
-            evaluatorLogger.logFormatError(
+        }
+
+        if (comparator == Comparator.HASHED_NOT_STARTS_WITH || comparator == Comparator.HASHED_NOT_ENDS_WITH )
+            //negate the match in case of NOT ANY OF
+            matchCondition = !matchCondition
+
+        if (matchCondition) {
+            evaluatorLogger.logMatch(
                 rule.comparisonAttribute,
                 userValue,
                 comparator,
                 rule.comparisonValue,
-                e
+                rule.value
             )
+            return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
         }
         return null
     }
@@ -486,18 +495,18 @@ internal class Evaluator(private val logger: InternalLogger) {
     enum class Comparator(val id: Int, val value: String) {
         CONTAINS_ANY_OF(2, "CONTAINS ANY OF"),
         NOT_CONTAINS_ANY_OF(3, "NOT CONTAINS ANY OF"),
-        ONE_OF_SEMVER(4, "IS ONE OF (SemVer)"),
-        NOT_ONE_OF_SEMVER(5, "IS NOT ONE OF (SemVer)"),
-        LT_SEMVER(6, "< (SemVer)"),
-        LTE_SEMVER(7, "<= (SemVer)"),
-        GT_SEMVER(8, "> (SemVer)"),
-        GTE_SEMVER(9, ">= (SemVer)"),
-        EQ_NUM(10, "= (Number)"),
-        NOT_EQ_NUM(11, "<> (Number)"),
-        LT_NUM(12, "< (Number)"),
-        LTE_NUM(13, "<= (Number)"),
-        GT_NUM(14, "> (Number)"),
-        GTE_NUM(15, ">= (Number)"),
+        ONE_OF_SEMVER(4, "IS ONE OF (semver)"),
+        NOT_ONE_OF_SEMVER(5, "IS NOT ONE OF (semver)"),
+        LT_SEMVER(6, "< (semver)"),
+        LTE_SEMVER(7, "<= (semver)"),
+        GT_SEMVER(8, "> (semver)"),
+        GTE_SEMVER(9, ">= (semver)"),
+        EQ_NUM(10, "= (number)"),
+        NOT_EQ_NUM(11, "<> (number)"),
+        LT_NUM(12, "< (number)"),
+        LTE_NUM(13, "<= (number)"),
+        GT_NUM(14, "> (number)"),
+        GTE_NUM(15, ">= (number)"),
         ONE_OF_SENS(16, "IS ONE OF (hashed)"),
         NOT_ONE_OF_SENS(17, "IS NOT ONE OF (hashed)"),
         DATE_BEFORE(18, "BEFORE (UTC DateTime)"),
@@ -505,10 +514,11 @@ internal class Evaluator(private val logger: InternalLogger) {
         HASHED_EQUALS(20, "EQUALS (hashed)"),
         HASHED_NOT_EQUALS(21, "NOT EQUALS (hashed)"),
         HASHED_STARTS_WITH(22, "STARTS WITH ANY OF (hashed)"),
-        HASHED_ENDS_WITH(23, "ENDS WITH ANY OF (hashed)"),
-        HASHED_ARRAY_CONTAINS(24, "ARRAY CONTAINS (hashed)"),
-        HASHED_ARRAY_NOT_CONTAINS(25, "ARRAY NOT CONTAINS (hashed)")
-
+        HASHED_NOT_STARTS_WITH(23, "NOT STARTS WITH ANY OF (hashed)"),
+        HASHED_ENDS_WITH(24, "ENDS WITH ANY OF (hashed)"),
+        HASHED_NOT_ENDS_WITH(25, "NOT ENDS WITH ANY OF (hashed)"),
+        HASHED_ARRAY_CONTAINS(26, "ARRAY CONTAINS (hashed)"),
+        HASHED_ARRAY_NOT_CONTAINS(27, "ARRAY NOT CONTAINS (hashed)")
     }
 
     private fun Int.toComparatorOrNull(): Comparator? = Comparator.values().firstOrNull { it.id == this }

@@ -49,8 +49,8 @@ public class EvaluationDetails internal constructor(
     error: String?,
     public val value: Any,
     fetchTimeUnixMilliseconds: Long,
-    matchedEvaluationRule: RolloutRule?,
-    matchedEvaluationPercentageRule: PercentageRule?
+    matchedTargetingRule: RolloutRule?,
+    matchedPercentageOption: PercentageRule?
 ) : EvaluationDetailsBase(
     key,
     variationId,
@@ -58,8 +58,8 @@ public class EvaluationDetails internal constructor(
     isDefaultValue,
     error,
     fetchTimeUnixMilliseconds,
-    matchedEvaluationRule,
-    matchedEvaluationPercentageRule
+    matchedTargetingRule,
+    matchedPercentageOption
 ) {
     internal companion object {
         internal fun makeError(key: String, defaultValue: Any, error: String, user: ConfigCatUser?):

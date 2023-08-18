@@ -482,7 +482,8 @@ internal class Client private constructor(
         fun get(sdkKey: String, block: ConfigCatOptions.() -> Unit = {}): Client {
             require(sdkKey.isNotEmpty()) { "SDK Key cannot be empty." }
             val options = ConfigCatOptions().apply(block)
-            require(isValidKey(sdkKey, options.isBaseURLCustom())){ "SDK Key '$sdkKey' is invalid." }
+            if(!OverrideBehavior.LOCAL_ONLY.equals(options.flagOverrides))
+                require(isValidKey(sdkKey, options.isBaseURLCustom())){ "SDK Key '$sdkKey' is invalid." }
 
             lock.withLock {
                 val instance = instances[sdkKey]
