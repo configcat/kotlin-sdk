@@ -20,7 +20,7 @@ class OverrideTests {
     @Test
     fun testLocalOnly() = runTest {
         val mockEngine = MockEngine {
-            respond(content = Data.formatJsonBody(false), status = HttpStatusCode.OK)
+            respond(content = Data.formatJsonBodyWithBoolean(false), status = HttpStatusCode.OK)
         }
         val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
@@ -49,7 +49,7 @@ class OverrideTests {
     @Test
     fun testLocalOverRemote() = runTest {
         val mockEngine = MockEngine {
-            respond(content = Data.formatJsonBody(false), status = HttpStatusCode.OK)
+            respond(content = Data.formatJsonBodyWithBoolean(false), status = HttpStatusCode.OK)
         }
         val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
@@ -72,7 +72,7 @@ class OverrideTests {
     @Test
     fun testRemoteOverLocal() = runTest {
         val mockEngine = MockEngine {
-            respond(content = Data.formatJsonBody(false), status = HttpStatusCode.OK)
+            respond(content = Data.formatJsonBodyWithBoolean(false), status = HttpStatusCode.OK)
         }
         val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine

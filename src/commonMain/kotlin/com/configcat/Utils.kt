@@ -1,5 +1,6 @@
 package com.configcat
 
+import com.configcat.model.FlagValueSerializer
 import com.soywiz.klock.DateTime
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
@@ -10,7 +11,7 @@ internal interface Closeable {
 
 internal object Constants {
     const val version: String = "2.0.0"
-    const val configFileName: String = "config_v5.json"
+    const val configFileName: String = "config_v6.json"
     const val serializationFormatVersion: String = "v2"
     const val globalCdnUrl = "https://cdn-global.configcat.com"
     const val euCdnUrl = "https://cdn-eu.configcat.com"

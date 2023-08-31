@@ -5,6 +5,8 @@ import com.configcat.Closeable
 import com.configcat.Constants
 import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
+import com.configcat.model.Config
+import com.configcat.model.Entry
 import com.soywiz.klock.DateTime
 import io.ktor.client.*
 import io.ktor.client.plugins.*
@@ -136,7 +138,11 @@ internal class ConfigFetcher constructor(
 
     private fun parseConfigJson(jsonString: String): Pair<Config, String?> {
         return try {
-            Pair(Constants.json.decodeFromString(jsonString), null)
+            var config: Config = Constants.json.decodeFromString(jsonString)
+            config.settings?.values?.forEach {
+                it.configSalt = config.preferences?.salt ?: ""
+            }
+            Pair(config, null)
         } catch (e: Exception) {
             logger.error(1105, ConfigCatLogMessages.FETCH_RECEIVED_200_WITH_INVALID_BODY_ERROR, e)
             Pair(Config.empty, e.message)

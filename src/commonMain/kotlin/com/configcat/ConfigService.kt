@@ -4,6 +4,8 @@ import com.configcat.fetch.ConfigFetcher
 import com.configcat.fetch.RefreshResult
 import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
+import com.configcat.model.Entry
+import com.configcat.model.Setting
 import com.soywiz.klock.DateTime
 import com.soywiz.krypto.sha1
 import io.ktor.util.*
@@ -14,11 +16,11 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: DateTime) {
+internal data class SettingResult(val settings: Map<String, Setting>?, val fetchTime: DateTime) {
     fun isEmpty(): Boolean = this === empty
 
     companion object {
-        val empty: SettingResult = SettingResult(emptyMap(), Constants.distantPast)
+        val empty: SettingResult = SettingResult(null, Constants.distantPast)
     }
 }
 

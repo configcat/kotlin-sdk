@@ -22,7 +22,7 @@ class ConfigFetcherTests {
         val result = fetcher.fetch("")
 
         assertTrue(result.isFetched)
-        assertEquals("fakeValue", result.entry.config.settings["fakeKey"]?.value)
+        assertEquals("fakeValue", result.entry.config.settings?.get("fakeKey")?.settingsValue?.stringValue)
         assertEquals(1, mockEngine.requestHistory.size)
     }
 
@@ -80,6 +80,6 @@ class ConfigFetcherTests {
     }
 
     companion object {
-        const val testBody = """{ "f": { "fakeKey": { "v": "fakeValue", "p": [], "r": [] } } }"""
+        const val testBody = """{ "p": { "u": "https://cdn-global.configcat.com", "s": "test-slat" }, "f": { "fakeKey": { "t": 1, "v": {"s": "fakeValue" }, "p": [], "r": [], "a":""} }, "s": [] }"""
     }
 }

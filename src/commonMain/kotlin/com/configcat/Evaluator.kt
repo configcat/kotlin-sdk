@@ -3,15 +3,17 @@ package com.configcat
 import com.configcat.DateTimeUtils.toDateTimeUTCString
 import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
+import com.configcat.model.*
 import com.soywiz.krypto.sha1
+import com.soywiz.krypto.sha256
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
 
 internal data class EvaluationResult(
-    val value: Any,
+    val value: SettingsValue,
     val variationId: String?,
-    val targetingRule: RolloutRule? = null,
-    val percentageRule: PercentageRule? = null
+    val targetingRule: TargetingRule? = null,
+    val percentageRule: PercentageOption? = null
 )
 
 internal class Evaluator(private val logger: InternalLogger) {
@@ -20,239 +22,277 @@ internal class Evaluator(private val logger: InternalLogger) {
 
     fun evaluate(setting: Setting, key: String, user: ConfigCatUser?): EvaluationResult {
         val evaluatorLogger = EvaluatorLogger(key)
+        // TODO update the logging
         try {
             if (user == null) {
-                if (setting.rolloutRules.isNotEmpty() || setting.percentageItems.isNotEmpty()) {
+                if (setting.targetingRules?.isNotEmpty() == true || setting.percentageOptions?.isNotEmpty() == true) {
                     logger.warning(3001, ConfigCatLogMessages.getTargetingIsNotPossible(key))
                 }
-                evaluatorLogger.logReturnValue(setting.value)
-                return EvaluationResult(setting.value, setting.variationId)
+                // TODO logging
+                evaluatorLogger.logReturnValue(setting.settingsValue.toString())
+                return EvaluationResult(setting.settingsValue, setting.variationId)
             }
             evaluatorLogger.logUserObject(user)
-            val valueFromTargetingRules = processTargetingRules(setting, user, evaluatorLogger)
+            val valueFromTargetingRules = evaluateTargetingRules(setting, user, key, evaluatorLogger)
             if (valueFromTargetingRules != null) return valueFromTargetingRules
 
-            val valueFromPercentageRules = processPercentageRules(setting, user, key, evaluatorLogger)
+            val valueFromPercentageRules = evaluatePercentageOptions(setting, user, key, evaluatorLogger)
             if (valueFromPercentageRules != null) return valueFromPercentageRules
 
-            evaluatorLogger.logReturnValue(setting.value)
-            return EvaluationResult(setting.value, setting.variationId)
+            evaluatorLogger.logReturnValue(setting.settingsValue)
+            return EvaluationResult(setting.settingsValue, setting.variationId)
         } finally {
             logger.info(5000, evaluatorLogger.print())
         }
     }
 
     @Suppress("ComplexMethod", "LoopWithTooManyJumpStatements")
-    private fun processTargetingRules(
+    private fun evaluateTargetingRules(
         setting: Setting,
         user: ConfigCatUser,
+        key: String,
         evaluatorLogger: EvaluatorLogger
     ): EvaluationResult? {
-        if (setting.rolloutRules.isEmpty()) {
+        if (setting.targetingRules.isNullOrEmpty()) {
             return null
         }
-        for (rule in setting.rolloutRules) {
-            val userValue = user.attributeFor(rule.comparisonAttribute)
-            val comparator = rule.comparator.toComparatorOrNull()
-
-            if (comparator == null) {
-                evaluatorLogger.logComparatorError(
-                    rule.comparisonAttribute,
-                    userValue ?: "",
-                    rule.comparator,
-                    rule.comparisonValue
-                )
+        for (rule in setting.targetingRules) {
+            // TODO fix this. remove unnecessary null checks
+            if (!evaluateConditions(rule.conditions ?: arrayOf(), setting.configSalt, user, key, evaluatorLogger)) {
                 continue
             }
-            if (userValue.isNullOrEmpty() || rule.comparisonValue.isEmpty()) {
-                evaluatorLogger.logNoMatch(
-                    rule.comparisonAttribute,
-                    userValue ?: "",
-                    comparator,
-                    rule.comparisonValue
-                )
+            if (rule.servedValue != null) {
+                return EvaluationResult(rule.servedValue.value, rule.servedValue.variationId, rule, null)
+            }
+            if (rule.percentageOptions.isNullOrEmpty()) {
                 continue
             }
-
-            when (comparator) {
-                Comparator.CONTAINS_ANY_OF,
-                Comparator.NOT_CONTAINS_ANY_OF -> {
-                    val value = processContains(rule, userValue, evaluatorLogger, comparator)
-                    if (value != null) return value
-                }
-
-                Comparator.ONE_OF_SEMVER,
-                Comparator.NOT_ONE_OF_SEMVER -> {
-                    val value = processSemverOneOf(rule, userValue, evaluatorLogger, comparator)
-                    if (value != null) return value
-                }
-
-                Comparator.LT_SEMVER,
-                Comparator.LTE_SEMVER,
-                Comparator.GT_SEMVER,
-                Comparator.GTE_SEMVER -> {
-                    val value = processSemverCompare(rule, userValue, evaluatorLogger, comparator)
-                    if (value != null) return value
-                }
-
-                Comparator.EQ_NUM,
-                Comparator.NOT_EQ_NUM,
-                Comparator.LT_NUM,
-                Comparator.LTE_NUM,
-                Comparator.GT_NUM,
-                Comparator.GTE_NUM -> {
-                    val value = processNumber(rule, userValue, evaluatorLogger, comparator)
-                    if (value != null) return value
-                }
-
-                Comparator.ONE_OF_SENS,
-                Comparator.NOT_ONE_OF_SENS -> {
-                    val value = processSensitiveOneOf(rule, userValue, evaluatorLogger, comparator)
-                    if (value != null) return value
-                }
-
-                Comparator.DATE_BEFORE,
-                Comparator.DATE_AFTER -> {
-                    val value = processDateCompare(rule, userValue, evaluatorLogger, comparator)
-                    if (value != null) return value
-                }
-
-                Comparator.HASHED_EQUALS,
-                Comparator.HASHED_NOT_EQUALS -> {
-                    val value = processHashedEqualsCompare(rule, userValue, evaluatorLogger, comparator)
-                    if (value != null) return value
-                }
-
-                Comparator.HASHED_STARTS_WITH,
-                Comparator.HASHED_NOT_STARTS_WITH,
-                Comparator.HASHED_ENDS_WITH,
-                Comparator.HASHED_NOT_ENDS_WITH -> {
-                    val value = processHashedStartEndsWithCompare(rule, userValue, evaluatorLogger, comparator)
-                    if (value != null) return value
-                }
-
-                Comparator.HASHED_ARRAY_CONTAINS,
-                Comparator.HASHED_ARRAY_NOT_CONTAINS -> {
-                    val value = processHashedArrayContainsCompare(rule, userValue, evaluatorLogger, comparator)
-                    if (value != null) return value
-                }
-            }
+            return evaluatePercentageOptions(setting, user, key, evaluatorLogger)
         }
         return null
     }
 
+    private fun evaluateConditions(
+        conditions: Array<Condition>,
+        configSalt: String,
+        user: ConfigCatUser,
+        key: String,
+        evaluatorLogger: EvaluatorLogger
+    ): Boolean {
+        // TODO rework logging based on changes possibly
+
+        // Conditions are ANDs so if One is not matching return false, if all matching return true
+        // TODO rework logging based on changes possibly
+        var conditionsEvaluationResult = false
+        for (condition in conditions) {
+            // TODO log IF, AND based on order
+
+            // TODO Condition, what if condition invalid? more then one condition added or none. rework basic if
+            if (condition.comparisonCondition != null) {
+                conditionsEvaluationResult = evaluateComparisonCondition(
+                    condition.comparisonCondition,
+                    configSalt,
+                    user,
+                    key,
+                    evaluatorLogger
+                )
+            } else if (condition.segmentCondition != null) {
+                conditionsEvaluationResult = evaluateSegmentCondition(condition.segmentCondition)
+            } else if (condition.prerequisiteFlagCondition != null) {
+                conditionsEvaluationResult = evaluatePrerequisiteFlagCondition(condition.prerequisiteFlagCondition)
+            }
+            // else throw Some exception here?
+            if (!conditionsEvaluationResult) {
+                // TODO no match for the TR. LOG and go to the next one?
+                // TODO this should be return from a condEvalMethod
+                return false
+            }
+        }
+        return conditionsEvaluationResult
+    }
+
+    private fun evaluateSegmentCondition(
+        segmentCondition: SegmentCondition
+    ): Boolean {
+        // TODO implement
+        return true
+    }
+
+    private fun evaluatePrerequisiteFlagCondition(
+        prerequisiteFlagCondition: PrerequisiteFlagCondition
+    ): Boolean {
+        // TODO implement
+        return true
+    }
+
+    private fun evaluateComparisonCondition(
+        condition: ComparisonCondition,
+        configSalt: String,
+        user: ConfigCatUser,
+        key: String,
+        evaluatorLogger: EvaluatorLogger
+    ): Boolean {
+        val comparisonAttribute = condition.comparisonAttribute
+        val userValue = user.attributeFor(comparisonAttribute)
+        val comparator = condition.comparator.toComparatorOrNull()
+
+        if (comparator == null) {
+            // TODO add log
+            return false
+        }
+        if (userValue.isNullOrEmpty()) {
+            // evaluatorLogger.logNoMatch(
+            // TODO add log
+            return false
+        }
+
+        when (comparator) {
+            Comparator.CONTAINS_ANY_OF,
+            Comparator.NOT_CONTAINS_ANY_OF -> {
+                return processContains(condition, userValue, evaluatorLogger, comparator)
+            }
+
+            Comparator.ONE_OF_SEMVER,
+            Comparator.NOT_ONE_OF_SEMVER -> {
+                return processSemverOneOf(condition, userValue, evaluatorLogger, comparator)
+            }
+
+            Comparator.LT_SEMVER,
+            Comparator.LTE_SEMVER,
+            Comparator.GT_SEMVER,
+            Comparator.GTE_SEMVER -> {
+                return processSemverCompare(condition, userValue, evaluatorLogger, comparator)
+            }
+
+            Comparator.EQ_NUM,
+            Comparator.NOT_EQ_NUM,
+            Comparator.LT_NUM,
+            Comparator.LTE_NUM,
+            Comparator.GT_NUM,
+            Comparator.GTE_NUM -> {
+                return processNumber(condition, userValue, evaluatorLogger, comparator)
+            }
+
+            Comparator.ONE_OF_SENS,
+            Comparator.NOT_ONE_OF_SENS -> {
+                return processSensitiveOneOf(condition, userValue, configSalt, key, evaluatorLogger, comparator)
+            }
+
+            Comparator.DATE_BEFORE,
+            Comparator.DATE_AFTER -> {
+                return processDateCompare(condition, userValue, evaluatorLogger, comparator)
+            }
+
+            Comparator.HASHED_EQUALS,
+            Comparator.HASHED_NOT_EQUALS -> {
+                return processHashedEqualsCompare(condition, userValue, configSalt, key, evaluatorLogger, comparator)
+            }
+
+            Comparator.HASHED_STARTS_WITH,
+            Comparator.HASHED_NOT_STARTS_WITH,
+            Comparator.HASHED_ENDS_WITH,
+            Comparator.HASHED_NOT_ENDS_WITH -> {
+                return processHashedStartEndsWithCompare(
+                    condition,
+                    userValue,
+                    configSalt,
+                    key,
+                    evaluatorLogger,
+                    comparator
+                )
+            }
+
+            Comparator.HASHED_ARRAY_CONTAINS,
+            Comparator.HASHED_ARRAY_NOT_CONTAINS -> {
+                return processHashedArrayContainsCompare(
+                    condition,
+                    userValue,
+                    configSalt,
+                    key,
+                    evaluatorLogger,
+                    comparator
+                )
+            }
+        }
+    }
 
     private fun processContains(
-        rule: RolloutRule,
+        condition: ComparisonCondition,
         userValue: String,
+        // TODO remove logger?
         evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
-    ): EvaluationResult? {
-        val split = rule.comparisonValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-        val matchCondition = when (comparator) {
-            Comparator.CONTAINS_ANY_OF -> split.contains(userValue)
-            Comparator.NOT_CONTAINS_ANY_OF -> !split.contains(userValue)
-            else -> false
+    ): Boolean {
+        val values = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
+        var matched = false
+        for (value in values) {
+            matched = userValue.contains(value)
         }
-        if (matchCondition) {
-            evaluatorLogger.logMatch(
-                rule.comparisonAttribute,
-                userValue,
-                comparator,
-                rule.comparisonValue,
-                rule.value
-            )
-            return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
+        if ((matched && comparator == Comparator.CONTAINS_ANY_OF) ||
+            (!matched && comparator == Comparator.NOT_CONTAINS_ANY_OF)
+        ) {
+            return true
         }
-        return null
+        return false
     }
 
     private fun processSemverOneOf(
-        rule: RolloutRule,
+        condition: ComparisonCondition,
         userValue: String,
         evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
-    ): EvaluationResult? {
+    ): Boolean {
         try {
             val userVersion = userValue.toVersion()
-            val split = rule.comparisonValue.split(",")
-                .map { it.trim() }.filter { it.isNotEmpty() }
+            val values = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
             var matched = false
-            for (value in split) {
+            for (value in values) {
                 matched = value.toVersion() == userVersion || matched
             }
             if ((matched && comparator == Comparator.ONE_OF_SEMVER) ||
                 (!matched && comparator == Comparator.NOT_ONE_OF_SEMVER)
             ) {
-                evaluatorLogger.logMatch(
-                    rule.comparisonAttribute,
-                    userValue,
-                    comparator,
-                    rule.comparisonValue,
-                    rule.value
-                )
-                return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
+                return true
             }
         } catch (e: VersionFormatException) {
-            evaluatorLogger.logFormatError(
-                rule.comparisonAttribute,
-                userValue,
-                comparator,
-                rule.comparisonValue,
-                e
-            )
+            // TODO add log
         }
-        return null
+        return false
     }
 
     private fun processSemverCompare(
-        rule: RolloutRule,
+        condition: ComparisonCondition,
         userValue: String,
         evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
-    ): EvaluationResult? {
+    ): Boolean {
         try {
             val userVersion = userValue.trim().toVersion()
-            val comparisonVersion = rule.comparisonValue.trim().toVersion()
-            val matchCondition = when (comparator) {
+            val comparisonVersion = let { condition.stringValue ?: "" }.trim().toVersion()
+            return when (comparator) {
                 Comparator.LT_SEMVER -> userVersion < comparisonVersion
                 Comparator.LTE_SEMVER -> userVersion <= comparisonVersion
                 Comparator.GT_SEMVER -> userVersion > comparisonVersion
                 Comparator.GTE_SEMVER -> userVersion >= comparisonVersion
                 else -> false
             }
-            if (matchCondition) {
-                evaluatorLogger.logMatch(
-                    rule.comparisonAttribute,
-                    userValue,
-                    comparator,
-                    rule.comparisonValue,
-                    rule.value
-                )
-                return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
-            }
         } catch (e: VersionFormatException) {
-            evaluatorLogger.logFormatError(
-                rule.comparisonAttribute,
-                userValue,
-                comparator,
-                rule.comparisonValue,
-                e
-            )
+            // TODO log error
         }
-        return null
+        return false
     }
 
     private fun processNumber(
-        rule: RolloutRule,
+        condition: ComparisonCondition,
         userValue: String,
         evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
-    ): EvaluationResult? {
+    ): Boolean {
         try {
             val userNumber = userValue.trim().replace(",", ".").toDouble()
-            val comparisonNumber = rule.comparisonValue.trim().replace(",", ".").toDouble()
-            val matchCondition = when (comparator) {
+            val comparisonNumber = condition.doubleValue
+                ?: throw NumberFormatException()
+            return when (comparator) {
                 Comparator.EQ_NUM -> userNumber == comparisonNumber
                 Comparator.NOT_EQ_NUM -> userNumber != comparisonNumber
                 Comparator.LT_NUM -> userNumber < comparisonNumber
@@ -261,218 +301,160 @@ internal class Evaluator(private val logger: InternalLogger) {
                 Comparator.GTE_NUM -> userNumber >= comparisonNumber
                 else -> false
             }
-            if (matchCondition) {
-                evaluatorLogger.logMatch(
-                    rule.comparisonAttribute,
-                    userValue,
-                    comparator,
-                    rule.comparisonValue,
-                    rule.value
-                )
-                return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
-            }
         } catch (e: NumberFormatException) {
+            // TODO log error
             evaluatorLogger.logFormatError(
-                rule.comparisonAttribute,
+                condition.comparisonAttribute,
                 userValue,
                 comparator,
-                rule.comparisonValue,
-                e
+                condition.doubleValue.toString(),
+                NumberFormatException()
             )
         }
-        return null
+        return false
     }
 
     private fun processSensitiveOneOf(
-        rule: RolloutRule,
+        condition: ComparisonCondition,
         userValue: String,
+        configSalt: String,
+        key: String,
         evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
-    ): EvaluationResult? {
-        //TODO add salt and salt error handle
-        val split = rule.comparisonValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-        val userValueHash = userValue.encodeToByteArray().sha1().hex
-        val matchCondition = when (comparator) {
+    ): Boolean {
+        // TODO salt error handle
+        val split = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
+        val userValueHash = getSaltedUserValue(userValue, configSalt, key)
+        return when (comparator) {
             Comparator.ONE_OF_SENS -> split.contains(userValueHash)
             Comparator.NOT_ONE_OF_SENS -> !split.contains(userValueHash)
             else -> false
         }
-        if (matchCondition) {
-            evaluatorLogger.logMatch(
-                rule.comparisonAttribute,
-                userValue,
-                comparator,
-                rule.comparisonValue,
-                rule.value
-            )
-            return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
-        }
-        return null
     }
 
     private fun processDateCompare(
-        rule: RolloutRule,
+        condition: ComparisonCondition,
         userValue: String,
         evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
-    ): EvaluationResult? {
+    ): Boolean {
         try {
             val userDateDouble = userValue.trim().replace(",", ".").toDouble()
-            val comparisonDateDouble = rule.comparisonValue.trim().replace(",", ".").toDouble()
-            val matchCondition = when (comparator) {
+            val comparisonDateDouble = condition.doubleValue ?: throw NumberFormatException()
+            return when (comparator) {
                 Comparator.DATE_BEFORE -> userDateDouble < comparisonDateDouble
                 Comparator.DATE_AFTER -> userDateDouble > comparisonDateDouble
                 else -> false
             }
-            if (matchCondition) {
-                evaluatorLogger.logMatch(
-                    rule.comparisonAttribute,
-                    userDateDouble,
-                    comparator,
-                    comparisonDateDouble,
-                    rule.value
-                )
-                return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
-            }
         } catch (e: NumberFormatException) {
-            //TODO add date specific error '{userAttributeValue}' is not a valid Unix timestamp (number of seconds elapsed since Unix epoch)
-            evaluatorLogger.logFormatError(
-                rule.comparisonAttribute,
-                userValue,
-                comparator,
-                rule.comparisonValue,
-                e
-            )
+            // TODO add date specific error '{userAttributeValue}' is not a valid Unix timestamp (number of seconds elapsed since Unix epoch)
         }
-        return null
+        return false
     }
 
     private fun processHashedEqualsCompare(
-        rule: RolloutRule,
+        condition: ComparisonCondition,
         userValue: String,
+        configSalt: String,
+        key: String,
         evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
-    ): EvaluationResult? {
-        //TODO add salt and salt error handle
-        val userValueHash = userValue.encodeToByteArray().sha1().hex
-        val matchCondition = when (comparator) {
-            Comparator.HASHED_EQUALS -> userValueHash == rule.comparisonValue
-            Comparator.HASHED_NOT_EQUALS -> userValueHash != rule.comparisonValue
+    ): Boolean {
+        // TODO salt error handle
+        val userValueHash = getSaltedUserValue(userValue, configSalt, key)
+        val comparisonValue = condition.stringValue
+        return when (comparator) {
+            Comparator.HASHED_EQUALS -> userValueHash == comparisonValue
+            Comparator.HASHED_NOT_EQUALS -> userValueHash != comparisonValue
             else -> false
         }
-        if (matchCondition) {
-            evaluatorLogger.logMatch(
-                rule.comparisonAttribute,
-                userValue,
-                comparator,
-                rule.comparisonValue,
-                rule.value
-            )
-            return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
-        }
-        return null
     }
 
     private fun processHashedStartEndsWithCompare(
-        rule: RolloutRule,
+        condition: ComparisonCondition,
         userValue: String,
+        configSalt: String,
+        key: String,
         evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
-    ): EvaluationResult? {
-        //TODO add salt and salt error handle
-        //TODO handle NOT as well
-
-        val withValuesSplit = rule.comparisonValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+    ): Boolean {
+        // TODO salt error handle
+        val withValuesSplit = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
         var matchCondition = false
         for (comparisonValueHashedStartsEnds in withValuesSplit) {
             try {
                 val comparedTextLength = comparisonValueHashedStartsEnds.substringBeforeLast("_")
-                if (comparedTextLength == comparisonValueHashedStartsEnds)
-                    return null
+                if (comparedTextLength == comparisonValueHashedStartsEnds) {
+                    return false
+                }
                 val comparedTextLengthInt: Int = comparedTextLength.toInt()
                 val comparisonHashValue = comparisonValueHashedStartsEnds.substringAfterLast("_")
-                if (comparisonHashValue.isEmpty())
-                    return null
-
-                val userValueHashed = if( comparator == Comparator.HASHED_STARTS_WITH || comparator == Comparator.HASHED_NOT_STARTS_WITH )
-                    userValue.substring(0, comparedTextLengthInt).encodeToByteArray().sha1().hex
-                else
-                // Comparator.HASHED_ENDS_WITH, Comparator.HASHED_NOT_ENDS_WITH
-                    userValue.substring(userValue.length - comparedTextLengthInt).encodeToByteArray().sha1().hex
-
-                if(userValueHashed == comparisonHashValue)
+                if (comparisonHashValue.isEmpty()) {
+                    return false
+                }
+                val userValueHashed =
+                    if (comparator == Comparator.HASHED_STARTS_WITH || comparator == Comparator.HASHED_NOT_STARTS_WITH) {
+                        getSaltedUserValue(userValue.substring(0, comparedTextLengthInt), configSalt, key)
+                    } else {
+                        // Comparator.HASHED_ENDS_WITH, Comparator.HASHED_NOT_ENDS_WITH
+                        getSaltedUserValue(
+                            userValue.substring(userValue.length - comparedTextLengthInt),
+                            configSalt,
+                            key
+                        )
+                    }
+                if (userValueHashed == comparisonHashValue) {
                     matchCondition = true
-
+                }
             } catch (e: NumberFormatException) {
-                evaluatorLogger.logFormatError(
-                    rule.comparisonAttribute,
-                    userValue,
-                    comparator,
-                    rule.comparisonValue,
-                    e
-                )
+                // TODO log error
+                return false
             }
         }
-
-        if (comparator == Comparator.HASHED_NOT_STARTS_WITH || comparator == Comparator.HASHED_NOT_ENDS_WITH )
-            //negate the match in case of NOT ANY OF
+        if (comparator == Comparator.HASHED_NOT_STARTS_WITH || comparator == Comparator.HASHED_NOT_ENDS_WITH) {
+            // negate the match in case of NOT ANY OF
             matchCondition = !matchCondition
-
-        if (matchCondition) {
-            evaluatorLogger.logMatch(
-                rule.comparisonAttribute,
-                userValue,
-                comparator,
-                rule.comparisonValue,
-                rule.value
-            )
-            return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
         }
-        return null
+        return matchCondition
     }
 
     private fun processHashedArrayContainsCompare(
-        rule: RolloutRule,
+        condition: ComparisonCondition,
         userValue: String,
+        configSalt: String,
+        key: String,
         evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
-    ): EvaluationResult? {
-        //TODO add salt and salt error handle
+    ): Boolean {
+        // TODO salt error handle
         val userCSVNotContainsHashSplit = userValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
         if (userCSVNotContainsHashSplit.isEmpty()) {
-            return null
+            return false
         }
         var contains = false
         userCSVNotContainsHashSplit.forEach {
-            val hashedUserValue = it.encodeToByteArray().sha1().hex
-            contains = hashedUserValue == rule.comparisonValue
+            val hashedUserValue = getSaltedUserValue(it, configSalt, key)
+            contains = hashedUserValue == condition.stringValue
         }
-        val matchCondition = when (comparator) {
+        return when (comparator) {
             Comparator.HASHED_EQUALS -> contains
             Comparator.HASHED_NOT_EQUALS -> !contains
             else -> false
         }
-        if (matchCondition) {
-            evaluatorLogger.logMatch(
-                rule.comparisonAttribute,
-                userValue,
-                comparator,
-                rule.comparisonValue,
-                rule.value
-            )
-            return EvaluationResult(rule.value, rule.variationId, targetingRule = rule)
-        }
-        return null
     }
 
-    private fun processPercentageRules(
+    private fun getSaltedUserValue(userValue: String, configSalt: String, key: String): String {
+        val value = userValue + configSalt + key
+        return value.encodeToByteArray().sha256().hex
+    }
+
+    private fun evaluatePercentageOptions(
         setting: Setting,
         user: ConfigCatUser,
         key: String,
         evaluatorLogger: EvaluatorLogger
     ): EvaluationResult? {
-        //TODO add salt and salt error handle
-        if (setting.percentageItems.isEmpty()) {
+        if (setting.percentageOptions.isNullOrEmpty()) {
             return null
         }
 
@@ -482,7 +464,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         val scale = numberRepresentation % 100
 
         var bucket = 0.0
-        for (rule in setting.percentageItems) {
+        for (rule in setting.percentageOptions) {
             bucket += rule.percentage
             if (scale < bucket) {
                 evaluatorLogger.logPercentageEvaluationReturnValue(rule.value)
@@ -553,8 +535,7 @@ internal class EvaluatorLogger constructor(
         value: Any?
     ) {
         entries.appendLine(
-            "Evaluating rule: [$attribute:$userValue] " +
-                    "[${comparator.value}] [$comparisonValue] => match, returning: $value"
+            "Evaluating rule: [$attribute:$userValue] [${comparator.value}] [$comparisonValue] => match, returning: $value"
         )
     }
 
@@ -566,8 +547,7 @@ internal class EvaluatorLogger constructor(
         value: Any?
     ) {
         entries.appendLine(
-            "Evaluating rule: [$attribute:$userValue (${userValue.toDateTimeUTCString()})] " +
-                    "[${comparator.value}] [$comparisonValue (${comparisonValue.toDateTimeUTCString()})] => match, returning: $value"
+            "Evaluating rule: [$attribute:$userValue (${userValue.toDateTimeUTCString()})] [${comparator.value}] [$comparisonValue (${comparisonValue.toDateTimeUTCString()})] => match, returning: $value"
         )
     }
 
@@ -578,8 +558,7 @@ internal class EvaluatorLogger constructor(
         comparisonValue: String
     ) {
         entries.appendLine(
-            "Evaluating rule: " +
-                    "[$attribute:$userValue] [${comparator.value}] [$comparisonValue] => no match"
+            "Evaluating rule: [$attribute:$userValue] [${comparator.value}] [$comparisonValue] => no match"
         )
     }
 
@@ -591,8 +570,7 @@ internal class EvaluatorLogger constructor(
         error: Throwable
     ) {
         entries.appendLine(
-            "Evaluating rule: [$attribute:$userValue] [${comparator.value}] " +
-                    "[$comparisonValue] => SKIP rule. Validation error: ${error.message}"
+            "Evaluating rule: [$attribute:$userValue] [${comparator.value}] [$comparisonValue] => SKIP rule. Validation error: ${error.message}"
         )
     }
 
@@ -610,6 +588,4 @@ internal class EvaluatorLogger constructor(
     fun print(): String {
         return entries.toString()
     }
-
-
 }

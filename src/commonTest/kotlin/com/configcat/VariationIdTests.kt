@@ -17,8 +17,7 @@ class VariationIdTests {
     fun testGetVariationId() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = variationIdBody,
-                status = HttpStatusCode.OK
+                content = variationIdBody, status = HttpStatusCode.OK
             )
         }
         val client = ConfigCatClient(Data.SDK_KEY) {
@@ -33,8 +32,7 @@ class VariationIdTests {
     fun testGetVariationIdNotFound() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = variationIdBody,
-                status = HttpStatusCode.OK
+                content = variationIdBody, status = HttpStatusCode.OK
             )
         }
         val client = ConfigCatClient(Data.SDK_KEY) {
@@ -49,8 +47,7 @@ class VariationIdTests {
     fun testGetAllVariationIds() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = variationIdBody,
-                status = HttpStatusCode.OK
+                content = variationIdBody, status = HttpStatusCode.OK
             )
         }
         val client = ConfigCatClient(Data.SDK_KEY) {
@@ -68,8 +65,7 @@ class VariationIdTests {
     fun testGetAllVariationIdsEmpty() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = "{}",
-                status = HttpStatusCode.OK
+                content = "{}", status = HttpStatusCode.OK
             )
         }
         val client = ConfigCatClient(Data.SDK_KEY) {
@@ -84,8 +80,7 @@ class VariationIdTests {
     fun testGetKeyAndValue() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = variationIdBody,
-                status = HttpStatusCode.OK
+                content = variationIdBody, status = HttpStatusCode.OK
             )
         }
         val client = ConfigCatClient(Data.SDK_KEY) {
@@ -109,8 +104,7 @@ class VariationIdTests {
     fun testGetKeyAndValueNotFound() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = "{}",
-                status = HttpStatusCode.OK
+                content = "{}", status = HttpStatusCode.OK
             )
         }
         val client = ConfigCatClient(Data.SDK_KEY) {
@@ -122,46 +116,69 @@ class VariationIdTests {
 
     companion object {
         const val variationIdBody = """
-                   {"f":{
-                       "key1":{
-                           "v":true,
-                           "i":"fakeId1",
-                           "p":[
-                               {
-                                   "v":true,
-                                   "p":50,
-                                   "i":"percentageId1"
-                               },
-                               {
-                                   "v":false,
-                                   "p":50,
-                                   "i":"percentageId2"
-                               }
-                           ],
-                           "r":[
-                               {
-                                   "a":"Email",
-                                   "t":2,
-                                   "c":"@configcat.com",
-                                   "v":true,
-                                   "i":"rolloutId1"
-                               },
-                               {
-                                   "a":"Email",
-                                   "t":2,
-                                   "c":"@test.com",
-                                   "v":false,
-                                   "i":"rolloutId2"
-                               }
-                           ]
+                   {   "p": {"u":"https://cdn-global.configcat.com","r":"0","s": "test-slat"},
+                       "f":{
+                           "key1":{
+                                "t": 0,
+                                "v":{ "b": true},
+                                "i":"fakeId1",
+                                "p":[
+                                    {
+                                        "v":{ "b": true},
+                                        "p":50,
+                                        "i":"percentageId1"
+                                    },
+                                    {
+                                        "v":{ "b": false},
+                                        "p":50,
+                                        "i":"percentageId2"
+                                    }
+                                ],
+                                "r":[
+                                    {
+                                        "c": [{ 
+                                                "t": {
+                                                    "a":"Email",
+                                                    "c":2,
+                                                    "l":["@configcat.com"]
+                                                 }
+                                            }],
+                                        "p": [
+                                        ],
+                                        "s": {
+                                            "v": { "b": true}, 
+                                            "i": "rolloutId1"
+                                        }
+                                    }, 
+                                    {
+                                        "c": [{ 
+                                                "t": {
+                                                    "a":"Email",
+                                                    "c":2,
+                                                    "l": ["@test.com"]
+                                               }
+                                        }],
+                                        "p": [
+                                        ],
+                                        "s": {
+                                            "v": { "b": false}, 
+                                            "i": "rolloutId2"
+                                        }
+                                    }
+                                ],
+                                "a":""
+                           },
+                           "key2":{
+                                "t": 0,
+                                "v": { "b": false},
+                                "i":"fakeId2",
+                                "p":[],
+                                "r":[],
+                                "a":""
+                           }
                        },
-                       "key2":{
-                           "v":false,
-                           "i":"fakeId2",
-                           "p":[],
-                           "r":[]
-                       }
-                   }}
+                       "s":[]
+                   }
                    """
     }
 }

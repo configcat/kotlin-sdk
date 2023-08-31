@@ -3,6 +3,8 @@ package com.configcat
 import com.configcat.fetch.ConfigFetcher
 import com.configcat.fetch.RefreshResult
 import com.configcat.log.*
+import com.configcat.model.Setting
+import com.configcat.model.SettingsValue
 import com.configcat.override.FlagOverrides
 import com.configcat.override.OverrideBehavior
 import com.soywiz.klock.DateTime
@@ -221,8 +223,8 @@ public suspend inline fun <reified T : Any> ConfigCatClient.getValueDetails(
         details.error,
         value ?: defaultValue,
         details.fetchTimeUnixMilliseconds,
-        details.matchedEvaluationRule,
-        details.matchedEvaluationPercentageRule
+        details.matchedTargetingRule,
+        details.matchedPercentageOption
     )
 }
 
@@ -263,7 +265,7 @@ internal class Client private constructor(
             hooks.invokeOnFlagEvaluated(details)
             return defaultValue
         }
-        val setting = settingResult.settings[key]
+        val setting = settingResult.settings?.get(key)
 
         return evaluate(setting!!, key, evalUser, settingResult.fetchTime).value
     }
@@ -277,7 +279,7 @@ internal class Client private constructor(
             hooks.invokeOnFlagEvaluated(details)
             return details
         }
-        val setting = settingResult.settings[key]
+        val setting = settingResult.settings?.get(key)
 
         return evaluate(setting!!, key, evalUser, settingResult.fetchTime)
     }
@@ -287,9 +289,9 @@ internal class Client private constructor(
         if (!checkSettingsAvailable(settingResult, "empty list")) {
             return emptyList()
         }
-        return settingResult.settings.map {
+        return settingResult.settings?.map {
             evaluate(it.value, it.key, user ?: defaultUser, settingResult.fetchTime)
-        }
+        } ?: emptyList()
     }
 
     override suspend fun getKeyAndValue(variationId: String): Pair<String, Any>? {
@@ -297,19 +299,21 @@ internal class Client private constructor(
         if (!checkSettingsAvailable(settingResult, "null")) {
             return null
         }
-        val settings = settingResult.settings
+        val settings = settingResult.settings ?: emptyMap()
         for (setting in settings) {
             if (setting.value.variationId == variationId) {
-                return Pair(setting.key, setting.value.value)
+                return Pair(setting.key, parseSettingValue(setting.value.settingsValue, setting.value.type))
             }
-            for (rolloutRule in setting.value.rolloutRules) {
-                if (rolloutRule.variationId == variationId) {
-                    return Pair(setting.key, rolloutRule.value)
+            // TODO handle null better then !! ?
+            for (targetingRule in setting.value.targetingRules!!) {
+                if (targetingRule.servedValue?.variationId == variationId) {
+                    return Pair(setting.key, parseSettingValue(targetingRule.servedValue.value, setting.value.type))
                 }
             }
-            for (percentageRule in setting.value.percentageItems) {
-                if (percentageRule.variationId == variationId) {
-                    return Pair(setting.key, percentageRule.value)
+            // TODO handle null better then !! ?
+            for (percentageOption in setting.value.percentageOptions!!) {
+                if (percentageOption.variationId == variationId) {
+                    return Pair(setting.key, parseSettingValue(percentageOption.value, setting.value.type))
                 }
             }
         }
@@ -322,7 +326,7 @@ internal class Client private constructor(
         if (!checkSettingsAvailable(settingResult, "empty array")) {
             return emptyList()
         }
-        return settingResult.settings.keys
+        return settingResult.settings?.keys ?: emptyList()
     }
 
     override suspend fun getAllValues(user: ConfigCatUser?): Map<String, Any> {
@@ -330,10 +334,10 @@ internal class Client private constructor(
         if (!checkSettingsAvailable(settingResult, "empty map")) {
             return emptyMap()
         }
-        return settingResult.settings.map {
+        return settingResult.settings?.map {
             val evaluated = evaluate(it.value, it.key, user ?: defaultUser, settingResult.fetchTime)
             it.key to evaluated.value
-        }.toMap()
+        }?.toMap() ?: emptyMap()
     }
 
     override suspend fun forceRefresh(): RefreshResult = service?.refresh() ?: RefreshResult(
@@ -408,7 +412,7 @@ internal class Client private constructor(
     private fun evaluate(setting: Setting, key: String, user: ConfigCatUser?, fetchTime: DateTime): EvaluationDetails {
         val (value, variationId, targetingRule, percentageRule) = evaluator.evaluate(setting, key, user)
         val details = EvaluationDetails(
-            key, variationId, user, false, null, value,
+            key, variationId, user, false, null, parseSettingValue(value, setting.type),
             fetchTime.unixMillisLong, targetingRule, percentageRule
         )
         hooks.invokeOnFlagEvaluated(details)
@@ -442,6 +446,25 @@ internal class Client private constructor(
         return service?.getSettings() ?: SettingResult(mapOf(), Constants.distantPast)
     }
 
+    private fun parseSettingValue(settingsValue: SettingsValue?, settingType: Int): Any {
+        require(settingsValue != null) { "The type of a setting must match the type of the value." }
+
+        return if (settingType == 0 && settingsValue.booleanValue != null) {
+            settingsValue.booleanValue!!
+        } else if (settingType == 1 && settingsValue.stringValue != null) {
+            settingsValue.stringValue!!
+        } else if (settingType == 2 && settingsValue.integerValue != null) {
+            settingsValue.integerValue!!
+        } else if (settingType == 3 && settingsValue.doubleValue != null) {
+            settingsValue.doubleValue!!
+        } else {
+            // TODO talk over this kind of exception!
+            throw IllegalArgumentException(
+                "The type of a setting must match the type of the value. "
+            )
+        }
+    }
+
     private fun checkSettingsAvailable(settingResult: SettingResult, emptyResult: String): Boolean {
         if (settingResult.isEmpty()) {
             this.logger.error(1000, ConfigCatLogMessages.getConfigJsonIsNotPresentedWithEmptyResult(emptyResult))
@@ -461,13 +484,13 @@ internal class Client private constructor(
             logger.error(1000, errorMessage)
             return errorMessage
         }
-        val setting = settingResult.settings[key]
+        val setting = settingResult.settings?.get(key)
         if (setting == null) {
             val errorMessage = ConfigCatLogMessages.getSettingEvaluationFailedDueToMissingKey(
                 key,
                 "defaultValue",
                 defaultValue,
-                settingResult.settings.keys
+                settingResult.settings?.keys ?: emptySet()
             )
             logger.error(1001, errorMessage)
             return errorMessage
@@ -482,8 +505,9 @@ internal class Client private constructor(
         fun get(sdkKey: String, block: ConfigCatOptions.() -> Unit = {}): Client {
             require(sdkKey.isNotEmpty()) { "SDK Key cannot be empty." }
             val options = ConfigCatOptions().apply(block)
-            if(!OverrideBehavior.LOCAL_ONLY.equals(options.flagOverrides))
-                require(isValidKey(sdkKey, options.isBaseURLCustom())){ "SDK Key '$sdkKey' is invalid." }
+            if (!OverrideBehavior.LOCAL_ONLY.equals(options.flagOverrides)) {
+                require(isValidKey(sdkKey, options.isBaseURLCustom())) { "SDK Key '$sdkKey' is invalid." }
+            }
 
             lock.withLock {
                 val instance = instances[sdkKey]
@@ -496,18 +520,26 @@ internal class Client private constructor(
                 return client
             }
         }
+
         private fun isValidKey(sdkKey: String, isCustomBaseURL: Boolean): Boolean {
-            //configcat-proxy/ rules
-            if (isCustomBaseURL && sdkKey.length > Constants.SDK_KEY_PROXY_PREFIX.length && sdkKey.startsWith(Constants.SDK_KEY_PROXY_PREFIX)) {
+            // configcat-proxy/ rules
+            if (isCustomBaseURL && sdkKey.length > Constants.SDK_KEY_PROXY_PREFIX.length
+                    && sdkKey.startsWith(Constants.SDK_KEY_PROXY_PREFIX)) {
                 return true
             }
             val splitSDKKey = sdkKey.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            //22/22 rules
-            return if (splitSDKKey.size == 2 && splitSDKKey[0].length == Constants.SDK_KEY_SECTION_LENGTH && splitSDKKey[1].length == Constants.SDK_KEY_SECTION_LENGTH) {
+            // 22/22 rules
+            return if (splitSDKKey.size == 2 && splitSDKKey[0].length == Constants.SDK_KEY_SECTION_LENGTH
+                    && splitSDKKey[1].length == Constants.SDK_KEY_SECTION_LENGTH) {
                 true
-            //configcat-sdk-1/22/22 rules
-            } else splitSDKKey.size == 3 && splitSDKKey[0] == Constants.SDK_KEY_PREFIX && splitSDKKey[1].length == Constants.SDK_KEY_SECTION_LENGTH && splitSDKKey[2].length == Constants.SDK_KEY_SECTION_LENGTH
+                // configcat-sdk-1/22/22 rules
+            } else {
+                splitSDKKey.size == 3 && splitSDKKey[0] == Constants.SDK_KEY_PREFIX
+                        && splitSDKKey[1].length == Constants.SDK_KEY_SECTION_LENGTH
+                        && splitSDKKey[2].length == Constants.SDK_KEY_SECTION_LENGTH
+            }
         }
+
         fun removeFromInstances(client: Client) {
             lock.withLock {
                 if (instances[client.sdkKey] == client) {

@@ -1017,5 +1017,543 @@ garland@outlook.com;##null##;##null##;##null##;False;False;True;0;3.1415;1;1;Hor
 ullman@comcast.net;##null##;##null##;##null##;False;False;True;3.1415;3.1415;1;1;Horse;Falcon;Falcon;Cat;Cat;Cat;Cat;Cat
 sumdumass@outlook.com;##null##;##null##;##null##;False;False;True;2.7182;3.1415;1;1;Dog;Horse;Falcon;Cat;Cat;Cat;Cat;Cat"""
     override val remoteJson =
-        """{"p":{"u":"https://cdn-global.configcat.com","r":0},"f":{"stringDefaultCat":{"v":"Cat","t":1,"i":"7a0be518","p":[],"r":[]},"stringIsInDogDefaultCat":{"v":"Cat","t":1,"i":"83372510","p":[],"r":[{"o":0,"a":"Email","t":0,"c":"a@configcat.com, b@configcat.com","v":"Dog","i":"5b64d9b4"},{"o":1,"a":"Custom1","t":0,"c":"admin","v":"Dog","i":"5b64d9b4"}]},"stringIsNotInDogDefaultCat":{"v":"Cat","t":1,"i":"2459598d","p":[],"r":[{"o":0,"a":"Email","t":1,"c":"a@configcat.com,b@configcat.com","v":"Dog","i":"6ada5ff2"}]},"stringContainsDogDefaultCat":{"v":"Cat","t":1,"i":"ce564c3a","p":[],"r":[{"o":0,"a":"Email","t":2,"c":"@configcat.com","v":"Dog","i":"d0cd8f06"}]},"stringNotContainsDogDefaultCat":{"v":"Cat","t":1,"i":"44ab483a","p":[],"r":[{"o":0,"a":"Email","t":3,"c":"@configcat.com","v":"Dog","i":"f7f8f43d"}]},"string25Cat25Dog25Falcon25Horse":{"v":"Chicken","t":1,"i":"2588a3e6","p":[{"o":0,"v":"Cat","p":25,"i":"d227b334"},{"o":1,"v":"Dog","p":25,"i":"622f5d07"},{"o":2,"v":"Falcon","p":25,"i":"0ff32bab"},{"o":3,"v":"Horse","p":25,"i":"6c597441"}],"r":[]},"string75Cat0Dog25Falcon0Horse":{"v":"Chicken","t":1,"i":"aa65b5ce","p":[{"o":0,"v":"Cat","p":75,"i":"93f5a1c0"},{"o":1,"v":"Dog","p":0,"i":"b8f49554"},{"o":2,"v":"Falcon","p":25,"i":"7beaf504"},{"o":3,"v":"Horse","p":0,"i":"30ee31af"}],"r":[]},"string25Cat25Dog25Falcon25HorseAdvancedRules":{"v":"Chicken","t":1,"i":"8250ef5a","p":[{"o":0,"v":"Cat","p":25,"i":"83461b47"},{"o":1,"v":"Dog","p":25,"i":"4f026fbc"},{"o":2,"v":"Falcon","p":25,"i":"392a4d59"},{"o":3,"v":"Horse","p":25,"i":"bb66b1f3"}],"r":[{"o":0,"a":"Country","t":0,"c":"Hungary, United Kingdom","v":"Dolphin","i":"3accb1d0"},{"o":1,"a":"Custom1","t":2,"c":"admi","v":"Lion","i":"e95ebf10"},{"o":2,"a":"Email","t":2,"c":"@configcat.com","v":"Kitten","i":"88243650"}]},"boolDefaultTrue":{"v":true,"i":"09513143","t":0,"p":[],"r":[]},"boolDefaultFalse":{"v":false,"i":"489a16d2","t":0,"p":[],"r":[]},"bool30TrueAdvancedRules":{"v":true,"i":"607147d5","t":0,"p":[{"o":0,"v":true,"p":30,"i":"607147d5"},{"o":1,"v":false,"p":70,"i":"385d9803"}],"r":[{"o":0,"a":"Email","t":0,"c":"a@configcat.com, b@configcat.com","v":false,"i":"385d9803"},{"o":1,"a":"Country","t":2,"c":"United","v":false,"i":"385d9803"}]},"integer25One25Two25Three25FourAdvancedRules":{"v":-1,"i":"ce3c4f5a","t":2,"p":[{"o":0,"v":1,"p":25,"i":"11634414"},{"o":1,"v":2,"p":25,"i":"5530655d"},{"o":2,"v":3,"p":25,"i":"2ad19a52"},{"o":3,"v":4,"p":25,"i":"41b30851"}],"r":[{"o":0,"a":"Email","t":2,"c":"@configcat.com","v":5,"i":"58136ba2"}]},"integerDefaultOne":{"v":1,"i":"faadbf54","t":2,"p":[],"r":[]},"doubleDefaultPi":{"v":3.1415,"i":"5af8acc7","t":3,"p":[],"r":[]},"double25Pi25E25Gr25Zero":{"v":-1.0,"i":"9503a1de","t":3,"p":[{"o":0,"v":3.1415,"p":25,"i":"6d75b4d3"},{"o":1,"v":2.7182,"p":25,"i":"183ee713"},{"o":2,"v":1.61803,"p":25,"i":"01eb6326"},{"o":3,"v":0.0,"p":25,"i":"64c434ff"}],"r":[{"o":0,"a":"Email","t":2,"c":"@configcat.com","v":5.561,"i":"3f7826de"}]},"keySampleText":{"v":"Cat","t":1,"i":"69ef126c","p":[{"o":0,"v":"Falcon","p":50,"i":"baff2362"},{"o":1,"v":"Horse","p":50,"i":"dab78ba5"}],"r":[{"o":0,"a":"Country","t":0,"c":"Hungary,Bahamas","v":"Dog","i":"9fa0e57e"},{"o":1,"a":"SubscriptionType","t":0,"c":"unlimited","v":"Lion","i":"2be6b03f"}]}}}"""
+        """{
+  "p": {
+    "u":"https://cdn-global.configcat.com",
+    "r":0,
+    "s": "kSBpFzVdEHN7QbjOPhKkB2FHKaSXCGo8D55r0lqxhss="
+  },
+  "f": {
+    "stringDefaultCat": {
+      "t": 1,
+      "v": {
+        "s": "Cat"
+      }
+    },
+    "stringIsInDogDefaultCat": {
+      "t": 1,
+      "r": [
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Email",
+                "c": 16,
+                "l": [
+                  "206b33d71717cc9d3b74834fe2e6e1b195f052b4cc614d80571eafb1ad831fd5",
+                  "2aa6bbf5d735ca9ace441fb4641478701bd6f364122e83b3d0bf5f54fddd550c"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "Dog"
+            }
+          }
+        },
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Custom1",
+                "c": 16,
+                "l": [
+                  "5e7d81d60e0e5b55e2ffbdfe052b02b24afdaae16626e64ae6f3d183772cf9ec"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "Dog"
+            }
+          }
+        }
+      ],
+      "v": {
+        "s": "Cat"
+      }
+    },
+    "stringIsNotInDogDefaultCat": {
+      "t": 1,
+      "r": [
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Email",
+                "c": 17,
+                "l": [
+                  "f117c6948de816414d68207e8c9fe562b5c53b0e0d3af1b5abcc36f1e0955997",
+                  "56a3573e5aa9c408bdb83878dd038e78d555aea31f98d99f0b2b8c2867463b7c"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "Dog"
+            }
+          }
+        }
+      ],
+      "v": {
+        "s": "Cat"
+      }
+    },
+    "stringContainsDogDefaultCat": {
+      "t": 1,
+      "r": [
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Email",
+                "c": 2,
+                "l": [
+                  "@configcat.com"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "Dog"
+            }
+          }
+        }
+      ],
+      "v": {
+        "s": "Cat"
+      }
+    },
+    "stringNotContainsDogDefaultCat": {
+      "t": 1,
+      "r": [
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Email",
+                "c": 3,
+                "l": [
+                  "@configcat.com"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "Dog"
+            }
+          }
+        }
+      ],
+      "v": {
+        "s": "Cat"
+      }
+    },
+    "string25Cat25Dog25Falcon25Horse": {
+      "t": 1,
+      "p": [
+        {
+          "p": 25,
+          "v": {
+            "s": "Cat"
+          }
+        },
+        {
+          "p": 25,
+          "v": {
+            "s": "Dog"
+          }
+        },
+        {
+          "p": 25,
+          "v": {
+            "s": "Falcon"
+          }
+        },
+        {
+          "p": 25,
+          "v": {
+            "s": "Horse"
+          }
+        }
+      ],
+      "v": {
+        "s": "Chicken"
+      }
+    },
+    "string75Cat0Dog25Falcon0Horse": {
+      "t": 1,
+      "p": [
+        {
+          "p": 75,
+          "v": {
+            "s": "Cat"
+          }
+        },
+        {
+          "p": 0,
+          "v": {
+            "s": "Dog"
+          }
+        },
+        {
+          "p": 25,
+          "v": {
+            "s": "Falcon"
+          }
+        },
+        {
+          "p": 0,
+          "v": {
+            "s": "Horse"
+          }
+        }
+      ],
+      "v": {
+        "s": "Chicken"
+      }
+    },
+    "string25Cat25Dog25Falcon25HorseAdvancedRules": {
+      "t": 1,
+      "r": [
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Country",
+                "c": 16,
+                "l": [
+                  "4af88801ac46795aac6d8e412d87eaaae27e02954464932c4d98175b3eafba9b",
+                  "825a2eb2bdc769ad45059625349b889ee32b6a86d636b96e79de4133326d030d"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "Dolphin"
+            }
+          }
+        },
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Custom1",
+                "c": 2,
+                "l": [
+                  "admi"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "Lion"
+            }
+          }
+        },
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Email",
+                "c": 2,
+                "l": [
+                  "@configcat.com"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "Kitten"
+            }
+          }
+        }
+      ],
+      "p": [
+        {
+          "p": 25,
+          "v": {
+            "s": "Cat"
+          }
+        },
+        {
+          "p": 25,
+          "v": {
+            "s": "Dog"
+          }
+        },
+        {
+          "p": 25,
+          "v": {
+            "s": "Falcon"
+          }
+        },
+        {
+          "p": 25,
+          "v": {
+            "s": "Horse"
+          }
+        }
+      ],
+      "v": {
+        "s": "Chicken"
+      }
+    },
+    "boolDefaultTrue": {
+      "t": 0,
+      "v": {
+        "b": true
+      }
+    },
+    "boolDefaultFalse": {
+      "t": 0,
+      "v": {
+        "b": false
+      }
+    },
+    "bool30TrueAdvancedRules": {
+      "t": 0,
+      "r": [
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Email",
+                "c": 16,
+                "l": [
+                  "3209f667a750966e68e6f6357515b30564f5ac510d347a04cdf2f538715d3dd8",
+                  "4632d76e9719686ebefd5ac89084019f4cd6c31e2b2d25ca2aaf566a68137d29"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "b": false
+            }
+          }
+        },
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Country",
+                "c": 2,
+                "l": [
+                  "United"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "b": false
+            }
+          }
+        }
+      ],
+      "p": [
+        {
+          "p": 30,
+          "v": {
+            "b": true
+          }
+        },
+        {
+          "p": 70,
+          "v": {
+            "b": false
+          }
+        }
+      ],
+      "v": {
+        "b": true
+      }
+    },
+    "integer25One25Two25Three25FourAdvancedRules": {
+      "t": 2,
+      "r": [
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Email",
+                "c": 2,
+                "l": [
+                  "@configcat.com"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "i": 5
+            }
+          }
+        }
+      ],
+      "p": [
+        {
+          "p": 25,
+          "v": {
+            "i": 1
+          }
+        },
+        {
+          "p": 25,
+          "v": {
+            "i": 2
+          }
+        },
+        {
+          "p": 25,
+          "v": {
+            "i": 3
+          }
+        },
+        {
+          "p": 25,
+          "v": {
+            "i": 4
+          }
+        }
+      ],
+      "v": {
+        "i": -1
+      }
+    },
+    "integerDefaultOne": {
+      "t": 2,
+      "v": {
+        "i": 1
+      }
+    },
+    "doubleDefaultPi": {
+      "t": 3,
+      "v": {
+        "d": 3.1415
+      }
+    },
+    "double25Pi25E25Gr25Zero": {
+      "t": 3,
+      "r": [
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Email",
+                "c": 2,
+                "l": [
+                  "@configcat.com"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "d": 5.561
+            }
+          }
+        }
+      ],
+      "p": [
+        {
+          "p": 25,
+          "v": {
+            "d": 3.1415
+          }
+        },
+        {
+          "p": 25,
+          "v": {
+            "d": 2.7182
+          }
+        },
+        {
+          "p": 25,
+          "v": {
+            "d": 1.61803
+          }
+        },
+        {
+          "p": 25,
+          "v": {
+            "d": 0
+          }
+        }
+      ],
+      "v": {
+        "d": -1
+      }
+    },
+    "keySampleText": {
+      "t": 1,
+      "r": [
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Country",
+                "c": 16,
+                "l": [
+                  "569d4810dfac9d6a4b4196aaddf5ba3e8ef0a653cfa15054529e0e9ed76f5f25",
+                  "a7d55166218ec2c197cc4b14723cc96f00cfbee0d734cb57769bb33d30387c71"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "Dog"
+            }
+          }
+        },
+        {
+          "c": [
+            {
+              "t": {
+                "a": "SubscriptionType",
+                "c": 16,
+                "l": [
+                  "ddd689eb98271df997e28f75dbe9a134af7235b1d6d84d7d6773cb48556103a6"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "Lion"
+            }
+          }
+        }
+      ],
+      "p": [
+        {
+          "p": 50,
+          "v": {
+            "s": "Falcon"
+          }
+        },
+        {
+          "p": 50,
+          "v": {
+            "s": "Horse"
+          }
+        }
+      ],
+      "v": {
+        "s": "Cat"
+      }
+    }
+  }
+}
+"""
 }

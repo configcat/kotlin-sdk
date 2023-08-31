@@ -2,6 +2,7 @@ package com.configcat
 
 import com.configcat.fetch.ConfigFetcher
 import com.configcat.log.InternalLogger
+import com.configcat.model.*
 import com.soywiz.klock.DateTime
 import io.ktor.client.engine.mock.*
 import kotlinx.coroutines.Dispatchers
@@ -36,47 +37,92 @@ internal object TestUtils {
 internal object Data {
     const val SDK_KEY = "configcat-sdk-1/TEST_KEY-0123456789012/1234567890123456789012"
 
-    fun formatJsonBody(value: Any): String {
-        return """{ "f": { "fakeKey": { "v": $value, "p": [], "r": [] } } }"""
+    const val MULTIPLE_BODY =
+        """{ "p": {"u": "https://cdn-global.configcat.com", "s": "test-salt" }, "f": { "key1": { "t": 0, "v": { "b": true}, "i": "fakeId1", "p": [], "r": [], "a" : ""}, "key2": { "t": 0, "v": {"b": false}, "i": "fakeId2", "p": [], "r": [], "a":"" }}, "s": [] }"""
+
+    fun formatJsonBodyWithString(value: String): String {
+        return """{  "p": { "u": "https://cdn-global.configcat.com", "s": "test-salt" }, "f": { "fakeKey": { "t": 1, "v": { "s": "$value" }, "p": [], "r": [], "a":"" }}, "s": [] }"""
+    }
+
+    fun formatJsonBodyWithBoolean(value: Boolean): String {
+        return """{  "p": { "u": "https://cdn-global.configcat.com", "s": "test-salt" }, "f": { "fakeKey": { "t": 0, "v": { "b": $value }, "p": [], "r": [], "a":"" }}, "s": [] }"""
+    }
+
+    fun formatJsonBodyWithInt(value: Int): String {
+        return """{  "p": { "u": "https://cdn-global.configcat.com", "s": "test-salt" }, "f": { "fakeKey": { "t": 2, "v": { "i": $value }, "p": [], "r": [], "a":"" }}, "s": [] }"""
+    }
+
+    fun formatJsonBodyWithDouble(value: Double): String {
+        return """{  "p": { "u": "https://cdn-global.configcat.com", "s": "test-salt" }, "f": { "fakeKey": { "t": 3, "v": { "d": $value }, "p": [], "r": [], "a":"" }}, "s": [] }"""
     }
 
     fun formatConfigWithRules(): String {
         val config = Config(
-            null,
+            Preferences("https://cdn-global.configcat.com", 0, "test-salt"),
             mapOf(
                 "key" to Setting(
-                    value = "default",
-                    variationId = "defaultId",
-                    rolloutRules = listOf(
-                        RolloutRule(
-                            comparator = 2,
-                            comparisonAttribute = "Identifier",
-                            comparisonValue = "@test1.com",
-                            value = "fake1",
-                            variationId = "fakeId1"
+                    type = 1,
+                    percentageAttribute = "",
+                    percentageOptions = null,
+                    targetingRules = arrayOf<TargetingRule>(
+                        TargetingRule(
+                            conditions = arrayOf<Condition>(
+                                Condition(
+                                    ComparisonCondition(
+                                        comparator = 2,
+                                        comparisonAttribute = "Identifier",
+                                        stringValue = null,
+                                        doubleValue = null,
+                                        stringArrayValue = arrayOf("@test1.com")
+                                    ),
+                                    null,
+                                    null
+                                )
+                            ),
+                            emptyArray(),
+                            servedValue = ServedValue(
+                                value = SettingsValue(stringValue = "fake1"),
+                                variationId = "fakeId1"
+                            )
                         ),
-                        RolloutRule(
-                            comparator = 2,
-                            comparisonAttribute = "Identifier",
-                            comparisonValue = "@test2.com",
-                            value = "fake2",
-                            variationId = "fakeId2"
+                        TargetingRule(
+                            conditions = arrayOf<Condition>(
+                                Condition(
+                                    ComparisonCondition(
+                                        comparator = 2,
+                                        comparisonAttribute = "Identifier",
+                                        stringValue = null,
+                                        doubleValue = null,
+                                        stringArrayValue = arrayOf("@test2.com")
+                                    ),
+                                    null,
+                                    null
+                                )
+                            ),
+                            emptyArray(),
+                            servedValue = ServedValue(
+                                value = SettingsValue(stringValue = "fake2"),
+                                variationId = "fakeId2"
+                            )
                         )
-                    )
+                    ),
+                    settingsValue = SettingsValue(stringValue = "default"),
+                    variationId = "defaultId"
                 )
-            )
+            ),
+            arrayOf()
         )
         return Constants.json.encodeToString(config)
     }
 
     fun formatCacheEntry(value: Any): String {
         val fetchTimeUnixSeconds = DateTime.now().unixMillis.toLong()
-        return "${fetchTimeUnixSeconds}\n$value\n" + """{"f":{"fakeKey":{"v":$value}}}"""
+        return "${fetchTimeUnixSeconds}\n$value\n" + """{"p":{"u":"https://cdn-global.configcat.com","r":"0","s": "test-slat"}"f":{"fakeKey":{"v":{"s":"$value"},"t":1,"p":[],"r":[], "a":""}}, "s":[]}"""
     }
 
     fun formatCacheEntryWithDate(value: Any, time: DateTime): String {
         val fetchTimeUnixSeconds = time.unixMillis.toLong()
-        return "${fetchTimeUnixSeconds}\n$value\n" + """{"f":{"fakeKey":{"v":$value}}}"""
+        return "${fetchTimeUnixSeconds}\n$value\n" + """{"p":{"u":"https://cdn-global.configcat.com","r":"0","s": "test-slat"}"f":{"fakeKey":{"v":{"s":"$value"},"t":1,"p":[],"r":[], "a":""}}, "s":[]}"""
     }
 }
 

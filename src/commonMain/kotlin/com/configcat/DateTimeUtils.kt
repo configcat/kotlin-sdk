@@ -9,7 +9,7 @@ internal object DateTimeUtils {
     }
 
     fun Double.toDateTimeUTCString(): String {
-        val dateTime = DateTime.fromUnix(this )
+        val dateTime = DateTime.fromUnix(this)
         return dateTime.toString("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     }
 }
