@@ -267,7 +267,7 @@ internal class Client private constructor(
         }
         val setting = settingResult.settings?.get(key)
 
-        return evaluate(setting!!, key, evalUser, settingResult.fetchTime).value
+        return evaluate(setting!!, key, evalUser, settingResult.fetchTime, settingResult.settings).value
     }
 
     override suspend fun getAnyValueDetails(key: String, defaultValue: Any, user: ConfigCatUser?): EvaluationDetails {
@@ -281,7 +281,7 @@ internal class Client private constructor(
         }
         val setting = settingResult.settings?.get(key)
 
-        return evaluate(setting!!, key, evalUser, settingResult.fetchTime)
+        return evaluate(setting!!, key, evalUser, settingResult.fetchTime, settingResult.settings)
     }
 
     override suspend fun getAllValueDetails(user: ConfigCatUser?): Collection<EvaluationDetails> {
@@ -290,7 +290,7 @@ internal class Client private constructor(
             return emptyList()
         }
         return settingResult.settings?.map {
-            evaluate(it.value, it.key, user ?: defaultUser, settingResult.fetchTime)
+            evaluate(it.value, it.key, user ?: defaultUser, settingResult.fetchTime, settingResult.settings)
         } ?: emptyList()
     }
 
@@ -335,7 +335,7 @@ internal class Client private constructor(
             return emptyMap()
         }
         return settingResult.settings?.map {
-            val evaluated = evaluate(it.value, it.key, user ?: defaultUser, settingResult.fetchTime)
+            val evaluated = evaluate(it.value, it.key, user ?: defaultUser, settingResult.fetchTime, settingResult.settings)
             it.key to evaluated.value
         }?.toMap() ?: emptyMap()
     }
@@ -409,8 +409,14 @@ internal class Client private constructor(
         hooks.clear()
     }
 
-    private fun evaluate(setting: Setting, key: String, user: ConfigCatUser?, fetchTime: DateTime): EvaluationDetails {
-        val (value, variationId, targetingRule, percentageRule) = evaluator.evaluate(setting, key, user)
+    private fun evaluate(
+        setting: Setting,
+        key: String,
+        user: ConfigCatUser?,
+        fetchTime: DateTime,
+        settings: Map<String, Setting>
+    ): EvaluationDetails {
+        val (value, variationId, targetingRule, percentageRule) = evaluator.evaluate(setting, key, user, null, settings)
         val details = EvaluationDetails(
             key, variationId, user, false, null, parseSettingValue(value, setting.type),
             fetchTime.unixMillisLong, targetingRule, percentageRule

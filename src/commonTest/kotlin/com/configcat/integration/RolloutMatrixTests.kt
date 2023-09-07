@@ -50,6 +50,21 @@ class RolloutMatrixTests {
         runMatrixTest(VariationIdMatrix, false)
     }
 
+    @Test
+    fun testAndOrMatrix() = runTest {
+        runMatrixTest(AndOrMatrix, true)
+    }
+
+    @Test
+    fun testComparatorsV6Matrix() = runTest {
+        runMatrixTest(ComparatorsV6Matrix, true)
+    }
+
+    @Test
+    fun testPrerequisiteFlagMatrix() = runTest {
+        runMatrixTest(PrerequisiteFlagMatrix, true)
+    }
+
     private suspend fun runMatrixTest(matrix: DataMatrix, isValueKind: Boolean) {
         val mockEngine = MockEngine {
             respond(content = matrix.remoteJson, status = HttpStatusCode.OK)
