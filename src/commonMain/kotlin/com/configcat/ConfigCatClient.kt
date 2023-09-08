@@ -416,7 +416,7 @@ internal class Client private constructor(
         fetchTime: DateTime,
         settings: Map<String, Setting>
     ): EvaluationDetails {
-        val (value, variationId, targetingRule, percentageRule) = evaluator.evaluate(setting, key, user, null, settings)
+        val (value, variationId, targetingRule, percentageRule) = evaluator.evaluate(setting, key, user, null, settings, EvaluatorLogger(key))
         val details = EvaluationDetails(
             key, variationId, user, false, null, parseSettingValue(value, setting.type),
             fetchTime.unixMillisLong, targetingRule, percentageRule

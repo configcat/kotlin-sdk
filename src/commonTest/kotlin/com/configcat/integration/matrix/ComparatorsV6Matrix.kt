@@ -24,9 +24,354 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
   "p": {
     "u": "https://test-cdn-eu.configcat.com",
     "r": 0,
-    "s": "fnsN/dCtZSYiyzV3Jwjps3ZiDBt311Mt8mF8RYQBKsE="
+    "s": "8KM\u002B0ufTEkAeEZXy43ouhrfBTplpgPggG4UdowiBMZ0="
   },
   "f": {
+    "allinone": {
+      "t": 1,
+      "r": [
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Email",
+                "c": 20,
+                "s": "1ed8023e01d8cd47851f86fed37b6a67cd5c7b73d1e54c6eabaac4a8944fcb8e"
+              }
+            },
+            {
+              "t": {
+                "a": "Email",
+                "c": 21,
+                "s": "1ed8023e01d8cd47851f86fed37b6a67cd5c7b73d1e54c6eabaac4a8944fcb8e"
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "1"
+            },
+            "i": "ab0645f7"
+          }
+        },
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Email",
+                "c": 16,
+                "l": [
+                  "1ed8023e01d8cd47851f86fed37b6a67cd5c7b73d1e54c6eabaac4a8944fcb8e"
+                ]
+              }
+            },
+            {
+              "t": {
+                "a": "Email",
+                "c": 17,
+                "l": [
+                  "1ed8023e01d8cd47851f86fed37b6a67cd5c7b73d1e54c6eabaac4a8944fcb8e"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "2"
+            },
+            "i": "dbe98f44"
+          }
+        },
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Email",
+                "c": 22,
+                "l": [
+                  "4_7e7f272219cfcd424b049db623d1747dce6011c21ac2c38eed13296f6292e905"
+                ]
+              }
+            },
+            {
+              "t": {
+                "a": "Email",
+                "c": 23,
+                "l": [
+                  "4_7e7f272219cfcd424b049db623d1747dce6011c21ac2c38eed13296f6292e905"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "3"
+            },
+            "i": "e7121806"
+          }
+        },
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Email",
+                "c": 24,
+                "l": [
+                  "12_b444a797ae3b0c4c52f91953467048159c348ca5e61896fc431b69ed9c3d581d"
+                ]
+              }
+            },
+            {
+              "t": {
+                "a": "Email",
+                "c": 25,
+                "l": [
+                  "12_b444a797ae3b0c4c52f91953467048159c348ca5e61896fc431b69ed9c3d581d"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "4"
+            },
+            "i": "579da034"
+          }
+        },
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Email",
+                "c": 2,
+                "l": [
+                  "e@e"
+                ]
+              }
+            },
+            {
+              "t": {
+                "a": "Email",
+                "c": 3,
+                "l": [
+                  "e@e"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "5"
+            },
+            "i": "dd12c429"
+          }
+        },
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Version",
+                "c": 4,
+                "l": [
+                  "1.0.0"
+                ]
+              }
+            },
+            {
+              "t": {
+                "a": "Version",
+                "c": 5,
+                "l": [
+                  "1.0.0"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "6"
+            },
+            "i": "dba5d266"
+          }
+        },
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Version",
+                "c": 6,
+                "s": "1.0.1"
+              }
+            },
+            {
+              "t": {
+                "a": "Version",
+                "c": 9,
+                "s": "1.0.1"
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "7"
+            },
+            "i": "1637ffc5"
+          }
+        },
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Version",
+                "c": 8,
+                "s": "0.9.9"
+              }
+            },
+            {
+              "t": {
+                "a": "Version",
+                "c": 7,
+                "s": "0.9.9"
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "8"
+            },
+            "i": "b084ddd6"
+          }
+        },
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Number",
+                "c": 10,
+                "d": 1
+              }
+            },
+            {
+              "t": {
+                "a": "Number",
+                "c": 11,
+                "d": 1
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "9"
+            },
+            "i": "d1d537a6"
+          }
+        },
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Number",
+                "c": 12,
+                "d": 1.1
+              }
+            },
+            {
+              "t": {
+                "a": "Number",
+                "c": 15,
+                "d": 1.1
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "10"
+            },
+            "i": "52c846d0"
+          }
+        },
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Number",
+                "c": 14,
+                "d": 0.9
+              }
+            },
+            {
+              "t": {
+                "a": "Number",
+                "c": 13,
+                "d": 0.9
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "11"
+            },
+            "i": "c91ffb7c"
+          }
+        },
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Date",
+                "c": 18,
+                "d": 1693497600
+              }
+            },
+            {
+              "t": {
+                "a": "Date",
+                "c": 19,
+                "d": 1693497600
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "12"
+            },
+            "i": "c12182ef"
+          }
+        },
+        {
+          "c": [
+            {
+              "t": {
+                "a": "Country",
+                "c": 26,
+                "l": [
+                  "c8ac3838448639ee79c5f45a3a752f672161842d7ebc8e2999a12ec7d201aec3"
+                ]
+              }
+            },
+            {
+              "t": {
+                "a": "Country",
+                "c": 27,
+                "l": [
+                  "c8ac3838448639ee79c5f45a3a752f672161842d7ebc8e2999a12ec7d201aec3"
+                ]
+              }
+            }
+          ],
+          "s": {
+            "v": {
+              "s": "13"
+            },
+            "i": "37431937"
+          }
+        }
+      ],
+      "v": {
+        "s": "default"
+      },
+      "i": "9ff25f81"
+    },
     "arrayContainsCaseCheckDogDefaultCat": {
       "t": 1,
       "r": [
@@ -36,7 +381,9 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
               "t": {
                 "a": "Custom1",
                 "c": 26,
-                "s": "3e359449038d715931c5e91421a2bf1f27ce99a38234e8a415a7ead5509affcd"
+                "l": [
+                  "8211e4fa2fd20f43fcc98f600a42cb266cacd5dde1da5cd27d9cec44fb60ade7"
+                ]
               }
             }
           ],
@@ -62,7 +409,9 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
               "t": {
                 "a": "Custom1",
                 "c": 26,
-                "s": "1c4f5d58afe08fdaa369f8ed8409c33b7548180585b1542c90c0d88751ebfced"
+                "l": [
+                  "dbbb639e2a4f655ddf8acccd89d15f1b371f9ed27b89ae24bd9b19401ab52b5e"
+                ]
               }
             }
           ],
@@ -88,7 +437,9 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
               "t": {
                 "a": "Custom1",
                 "c": 27,
-                "s": "de05a57254747b9bab36de7725edc1046fe5b0c94dd25cdf1b6189052edb4bce"
+                "l": [
+                  "ef89e18c29ec8aac2025968fbe6584441a1904ea8087edcd9542977baf3c3321"
+                ]
               }
             }
           ],
@@ -114,7 +465,9 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
               "t": {
                 "a": "Custom1",
                 "c": 27,
-                "s": "19f9de551c58edf500e6f50e84a19c056856de2e79232bea54213ac8841c2f26"
+                "l": [
+                  "5bfedc599f556d29521ac022ee04b3e66a7972f6b09138fba36cacbdc19f83e9"
+                ]
               }
             }
           ],
@@ -223,7 +576,7 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
                 "a": "Email",
                 "c": 24,
                 "l": [
-                  "14_4f37ad4871d3190f63ebfdba79ed8367ae8aa3c4eaa8611bc5b14ec8ef2945da"
+                  "14_b6e2dd0f98acd7f196a919898fd194704be70bd7dee979050afc556857a9d7d3"
                 ]
               }
             }
@@ -252,7 +605,7 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
                 "a": "Email",
                 "c": 24,
                 "l": [
-                  "14_4f37ad4871d3190f63ebfdba79ed8367ae8aa3c4eaa8611bc5b14ec8ef2945da"
+                  "14_b6e2dd0f98acd7f196a919898fd194704be70bd7dee979050afc556857a9d7d3"
                 ]
               }
             }
@@ -279,7 +632,7 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
               "t": {
                 "a": "Email",
                 "c": 21,
-                "s": "d876e020501be8c2e9ed0943adca9e26e995549c024ffe7c42f8c03d67346335"
+                "s": "662bc16ccd7780d0961f8006e930ec556073f16f8df545088bdd9fa6d82bc894"
               }
             }
           ],
@@ -306,7 +659,7 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
                 "a": "Email",
                 "c": 24,
                 "l": [
-                  "14_9854d684e4793c1c646c78a1ddfd75d21939ef3f356fdce86b2596bb1467d10a"
+                  "14_554603f28c0558ad8f8fee81b3ee9810e2993f879f14548f38dd739c78127f08"
                 ]
               }
             }
@@ -333,7 +686,7 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
               "t": {
                 "a": "Email",
                 "c": 20,
-                "s": "fbd972b07a5c2c8e2b088643a4d9470b793439fdb5682356f1952dd973faee3c"
+                "s": "41bb1cbb0bc266eda7cb9b17edfb45039a756aaea00bd17a5188ccc8312cd05c"
               }
             }
           ],
@@ -360,7 +713,7 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
                 "a": "Email",
                 "c": 25,
                 "l": [
-                  "14_f0bc12657df12b3b1e50df16f4e2249b01d543a57b25c052b32128806af788c6"
+                  "14_5be70635eda656fc7de22094f6960bca70b1792714490b6786e507b79161dde8"
                 ]
               }
             }
@@ -388,7 +741,7 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
                 "a": "Email",
                 "c": 23,
                 "l": [
-                  "1_908943b62e1814fd3752d894444a817562a75549a525108c472c189bacd5c033"
+                  "1_f9eed1ca617f5306990bba77dcb609c5c0e35e621d91a3b2fbf0a14e14866f6c"
                 ]
               }
             }
@@ -416,7 +769,7 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
                 "a": "Email",
                 "c": 22,
                 "l": [
-                  "1_1e9fe2effb394cf60fea3ebb72bda5bc82c06a0dec14ad306322fd8df236e87c"
+                  "1_a103962b0c5a7b4f1b5bdc5be829e00422d56cdaa1c7b42a5f7f12c03dd3b97f"
                 ]
               }
             }

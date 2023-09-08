@@ -24,11 +24,8 @@ internal data class EvaluationContext(
 
 internal class Evaluator(private val logger: InternalLogger) {
 
-    // evaluatorLogger: EvaluatorLogger;
 
-    fun evaluate(setting: Setting, key: String, user: ConfigCatUser?, visitedKeys: ArrayList<String>?,  settings: Map<String, Setting>?): EvaluationResult {
-        val evaluatorLogger = EvaluatorLogger(key)
-        // TODO update the logging
+    fun evaluate(setting: Setting, key: String, user: ConfigCatUser?, visitedKeys: ArrayList<String>?,  settings: Map<String, Setting>?, evaluatorLogger: EvaluatorLogger): EvaluationResult {
 
         try {
             if (user != null) {
@@ -39,7 +36,6 @@ internal class Evaluator(private val logger: InternalLogger) {
             if (visitedKeys != null) tmpVisitedKeys.addAll(visitedKeys)
 
             val context = EvaluationContext(key, user, tmpVisitedKeys, settings)
-            //TODO add context add pre impl
 
             val valueFromTargetingRules = evaluateTargetingRules(setting, context, evaluatorLogger)
             if (valueFromTargetingRules != null) return valueFromTargetingRules
@@ -74,7 +70,13 @@ internal class Evaluator(private val logger: InternalLogger) {
             if (rule.percentageOptions.isNullOrEmpty()) {
                 continue
             }
-            return evaluatePercentageOptions(rule.percentageOptions, setting.percentageAttribute, context, rule, evaluatorLogger)
+            return evaluatePercentageOptions(
+                rule.percentageOptions,
+                setting.percentageAttribute,
+                context,
+                rule,
+                evaluatorLogger
+            ) ?: continue
         }
         return null
     }
@@ -102,7 +104,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                     evaluatorLogger
                 )
             } else if (condition.segmentCondition != null) {
-                conditionsEvaluationResult = evaluateSegmentCondition(condition.segmentCondition)
+                conditionsEvaluationResult = evaluateSegmentCondition(condition.segmentCondition, context, evaluatorLogger)
             } else if (condition.prerequisiteFlagCondition != null) {
                 conditionsEvaluationResult = evaluatePrerequisiteFlagCondition(condition.prerequisiteFlagCondition, context, evaluatorLogger)
             }
@@ -117,10 +119,16 @@ internal class Evaluator(private val logger: InternalLogger) {
     }
 
     private fun evaluateSegmentCondition(
-        segmentCondition: SegmentCondition
+        segmentCondition: SegmentCondition,
+        context: EvaluationContext,
+        evaluatorLogger: EvaluatorLogger
     ): Boolean {
-        // TODO implement
-        return true
+        //TODO implement
+        return if (context.user == null) {
+            // evaluateLogger "Skipping % options because the User Object is missing."
+            //TODO isUserMissing in context? check pyhton
+            false
+        } else false
     }
 
     private fun evaluatePrerequisiteFlagCondition(
@@ -139,9 +147,10 @@ internal class Evaluator(private val logger: InternalLogger) {
             //TODO log eval , return error message?
             //TODO log warning circular
             // logger.warn();
+            return false
         }
 
-        val (value) = evaluate(prerequisiteFlagSetting, context.key, context.user, context.visitedKeys, context.settings)
+        val (value) = evaluate(prerequisiteFlagSetting, prerequisiteFlagKey, context.user, context.visitedKeys, context.settings, evaluatorLogger)
         val prerequisiteComparator = prerequisiteFlagCondition.prerequisiteComparator.toPrerequisiteComparatorOrNull()
         val conditionValue: SettingsValue? = prerequisiteFlagCondition.value
         return if (PrerequisiteComparator.EQUALS == prerequisiteComparator) {
@@ -157,6 +166,13 @@ internal class Evaluator(private val logger: InternalLogger) {
         context: EvaluationContext,
         evaluatorLogger: EvaluatorLogger
     ): Boolean {
+
+        //TODO evalLogger CC eval is happening
+        if (context.user == null) {
+            // evaluateLogger "Skipping % options because the User Object is missing."
+            //TODO isUserMissing in context? check pyhton
+            return false
+        }
         val comparisonAttribute = condition.comparisonAttribute
         val userValue = context.user?.attributeFor(comparisonAttribute)
         val comparator = condition.comparator.toComparatorOrNull()
@@ -454,6 +470,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         comparator: Comparator
     ): Boolean {
         // TODO salt error handle
+        val withValuesSplit = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
         val userCSVNotContainsHashSplit = userValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
         if (userCSVNotContainsHashSplit.isEmpty()) {
             return false
@@ -461,11 +478,13 @@ internal class Evaluator(private val logger: InternalLogger) {
         var contains = false
         userCSVNotContainsHashSplit.forEach {
             val hashedUserValue = getSaltedUserValue(it, configSalt, key)
-            contains = hashedUserValue == condition.stringValue
+            if(withValuesSplit.contains(hashedUserValue)){
+                contains = true
+            }
         }
         return when (comparator) {
-            Comparator.HASHED_EQUALS -> contains
-            Comparator.HASHED_NOT_EQUALS -> !contains
+            Comparator.HASHED_ARRAY_CONTAINS -> contains
+            Comparator.HASHED_ARRAY_NOT_CONTAINS -> !contains
             else -> false
         }
     }
@@ -482,8 +501,11 @@ internal class Evaluator(private val logger: InternalLogger) {
         parentTargetingRule: TargetingRule?,
         evaluatorLogger: EvaluatorLogger
     ): EvaluationResult? {
-        //TODO add attribute checks
-
+        if (context.user == null) {
+            // evaluateLogger "Skipping % options because the User Object is missing."
+            //TODO isUserMissing in context? check pyhton
+            return null
+        }
 
         //TODO if user missing? based on .net skipp should be logged here
         val percentageOptionAttributeValue: String?
@@ -493,7 +515,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             percentageOptionAttributeValue = context.user?.identifier
         } else {
             percentageOptionAttributeValue = context.user?.attributeFor(percentageOptionAttributeName)
-            if (percentageOptionAttributeValue == null) {
+            if (percentageOptionAttributeValue.isNullOrEmpty()) {
                 //TODO log skip because attribute value missing
                 return null
             }
@@ -561,6 +583,7 @@ internal class EvaluatorLogger constructor(
     key: String
 ) {
     private val entries = StringBuilder()
+    private var indentLevel: Int = 0;
 
     init {
         entries.appendLine("Evaluating '$key'")
@@ -575,7 +598,20 @@ internal class EvaluatorLogger constructor(
     }
 
     fun logUserObject(user: ConfigCatUser) {
-        entries.appendLine("User object: $user")
+        entries.appendLine(" for User '$user'");
+    }
+
+    fun append(line: String) {
+        entries.appendLine(line)
+    }
+
+    fun increaseIndentLevel() {
+        indentLevel++
+    }
+
+    fun decreaseIndentLevel() {
+        //TODO validate it cannot be less then 0?
+        indentLevel--
     }
 
     fun logMatch(
