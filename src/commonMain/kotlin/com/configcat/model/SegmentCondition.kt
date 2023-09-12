@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 public data class SegmentCondition(
     @SerialName(value = "s")
-    val segmentIndex: Double? = null,
+    val segmentIndex: Int,
     @SerialName(value = "c")
     val segmentComparator: Int = 0
 ) {

@@ -138,9 +138,10 @@ internal class ConfigFetcher constructor(
 
     private fun parseConfigJson(jsonString: String): Pair<Config, String?> {
         return try {
-            var config: Config = Constants.json.decodeFromString(jsonString)
+            val config: Config = Constants.json.decodeFromString(jsonString)
             config.settings?.values?.forEach {
                 it.configSalt = config.preferences?.salt ?: ""
+                it.segments = config.segments
             }
             Pair(config, null)
         } catch (e: Exception) {
