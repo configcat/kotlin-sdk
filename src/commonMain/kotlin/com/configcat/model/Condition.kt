@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 public data class Condition(
     @SerialName(value = "t")
-    val comparisonCondition: ComparisonCondition? = null,
+    val userCondition: UserCondition? = null,
     @SerialName(value = "s")
     val segmentCondition: SegmentCondition? = null,
     @SerialName(value = "d")

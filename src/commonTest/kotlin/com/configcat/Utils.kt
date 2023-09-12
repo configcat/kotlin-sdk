@@ -68,7 +68,7 @@ internal object Data {
                         TargetingRule(
                             conditions = arrayOf<Condition>(
                                 Condition(
-                                    ComparisonCondition(
+                                    UserCondition(
                                         comparator = 2,
                                         comparisonAttribute = "Identifier",
                                         stringValue = null,
@@ -88,7 +88,7 @@ internal object Data {
                         TargetingRule(
                             conditions = arrayOf<Condition>(
                                 Condition(
-                                    ComparisonCondition(
+                                    UserCondition(
                                         comparator = 2,
                                         comparisonAttribute = "Identifier",
                                         stringValue = null,

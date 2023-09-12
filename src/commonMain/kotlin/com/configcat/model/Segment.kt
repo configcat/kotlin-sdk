@@ -10,7 +10,7 @@ internal data class Segment(
     val name: String? = null,
 
     @SerialName("r")
-    val segmentRules: Array<ComparisonCondition>
+    val segmentRules: Array<UserCondition>
 ) {
     // No implementation
 }

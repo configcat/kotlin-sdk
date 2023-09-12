@@ -97,9 +97,9 @@ internal class Evaluator(private val logger: InternalLogger) {
             // TODO log IF, AND based on order
 
             // TODO Condition, what if condition invalid? more then one condition added or none. rework basic if
-            if (condition.comparisonCondition != null) {
-                conditionsEvaluationResult = evaluateComparisonCondition(
-                    condition.comparisonCondition,
+            if (condition.userCondition != null) {
+                conditionsEvaluationResult = evaluateUserCondition(
+                    condition.userCondition,
                     configSalt,
                     context,
                     context.key,
@@ -147,7 +147,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         var segmentRulesResult = false
         for (comparisonCondition in segment.segmentRules) {
             segmentRulesResult =
-                evaluateComparisonCondition(comparisonCondition, configSalt,context, segmentName, evaluateLogger)
+                evaluateUserCondition(comparisonCondition, configSalt,context, segmentName, evaluateLogger)
             //this is an AND if one false we can start the evaluation on the segmentComparator
             if (!segmentRulesResult) {
                 break
@@ -192,8 +192,8 @@ internal class Evaluator(private val logger: InternalLogger) {
         }
     }
 
-    private fun evaluateComparisonCondition(
-        condition: ComparisonCondition,
+    private fun evaluateUserCondition(
+        condition: UserCondition,
         configSalt: String,
         context: EvaluationContext,
         contextSalt: String,
@@ -289,7 +289,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     }
 
     private fun processContains(
-        condition: ComparisonCondition,
+        condition: UserCondition,
         userValue: String,
         // TODO remove logger?
         evaluatorLogger: EvaluatorLogger,
@@ -309,7 +309,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     }
 
     private fun processSemVerOneOf(
-        condition: ComparisonCondition,
+        condition: UserCondition,
         userValue: String,
         evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
@@ -333,7 +333,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     }
 
     private fun processSemVerCompare(
-        condition: ComparisonCondition,
+        condition: UserCondition,
         userValue: String,
         evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
@@ -355,7 +355,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     }
 
     private fun processNumber(
-        condition: ComparisonCondition,
+        condition: UserCondition,
         userValue: String,
         evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
@@ -387,7 +387,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     }
 
     private fun processSensitiveOneOf(
-        condition: ComparisonCondition,
+        condition: UserCondition,
         userValue: String,
         configSalt: String,
         contextSalt: String,
@@ -405,7 +405,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     }
 
     private fun processDateCompare(
-        condition: ComparisonCondition,
+        condition: UserCondition,
         userValue: String,
         evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
@@ -425,7 +425,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     }
 
     private fun processHashedEqualsCompare(
-        condition: ComparisonCondition,
+        condition: UserCondition,
         userValue: String,
         configSalt: String,
         contextSalt: String,
@@ -443,7 +443,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     }
 
     private fun processHashedStartEndsWithCompare(
-        condition: ComparisonCondition,
+        condition: UserCondition,
         userValue: String,
         configSalt: String,
         contextSalt: String,
@@ -495,7 +495,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     }
 
     private fun processHashedArrayContainsCompare(
-        condition: ComparisonCondition,
+        condition: UserCondition,
         userValue: String,
         configSalt: String,
         contextSalt: String,

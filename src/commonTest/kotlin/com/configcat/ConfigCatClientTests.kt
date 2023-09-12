@@ -870,9 +870,9 @@ class ConfigCatClientTests {
         assertEquals(1, details.matchedTargetingRule?.conditions?.size)
         val condition = details.matchedTargetingRule?.conditions?.get(0)
 
-        assertEquals("Identifier", condition?.comparisonCondition?.comparisonAttribute)
-        assertEquals(2, condition?.comparisonCondition?.comparator)
-        assertEquals("@test1.com", condition?.comparisonCondition?.stringArrayValue?.get(0))
+        assertEquals("Identifier", condition?.userCondition?.comparisonAttribute)
+        assertEquals(2, condition?.userCondition?.comparator)
+        assertEquals("@test1.com", condition?.userCondition?.stringArrayValue?.get(0))
         assertNull(details.matchedPercentageOption)
     }
 
@@ -895,9 +895,9 @@ class ConfigCatClientTests {
                 assertEquals(1, details.matchedTargetingRule?.conditions?.size)
                 val condition = details.matchedTargetingRule?.conditions?.get(0)
 
-                assertEquals("Identifier", condition?.comparisonCondition?.comparisonAttribute)
-                assertEquals(2, condition?.comparisonCondition?.comparator)
-                assertEquals("@test1.com", condition?.comparisonCondition?.stringArrayValue?.get(0))
+                assertEquals("Identifier", condition?.userCondition?.comparisonAttribute)
+                assertEquals(2, condition?.userCondition?.comparator)
+                assertEquals("@test1.com", condition?.userCondition?.stringArrayValue?.get(0))
                 assertNull(details.matchedPercentageOption)
 
                 called = true

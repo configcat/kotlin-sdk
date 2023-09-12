@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class ComparisonCondition(
+public data class UserCondition(
     @SerialName("a")
     val comparisonAttribute: String,
     @SerialName("c")
