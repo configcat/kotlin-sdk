@@ -1,10 +1,16 @@
 package com.configcat
 
+import com.configcat.ComparatorHelp.toComparatorOrNull
+import com.configcat.ComparatorHelp.toPrerequisiteComparatorOrNull
+import com.configcat.ComparatorHelp.toSegmentComparatorOrNull
 import com.configcat.DateTimeUtils.toDateTimeUTCString
+import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
+import com.configcat.log.LogHelper
 import com.configcat.model.*
 import com.soywiz.krypto.sha1
 import com.soywiz.krypto.sha256
+import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
 
@@ -19,8 +25,16 @@ internal data class EvaluationContext(
     val key: String,
     val user: ConfigCatUser?,
     val visitedKeys: ArrayList<String>,
-    val settings: Map<String, Setting>?
+    val settings: Map<String, Setting>?,
+    var isUserMissing: Boolean = false,
+    var isUserAttributeMissing: Boolean = false
 )
+
+internal object ComparatorHelp{
+    fun Int.toComparatorOrNull(): Evaluator.Comparator? = Evaluator.Comparator.values().firstOrNull { it.id == this }
+    fun Int.toPrerequisiteComparatorOrNull(): Evaluator.PrerequisiteComparator? = Evaluator.PrerequisiteComparator.values().firstOrNull { it.id == this }
+    fun Int.toSegmentComparatorOrNull(): Evaluator.SegmentComparator? = Evaluator.SegmentComparator.values().firstOrNull { it.id == this }
+}
 
 internal class Evaluator(private val logger: InternalLogger) {
 
@@ -177,8 +191,16 @@ internal class Evaluator(private val logger: InternalLogger) {
         }
         if (context.visitedKeys.contains(prerequisiteFlagKey)) {
             //TODO log eval , return error message?
-            //TODO log warning circular
-            // logger.warn();
+            val dependencyCycle: String =
+                LogHelper.formatCircularDependencyList(context.visitedKeys, prerequisiteFlagKey)
+            logger.warning(
+                3004,
+                ConfigCatLogMessages.getCircularDependencyDetected(
+                    context.key,
+                    prerequisiteFlagCondition,
+                    dependencyCycle
+                )
+            )
             return false
         }
 
@@ -202,8 +224,11 @@ internal class Evaluator(private val logger: InternalLogger) {
 
         //TODO evalLogger CC eval is happening
         if (context.user == null) {
-            // evaluateLogger "Skipping % options because the User Object is missing."
-            //TODO isUserMissing in context? check pyhton
+            //TODO eval logger error must be logged as well
+            if(!context.isUserMissing){
+                context.isUserMissing= true
+                this.logger.warning(3001, ConfigCatLogMessages.getUserObjectMissing(context.key))
+            }
             return false
         }
         val comparisonAttribute = condition.comparisonAttribute
@@ -213,8 +238,8 @@ internal class Evaluator(private val logger: InternalLogger) {
             return false
 
         if (userValue.isNullOrEmpty()) {
-            // evaluatorLogger.logNoMatch(
-            // TODO add log
+            logger.warning(3003, ConfigCatLogMessages.getUserAttributeMissing(context.key, condition, comparisonAttribute))
+            //TODO eval logger needed
             return false
         }
 
@@ -226,14 +251,45 @@ internal class Evaluator(private val logger: InternalLogger) {
 
             Comparator.ONE_OF_SEMVER,
             Comparator.NOT_ONE_OF_SEMVER -> {
-                return processSemVerOneOf(condition, userValue, evaluatorLogger, comparator)
+                return try {
+                    val userVersion = userValue.toVersion()
+                    processSemVerOneOf(condition, userVersion, evaluatorLogger, comparator)
+                } catch (e: VersionFormatException){
+                    val reason = "'$userValue' is not a valid semantic version"
+                    logger.warning(
+                        3004,
+                        ConfigCatLogMessages.getUserAttributeInvalid(
+                            context.key,
+                            condition,
+                            reason,
+                            comparisonAttribute
+                        )
+                    )
+                    false
+                }
+
             }
 
             Comparator.LT_SEMVER,
             Comparator.LTE_SEMVER,
             Comparator.GT_SEMVER,
             Comparator.GTE_SEMVER -> {
-                return processSemVerCompare(condition, userValue, evaluatorLogger, comparator)
+                return try {
+                    val userVersion = userValue.toVersion()
+                    processSemVerCompare(condition, userVersion, evaluatorLogger, comparator)
+                } catch (e: VersionFormatException){
+                    val reason = "'$userValue' is not a valid semantic version"
+                    logger.warning(
+                        3004,
+                        ConfigCatLogMessages.getUserAttributeInvalid(
+                            context.key,
+                            condition,
+                            reason,
+                            comparisonAttribute
+                        )
+                    )
+                    false
+                }
             }
 
             Comparator.EQ_NUM,
@@ -242,7 +298,22 @@ internal class Evaluator(private val logger: InternalLogger) {
             Comparator.LTE_NUM,
             Comparator.GT_NUM,
             Comparator.GTE_NUM -> {
-                return processNumber(condition, userValue, evaluatorLogger, comparator)
+               return try {
+                    val userNumber = userValue.trim().replace(",", ".").toDouble()
+                    processNumber(condition, userNumber, evaluatorLogger, comparator)
+                } catch (e: NumberFormatException){
+                    val reason = "'$userValue' is not a valid decimal number"
+                    logger.warning(
+                        3004,
+                        ConfigCatLogMessages.getUserAttributeInvalid(
+                            context.key,
+                            condition,
+                            reason,
+                            comparisonAttribute
+                        )
+                    )
+                    false
+                }
             }
 
             Comparator.ONE_OF_SENS,
@@ -252,7 +323,22 @@ internal class Evaluator(private val logger: InternalLogger) {
 
             Comparator.DATE_BEFORE,
             Comparator.DATE_AFTER -> {
-                return processDateCompare(condition, userValue, evaluatorLogger, comparator)
+                return try {
+                    val userDateDouble = userValue.trim().replace(",", ".").toDouble()
+                    processDateCompare(condition, userDateDouble, evaluatorLogger, comparator)
+                } catch (e: NumberFormatException){
+                    val reason = "'$userValue' is not a valid Unix timestamp (number of seconds elapsed since Unix epoch)"
+                    logger.warning(
+                        3004,
+                        ConfigCatLogMessages.getUserAttributeInvalid(
+                            context.key,
+                            condition,
+                            reason,
+                            comparisonAttribute
+                        )
+                    )
+                    false
+                }
             }
 
             Comparator.HASHED_EQUALS,
@@ -310,12 +396,11 @@ internal class Evaluator(private val logger: InternalLogger) {
 
     private fun processSemVerOneOf(
         condition: UserCondition,
-        userValue: String,
+        userVersion: Version,
         evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
     ): Boolean {
         try {
-            val userVersion = userValue.toVersion()
             val values = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
             var matched = false
             for (value in values) {
@@ -327,21 +412,22 @@ internal class Evaluator(private val logger: InternalLogger) {
                 return true
             }
         } catch (e: VersionFormatException) {
-            // TODO add log
+            // NOTE: Previous versions of the evaluation algorithm ignored invalid comparison values.
+            // We keep this behavior for backward compatibility.
+            return false
         }
         return false
     }
 
     private fun processSemVerCompare(
         condition: UserCondition,
-        userValue: String,
+        userVersion: Version,
         evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
     ): Boolean {
-        try {
-            val userVersion = userValue.trim().toVersion()
+        return try {
             val comparisonVersion = let { condition.stringValue ?: "" }.trim().toVersion()
-            return when (comparator) {
+            when (comparator) {
                 Comparator.LT_SEMVER -> userVersion < comparisonVersion
                 Comparator.LTE_SEMVER -> userVersion <= comparisonVersion
                 Comparator.GT_SEMVER -> userVersion > comparisonVersion
@@ -349,19 +435,20 @@ internal class Evaluator(private val logger: InternalLogger) {
                 else -> false
             }
         } catch (e: VersionFormatException) {
-            // TODO log error
+            // NOTE: Previous versions of the evaluation algorithm ignored invalid comparison values.
+            // We keep this behavior for backward compatibility.
+            false
         }
-        return false
     }
 
     private fun processNumber(
         condition: UserCondition,
-        userValue: String,
+        userNumber: Double,
         evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
     ): Boolean {
         try {
-            val userNumber = userValue.trim().replace(",", ".").toDouble()
+
             val comparisonNumber = condition.doubleValue
                 ?: throw NumberFormatException()
             return when (comparator) {
@@ -374,16 +461,8 @@ internal class Evaluator(private val logger: InternalLogger) {
                 else -> false
             }
         } catch (e: NumberFormatException) {
-            // TODO log error
-            evaluatorLogger.logFormatError(
-                condition.comparisonAttribute,
-                userValue,
-                comparator,
-                condition.doubleValue.toString(),
-                NumberFormatException()
-            )
+            return false
         }
-        return false
     }
 
     private fun processSensitiveOneOf(
@@ -406,12 +485,11 @@ internal class Evaluator(private val logger: InternalLogger) {
 
     private fun processDateCompare(
         condition: UserCondition,
-        userValue: String,
+        userDateDouble: Double,
         evaluatorLogger: EvaluatorLogger,
         comparator: Comparator
     ): Boolean {
         try {
-            val userDateDouble = userValue.trim().replace(",", ".").toDouble()
             val comparisonDateDouble = condition.doubleValue ?: throw NumberFormatException()
             return when (comparator) {
                 Comparator.DATE_BEFORE -> userDateDouble < comparisonDateDouble
@@ -577,30 +655,30 @@ internal class Evaluator(private val logger: InternalLogger) {
     enum class Comparator(val id: Int, val value: String) {
         CONTAINS_ANY_OF(2, "CONTAINS ANY OF"),
         NOT_CONTAINS_ANY_OF(3, "NOT CONTAINS ANY OF"),
-        ONE_OF_SEMVER(4, "IS ONE OF (semver)"),
-        NOT_ONE_OF_SEMVER(5, "IS NOT ONE OF (semver)"),
-        LT_SEMVER(6, "< (semver)"),
-        LTE_SEMVER(7, "<= (semver)"),
-        GT_SEMVER(8, "> (semver)"),
-        GTE_SEMVER(9, ">= (semver)"),
-        EQ_NUM(10, "= (number)"),
-        NOT_EQ_NUM(11, "<> (number)"),
-        LT_NUM(12, "< (number)"),
-        LTE_NUM(13, "<= (number)"),
-        GT_NUM(14, "> (number)"),
-        GTE_NUM(15, ">= (number)"),
-        ONE_OF_SENS(16, "IS ONE OF (hashed)"),
-        NOT_ONE_OF_SENS(17, "IS NOT ONE OF (hashed)"),
-        DATE_BEFORE(18, "BEFORE (UTC DateTime)"),
-        DATE_AFTER(19, "AFTER (UTC DateTime)"),
-        HASHED_EQUALS(20, "EQUALS (hashed)"),
-        HASHED_NOT_EQUALS(21, "NOT EQUALS (hashed)"),
-        HASHED_STARTS_WITH(22, "STARTS WITH ANY OF (hashed)"),
-        HASHED_NOT_STARTS_WITH(23, "NOT STARTS WITH ANY OF (hashed)"),
-        HASHED_ENDS_WITH(24, "ENDS WITH ANY OF (hashed)"),
-        HASHED_NOT_ENDS_WITH(25, "NOT ENDS WITH ANY OF (hashed)"),
-        HASHED_ARRAY_CONTAINS(26, "ARRAY CONTAINS (hashed)"),
-        HASHED_ARRAY_NOT_CONTAINS(27, "ARRAY NOT CONTAINS (hashed)")
+        ONE_OF_SEMVER(4, "IS ONE OF"),
+        NOT_ONE_OF_SEMVER(5, "IS NOT ONE OF"),
+        LT_SEMVER(6, "<"),
+        LTE_SEMVER(7, "<="),
+        GT_SEMVER(8, ">"),
+        GTE_SEMVER(9, ">="),
+        EQ_NUM(10, "="),
+        NOT_EQ_NUM(11, "<>"),
+        LT_NUM(12, "<"),
+        LTE_NUM(13, "<="),
+        GT_NUM(14, ">"),
+        GTE_NUM(15, ">="),
+        ONE_OF_SENS(16, "IS ONE OF"),
+        NOT_ONE_OF_SENS(17, "IS NOT ONE OF"),
+        DATE_BEFORE(18, "BEFORE"),
+        DATE_AFTER(19, "AFTER"),
+        HASHED_EQUALS(20, "EQUALS"),
+        HASHED_NOT_EQUALS(21, "NOT EQUALS"),
+        HASHED_STARTS_WITH(22, "STARTS WITH ANY OF"),
+        HASHED_NOT_STARTS_WITH(23, "NOT STARTS WITH ANY OF"),
+        HASHED_ENDS_WITH(24, "ENDS WITH ANY OF"),
+        HASHED_NOT_ENDS_WITH(25, "NOT ENDS WITH ANY OF"),
+        HASHED_ARRAY_CONTAINS(26, "ARRAY CONTAINS"),
+        HASHED_ARRAY_NOT_CONTAINS(27, "ARRAY NOT CONTAINS")
     }
 
     enum class PrerequisiteComparator(val id: Int, val value: String) {
@@ -612,11 +690,6 @@ internal class Evaluator(private val logger: InternalLogger) {
         IS_IN_SEGMENT(0,"IS IN SEGMENT"),
         IS_NOT_IN_SEGMENT(1,"IS NOT IN SEGMENT")
     }
-
-    private fun Int.toComparatorOrNull(): Comparator? = Comparator.values().firstOrNull { it.id == this }
-    private fun Int.toPrerequisiteComparatorOrNull(): PrerequisiteComparator? = PrerequisiteComparator.values().firstOrNull { it.id == this }
-
-    private fun Int.toSegmentComparatorOrNull(): SegmentComparator? = SegmentComparator.values().firstOrNull { it.id == this }
 
 }
 

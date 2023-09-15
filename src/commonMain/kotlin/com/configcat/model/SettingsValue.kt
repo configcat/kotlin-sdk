@@ -38,4 +38,16 @@ public data class SettingsValue(
         result = 31 * result + (doubleValue?.hashCode() ?: 0)
         return result
     }
+
+    override fun toString(): String {
+        return if (booleanValue != null) {
+            booleanValue.toString()
+        } else if (integerValue != null) {
+            integerValue.toString()
+        } else if (doubleValue != null) {
+            doubleValue.toString()
+        } else {
+            stringValue.toString()
+        }
+    }
 }

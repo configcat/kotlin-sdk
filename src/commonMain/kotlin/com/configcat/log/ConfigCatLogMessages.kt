@@ -1,5 +1,12 @@
 package com.configcat.log
 
+import com.configcat.model.PrerequisiteFlagCondition
+
+import com.configcat.model.UserCondition
+
+
+
+
 @Suppress("TooManyFunctions")
 internal object ConfigCatLogMessages {
     /**
@@ -97,7 +104,7 @@ internal object ConfigCatLogMessages {
     ): String {
         return "Failed to evaluate setting '$key' (the key was not found in config JSON). " +
             "Returning the `$defaultParamName` parameter that you specified in your " +
-            "application: '$defaultParamValue'" + ". Available keys: [" + availableKeysSet.joinToString(
+            "application: '$defaultParamValue'. Available keys: [" + availableKeysSet.joinToString(
             ", ",
             transform = { availableKey -> "'$availableKey'" }
         ) + "]."
@@ -127,9 +134,7 @@ internal object ConfigCatLogMessages {
         readTimeoutMillis: Long,
         writeTimeoutMillis: Long
     ): String {
-        return "Request timed out while trying to fetch config JSON. " +
-            "Timeout values: [connect: " + connectTimeoutMillis + "ms, " +
-            "read: " + readTimeoutMillis + "ms, write: " + writeTimeoutMillis + "ms]"
+        return "Request timed out while trying to fetch config JSON. Timeout values: [connect: ${connectTimeoutMillis}ms, read: ${readTimeoutMillis}ms, write: ${writeTimeoutMillis}ms]"
     }
 
     /**
@@ -155,15 +160,72 @@ internal object ConfigCatLogMessages {
     }
 
     /**
-     * Log message for Targeting Is Not Possible warning. The log eventId 3001.
+     * Log message for User Object is missing warning. The log eventId 3001.
      *
      * @param key The feature flag setting key.
      * @return The formatted warn message.
      */
-    fun getTargetingIsNotPossible(key: String): String {
+    fun getUserObjectMissing(key: String): String {
         return "Cannot evaluate targeting rules and % options for setting '$key' (User Object is missing). " +
             "You should pass a User Object to the evaluation methods like `getValue()`/`getValueAsync()` " +
             "in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/"
+    }
+
+    /**
+     * Log message for User Attribute is missing warning. The log eventId 3003.
+     *
+     * @param key The feature flag setting key.
+     * @param userCondition The user condition where the attribute is checked.
+     * @param attributeName The user attribute name.
+     * @return The formatted warn message.
+     */
+    fun getUserAttributeMissing(key: String, userCondition: UserCondition, attributeName: String): String {
+        return "Cannot evaluate condition (${LogHelper.formatUserCondition(userCondition)}) for setting '$key' (the User.$attributeName attribute is missing). You should set the User.$attributeName attribute in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/"
+    }
+
+    /**
+     * Log message for User Attribute is missing warning. The log eventId 3003.
+     *
+     * @param key The feature flag setting key.
+     * @param attributeName The user attribute name.
+     * @return The formatted warn message.
+     */
+    fun getUserAttributeMissing(key: String, attributeName: String): String {
+        return "Cannot evaluate % options for setting '$key' (the User.$attributeName attribute is missing). You should set the User.$attributeName attribute in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/"
+    }
+
+    /**
+     * Log message for User Attribute is invalid warning. The log eventId 3004.
+     *
+     * @param key The feature flag setting key.
+     * @param userCondition The user condition where the attribute is checked.
+     * @param reason Why the attribute is invalid.
+     * @param attributeName The user attribute name.
+     * @return The formatted warn message.
+     */
+    fun getUserAttributeInvalid(
+        key: String,
+        userCondition: UserCondition,
+        reason: String,
+        attributeName: String
+    ): String {
+        return "Cannot evaluate condition (${LogHelper.formatUserCondition(userCondition)}) for setting '$key' ($reason). Please check the User.$attributeName attribute and make sure that its value corresponds to the comparison operator."
+    }
+
+    /**
+     * Log message for User Attribute is invalid warning. The log eventId 3004.
+     *
+     * @param key The feature flag setting key.
+     * @param prerequisiteFlagCondition The condition where the circularity is detected.
+     * @param dependencyCycle The dependency cycle.
+     * @return The formatted warn message.
+     */
+    fun getCircularDependencyDetected(
+        key: String,
+        prerequisiteFlagCondition: PrerequisiteFlagCondition,
+        dependencyCycle: String
+    ): String {
+        return "Cannot evaluate condition (${LogHelper.formatPrerequisiteFlagCondition(prerequisiteFlagCondition)}) for setting '$key' (circular dependency detected between the following depending flags: $dependencyCycle). Please check your feature flag definition and eliminate the circular dependency."
     }
 
     /**
@@ -183,7 +245,7 @@ internal object ConfigCatLogMessages {
      * @return The formatted warn message.
      */
     fun getAutoPollMaxInitWaitTimeReached(maxInitWaitTimeSeconds: Long): String {
-        return "`maxInitWaitTimeSeconds` for the very first fetch reached (" + maxInitWaitTimeSeconds + "s)." +
+        return "`maxInitWaitTimeSeconds` for the very first fetch reached (${maxInitWaitTimeSeconds}s)." +
             " Returning cached config."
     }
 
