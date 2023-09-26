@@ -2,22 +2,27 @@ package com.configcat.log
 
 import com.configcat.ComparatorHelp.toComparatorOrNull
 import com.configcat.ComparatorHelp.toPrerequisiteComparatorOrNull
+import com.configcat.ComparatorHelp.toSegmentComparatorOrNull
 import com.configcat.DateTimeUtils.toDateTimeUTCString
 import com.configcat.Evaluator
 import com.configcat.model.PrerequisiteFlagCondition
+import com.configcat.model.Segment
+import com.configcat.model.SegmentCondition
 
 import com.configcat.model.UserCondition
 
 
 internal object LogHelper {
     private const val HASHED_VALUE = "<hashed value>"
-    private const val INVALID_VALUE = "<invalid value>"
+    const val INVALID_VALUE = "<invalid value>"
+    private const val INVALID_NAME = "<invalid name>";
+    const val INVALID_REFERENCE = "<invalid reference>";
     private const val MAX_LIST_ELEMENT = 10
     private fun formatStringListComparisonValue(comparisonValue: Array<String>?, isSensitive: Boolean): String {
         if (comparisonValue == null) {
             return INVALID_VALUE
         }
-        val comparisonValues = comparisonValue.map { it.trim() }.filter { it.isNotEmpty() }
+        val comparisonValues = comparisonValue.map {it}
         if (comparisonValues.isEmpty()) {
             return INVALID_VALUE
         }
@@ -30,12 +35,15 @@ internal object LogHelper {
             if (comparisonValues.size > MAX_LIST_ELEMENT) {
                 val count = comparisonValues.size - MAX_LIST_ELEMENT
                 val countPostFix = if (count == 1) "value" else "values"
-                listPostFix = "... <$count more $countPostFix>"
+                listPostFix = " ... <$count more $countPostFix>"
             }
             val subList: List<String> = comparisonValues.subList(0, minOf( MAX_LIST_ELEMENT, comparisonValues.size))
             val formatListBuilder = StringBuilder()
-            subList.forEach { s: String? ->
-                formatListBuilder.append("'$s'")
+            for(i in subList.indices){
+                formatListBuilder.append("'${subList[i]}'")
+                if(i != subList.size-1){
+                    formatListBuilder.append(", ")
+                }
             }
             formatListBuilder.append(listPostFix)
             formattedList = formatListBuilder.toString()
@@ -44,7 +52,10 @@ internal object LogHelper {
     }
 
     private fun formatStringComparisonValue(comparisonValue: String?, isSensitive: Boolean): String {
-        return if (isSensitive) HASHED_VALUE else comparisonValue!!
+        return if (isSensitive)
+            "'$HASHED_VALUE'"
+        else
+            "'$comparisonValue'"
     }
 
     private fun formatDoubleComparisonValue(comparisonValue: Double?, isDate: Boolean): String {
@@ -52,8 +63,8 @@ internal object LogHelper {
             return INVALID_VALUE
         }
         return if (isDate) {
-            "$comparisonValue (${comparisonValue.toDateTimeUTCString()} UTC)"
-        } else comparisonValue.toString()
+            "'$comparisonValue' (${comparisonValue.toDateTimeUTCString()} UTC)"
+        } else "'$comparisonValue'"
     }
 
     fun formatUserCondition(userCondition: UserCondition): String {
@@ -99,7 +110,7 @@ internal object LogHelper {
                 Evaluator.Comparator.HASHED_EQUALS, Evaluator.Comparator.HASHED_NOT_EQUALS -> formatStringComparisonValue(userCondition.stringValue, true)
                 else -> INVALID_VALUE
             }
-        return "User. ${userCondition.comparisonAttribute} ${userComparator?.name} '$comparisonValue'"
+        return "User. ${userCondition.comparisonAttribute} ${userComparator?.name} $comparisonValue"
     }
 
     fun formatPrerequisiteFlagCondition(prerequisiteFlagCondition: PrerequisiteFlagCondition): String {
@@ -108,15 +119,17 @@ internal object LogHelper {
     }
 
     fun formatCircularDependencyList(visitedKeys: List<String?>, key: String?): String {
-//        + availableKeysSet.joinToString(
-//            ", ",
-//            transform = { availableKey -> "'$availableKey'" }
-//        )
         val builder = StringBuilder()
         visitedKeys.forEach {
                 visitedKey: String? ->  builder.append("'").append(visitedKey).append("' -> ")
         }
         builder.append("'").append(key).append("'")
         return builder.toString()
+    }
+
+    fun formatSegmentFlagCondition(segmentCondition: SegmentCondition, segment: Segment) : String {
+        var segmentName = segment.name ?: INVALID_NAME
+        val prerequisiteComparator = segmentCondition.segmentComparator.toSegmentComparatorOrNull()
+        return "User ${prerequisiteComparator?.name} '$segmentName'";
     }
 }
