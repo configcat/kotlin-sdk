@@ -10,6 +10,8 @@ import com.configcat.model.Segment
 import com.configcat.model.SegmentCondition
 
 import com.configcat.model.UserCondition
+import io.ktor.util.*
+import kotlin.math.sign
 
 
 internal object LogHelper {
@@ -62,9 +64,11 @@ internal object LogHelper {
         if (comparisonValue == null) {
             return INVALID_VALUE
         }
+
+        var comparisonValueString = comparisonValue.toString().trimEnd { it == '0' }.trimEnd { it == '.' }.trimEnd { it == ',' }
         return if (isDate) {
-            "'$comparisonValue' (${comparisonValue.toDateTimeUTCString()} UTC)"
-        } else "'$comparisonValue'"
+            "'$comparisonValueString' (${comparisonValue.toDateTimeUTCString()} UTC)"
+        } else "'$comparisonValueString'"
     }
 
     fun formatUserCondition(userCondition: UserCondition): String {
@@ -110,12 +114,12 @@ internal object LogHelper {
                 Evaluator.Comparator.HASHED_EQUALS, Evaluator.Comparator.HASHED_NOT_EQUALS -> formatStringComparisonValue(userCondition.stringValue, true)
                 else -> INVALID_VALUE
             }
-        return "User. ${userCondition.comparisonAttribute} ${userComparator?.name} $comparisonValue"
+        return "User.${userCondition.comparisonAttribute} ${userComparator?.value} $comparisonValue"
     }
 
     fun formatPrerequisiteFlagCondition(prerequisiteFlagCondition: PrerequisiteFlagCondition): String {
         val prerequisiteComparator = prerequisiteFlagCondition.prerequisiteComparator.toPrerequisiteComparatorOrNull()
-        return "Flag '${prerequisiteFlagCondition.prerequisiteFlagKey}' ${prerequisiteComparator?.name} '${prerequisiteFlagCondition.value ?: INVALID_VALUE}'"
+        return "Flag '${prerequisiteFlagCondition.prerequisiteFlagKey}' ${prerequisiteComparator?.value} '${prerequisiteFlagCondition.value ?: INVALID_VALUE}'"
     }
 
     fun formatCircularDependencyList(visitedKeys: List<String?>, key: String?): String {
@@ -130,6 +134,6 @@ internal object LogHelper {
     fun formatSegmentFlagCondition(segmentCondition: SegmentCondition, segment: Segment) : String {
         var segmentName = segment.name ?: INVALID_NAME
         val prerequisiteComparator = segmentCondition.segmentComparator.toSegmentComparatorOrNull()
-        return "User ${prerequisiteComparator?.name} '$segmentName'";
+        return "User ${prerequisiteComparator?.value} '$segmentName'";
     }
 }

@@ -65,7 +65,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         if(setting.targetingRules != null){
             evaluationResult = evaluateTargetingRules(setting, context, evaluateLogger)
         }
-        if(evaluationResult == null && setting.targetingRules != null){
+        if(evaluationResult == null && !setting.percentageOptions.isNullOrEmpty()){
             evaluationResult = evaluatePercentageOptions(setting.percentageOptions, setting.percentageAttribute, context, null, evaluateLogger)
         }
         if(evaluationResult == null ){
@@ -132,7 +132,8 @@ internal class Evaluator(private val logger: InternalLogger) {
         var conditionsEvaluationResult = false
         var error: String? = null
         var newLine = false
-        for (rawCondition in conditions) {
+        for (i in conditions.indices) {
+            var rawCondition = conditions.get(i)
             if (firstConditionFlag) {
                 firstConditionFlag = false
                 evaluateLogger.newLine()
@@ -257,12 +258,10 @@ internal class Evaluator(private val logger: InternalLogger) {
 
             try {
                 segmentRulesResult =
-                    evaluateConditions(arrayOf(segment.segmentRules), null, configSalt,segmentName, context,segments, evaluateLogger)
+                    evaluateConditions(segment.segmentRules as Array<Any>, null, configSalt,segmentName, context,segments, evaluateLogger)
             } catch (evaluatorException: RolloutEvaluatorException ) {
                 segmentRulesResult = false;
             }
-
-
 
         val segmentComparator = segmentCondition.segmentComparator.toSegmentComparatorOrNull()
         var result = segmentRulesResult
@@ -499,6 +498,8 @@ internal class Evaluator(private val logger: InternalLogger) {
         var matched = false
         for (value in values) {
             matched = userValue.contains(value)
+            if(matched)
+                break
         }
         if ((matched && comparator == Comparator.CONTAINS_ANY_OF) ||
             (!matched && comparator == Comparator.NOT_CONTAINS_ANY_OF)
@@ -817,7 +818,7 @@ internal class EvaluateLogger {
     private var indentLevel: Int = 0
 
     fun append(line: String) {
-        entries.appendLine(line)
+        entries.append(line)
     }
 
     fun increaseIndentLevel() {
@@ -843,7 +844,8 @@ internal class EvaluateLogger {
     }
 
     fun logReturnValue(value: Any) {
-        append("Returning '$value'")
+        newLine()
+        append("Returning '$value'.")
     }
 
     fun logUserObject(user: ConfigCatUser) {
@@ -935,7 +937,7 @@ internal class EvaluateLogger {
     ) {
         newLine()
         val segmentResultComparator: String =
-            if (segmentResult) Evaluator.SegmentComparator.IS_IN_SEGMENT.name else Evaluator.SegmentComparator.IS_NOT_IN_SEGMENT.name
+            if (segmentResult) Evaluator.SegmentComparator.IS_IN_SEGMENT.value else Evaluator.SegmentComparator.IS_NOT_IN_SEGMENT.value
         append("Segment evaluation result: User $segmentResultComparator.")
         newLine()
         append(

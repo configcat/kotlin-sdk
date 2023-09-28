@@ -14,10 +14,10 @@ public class ConfigCatUser(
 
     init {
         val attr = mutableMapOf("Identifier" to identifier)
-        if (email != null) {
+        if (!email.isNullOrEmpty()) {
             attr["Email"] = email
         }
-        if (country != null) {
+        if (!country.isNullOrEmpty()) {
             attr["Country"] = country
         }
         if (custom != null) {
@@ -36,6 +36,6 @@ public class ConfigCatUser(
     }
 
     override fun toString(): String {
-        return "{${attributes.map { "${it.key}: ${it.value}" }.joinToString()}}"
+        return "{${attributes.map { "\"${it.key}\":\"${it.value}\"" }.joinToString(",")}}"
     }
 }
