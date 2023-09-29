@@ -31,7 +31,6 @@ class EvaluationTest {
 
     @Test
     fun testComparators() = runTest {
-        //TODO fail because the Scientific Notion format
         testEvaluation(ComparatorsTests)
     }
 
@@ -47,7 +46,6 @@ class EvaluationTest {
 
     @Test
     fun testEpochDateValidation() = runTest {
-        //TODO fail because the Scientific Notion format
         testEvaluation(EpochDateValidationTests)
     }
 

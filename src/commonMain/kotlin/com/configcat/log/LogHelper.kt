@@ -8,17 +8,13 @@ import com.configcat.Evaluator
 import com.configcat.model.PrerequisiteFlagCondition
 import com.configcat.model.Segment
 import com.configcat.model.SegmentCondition
-
 import com.configcat.model.UserCondition
-import io.ktor.util.*
-import kotlin.math.sign
-
 
 internal object LogHelper {
     private const val HASHED_VALUE = "<hashed value>"
     const val INVALID_VALUE = "<invalid value>"
-    private const val INVALID_NAME = "<invalid name>";
-    const val INVALID_REFERENCE = "<invalid reference>";
+    private const val INVALID_NAME = "<invalid name>"
+    const val INVALID_REFERENCE = "<invalid reference>"
     private const val MAX_LIST_ELEMENT = 10
     private fun formatStringListComparisonValue(comparisonValue: Array<String>?, isSensitive: Boolean): String {
         if (comparisonValue == null) {
@@ -65,10 +61,17 @@ internal object LogHelper {
             return INVALID_VALUE
         }
 
-        var comparisonValueString = comparisonValue.toString().trimEnd { it == '0' }.trimEnd { it == '.' }.trimEnd { it == ',' }
         return if (isDate) {
+            val comparisonValueString = comparisonValue.toLong().toString()
             "'$comparisonValueString' (${comparisonValue.toDateTimeUTCString()} UTC)"
-        } else "'$comparisonValueString'"
+        } else {
+            var comparisonValueString = comparisonValue.toString()
+            if(comparisonValueString.contains('.') || comparisonValueString.contains(',')){
+                comparisonValueString = comparisonValueString.trimEnd { it == '0' }.trimEnd { it == '.' }.trimEnd { it == ',' }
+            }
+            "'$comparisonValueString'"
+        }
+
     }
 
     fun formatUserCondition(userCondition: UserCondition): String {
@@ -132,8 +135,8 @@ internal object LogHelper {
     }
 
     fun formatSegmentFlagCondition(segmentCondition: SegmentCondition, segment: Segment) : String {
-        var segmentName = segment.name ?: INVALID_NAME
+        val segmentName = segment.name ?: INVALID_NAME
         val prerequisiteComparator = segmentCondition.segmentComparator.toSegmentComparatorOrNull()
-        return "User ${prerequisiteComparator?.value} '$segmentName'";
+        return "User ${prerequisiteComparator?.value} '$segmentName'"
     }
 }

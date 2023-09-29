@@ -9,7 +9,8 @@ internal object DateTimeUtils {
     }
 
     fun Double.toDateTimeUTCString(): String {
-        val dateTime = DateTime.fromUnix(this)
+        val dateInMillisecond: Long = this.toLong() * 1000
+        val dateTime = DateTime.fromUnix(dateInMillisecond)
         return dateTime.toString("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     }
 }
