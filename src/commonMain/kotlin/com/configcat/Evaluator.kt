@@ -46,32 +46,34 @@ internal class Evaluator(private val logger: InternalLogger) {
         key: String,
         user: ConfigCatUser?,
         settings: Map<String, Setting>?,
-        evaluateLogger: EvaluateLogger
+        evaluateLogger: EvaluateLogger?
     ): EvaluationResult {
 
         try {
-            evaluateLogger.logEvaluation(key)
+            evaluateLogger?.logEvaluation(key)
             if (user != null) {
-                evaluateLogger.logUserObject(user)
+                evaluateLogger?.logUserObject(user)
             }
-            evaluateLogger.increaseIndentLevel()
+            evaluateLogger?.increaseIndentLevel()
 
             val context = EvaluationContext(key, user, null, settings)
 
             val evaluationResult = evaluateSetting(setting, evaluateLogger, context)
 
-            evaluateLogger.logReturnValue(evaluationResult.value)
-            evaluateLogger.decreaseIndentLevel()
+            evaluateLogger?.logReturnValue(evaluationResult.value)
+            evaluateLogger?.decreaseIndentLevel()
             return evaluationResult
         } finally {
-            logger.info(5000, evaluateLogger.print())
+            if(evaluateLogger != null){
+                logger.info(5000, evaluateLogger.print())
+            }
         }
     }
 
 
     private fun evaluateSetting(
         setting: Setting,
-        evaluateLogger: EvaluateLogger,
+        evaluateLogger: EvaluateLogger?,
         context: EvaluationContext
     ): EvaluationResult {
         var evaluationResult: EvaluationResult? = null
@@ -96,12 +98,12 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun evaluateTargetingRules(
         setting: Setting,
         context: EvaluationContext,
-        evaluateLogger: EvaluateLogger
+        evaluateLogger: EvaluateLogger?
     ): EvaluationResult? {
         if (setting.targetingRules.isNullOrEmpty()) {
             return null
         }
-        evaluateLogger.logTargetingRules()
+        evaluateLogger?.logTargetingRules()
         for (rule: TargetingRule in setting.targetingRules) {
             var servedValue: SettingsValue? = null
             if (rule.servedValue != null) {
@@ -126,7 +128,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             if (rule.percentageOptions.isNullOrEmpty()) {
                 continue
             }
-            evaluateLogger.increaseIndentLevel()
+            evaluateLogger?.increaseIndentLevel()
             val evaluatePercentageOptions = evaluatePercentageOptions(
                 rule.percentageOptions,
                 setting.percentageAttribute,
@@ -134,10 +136,10 @@ internal class Evaluator(private val logger: InternalLogger) {
                 rule,
                 evaluateLogger
             )
-            evaluateLogger.decreaseIndentLevel()
+            evaluateLogger?.decreaseIndentLevel()
 
             if (evaluatePercentageOptions == null) {
-                evaluateLogger.logTargetingRuleIgnored()
+                evaluateLogger?.logTargetingRuleIgnored()
                 continue
             }
             return evaluatePercentageOptions
@@ -152,7 +154,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         contextSalt: String,
         context: EvaluationContext,
         segments: Array<Segment>,
-        evaluateLogger: EvaluateLogger
+        evaluateLogger: EvaluateLogger?
     ): Boolean {
         // Conditions are ANDs so if One is not matching return false, if all matching return true
         var firstConditionFlag = true
@@ -163,13 +165,13 @@ internal class Evaluator(private val logger: InternalLogger) {
             val rawCondition = conditions.get(i)
             if (firstConditionFlag) {
                 firstConditionFlag = false
-                evaluateLogger.newLine()
-                evaluateLogger.append("- IF ")
-                evaluateLogger.increaseIndentLevel()
+                evaluateLogger?.newLine()
+                evaluateLogger?.append("- IF ")
+                evaluateLogger?.increaseIndentLevel()
             } else {
-                evaluateLogger.increaseIndentLevel()
-                evaluateLogger.newLine()
-                evaluateLogger.append("AND ")
+                evaluateLogger?.increaseIndentLevel()
+                evaluateLogger?.newLine()
+                evaluateLogger?.append("AND ")
             }
 
             if (targetingRule == null) {
@@ -231,18 +233,18 @@ internal class Evaluator(private val logger: InternalLogger) {
                 }
             }
             if (targetingRule == null || conditions.size > 1) {
-                evaluateLogger.logConditionConsequence(conditionsEvaluationResult)
+                evaluateLogger?.logConditionConsequence(conditionsEvaluationResult)
             }
-            evaluateLogger.decreaseIndentLevel()
+            evaluateLogger?.decreaseIndentLevel()
             if (!conditionsEvaluationResult) {
                 break
             }
         }
         if (targetingRule != null) {
-            evaluateLogger.logTargetingRuleConsequence(targetingRule, error, conditionsEvaluationResult, newLine)
+            evaluateLogger?.logTargetingRuleConsequence(targetingRule, error, conditionsEvaluationResult, newLine)
         }
         if (error != null) {
-            evaluateLogger.logTargetingRuleIgnored()
+            evaluateLogger?.logTargetingRuleIgnored()
         }
         return conditionsEvaluationResult
     }
@@ -252,14 +254,14 @@ internal class Evaluator(private val logger: InternalLogger) {
         context: EvaluationContext,
         configSalt: String,
         segments: Array<Segment>,
-        evaluateLogger: EvaluateLogger
+        evaluateLogger: EvaluateLogger?
     ): Boolean {
         val segmentIndex: Int = segmentCondition.segmentIndex
         var segment: Segment? = null
         if (segmentIndex < segments.size) {
             segment = segments[segmentIndex]
         }
-        evaluateLogger.append(LogHelper.formatSegmentFlagCondition(segmentCondition, segment))
+        evaluateLogger?.append(LogHelper.formatSegmentFlagCondition(segmentCondition, segment))
 
         if (context.user == null) {
             if (!context.isUserMissing) {
@@ -278,7 +280,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             throw IllegalArgumentException("Segment name is missing.")
         }
 
-        evaluateLogger.logSegmentEvaluationStart(segmentName)
+        evaluateLogger?.logSegmentEvaluationStart(segmentName)
         val segmentRulesResult = try {
             evaluateConditions(
                 segment.segmentRules as Array<Any>,
@@ -299,7 +301,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         if (SegmentComparator.IS_NOT_IN_SEGMENT == segmentComparator) {
             result = !result
         }
-        evaluateLogger.logSegmentEvaluationResult(segmentCondition, segment, result, segmentRulesResult)
+        evaluateLogger?.logSegmentEvaluationResult(segmentCondition, segment, result, segmentRulesResult)
 
         return result
     }
@@ -307,9 +309,9 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun evaluatePrerequisiteFlagCondition(
         prerequisiteFlagCondition: PrerequisiteFlagCondition,
         context: EvaluationContext,
-        evaluateLogger: EvaluateLogger
+        evaluateLogger: EvaluateLogger?
     ): Boolean {
-        evaluateLogger.append(LogHelper.formatPrerequisiteFlagCondition(prerequisiteFlagCondition))
+        evaluateLogger?.append(LogHelper.formatPrerequisiteFlagCondition(prerequisiteFlagCondition))
 
         val prerequisiteFlagKey: String? = prerequisiteFlagCondition.prerequisiteFlagKey
         val prerequisiteFlagSetting = context.settings?.get(prerequisiteFlagKey)
@@ -334,7 +336,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             )
             throw RolloutEvaluatorException("cannot evaluate, circular dependency detected")
         }
-        evaluateLogger.logPrerequisiteFlagEvaluationStart(prerequisiteFlagKey)
+        evaluateLogger?.logPrerequisiteFlagEvaluationStart(prerequisiteFlagKey)
 
         val prerequisiteFlagContext = EvaluationContext(
             prerequisiteFlagKey,
@@ -357,7 +359,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         if (PrerequisiteComparator.NOT_EQUALS == prerequisiteComparator) {
             result = !result
         }
-        evaluateLogger.logPrerequisiteFlagEvaluationResult(prerequisiteFlagCondition, evaluateResult.value, result)
+        evaluateLogger?.logPrerequisiteFlagEvaluationResult(prerequisiteFlagCondition, evaluateResult.value, result)
 
         return result
     }
@@ -367,9 +369,9 @@ internal class Evaluator(private val logger: InternalLogger) {
         configSalt: String,
         context: EvaluationContext,
         contextSalt: String,
-        evaluateLogger: EvaluateLogger
+        evaluateLogger: EvaluateLogger?
     ): Boolean {
-        evaluateLogger.append(LogHelper.formatUserCondition(condition))
+        evaluateLogger?.append(LogHelper.formatUserCondition(condition))
         if (context.user == null) {
             if (!context.isUserMissing) {
                 context.isUserMissing = true
@@ -734,10 +736,10 @@ internal class Evaluator(private val logger: InternalLogger) {
         percentageOptionAttribute: String?,
         context: EvaluationContext,
         parentTargetingRule: TargetingRule?,
-        evaluateLogger: EvaluateLogger
+        evaluateLogger: EvaluateLogger?
     ): EvaluationResult? {
         if (context.user == null) {
-            evaluateLogger.logPercentageOptionUserMissing()
+            evaluateLogger?.logPercentageOptionUserMissing()
             if (!context.isUserMissing) {
                 context.isUserMissing = true
                 this.logger.warning(3001, ConfigCatLogMessages.getUserObjectMissing(context.key))
@@ -753,7 +755,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         } else {
             percentageOptionAttributeValue = context.user.attributeFor(percentageOptionAttributeName)
             if (percentageOptionAttributeValue == null) {
-                evaluateLogger.logPercentageOptionUserAttributeMissing(percentageOptionAttributeName)
+                evaluateLogger?.logPercentageOptionUserAttributeMissing(percentageOptionAttributeName)
                 if (!context.isUserAttributeMissing) {
                     context.isUserAttributeMissing = true
                     this.logger.warning(
@@ -764,13 +766,13 @@ internal class Evaluator(private val logger: InternalLogger) {
                 return null
             }
         }
-        evaluateLogger.logPercentageOptionEvaluation(percentageOptionAttributeName)
+        evaluateLogger?.logPercentageOptionEvaluation(percentageOptionAttributeName)
 
         val hashCandidate = "${context.key}${percentageOptionAttributeValue}"
         val hash = hashCandidate.encodeToByteArray().sha1().hex.substring(0, 7)
         val numberRepresentation = hash.toInt(radix = 16)
         val scale = numberRepresentation % 100
-        evaluateLogger.logPercentageOptionEvaluationHash(percentageOptionAttributeName, scale)
+        evaluateLogger?.logPercentageOptionEvaluationHash(percentageOptionAttributeName, scale)
 
         if (percentageOptions.isNullOrEmpty()) {
             return null
@@ -781,7 +783,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             val rule = percentageOptions[i]
             bucket += rule.percentage
             if (scale < bucket) {
-                evaluateLogger.logPercentageEvaluationReturnValue(scale, i, rule.percentage, rule.value)
+                evaluateLogger?.logPercentageEvaluationReturnValue(scale, i, rule.percentage, rule.value)
                 return EvaluationResult(rule.value, rule.variationId, parentTargetingRule, rule)
             }
         }

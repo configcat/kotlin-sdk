@@ -239,6 +239,7 @@ internal class Client private constructor(
     private val flagOverrides: FlagOverrides?
     private val evaluator: Evaluator
     private val logger: InternalLogger
+    private val logLevel: LogLevel
     private var defaultUser: ConfigCatUser?
     private val isClosed = atomic(false)
 
@@ -247,6 +248,7 @@ internal class Client private constructor(
     init {
         options.sdkKey = sdkKey
         logger = InternalLogger(options.logger, options.logLevel, options.hooks)
+        logLevel = options.logLevel
         hooks = options.hooks
         defaultUser = options.defaultUser
         flagOverrides = options.flagOverrides?.let { FlagOverrides().apply(it) }
@@ -416,7 +418,11 @@ internal class Client private constructor(
         fetchTime: DateTime,
         settings: Map<String, Setting>
     ): EvaluationDetails {
-        val (value, variationId, targetingRule, percentageRule) = evaluator.evaluate(setting, key, user,  settings, EvaluateLogger())
+        var evaluateLogger: EvaluateLogger? = null
+        if(logLevel == LogLevel.INFO) {
+            evaluateLogger =  EvaluateLogger()
+        }
+        val (value, variationId, targetingRule, percentageRule) = evaluator.evaluate(setting, key, user,  settings, evaluateLogger)
         val details = EvaluationDetails(
             key, variationId, user, false, null, parseSettingValue(value, setting.type),
             fetchTime.unixMillisLong, targetingRule, percentageRule
