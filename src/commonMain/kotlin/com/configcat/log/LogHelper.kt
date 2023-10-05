@@ -134,9 +134,14 @@ internal object LogHelper {
         return builder.toString()
     }
 
-    fun formatSegmentFlagCondition(segmentCondition: SegmentCondition, segment: Segment) : String {
-        val segmentName = segment.name ?: INVALID_NAME
-        val prerequisiteComparator = segmentCondition.segmentComparator.toSegmentComparatorOrNull()
+    fun formatSegmentFlagCondition(segmentCondition: SegmentCondition?, segment: Segment?) : String {
+        val segmentName: String?
+        if (segment != null) {
+            segmentName = segment.name?: INVALID_NAME
+        } else {
+            segmentName = INVALID_REFERENCE
+        }
+        val prerequisiteComparator = segmentCondition?.segmentComparator?.toSegmentComparatorOrNull()
         return "User ${prerequisiteComparator?.value} '$segmentName'"
     }
 }

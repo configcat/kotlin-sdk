@@ -66,7 +66,6 @@ public class EvaluationDetails internal constructor(
 ) {
     internal companion object {
         internal fun makeError(key: String, defaultValue: Any, error: String, user: ConfigCatUser?):
-        //TODO parse object
                 EvaluationDetails = EvaluationDetails(
             key, "", user, true, error,
             defaultValue, Constants.distantPast.unixMillisLong, null, null

@@ -24,25 +24,25 @@ public interface OverrideDataSource {
         }
 
         private fun convertToSetting(value: Any): Setting {
-            var setting: Setting = Setting()
+            val setting = Setting()
             when (value) {
                 is Boolean -> {
-                    setting.settingsValue?.booleanValue = value
+                    setting.settingsValue.booleanValue = value
                     setting.type = 0
                 }
 
                 is Int -> {
-                    setting.settingsValue?.integerValue = value
+                    setting.settingsValue.integerValue = value
                     setting.type = 2
                 }
 
                 is Double -> {
-                    setting.settingsValue?.doubleValue = value
+                    setting.settingsValue.doubleValue = value
                     setting.type = 3
                 }
 
                 else -> {
-                    setting.settingsValue?.stringValue = value.toString()
+                    setting.settingsValue.stringValue = value.toString()
                     setting.type = 1
                 }
             }

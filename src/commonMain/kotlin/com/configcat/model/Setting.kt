@@ -34,7 +34,7 @@ public data class Setting(
 ) {
 
     var configSalt: String = ""
-    internal var segments: Array<Segment>? = null
+    internal var segments: Array<Segment> = arrayOf()
 
     public constructor() : this(0, "", null, null, SettingsValue(), "")
 }

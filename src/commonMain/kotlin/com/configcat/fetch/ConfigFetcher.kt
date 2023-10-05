@@ -1,8 +1,6 @@
 package com.configcat.fetch
 
 import com.configcat.*
-import com.configcat.Closeable
-import com.configcat.Constants
 import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.configcat.model.Config
@@ -139,9 +137,13 @@ internal class ConfigFetcher constructor(
     private fun parseConfigJson(jsonString: String): Pair<Config, String?> {
         return try {
             val config: Config = Constants.json.decodeFromString(jsonString)
+            val configSalt = config.preferences?.salt
+            if(configSalt.isNullOrEmpty()) {
+                throw IllegalArgumentException("Config JSON salt is missing.")
+            }
             config.settings?.values?.forEach {
-                it.configSalt = config.preferences?.salt ?: ""
-                it.segments = config.segments
+                it.configSalt = configSalt
+                it.segments = config.segments?: arrayOf()
             }
             Pair(config, null)
         } catch (e: Exception) {

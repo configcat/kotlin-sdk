@@ -29,16 +29,25 @@ internal data class EvaluationContext(
     var isUserAttributeMissing: Boolean = false
 )
 
-internal object ComparatorHelp{
+internal object ComparatorHelp {
     fun Int.toComparatorOrNull(): Evaluator.Comparator? = Evaluator.Comparator.values().firstOrNull { it.id == this }
-    fun Int.toPrerequisiteComparatorOrNull(): Evaluator.PrerequisiteComparator? = Evaluator.PrerequisiteComparator.values().firstOrNull { it.id == this }
-    fun Int.toSegmentComparatorOrNull(): Evaluator.SegmentComparator? = Evaluator.SegmentComparator.values().firstOrNull { it.id == this }
+    fun Int.toPrerequisiteComparatorOrNull(): Evaluator.PrerequisiteComparator? =
+        Evaluator.PrerequisiteComparator.values().firstOrNull { it.id == this }
+
+    fun Int.toSegmentComparatorOrNull(): Evaluator.SegmentComparator? =
+        Evaluator.SegmentComparator.values().firstOrNull { it.id == this }
 }
 
 internal class Evaluator(private val logger: InternalLogger) {
 
 
-    fun evaluate(setting: Setting, key: String, user: ConfigCatUser?, visitedKeys: ArrayList<String>?, settings: Map<String, Setting>?, evaluateLogger: EvaluateLogger): EvaluationResult {
+    fun evaluate(
+        setting: Setting,
+        key: String,
+        user: ConfigCatUser?,
+        settings: Map<String, Setting>?,
+        evaluateLogger: EvaluateLogger
+    ): EvaluationResult {
 
         try {
             evaluateLogger.logEvaluation(key)
@@ -49,7 +58,7 @@ internal class Evaluator(private val logger: InternalLogger) {
 
             val context = EvaluationContext(key, user, null, settings)
 
-            val evaluationResult = evaluateSetting(setting, evaluateLogger, context);
+            val evaluationResult = evaluateSetting(setting, evaluateLogger, context)
 
             evaluateLogger.logReturnValue(evaluationResult.value)
             evaluateLogger.decreaseIndentLevel()
@@ -60,15 +69,25 @@ internal class Evaluator(private val logger: InternalLogger) {
     }
 
 
-    private fun evaluateSetting(setting: Setting, evaluateLogger: EvaluateLogger, context: EvaluationContext): EvaluationResult{
+    private fun evaluateSetting(
+        setting: Setting,
+        evaluateLogger: EvaluateLogger,
+        context: EvaluationContext
+    ): EvaluationResult {
         var evaluationResult: EvaluationResult? = null
-        if(setting.targetingRules != null){
+        if (setting.targetingRules != null) {
             evaluationResult = evaluateTargetingRules(setting, context, evaluateLogger)
         }
-        if(evaluationResult == null && !setting.percentageOptions.isNullOrEmpty()){
-            evaluationResult = evaluatePercentageOptions(setting.percentageOptions, setting.percentageAttribute, context, null, evaluateLogger)
+        if (evaluationResult == null && !setting.percentageOptions.isNullOrEmpty()) {
+            evaluationResult = evaluatePercentageOptions(
+                setting.percentageOptions,
+                setting.percentageAttribute,
+                context,
+                null,
+                evaluateLogger
+            )
         }
-        if(evaluationResult == null ){
+        if (evaluationResult == null) {
             evaluationResult = EvaluationResult(setting.settingsValue, setting.variationId)
         }
         return evaluationResult
@@ -88,8 +107,16 @@ internal class Evaluator(private val logger: InternalLogger) {
             if (rule.servedValue != null) {
                 servedValue = rule.servedValue.value
             }
-            var evaluateConditionsResult: Boolean = evaluateConditions((rule.conditions ?: arrayOf()) as Array<Any>, rule, setting.configSalt, context.key, context, setting.segments, evaluateLogger)
-            if(!evaluateConditionsResult){
+            val evaluateConditionsResult: Boolean = evaluateConditions(
+                (rule.conditions ?: arrayOf()) as Array<Any>,
+                rule,
+                setting.configSalt,
+                context.key,
+                context,
+                setting.segments,
+                evaluateLogger
+            )
+            if (!evaluateConditionsResult) {
                 continue
             }
 
@@ -109,11 +136,11 @@ internal class Evaluator(private val logger: InternalLogger) {
             )
             evaluateLogger.decreaseIndentLevel()
 
-            if(evaluatePercentageOptions == null){
+            if (evaluatePercentageOptions == null) {
                 evaluateLogger.logTargetingRuleIgnored()
                 continue
             }
-            return  evaluatePercentageOptions
+            return evaluatePercentageOptions
         }
         return null
     }
@@ -124,7 +151,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         configSalt: String,
         contextSalt: String,
         context: EvaluationContext,
-        segments: Array<Segment>?,
+        segments: Array<Segment>,
         evaluateLogger: EvaluateLogger
     ): Boolean {
         // Conditions are ANDs so if One is not matching return false, if all matching return true
@@ -133,7 +160,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         var error: String? = null
         var newLine = false
         for (i in conditions.indices) {
-            var rawCondition = conditions.get(i)
+            val rawCondition = conditions.get(i)
             if (firstConditionFlag) {
                 firstConditionFlag = false
                 evaluateLogger.newLine()
@@ -160,11 +187,11 @@ internal class Evaluator(private val logger: InternalLogger) {
                 }
                 newLine = conditions.size > 1
             } else {
-                var condition = rawCondition as Condition
+                val condition = rawCondition as Condition
                 if (condition.userCondition != null) {
                     try {
                         conditionsEvaluationResult = evaluateUserCondition(
-                            condition.userCondition!!,
+                            condition.userCondition,
                             configSalt,
                             context,
                             context.key,
@@ -178,7 +205,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                 } else if (condition.segmentCondition != null) {
                     try {
                         conditionsEvaluationResult = evaluateSegmentCondition(
-                            condition.segmentCondition!!,
+                            condition.segmentCondition,
                             context,
                             configSalt,
                             segments,
@@ -192,7 +219,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                 } else if (condition.prerequisiteFlagCondition != null) {
                     try {
                         conditionsEvaluationResult = evaluatePrerequisiteFlagCondition(
-                            condition.prerequisiteFlagCondition!!,
+                            condition.prerequisiteFlagCondition,
                             context,
                             evaluateLogger
                         )
@@ -224,15 +251,15 @@ internal class Evaluator(private val logger: InternalLogger) {
         segmentCondition: SegmentCondition,
         context: EvaluationContext,
         configSalt: String,
-        segments: Array<Segment>?,
+        segments: Array<Segment>,
         evaluateLogger: EvaluateLogger
     ): Boolean {
         val segmentIndex: Int = segmentCondition.segmentIndex
         var segment: Segment? = null
-        if (segmentIndex < segments!!.size) {
+        if (segmentIndex < segments.size) {
             segment = segments[segmentIndex]
         }
-        evaluateLogger.append(LogHelper.formatSegmentFlagCondition(segmentCondition, segment!!))
+        evaluateLogger.append(LogHelper.formatSegmentFlagCondition(segmentCondition, segment))
 
         if (context.user == null) {
             if (!context.isUserMissing) {
@@ -243,29 +270,33 @@ internal class Evaluator(private val logger: InternalLogger) {
         }
 
         if (segment == null) {
-            //TODO exception?
-            return false
+            throw IllegalArgumentException("Segment reference is invalid.")
         }
 
-        val segmentName: String? = segment?.name
+        val segmentName: String? = segment.name
         if (segmentName.isNullOrEmpty()) {
-            //TODO log segment name is missing
-            return false
+            throw IllegalArgumentException("Segment name is missing.")
         }
 
         evaluateLogger.logSegmentEvaluationStart(segmentName)
-        var segmentRulesResult = false
-
-            try {
-                segmentRulesResult =
-                    evaluateConditions(segment.segmentRules as Array<Any>, null, configSalt,segmentName, context,segments, evaluateLogger)
-            } catch (evaluatorException: RolloutEvaluatorException ) {
-                segmentRulesResult = false;
-            }
+        val segmentRulesResult = try {
+            evaluateConditions(
+                segment.segmentRules as Array<Any>,
+                null,
+                configSalt,
+                segmentName,
+                context,
+                segments,
+                evaluateLogger
+            )
+        } catch (evaluatorException: RolloutEvaluatorException) {
+            false
+        }
 
         val segmentComparator = segmentCondition.segmentComparator.toSegmentComparatorOrNull()
+            ?: throw IllegalArgumentException("Segment comparison operator is invalid.")
         var result = segmentRulesResult
-         if (SegmentComparator.IS_NOT_IN_SEGMENT == segmentComparator) {
+        if (SegmentComparator.IS_NOT_IN_SEGMENT == segmentComparator) {
             result = !result
         }
         evaluateLogger.logSegmentEvaluationResult(segmentCondition, segment, result, segmentRulesResult)
@@ -283,8 +314,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         val prerequisiteFlagKey: String? = prerequisiteFlagCondition.prerequisiteFlagKey
         val prerequisiteFlagSetting = context.settings?.get(prerequisiteFlagKey)
         if (prerequisiteFlagKey.isNullOrEmpty() || prerequisiteFlagSetting == null) {
-            // TODO Log error
-            return false
+            throw IllegalArgumentException("Prerequisite flag key is missing or invalid.")
         }
         var visitedKeys: ArrayList<String>? = context.visitedKeys
         if (visitedKeys == null) {
@@ -306,23 +336,21 @@ internal class Evaluator(private val logger: InternalLogger) {
         }
         evaluateLogger.logPrerequisiteFlagEvaluationStart(prerequisiteFlagKey)
 
-        var prerequisiteFlagContext = EvaluationContext(
+        val prerequisiteFlagContext = EvaluationContext(
             prerequisiteFlagKey,
             context.user,
             visitedKeys,
             context.settings
         )
 
-        var evaluateResult = evaluateSetting(
+        val evaluateResult = evaluateSetting(
             prerequisiteFlagSetting,
             evaluateLogger,
             prerequisiteFlagContext
         )
-        if (evaluateResult.value == null) {
-            return false
-        }
 
         val prerequisiteComparator = prerequisiteFlagCondition.prerequisiteComparator.toPrerequisiteComparatorOrNull()
+            ?: throw IllegalArgumentException("Prerequisite Flag comparison operator is invalid.")
         val conditionValue: SettingsValue? = prerequisiteFlagCondition.value
         var result = conditionValue == evaluateResult.value
 
@@ -343,8 +371,8 @@ internal class Evaluator(private val logger: InternalLogger) {
     ): Boolean {
         evaluateLogger.append(LogHelper.formatUserCondition(condition))
         if (context.user == null) {
-            if(!context.isUserMissing){
-                context.isUserMissing= true
+            if (!context.isUserMissing) {
+                context.isUserMissing = true
                 this.logger.warning(3001, ConfigCatLogMessages.getUserObjectMissing(context.key))
             }
             throw RolloutEvaluatorException("cannot evaluate, User Object is missing")
@@ -352,11 +380,13 @@ internal class Evaluator(private val logger: InternalLogger) {
         val comparisonAttribute = condition.comparisonAttribute
         val userValue = context.user.attributeFor(comparisonAttribute)
         val comparator = condition.comparator.toComparatorOrNull()
-            ?: // TODO add log
-            return false
+            ?: throw IllegalArgumentException("Comparison operator is invalid.")
 
         if (userValue.isNullOrEmpty()) {
-            logger.warning(3003, ConfigCatLogMessages.getUserAttributeMissing(context.key, condition, comparisonAttribute))
+            logger.warning(
+                3003,
+                ConfigCatLogMessages.getUserAttributeMissing(context.key, condition, comparisonAttribute)
+            )
             throw RolloutEvaluatorException("cannot evaluate, the User.$comparisonAttribute attribute is missing")
         }
 
@@ -371,7 +401,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                 return try {
                     val userVersion = userValue.toVersion()
                     processSemVerOneOf(condition, userVersion, comparator)
-                } catch (e: VersionFormatException){
+                } catch (e: VersionFormatException) {
                     val reason = "'$userValue' is not a valid semantic version"
                     logger.warning(
                         3004,
@@ -394,7 +424,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                 return try {
                     val userVersion = userValue.toVersion()
                     processSemVerCompare(condition, userVersion, comparator)
-                } catch (e: VersionFormatException){
+                } catch (e: VersionFormatException) {
                     val reason = "'$userValue' is not a valid semantic version"
                     logger.warning(
                         3004,
@@ -415,10 +445,10 @@ internal class Evaluator(private val logger: InternalLogger) {
             Comparator.LTE_NUM,
             Comparator.GT_NUM,
             Comparator.GTE_NUM -> {
-               return try {
+                return try {
                     val userNumber = userValue.trim().replace(",", ".").toDouble()
                     processNumber(condition, userNumber, comparator)
-                } catch (e: NumberFormatException){
+                } catch (e: NumberFormatException) {
                     val reason = "'$userValue' is not a valid decimal number"
                     logger.warning(
                         3004,
@@ -429,8 +459,8 @@ internal class Evaluator(private val logger: InternalLogger) {
                             comparisonAttribute
                         )
                     )
-                   throw RolloutEvaluatorException("cannot evaluate, the User.$comparisonAttribute attribute is invalid ($reason)")
-               }
+                    throw RolloutEvaluatorException("cannot evaluate, the User.$comparisonAttribute attribute is invalid ($reason)")
+                }
             }
 
             Comparator.ONE_OF_SENS,
@@ -443,8 +473,9 @@ internal class Evaluator(private val logger: InternalLogger) {
                 return try {
                     val userDateDouble = userValue.trim().replace(",", ".").toDouble()
                     processDateCompare(condition, userDateDouble, comparator)
-                } catch (e: NumberFormatException){
-                    val reason = "'$userValue' is not a valid Unix timestamp (number of seconds elapsed since Unix epoch)"
+                } catch (e: NumberFormatException) {
+                    val reason =
+                        "'$userValue' is not a valid Unix timestamp (number of seconds elapsed since Unix epoch)"
                     logger.warning(
                         3004,
                         ConfigCatLogMessages.getUserAttributeInvalid(
@@ -498,7 +529,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         var matched = false
         for (value in values) {
             matched = userValue.contains(value)
-            if(matched)
+            if (matched)
                 break
         }
         if ((matched && comparator == Comparator.CONTAINS_ANY_OF) ||
@@ -559,21 +590,17 @@ internal class Evaluator(private val logger: InternalLogger) {
         userNumber: Double,
         comparator: Comparator
     ): Boolean {
-        try {
+        val comparisonNumber = condition.doubleValue
+            ?: throw IllegalArgumentException("Comparison value is missing or invalid.")
 
-            val comparisonNumber = condition.doubleValue
-                ?: throw NumberFormatException()
-            return when (comparator) {
-                Comparator.EQ_NUM -> userNumber == comparisonNumber
-                Comparator.NOT_EQ_NUM -> userNumber != comparisonNumber
-                Comparator.LT_NUM -> userNumber < comparisonNumber
-                Comparator.LTE_NUM -> userNumber <= comparisonNumber
-                Comparator.GT_NUM -> userNumber > comparisonNumber
-                Comparator.GTE_NUM -> userNumber >= comparisonNumber
-                else -> false
-            }
-        } catch (e: NumberFormatException) {
-            return false
+        return when (comparator) {
+            Comparator.EQ_NUM -> userNumber == comparisonNumber
+            Comparator.NOT_EQ_NUM -> userNumber != comparisonNumber
+            Comparator.LT_NUM -> userNumber < comparisonNumber
+            Comparator.LTE_NUM -> userNumber <= comparisonNumber
+            Comparator.GT_NUM -> userNumber > comparisonNumber
+            Comparator.GTE_NUM -> userNumber >= comparisonNumber
+            else -> false
         }
     }
 
@@ -584,7 +611,6 @@ internal class Evaluator(private val logger: InternalLogger) {
         contextSalt: String,
         comparator: Comparator
     ): Boolean {
-        // TODO salt error handle
         val split = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
         val userValueHash = getSaltedUserValue(userValue, configSalt, contextSalt)
         return when (comparator) {
@@ -599,17 +625,13 @@ internal class Evaluator(private val logger: InternalLogger) {
         userDateDouble: Double,
         comparator: Comparator
     ): Boolean {
-        try {
-            val comparisonDateDouble = condition.doubleValue ?: throw NumberFormatException()
-            return when (comparator) {
-                Comparator.DATE_BEFORE -> userDateDouble < comparisonDateDouble
-                Comparator.DATE_AFTER -> userDateDouble > comparisonDateDouble
-                else -> false
-            }
-        } catch (e: NumberFormatException) {
-            // TODO add date specific error '{userAttributeValue}' is not a valid Unix timestamp (number of seconds elapsed since Unix epoch)
+        val comparisonDateDouble =
+            condition.doubleValue ?: throw IllegalArgumentException("Comparison value is missing or invalid.")
+        return when (comparator) {
+            Comparator.DATE_BEFORE -> userDateDouble < comparisonDateDouble
+            Comparator.DATE_AFTER -> userDateDouble > comparisonDateDouble
+            else -> false
         }
-        return false
     }
 
     private fun processHashedEqualsCompare(
@@ -619,8 +641,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         contextSalt: String,
         comparator: Comparator
     ): Boolean {
-        // TODO salt error handle
-        val userValueHash = getSaltedUserValue(userValue, configSalt, contextSalt )
+        val userValueHash = getSaltedUserValue(userValue, configSalt, contextSalt)
         val comparisonValue = condition.stringValue
         return when (comparator) {
             Comparator.HASHED_EQUALS -> userValueHash == comparisonValue
@@ -636,31 +657,29 @@ internal class Evaluator(private val logger: InternalLogger) {
         contextSalt: String,
         comparator: Comparator
     ): Boolean {
-        // TODO salt error handle
         val withValuesSplit = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
         var matchCondition = false
         for (comparisonValueHashedStartsEnds in withValuesSplit) {
             try {
                 val comparedTextLength = comparisonValueHashedStartsEnds.substringBeforeLast("_")
                 if (comparedTextLength == comparisonValueHashedStartsEnds) {
-                    return false
+                    throw IllegalArgumentException("Comparison value is missing or invalid.")
                 }
                 val comparedTextLengthInt: Int = comparedTextLength.toInt()
-                if(userValue.length < comparedTextLengthInt){
+                if (userValue.length < comparedTextLengthInt) {
                     continue
                 }
                 val comparisonHashValue = comparisonValueHashedStartsEnds.substringAfterLast("_")
                 if (comparisonHashValue.isEmpty()) {
-                    return false
+                    throw IllegalArgumentException("Comparison value is missing or invalid.")
                 }
                 val userValueHashed =
                     if (comparator == Comparator.HASHED_STARTS_WITH || comparator == Comparator.HASHED_NOT_STARTS_WITH) {
                         getSaltedUserValue(userValue.substring(0, comparedTextLengthInt), configSalt, contextSalt)
                     } else {
                         // Comparator.HASHED_ENDS_WITH, Comparator.HASHED_NOT_ENDS_WITH
-                        //TODO check value has to be bigger than 0
                         getSaltedUserValue(
-                            userValue.substring( userValue.length - comparedTextLengthInt),
+                            userValue.substring(userValue.length - comparedTextLengthInt),
                             configSalt,
                             contextSalt
                         )
@@ -669,8 +688,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                     matchCondition = true
                 }
             } catch (e: NumberFormatException) {
-                // TODO log error
-                return false
+                throw IllegalArgumentException("Comparison value is missing or invalid.")
             }
         }
         if (comparator == Comparator.HASHED_NOT_STARTS_WITH || comparator == Comparator.HASHED_NOT_ENDS_WITH) {
@@ -687,7 +705,6 @@ internal class Evaluator(private val logger: InternalLogger) {
         contextSalt: String,
         comparator: Comparator
     ): Boolean {
-        // TODO salt error handle
         val withValuesSplit = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
         val userCSVNotContainsHashSplit = userValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
         if (userCSVNotContainsHashSplit.isEmpty()) {
@@ -696,7 +713,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         var contains = false
         userCSVNotContainsHashSplit.forEach {
             val hashedUserValue = getSaltedUserValue(it, configSalt, contextSalt)
-            if(withValuesSplit.contains(hashedUserValue)){
+            if (withValuesSplit.contains(hashedUserValue)) {
                 contains = true
             }
         }
@@ -755,12 +772,12 @@ internal class Evaluator(private val logger: InternalLogger) {
         val scale = numberRepresentation % 100
         evaluateLogger.logPercentageOptionEvaluationHash(percentageOptionAttributeName, scale)
 
-        if(percentageOptions.isNullOrEmpty()){
+        if (percentageOptions.isNullOrEmpty()) {
             return null
         }
 
         var bucket = 0.0
-        for (i in percentageOptions.indices){
+        for (i in percentageOptions.indices) {
             val rule = percentageOptions[i]
             bucket += rule.percentage
             if (scale < bucket) {
@@ -802,13 +819,13 @@ internal class Evaluator(private val logger: InternalLogger) {
     }
 
     enum class PrerequisiteComparator(val id: Int, val value: String) {
-        EQUALS(0,"EQUALS"),
-        NOT_EQUALS(1,"NOT EQUALS")
+        EQUALS(0, "EQUALS"),
+        NOT_EQUALS(1, "NOT EQUALS")
     }
 
     enum class SegmentComparator(val id: Int, val value: String) {
-        IS_IN_SEGMENT(0,"IS IN SEGMENT"),
-        IS_NOT_IN_SEGMENT(1,"IS NOT IN SEGMENT")
+        IS_IN_SEGMENT(0, "IS IN SEGMENT"),
+        IS_NOT_IN_SEGMENT(1, "IS NOT IN SEGMENT")
     }
 
 }
@@ -826,7 +843,7 @@ internal class EvaluateLogger {
     }
 
     fun decreaseIndentLevel() {
-        if(indentLevel > 0)
+        if (indentLevel > 0)
             indentLevel--
     }
 
@@ -836,10 +853,12 @@ internal class EvaluateLogger {
             entries.append("  ")
         }
     }
+
     fun print(): String {
         return entries.toString()
     }
-    fun logEvaluation(key: String){
+
+    fun logEvaluation(key: String) {
         append("Evaluating '$key'")
     }
 
@@ -942,8 +961,8 @@ internal class EvaluateLogger {
         newLine()
         append(
             "Condition (" + LogHelper.formatSegmentFlagCondition(
-                segmentCondition!!,
-                segment!!
+                segmentCondition,
+                segment
             ) + ") evaluates to " + result + "."
         )
         decreaseIndentLevel()
@@ -975,4 +994,4 @@ internal class EvaluateLogger {
     }
 }
 
-internal class RolloutEvaluatorException(message: String?): Exception(message)
+internal class RolloutEvaluatorException(message: String?) : Exception(message)

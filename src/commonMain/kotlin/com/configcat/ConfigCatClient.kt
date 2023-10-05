@@ -1,9 +1,11 @@
 package com.configcat
 
+import com.configcat.Client.SettingTypeHelp.toSettingTypeOrNull
 import com.configcat.fetch.ConfigFetcher
 import com.configcat.fetch.RefreshResult
 import com.configcat.log.*
 import com.configcat.model.Setting
+import com.configcat.model.SettingType
 import com.configcat.model.SettingsValue
 import com.configcat.override.FlagOverrides
 import com.configcat.override.OverrideBehavior
@@ -304,14 +306,12 @@ internal class Client private constructor(
             if (setting.value.variationId == variationId) {
                 return Pair(setting.key, parseSettingValue(setting.value.settingsValue, setting.value.type))
             }
-            // TODO handle null better then !! ?
-            for (targetingRule in setting.value.targetingRules!!) {
+            setting.value.targetingRules?.forEach { targetingRule ->
                 if (targetingRule.servedValue?.variationId == variationId) {
                     return Pair(setting.key, parseSettingValue(targetingRule.servedValue.value, setting.value.type))
                 }
             }
-            // TODO handle null better then !! ?
-            for (percentageOption in setting.value.percentageOptions!!) {
+            setting.value.percentageOptions?.forEach { percentageOption ->
                 if (percentageOption.variationId == variationId) {
                     return Pair(setting.key, parseSettingValue(percentageOption.value, setting.value.type))
                 }
@@ -416,7 +416,7 @@ internal class Client private constructor(
         fetchTime: DateTime,
         settings: Map<String, Setting>
     ): EvaluationDetails {
-        val (value, variationId, targetingRule, percentageRule) = evaluator.evaluate(setting, key, user, null, settings, EvaluateLogger())
+        val (value, variationId, targetingRule, percentageRule) = evaluator.evaluate(setting, key, user,  settings, EvaluateLogger())
         val details = EvaluationDetails(
             key, variationId, user, false, null, parseSettingValue(value, setting.type),
             fetchTime.unixMillisLong, targetingRule, percentageRule
@@ -453,22 +453,34 @@ internal class Client private constructor(
     }
 
     private fun parseSettingValue(settingsValue: SettingsValue?, settingType: Int): Any {
-        require(settingsValue != null) { "The type of a setting must match the type of the value." }
+        val settingTypeEnum = settingType.toSettingTypeOrNull()
 
-        return if (settingType == 0 && settingsValue.booleanValue != null) {
-            settingsValue.booleanValue!!
-        } else if (settingType == 1 && settingsValue.stringValue != null) {
-            settingsValue.stringValue!!
-        } else if (settingType == 2 && settingsValue.integerValue != null) {
-            settingsValue.integerValue!!
-        } else if (settingType == 3 && settingsValue.doubleValue != null) {
-            settingsValue.doubleValue!!
-        } else {
-            // TODO talk over this kind of exception!
+        require(settingsValue != null) { "Setting value is missing." }
+        val result: Any?
+        result = when (settingTypeEnum) {
+            SettingType.BOOLEAN -> {
+                settingsValue.booleanValue
+            }
+            SettingType.STRING -> {
+                settingsValue.stringValue
+            }
+            SettingType.INT -> {
+                settingsValue.integerValue
+            }
+            SettingType.DOUBLE -> {
+                settingsValue.doubleValue
+            }
+            else -> {
+                throw IllegalArgumentException(
+                "The setting type is not valid. Only String, Int, Double or Boolean types are supported.")
+            }
+        }
+        if (result == null){
             throw IllegalArgumentException(
-                "The type of a setting must match the type of the value. "
+                "Setting value is not of the expected type ${settingTypeEnum.value}."
             )
         }
+        return result
     }
 
     private fun checkSettingsAvailable(settingResult: SettingResult, emptyResult: String): Boolean {
@@ -562,5 +574,10 @@ internal class Client private constructor(
                 instances.clear()
             }
         }
+    }
+
+    internal object SettingTypeHelp{
+        fun Int.toSettingTypeOrNull(): SettingType? = SettingType.values().firstOrNull { it.id == this }
+
     }
 }
