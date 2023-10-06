@@ -121,7 +121,7 @@ class EvaluationTest {
             val logsList = evaluationTestLogger.getLogList()
             for( i in logsList.indices) {
                 var log = logsList[i]
-                logResultBuilder.append(log)
+                logResultBuilder.append(log.logMessage)
                 if(i != logsList.size - 1)
                     logResultBuilder.append("\n")
             }

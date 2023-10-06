@@ -23,8 +23,13 @@ class EvaluationLoggerTurnOffTest {
         client.forceRefresh()
 
         val result: Any = client.getAnyValue("stringContainsDogDefaultCat", "default", null)
+
+        val logList = evaluationTestLogger.getLogList()
         assertEquals("Cat", result, "Return value not match.")
         assertEquals(2, evaluationTestLogger.getLogList().size, "Logged event size not match.")
+        assertEquals(LogLevel.WARNING, logList[0].logLevel, "Logged event level not match.")
+        assertEquals(LogLevel.INFO, logList[1].logLevel, "Logged event level not match.")
+
         client.close()
     }
 
@@ -40,8 +45,12 @@ class EvaluationLoggerTurnOffTest {
         client.forceRefresh()
 
         val result: Any = client.getAnyValue("stringContainsDogDefaultCat", "default", null)
+
+        val logList = evaluationTestLogger.getLogList()
         assertEquals("Cat", result, "Return value not match.")
-        assertEquals(1, evaluationTestLogger.getLogList().size, "Logged event size not match.")
+        assertEquals(1, logList.size, "Logged event size not match.")
+        assertEquals(LogLevel.WARNING, logList[0].logLevel, "Logged event level not match.")
+
         client.close()
     }
 }
