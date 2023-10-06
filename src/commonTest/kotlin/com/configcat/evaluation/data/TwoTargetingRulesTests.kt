@@ -5,7 +5,6 @@ import com.configcat.ConfigCatUser
 object TwoTargetingRulesTests: TestSet {
     override val sdkKey = "PKDVCLf-Hq-h-kCzMp-L7Q/psuH7BGHoUmdONrzzUOY7A"
     override val baseUrl = null
-        //"https://app.configcat.com/08d5a03c-feb7-af1e-a1fa-40b3329f8bed/08d62463-86ec-8fde-f5b5-1c5c426fc830/244cf8b0-f604-11e8-b543-f23c917f9d8d"
     override val jsonOverride = null
     override val tests: Array<TestCase> = arrayOf(
         TestCase(

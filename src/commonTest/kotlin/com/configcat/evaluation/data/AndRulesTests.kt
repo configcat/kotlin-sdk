@@ -3,8 +3,8 @@ package com.configcat.evaluation.data
 import com.configcat.ConfigCatUser
 
 object AndRulesTests: TestSet {
-    override val sdkKey = "configcat-sdk-1/XUbbCFZX_0mOU_uQ_XYGMg/FfwncdJg1kq0lBqxhYC_7g"
-    override val baseUrl = "https://test-cdn-eu.configcat.com"
+    override val sdkKey = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/ByMO9yZNn02kXcm72lnY1A"
+    override val baseUrl = null
     override val jsonOverride = null
     override val tests: Array<TestCase> = arrayOf(
         TestCase(

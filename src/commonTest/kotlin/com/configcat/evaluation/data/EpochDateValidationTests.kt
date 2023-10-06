@@ -3,8 +3,8 @@ package com.configcat.evaluation.data
 import com.configcat.ConfigCatUser
 
 object EpochDateValidationTests : TestSet {
-    override val sdkKey = "configcat-sdk-1/XUbbCFZX_0mOU_uQ_XYGMg/Lv2mD9Tgx0Km27nuHjw_FA"
-    override val baseUrl = "https://test-cdn-eu.configcat.com"
+    override val sdkKey = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/OfQqcTjfFUGBwMKqtyEOrQ"
+    override val baseUrl = null
     override val jsonOverride = null
     override val tests: Array<TestCase> = arrayOf(
         TestCase(

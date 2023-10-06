@@ -1,7 +1,8 @@
 package com.configcat.integration.matrix
 
 object Matrix : DataMatrix {
-    override val sdkKey = "PKDVCLf-Hq-h-kCzMp-L7Q/psuH7BGHoUmdONrzzUOY7A"
+    override val sdkKeyV5: String? = "PKDVCLf-Hq-h-kCzMp-L7Q/psuH7BGHoUmdONrzzUOY7A"
+    override val sdkKeyV6: String? = "configcat-sdk-1/PKDVCLf-Hq-h-kCzMp-L7Q/AG6C1ngVb0CvM07un6JisQ"
     override val data =
         """Identifier;Email;Country;Custom1;bool30TrueAdvancedRules;boolDefaultFalse;boolDefaultTrue;double25Pi25E25Gr25Zero;doubleDefaultPi;integer25One25Two25Three25FourAdvancedRules;integerDefaultOne;string25Cat25Dog25Falcon25Horse;string25Cat25Dog25Falcon25HorseAdvancedRules;string75Cat0Dog25Falcon0Horse;stringContainsDogDefaultCat;stringDefaultCat;stringIsInDogDefaultCat;stringIsNotInDogDefaultCat;stringNotContainsDogDefaultCat
 ##null##;;;;True;False;True;-1;3.1415;-1;1;Chicken;Chicken;Chicken;Cat;Cat;Cat;Cat;Cat

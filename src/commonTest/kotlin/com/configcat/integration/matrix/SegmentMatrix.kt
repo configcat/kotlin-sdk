@@ -1,7 +1,8 @@
 package com.configcat.integration.matrix
 
 object SegmentMatrix : DataMatrix {
-    override val sdkKey = "configcat-sdk-1/XUbbCFZX_0mOU_uQ_XYGMg/LP0_4hhbQkmVVJcsbO_2Lw"
+    override val sdkKeyV5: String? = null
+    override val sdkKeyV6: String? = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/h99HYXWWNE2bH8eWyLAVMA"
     override val data =
         """Identifier;Email;Country;Custom1;developerAndBetaUserSegment
 ##null##;;;;False

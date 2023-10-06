@@ -1,7 +1,8 @@
 package com.configcat.integration.matrix
 
 object NumberMatrix : DataMatrix {
-    override val sdkKey = "PKDVCLf-Hq-h-kCzMp-L7Q/uGyK3q9_ckmdxRyI7vjwCw"
+    override val sdkKeyV5: String? = "PKDVCLf-Hq-h-kCzMp-L7Q/uGyK3q9_ckmdxRyI7vjwCw"
+    override val sdkKeyV6: String? = "configcat-sdk-1/PKDVCLf-Hq-h-kCzMp-L7Q/FCWN-k1dV0iBf8QZrDgjdw"
     override val data = """Identifier;Email;Country;Custom1;numberWithPercentage;number
 ##null##;;;;Default;Default
 id1;;;0;<2.1;<>5

@@ -62,6 +62,7 @@ internal object LogHelper {
         }
 
         return if (isDate) {
+            //TODO E format, this is not long
             val comparisonValueString = comparisonValue.toLong().toString()
             "'$comparisonValueString' (${comparisonValue.toDateTimeUTCString()} UTC)"
         } else {

@@ -1,7 +1,8 @@
 package com.configcat.integration.matrix
 
 object SensitiveMatrix : DataMatrix {
-    override val sdkKey = "PKDVCLf-Hq-h-kCzMp-L7Q/qX3TP2dTj06ZpCCT1h_SPA"
+    override val sdkKeyV5: String? = "PKDVCLf-Hq-h-kCzMp-L7Q/qX3TP2dTj06ZpCCT1h_SPA"
+    override val sdkKeyV6: String? = "configcat-sdk-1/PKDVCLf-Hq-h-kCzMp-L7Q/-0YmVOUNgEGKkgRF-rU65g"
     override val data = """Identifier;Email;Country;Custom1;isOneOfSensitive;isNotOneOfSensitive
 ##null##;;;;ToAll;ToAll
 id1;macska@example.com;;;Macska;Kigyo

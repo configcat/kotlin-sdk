@@ -1,7 +1,8 @@
 package com.configcat.integration.matrix
 
 object PrerequisiteFlagMatrix : DataMatrix {
-    override val sdkKey = "configcat-sdk-1/XUbbCFZX_0mOU_uQ_XYGMg/Lv2mD9Tgx0Km27nuHjw_FA"
+    override val sdkKeyV5: String? = null
+    override val sdkKeyV6: String? = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/JoGwdqJZQ0K2xDy7LnbyOg"
     override val data =
         """Identifier;Email;Country;Custom1;mainBoolFlag;mainStringFlag;mainIntFlag;mainDoubleFlag;stringDependsOnBool;stringDependsOnString;stringDependsOnStringCaseCheck;stringDependsOnInt;stringDependsOnDouble;stringDependsOnDoubleIntValue;boolDependsOnBool;intDependsOnBool;doubleDependsOnBool;boolDependsOnBoolDependsOnBool;mainBoolFlagEmpty;stringDependsOnEmptyBool;stringInverseDependsOnEmptyBool;mainBoolFlagInverse;boolDependsOnBoolInverse
 ##null##;;;;True;public;42;3.14;Dog;Cat;Cat;Cat;Cat;Cat;True;1;1.1;False;True;EmptyOn;EmptyOn;False;True

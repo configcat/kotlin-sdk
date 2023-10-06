@@ -1,7 +1,8 @@
 package com.configcat.integration.matrix
 
 object VariationIdMatrix : DataMatrix {
-    override val sdkKey = "PKDVCLf-Hq-h-kCzMp-L7Q/nQ5qkhRAUEa6beEyyrVLBA"
+    override val sdkKeyV5: String? = "PKDVCLf-Hq-h-kCzMp-L7Q/nQ5qkhRAUEa6beEyyrVLBA"
+    override val sdkKeyV6: String? = "configcat-sdk-1/PKDVCLf-Hq-h-kCzMp-L7Q/spQnkRTIPEWVivZkWM84lQ"
     override val data = """Identifier;Email;Country;Custom1;boolean;decimal;text;whole
 ##null##;;;;a0e56eda;63612d39;3f05be89;cf2e9162;
 a@configcat.com;a@configcat.com;Hungary;admin;67787ae4;8f9559cf;9bdc6a1f;ab30533b;

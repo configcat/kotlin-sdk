@@ -1,7 +1,8 @@
 package com.configcat.integration.matrix
 
 object SemanticMatrix2 : DataMatrix {
-    override val sdkKey = "PKDVCLf-Hq-h-kCzMp-L7Q/q6jMCFIp-EmuAfnmZhPY7w"
+    override val sdkKeyV5: String? = "PKDVCLf-Hq-h-kCzMp-L7Q/q6jMCFIp-EmuAfnmZhPY7w"
+    override val sdkKeyV6: String? = "configcat-sdk-1/PKDVCLf-Hq-h-kCzMp-L7Q/U8nt3zEhDEO5S2ulubCopA"
     override val data = """Identifier;Email;Country;AppVersion;precedenceTests
 dontcare;;;1.9.1-1;< 1.9.1-2
 dontcare;;;1.9.1-2;< 1.9.1-10

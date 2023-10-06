@@ -1,7 +1,8 @@
 package com.configcat.integration.matrix
 
 object ComparatorsV6Matrix : DataMatrix {
-    override val sdkKey = "configcat-sdk-1/XUbbCFZX_0mOU_uQ_XYGMg/Lv2mD9Tgx0Km27nuHjw_FA"
+    override val sdkKeyV5: String? = null
+    override val sdkKeyV6: String? = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/OfQqcTjfFUGBwMKqtyEOrQ"
     override val data =
         """Identifier;Email;Country;Custom1;boolTrueIn202304;stringEqualsDogDefaultCat;stringDoseNotEqualDogDefaultCat;stringStartsWithDogDefaultCat;stringNotStartsWithDogDefaultCat;stringEndsWithDogDefaultCat;stringNotEndsWithDogDefaultCat;arrayContainsDogDefaultCat;arrayDoesNotContainDogDefaultCat;arrayContainsCaseCheckDogDefaultCat;arrayDoesNotContainCaseCheckDogDefaultCat;customPercentageAttribute;missingPercentageAttribute;countryPercentageAttribute
 ##null##;;;;False;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Chicken;Chicken;Chicken

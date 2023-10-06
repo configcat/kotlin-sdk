@@ -22,59 +22,65 @@ class RolloutMatrixTests {
 
     @Test
     fun testMatrix() = runTest {
-        runMatrixTest(Matrix, true)
+        Matrix.sdkKeyV5?.let { runMatrixTest(Matrix, it,true) }
+        Matrix.sdkKeyV6?.let { runMatrixTest(Matrix, it,true) }
     }
 
     @Test
     fun testNumberMatrix() = runTest {
-        runMatrixTest(NumberMatrix, true)
+        Matrix.sdkKeyV5?.let { runMatrixTest(NumberMatrix, it,true) }
+        Matrix.sdkKeyV6?.let { runMatrixTest(NumberMatrix, it,true) }
     }
 
     @Test
     fun testSemanticMatrix() = runTest {
-        runMatrixTest(SemanticMatrix, true)
+        Matrix.sdkKeyV5?.let { runMatrixTest(SemanticMatrix, it,true) }
+        Matrix.sdkKeyV6?.let { runMatrixTest(SemanticMatrix, it,true) }
     }
 
     @Test
     fun testSemantic2Matrix() = runTest {
-        runMatrixTest(SemanticMatrix2, true)
+        Matrix.sdkKeyV5?.let { runMatrixTest(SemanticMatrix2, it,true) }
+        Matrix.sdkKeyV6?.let { runMatrixTest(SemanticMatrix2, it,true) }
     }
 
     @Test
     fun testSensitiveMatrix() = runTest {
-        runMatrixTest(SensitiveMatrix, true)
+        Matrix.sdkKeyV5?.let { runMatrixTest(SensitiveMatrix, it,true) }
+        Matrix.sdkKeyV6?.let { runMatrixTest(SensitiveMatrix, it,true) }
     }
 
     @Test
     fun testVariationMatrix() = runTest {
-        runMatrixTest(VariationIdMatrix, false)
+        Matrix.sdkKeyV5?.let { runMatrixTest(VariationIdMatrix, it,false) }
+        Matrix.sdkKeyV6?.let { runMatrixTest(VariationIdMatrix, it,false) }
     }
 
     @Test
     fun testAndOrMatrix() = runTest {
-        runMatrixTest(AndOrMatrix, true)
+        Matrix.sdkKeyV6?.let { runMatrixTest(AndOrMatrix, it,true) }
     }
 
     @Test
     fun testComparatorsV6Matrix() = runTest {
-        runMatrixTest(ComparatorsV6Matrix, true)
+        Matrix.sdkKeyV6?.let { runMatrixTest(ComparatorsV6Matrix, it,true) }
     }
 
     @Test
     fun testPrerequisiteFlagMatrix() = runTest {
-        runMatrixTest(PrerequisiteFlagMatrix, true)
+        Matrix.sdkKeyV6?.let { runMatrixTest(PrerequisiteFlagMatrix, it,true) }
     }
 
     @Test
     fun testSegmentMatrix() = runTest {
-        runMatrixTest(SegmentMatrix, true)
+        Matrix.sdkKeyV6?.let { runMatrixTest(SegmentMatrix, it,true) }
     }
 
-    private suspend fun runMatrixTest(matrix: DataMatrix, isValueKind: Boolean) {
+    private suspend fun runMatrixTest(matrix: DataMatrix, sdkyKey: String, isValueKind: Boolean) {
         val mockEngine = MockEngine {
             respond(content = matrix.remoteJson, status = HttpStatusCode.OK)
         }
-        val client = ConfigCatClient(matrix.sdkKey) {
+        val client = ConfigCatClient(sdkyKey) {
             pollingMode = manualPoll()
             httpEngine = mockEngine
         }
