@@ -2,7 +2,7 @@ package com.configcat.evaluation.data
 
 import com.configcat.ConfigCatUser
 
-object ListTruncationTests: TestSet {
+object ListTruncationTests : TestSet {
     override val sdkKey = "configcat-sdk-test-key/0000000000000000000001"
     override val baseUrl = null
     override val jsonOverride = """{

@@ -2,7 +2,7 @@ package com.configcat.evaluation.data
 
 import com.configcat.ConfigCatUser
 
-object TwoTargetingRulesTests: TestSet {
+object TwoTargetingRulesTests : TestSet {
     override val sdkKey = "PKDVCLf-Hq-h-kCzMp-L7Q/psuH7BGHoUmdONrzzUOY7A"
     override val baseUrl = null
     override val jsonOverride = null
@@ -41,7 +41,7 @@ INFO [5000] Evaluating 'stringIsInDogDefaultCat' for User '{"Identifier":"12345"
             key = "stringIsInDogDefaultCat",
             defaultValue = "default",
             returnValue = "Cat",
-            user = ConfigCatUser("12345", custom = mapOf("Custom1" to "user") ),
+            user = ConfigCatUser("12345", custom = mapOf("Custom1" to "user")),
             expectedLog = """WARNING [3003] Cannot evaluate condition (User.Email IS ONE OF [<2 hashed values>]) for setting 'stringIsInDogDefaultCat' (the User.Email attribute is missing). You should set the User.Email attribute in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
 INFO [5000] Evaluating 'stringIsInDogDefaultCat' for User '{"Identifier":"12345","Custom1":"user"}'
   Evaluating targeting rules and applying the first match if any:
@@ -55,7 +55,7 @@ INFO [5000] Evaluating 'stringIsInDogDefaultCat' for User '{"Identifier":"12345"
             key = "stringIsInDogDefaultCat",
             defaultValue = "default",
             returnValue = "Dog",
-            user = ConfigCatUser("12345", custom = mapOf("Custom1" to "admin") ),
+            user = ConfigCatUser("12345", custom = mapOf("Custom1" to "admin")),
             expectedLog = """WARNING [3003] Cannot evaluate condition (User.Email IS ONE OF [<2 hashed values>]) for setting 'stringIsInDogDefaultCat' (the User.Email attribute is missing). You should set the User.Email attribute in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
 INFO [5000] Evaluating 'stringIsInDogDefaultCat' for User '{"Identifier":"12345","Custom1":"admin"}'
   Evaluating targeting rules and applying the first match if any:
@@ -65,5 +65,5 @@ INFO [5000] Evaluating 'stringIsInDogDefaultCat' for User '{"Identifier":"12345"
   Returning 'Dog'.""".trimIndent(),
         ),
 
-    )
+        )
 }

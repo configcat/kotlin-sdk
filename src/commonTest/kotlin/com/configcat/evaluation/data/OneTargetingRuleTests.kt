@@ -37,7 +37,7 @@ INFO [5000] Evaluating 'stringContainsDogDefaultCat' for User '{"Identifier":"12
             key = "stringContainsDogDefaultCat",
             defaultValue = "default",
             returnValue = "Cat",
-            user = ConfigCatUser("12345","joe@example.com"),
+            user = ConfigCatUser("12345", "joe@example.com"),
             expectedLog = """INFO [5000] Evaluating 'stringContainsDogDefaultCat' for User '{"Identifier":"12345","Email":"joe@example.com"}'
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email CONTAINS ANY OF ['@configcat.com'] THEN 'Dog' => no match
@@ -48,7 +48,7 @@ INFO [5000] Evaluating 'stringContainsDogDefaultCat' for User '{"Identifier":"12
             key = "stringContainsDogDefaultCat",
             defaultValue = "default",
             returnValue = "Dog",
-            user = ConfigCatUser("12345","joe@configcat.com"),
+            user = ConfigCatUser("12345", "joe@configcat.com"),
             expectedLog = """INFO [5000] Evaluating 'stringContainsDogDefaultCat' for User '{"Identifier":"12345","Email":"joe@configcat.com"}'
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email CONTAINS ANY OF ['@configcat.com'] THEN 'Dog' => MATCH, applying rule

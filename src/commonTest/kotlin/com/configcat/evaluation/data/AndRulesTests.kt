@@ -2,7 +2,7 @@ package com.configcat.evaluation.data
 
 import com.configcat.ConfigCatUser
 
-object AndRulesTests: TestSet {
+object AndRulesTests : TestSet {
     override val sdkKey = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/ByMO9yZNn02kXcm72lnY1A"
     override val baseUrl = null
     override val jsonOverride = null
@@ -24,7 +24,7 @@ INFO [5000] Evaluating 'emailAnd'
             key = "emailAnd",
             defaultValue = "default",
             returnValue = "Cat",
-            user = ConfigCatUser("12345","jane@configcat.com"),
+            user = ConfigCatUser("12345", "jane@configcat.com"),
             expectedLog = """INFO [5000] Evaluating 'emailAnd' for User '{"Identifier":"12345","Email":"jane@configcat.com"}'
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email STARTS WITH ANY OF [<1 hashed value>] => true

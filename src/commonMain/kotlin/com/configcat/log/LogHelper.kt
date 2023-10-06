@@ -20,7 +20,7 @@ internal object LogHelper {
         if (comparisonValue == null) {
             return INVALID_VALUE
         }
-        val comparisonValues = comparisonValue.map {it}
+        val comparisonValues = comparisonValue.map { it }
         if (comparisonValues.isEmpty()) {
             return INVALID_VALUE
         }
@@ -35,11 +35,11 @@ internal object LogHelper {
                 val countPostFix = if (count == 1) "value" else "values"
                 listPostFix = " ... <$count more $countPostFix>"
             }
-            val subList: List<String> = comparisonValues.subList(0, minOf( MAX_LIST_ELEMENT, comparisonValues.size))
+            val subList: List<String> = comparisonValues.subList(0, minOf(MAX_LIST_ELEMENT, comparisonValues.size))
             val formatListBuilder = StringBuilder()
-            for(i in subList.indices){
+            for (i in subList.indices) {
                 formatListBuilder.append("'${subList[i]}'")
-                if(i != subList.size-1){
+                if (i != subList.size - 1) {
                     formatListBuilder.append(", ")
                 }
             }
@@ -67,8 +67,9 @@ internal object LogHelper {
             "'$comparisonValueString' (${comparisonValue.toDateTimeUTCString()} UTC)"
         } else {
             var comparisonValueString = comparisonValue.toString()
-            if(comparisonValueString.contains('.') || comparisonValueString.contains(',')){
-                comparisonValueString = comparisonValueString.trimEnd { it == '0' }.trimEnd { it == '.' }.trimEnd { it == ',' }
+            if (comparisonValueString.contains('.') || comparisonValueString.contains(',')) {
+                comparisonValueString =
+                    comparisonValueString.trimEnd { it == '0' }.trimEnd { it == '.' }.trimEnd { it == ',' }
             }
             "'$comparisonValueString'"
         }
@@ -78,30 +79,32 @@ internal object LogHelper {
     fun formatUserCondition(userCondition: UserCondition): String {
         val userComparator = userCondition.comparator.toComparatorOrNull()
         val comparisonValue: String = when (userComparator) {
-                Evaluator.Comparator.CONTAINS_ANY_OF,
-                Evaluator.Comparator.NOT_CONTAINS_ANY_OF,
-                Evaluator.Comparator.ONE_OF_SEMVER,
-                Evaluator.Comparator.NOT_ONE_OF_SEMVER -> formatStringListComparisonValue(
-                    userCondition.stringArrayValue,
-                    false
-                )
+            Evaluator.Comparator.CONTAINS_ANY_OF,
+            Evaluator.Comparator.NOT_CONTAINS_ANY_OF,
+            Evaluator.Comparator.ONE_OF_SEMVER,
+            Evaluator.Comparator.NOT_ONE_OF_SEMVER -> formatStringListComparisonValue(
+                userCondition.stringArrayValue,
+                false
+            )
 
             Evaluator.Comparator.LT_SEMVER,
             Evaluator.Comparator.LTE_SEMVER,
             Evaluator.Comparator.GT_SEMVER,
             Evaluator.Comparator.GTE_SEMVER -> formatStringComparisonValue(
-                    userCondition.stringValue,
-                    false
-                )
+                userCondition.stringValue,
+                false
+            )
+
             Evaluator.Comparator.EQ_NUM,
             Evaluator.Comparator.NOT_EQ_NUM,
             Evaluator.Comparator.LT_NUM,
             Evaluator.Comparator.LTE_NUM,
             Evaluator.Comparator.GT_NUM,
             Evaluator.Comparator.GTE_NUM -> formatDoubleComparisonValue(
-                    userCondition.doubleValue,
-                    false
-                )
+                userCondition.doubleValue,
+                false
+            )
+
             Evaluator.Comparator.ONE_OF_SENS,
             Evaluator.Comparator.NOT_ONE_OF_SENS,
             Evaluator.Comparator.HASHED_STARTS_WITH,
@@ -110,14 +113,22 @@ internal object LogHelper {
             Evaluator.Comparator.HASHED_NOT_ENDS_WITH,
             Evaluator.Comparator.HASHED_ARRAY_CONTAINS,
             Evaluator.Comparator.HASHED_ARRAY_NOT_CONTAINS -> formatStringListComparisonValue(
-                    userCondition.stringArrayValue,
-                    true
-                )
+                userCondition.stringArrayValue,
+                true
+            )
 
-            Evaluator.Comparator.DATE_BEFORE,  Evaluator.Comparator.DATE_AFTER -> formatDoubleComparisonValue(userCondition.doubleValue, true)
-                Evaluator.Comparator.HASHED_EQUALS, Evaluator.Comparator.HASHED_NOT_EQUALS -> formatStringComparisonValue(userCondition.stringValue, true)
-                else -> INVALID_VALUE
-            }
+            Evaluator.Comparator.DATE_BEFORE, Evaluator.Comparator.DATE_AFTER -> formatDoubleComparisonValue(
+                userCondition.doubleValue,
+                true
+            )
+
+            Evaluator.Comparator.HASHED_EQUALS, Evaluator.Comparator.HASHED_NOT_EQUALS -> formatStringComparisonValue(
+                userCondition.stringValue,
+                true
+            )
+
+            else -> INVALID_VALUE
+        }
         return "User.${userCondition.comparisonAttribute} ${userComparator?.value} $comparisonValue"
     }
 
@@ -128,17 +139,17 @@ internal object LogHelper {
 
     fun formatCircularDependencyList(visitedKeys: List<String?>, key: String?): String {
         val builder = StringBuilder()
-        visitedKeys.forEach {
-                visitedKey: String? ->  builder.append("'").append(visitedKey).append("' -> ")
+        visitedKeys.forEach { visitedKey: String? ->
+            builder.append("'").append(visitedKey).append("' -> ")
         }
         builder.append("'").append(key).append("'")
         return builder.toString()
     }
 
-    fun formatSegmentFlagCondition(segmentCondition: SegmentCondition?, segment: Segment?) : String {
+    fun formatSegmentFlagCondition(segmentCondition: SegmentCondition?, segment: Segment?): String {
         val segmentName: String?
         if (segment != null) {
-            segmentName = segment.name?: INVALID_NAME
+            segmentName = segment.name ?: INVALID_NAME
         } else {
             segmentName = INVALID_REFERENCE
         }

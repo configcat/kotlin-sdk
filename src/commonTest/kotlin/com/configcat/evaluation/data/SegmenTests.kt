@@ -23,7 +23,7 @@ INFO [5000] Evaluating 'featureWithSegmentTargeting'
             key = "featureWithSegmentTargeting",
             defaultValue = false,
             returnValue = true,
-            user = ConfigCatUser("12345","jane@example.com"),
+            user = ConfigCatUser("12345", "jane@example.com"),
             expectedLog = """INFO [5000] Evaluating 'featureWithSegmentTargeting' for User '{"Identifier":"12345","Email":"jane@example.com"}'
   Evaluating targeting rules and applying the first match if any:
   - IF User IS IN SEGMENT 'Beta users'
@@ -40,7 +40,7 @@ INFO [5000] Evaluating 'featureWithSegmentTargeting'
             key = "featureWithNegatedSegmentTargeting",
             defaultValue = false,
             returnValue = false,
-            user = ConfigCatUser("12345","jane@example.com"),
+            user = ConfigCatUser("12345", "jane@example.com"),
             expectedLog = """INFO [5000] Evaluating 'featureWithNegatedSegmentTargeting' for User '{"Identifier":"12345","Email":"jane@example.com"}'
   Evaluating targeting rules and applying the first match if any:
   - IF User IS NOT IN SEGMENT 'Beta users'

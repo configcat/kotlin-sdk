@@ -64,7 +64,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             evaluateLogger?.decreaseIndentLevel()
             return evaluationResult
         } finally {
-            if(evaluateLogger != null){
+            if (evaluateLogger != null) {
                 logger.info(5000, evaluateLogger.print())
             }
         }

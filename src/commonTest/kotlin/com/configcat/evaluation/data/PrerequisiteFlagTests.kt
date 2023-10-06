@@ -103,7 +103,7 @@ INFO [5000] Evaluating 'dependentFeatureWithUserCondition2'
             key = "dependentFeature",
             defaultValue = "default",
             returnValue = "Horse",
-            user = ConfigCatUser("12345","kate@configcat.com", "USA"),
+            user = ConfigCatUser("12345", "kate@configcat.com", "USA"),
             expectedLog = """INFO [5000] Evaluating 'dependentFeature' for User '{"Identifier":"12345","Email":"kate@configcat.com","Country":"USA"}'
   Evaluating targeting rules and applying the first match if any:
   - IF Flag 'mainFeature' EQUALS 'target'

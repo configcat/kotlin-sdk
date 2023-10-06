@@ -2,7 +2,7 @@ package com.configcat.integration.matrix
 
 object AndOrMatrix : DataMatrix {
     override val sdkKeyV5: String? = null
-    override val sdkKeyV6: String? ="configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/ByMO9yZNn02kXcm72lnY1A"
+    override val sdkKeyV6: String? = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/ByMO9yZNn02kXcm72lnY1A"
     override val data =
         """Identifier;Email;Country;Custom1;mainFeature;dependentFeature;emailAnd;emailOr
 ##null##;;;;public;Chicken;Cat;Cat

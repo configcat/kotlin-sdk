@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalCoroutinesApi::class)
 class EvaluationLoggerTurnOffTest {
     @Test
-    fun testEvaluationLogLevelInfo()  = runTest {
+    fun testEvaluationLogLevelInfo() = runTest {
         //based on 1_rule_no_user test case.
         val evaluationTestLogger = EvaluationTestLogger()
         val client = ConfigCatClient("PKDVCLf-Hq-h-kCzMp-L7Q/psuH7BGHoUmdONrzzUOY7A") {
@@ -34,7 +34,7 @@ class EvaluationLoggerTurnOffTest {
     }
 
     @Test
-    fun testEvaluationLogLevelWarning()  = runTest {
+    fun testEvaluationLogLevelWarning() = runTest {
         //based on 1_rule_no_user test case.
         val evaluationTestLogger = EvaluationTestLogger()
         val client = ConfigCatClient("PKDVCLf-Hq-h-kCzMp-L7Q/psuH7BGHoUmdONrzzUOY7A") {

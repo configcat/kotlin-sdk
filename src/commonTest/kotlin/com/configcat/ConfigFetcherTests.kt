@@ -80,6 +80,7 @@ class ConfigFetcherTests {
     }
 
     companion object {
-        const val testBody = """{ "p": { "u": "https://cdn-global.configcat.com", "s": "test-slat" }, "f": { "fakeKey": { "t": 1, "v": {"s": "fakeValue" }, "p": [], "r": [], "a":""} }, "s": [] }"""
+        const val testBody =
+            """{ "p": { "u": "https://cdn-global.configcat.com", "s": "test-slat" }, "f": { "fakeKey": { "t": 1, "v": {"s": "fakeValue" }, "p": [], "r": [], "a":""} }, "s": [] }"""
     }
 }

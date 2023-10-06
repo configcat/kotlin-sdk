@@ -22,58 +22,58 @@ class RolloutMatrixTests {
 
     @Test
     fun testMatrix() = runTest {
-        Matrix.sdkKeyV5?.let { runMatrixTest(Matrix, it,true) }
-        Matrix.sdkKeyV6?.let { runMatrixTest(Matrix, it,true) }
+        Matrix.sdkKeyV5?.let { runMatrixTest(Matrix, it, true) }
+        Matrix.sdkKeyV6?.let { runMatrixTest(Matrix, it, true) }
     }
 
     @Test
     fun testNumberMatrix() = runTest {
-        Matrix.sdkKeyV5?.let { runMatrixTest(NumberMatrix, it,true) }
-        Matrix.sdkKeyV6?.let { runMatrixTest(NumberMatrix, it,true) }
+        Matrix.sdkKeyV5?.let { runMatrixTest(NumberMatrix, it, true) }
+        Matrix.sdkKeyV6?.let { runMatrixTest(NumberMatrix, it, true) }
     }
 
     @Test
     fun testSemanticMatrix() = runTest {
-        Matrix.sdkKeyV5?.let { runMatrixTest(SemanticMatrix, it,true) }
-        Matrix.sdkKeyV6?.let { runMatrixTest(SemanticMatrix, it,true) }
+        Matrix.sdkKeyV5?.let { runMatrixTest(SemanticMatrix, it, true) }
+        Matrix.sdkKeyV6?.let { runMatrixTest(SemanticMatrix, it, true) }
     }
 
     @Test
     fun testSemantic2Matrix() = runTest {
-        Matrix.sdkKeyV5?.let { runMatrixTest(SemanticMatrix2, it,true) }
-        Matrix.sdkKeyV6?.let { runMatrixTest(SemanticMatrix2, it,true) }
+        Matrix.sdkKeyV5?.let { runMatrixTest(SemanticMatrix2, it, true) }
+        Matrix.sdkKeyV6?.let { runMatrixTest(SemanticMatrix2, it, true) }
     }
 
     @Test
     fun testSensitiveMatrix() = runTest {
-        Matrix.sdkKeyV5?.let { runMatrixTest(SensitiveMatrix, it,true) }
-        Matrix.sdkKeyV6?.let { runMatrixTest(SensitiveMatrix, it,true) }
+        Matrix.sdkKeyV5?.let { runMatrixTest(SensitiveMatrix, it, true) }
+        Matrix.sdkKeyV6?.let { runMatrixTest(SensitiveMatrix, it, true) }
     }
 
     @Test
     fun testVariationMatrix() = runTest {
-        Matrix.sdkKeyV5?.let { runMatrixTest(VariationIdMatrix, it,false) }
-        Matrix.sdkKeyV6?.let { runMatrixTest(VariationIdMatrix, it,false) }
+        Matrix.sdkKeyV5?.let { runMatrixTest(VariationIdMatrix, it, false) }
+        Matrix.sdkKeyV6?.let { runMatrixTest(VariationIdMatrix, it, false) }
     }
 
     @Test
     fun testAndOrMatrix() = runTest {
-        Matrix.sdkKeyV6?.let { runMatrixTest(AndOrMatrix, it,true) }
+        Matrix.sdkKeyV6?.let { runMatrixTest(AndOrMatrix, it, true) }
     }
 
     @Test
     fun testComparatorsV6Matrix() = runTest {
-        Matrix.sdkKeyV6?.let { runMatrixTest(ComparatorsV6Matrix, it,true) }
+        Matrix.sdkKeyV6?.let { runMatrixTest(ComparatorsV6Matrix, it, true) }
     }
 
     @Test
     fun testPrerequisiteFlagMatrix() = runTest {
-        Matrix.sdkKeyV6?.let { runMatrixTest(PrerequisiteFlagMatrix, it,true) }
+        Matrix.sdkKeyV6?.let { runMatrixTest(PrerequisiteFlagMatrix, it, true) }
     }
 
     @Test
     fun testSegmentMatrix() = runTest {
-        Matrix.sdkKeyV6?.let { runMatrixTest(SegmentMatrix, it,true) }
+        Matrix.sdkKeyV6?.let { runMatrixTest(SegmentMatrix, it, true) }
     }
 
     private suspend fun runMatrixTest(matrix: DataMatrix, sdkyKey: String, isValueKind: Boolean) {

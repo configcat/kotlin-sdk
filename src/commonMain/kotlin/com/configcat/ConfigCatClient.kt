@@ -337,7 +337,8 @@ internal class Client private constructor(
             return emptyMap()
         }
         return settingResult.settings?.map {
-            val evaluated = evaluate(it.value, it.key, user ?: defaultUser, settingResult.fetchTime, settingResult.settings)
+            val evaluated =
+                evaluate(it.value, it.key, user ?: defaultUser, settingResult.fetchTime, settingResult.settings)
             it.key to evaluated.value
         }?.toMap() ?: emptyMap()
     }
@@ -419,10 +420,16 @@ internal class Client private constructor(
         settings: Map<String, Setting>
     ): EvaluationDetails {
         var evaluateLogger: EvaluateLogger? = null
-        if(logLevel == LogLevel.INFO) {
-            evaluateLogger =  EvaluateLogger()
+        if (logLevel == LogLevel.INFO) {
+            evaluateLogger = EvaluateLogger()
         }
-        val (value, variationId, targetingRule, percentageRule) = evaluator.evaluate(setting, key, user,  settings, evaluateLogger)
+        val (value, variationId, targetingRule, percentageRule) = evaluator.evaluate(
+            setting,
+            key,
+            user,
+            settings,
+            evaluateLogger
+        )
         val details = EvaluationDetails(
             key, variationId, user, false, null, parseSettingValue(value, setting.type),
             fetchTime.unixMillisLong, targetingRule, percentageRule
@@ -467,21 +474,26 @@ internal class Client private constructor(
             SettingType.BOOLEAN -> {
                 settingsValue.booleanValue
             }
+
             SettingType.STRING -> {
                 settingsValue.stringValue
             }
+
             SettingType.INT -> {
                 settingsValue.integerValue
             }
+
             SettingType.DOUBLE -> {
                 settingsValue.doubleValue
             }
+
             else -> {
                 throw IllegalArgumentException(
-                "The setting type is not valid. Only String, Int, Double or Boolean types are supported.")
+                    "The setting type is not valid. Only String, Int, Double or Boolean types are supported."
+                )
             }
         }
-        if (result == null){
+        if (result == null) {
             throw IllegalArgumentException(
                 "Setting value is not of the expected type ${settingTypeEnum.value}."
             )
@@ -548,13 +560,15 @@ internal class Client private constructor(
         private fun isValidKey(sdkKey: String, isCustomBaseURL: Boolean): Boolean {
             // configcat-proxy/ rules
             if (isCustomBaseURL && sdkKey.length > Constants.SDK_KEY_PROXY_PREFIX.length
-                    && sdkKey.startsWith(Constants.SDK_KEY_PROXY_PREFIX)) {
+                && sdkKey.startsWith(Constants.SDK_KEY_PROXY_PREFIX)
+            ) {
                 return true
             }
             val splitSDKKey = sdkKey.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             // 22/22 rules
             return if (splitSDKKey.size == 2 && splitSDKKey[0].length == Constants.SDK_KEY_SECTION_LENGTH
-                    && splitSDKKey[1].length == Constants.SDK_KEY_SECTION_LENGTH) {
+                && splitSDKKey[1].length == Constants.SDK_KEY_SECTION_LENGTH
+            ) {
                 true
                 // configcat-sdk-1/22/22 rules
             } else {
@@ -582,7 +596,7 @@ internal class Client private constructor(
         }
     }
 
-    internal object SettingTypeHelp{
+    internal object SettingTypeHelp {
         fun Int.toSettingTypeOrNull(): SettingType? = SettingType.values().firstOrNull { it.id == this }
 
     }

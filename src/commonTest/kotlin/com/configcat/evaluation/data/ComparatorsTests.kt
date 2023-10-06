@@ -2,7 +2,7 @@ package com.configcat.evaluation.data
 
 import com.configcat.ConfigCatUser
 
-object ComparatorsTests: TestSet {
+object ComparatorsTests : TestSet {
     override val sdkKey = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/OfQqcTjfFUGBwMKqtyEOrQ"
     override val baseUrl = null
     override val jsonOverride = null
@@ -11,7 +11,12 @@ object ComparatorsTests: TestSet {
             key = "allinone",
             defaultValue = "",
             returnValue = "default",
-            user = ConfigCatUser("12345", "joe@example.com", "USA" ,custom = mapOf("Version" to "1.0.0", "Number" to "1.0", "Date" to "1693497500") ),
+            user = ConfigCatUser(
+                "12345",
+                "joe@example.com",
+                "USA",
+                custom = mapOf("Version" to "1.0.0", "Number" to "1.0", "Date" to "1693497500")
+            ),
             expectedLog = """INFO [5000] Evaluating 'allinone' for User '{"Identifier":"12345","Email":"joe@example.com","Country":"USA","Version":"1.0.0","Number":"1.0","Date":"1693497500"}'
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email EQUALS '<hashed value>' => true

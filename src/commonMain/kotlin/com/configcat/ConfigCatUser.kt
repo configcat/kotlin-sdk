@@ -43,7 +43,7 @@ public class ConfigCatUser(
 
 }
 
-public object ConfigCatUserHelper{
+public object ConfigCatUserHelper {
     //    public fun attributeValueFrom(date: java.util.Date?): String? {
 //        if (date == null) {
 //            throw java.lang.IllegalArgumentException("Invalid 'date' parameter.")
@@ -53,15 +53,15 @@ public object ConfigCatUserHelper{
 //        return decimalFormat.format(unixSeconds)
 //    }
 
-     public fun attributeValueFrom(number: Double): String {
+    public fun attributeValueFrom(number: Double): String {
         return number.toString()
     }
 
-     public fun attributeValueFrom(number: Int): String {
+    public fun attributeValueFrom(number: Int): String {
         return number.toString()
     }
 
-     public fun attributeValueFrom(items: Array<String>): String {
+    public fun attributeValueFrom(items: Array<String>): String {
         if (items == null) {
             throw IllegalArgumentException("Invalid 'items' parameter.")
         }

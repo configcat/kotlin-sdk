@@ -44,10 +44,12 @@ class ConfigCatUserAttributeHelperTests {
                     val doubleInput = input.toDouble()
                     ConfigCatUserHelper.attributeValueFrom(doubleInput)
                 }
+
                 "int" -> {
                     val intInput = input.toInt()
                     ConfigCatUserHelper.attributeValueFrom(intInput)
                 }
+
                 else -> {
                     val splitInput = input.split(",".toRegex()).toTypedArray()
                     ConfigCatUserHelper.attributeValueFrom(splitInput)

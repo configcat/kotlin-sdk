@@ -456,7 +456,8 @@ class ConfigServiceTests {
             }
         } as MockEngine
 
-        val service = Services.createConfigService(mockEngine, lazyLoad { cacheRefreshInterval = 1.seconds }, offline = true)
+        val service =
+            Services.createConfigService(mockEngine, lazyLoad { cacheRefreshInterval = 1.seconds }, offline = true)
 
         service.getSettings()
 

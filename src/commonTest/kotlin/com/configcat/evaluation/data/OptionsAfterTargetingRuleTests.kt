@@ -39,7 +39,7 @@ INFO [5000] Evaluating 'integer25One25Two25Three25FourAdvancedRules' for User '{
             key = "integer25One25Two25Three25FourAdvancedRules",
             defaultValue = 42,
             returnValue = 2,
-            user = ConfigCatUser("12345","joe@example.com"),
+            user = ConfigCatUser("12345", "joe@example.com"),
             expectedLog = """INFO [5000] Evaluating 'integer25One25Two25Three25FourAdvancedRules' for User '{"Identifier":"12345","Email":"joe@example.com"}'
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email CONTAINS ANY OF ['@configcat.com'] THEN '5' => no match
@@ -52,11 +52,11 @@ INFO [5000] Evaluating 'integer25One25Two25Three25FourAdvancedRules' for User '{
             key = "integer25One25Two25Three25FourAdvancedRules",
             defaultValue = 42,
             returnValue = 5,
-            user = ConfigCatUser("12345","joe@configcat.com"),
+            user = ConfigCatUser("12345", "joe@configcat.com"),
             expectedLog = """INFO [5000] Evaluating 'integer25One25Two25Three25FourAdvancedRules' for User '{"Identifier":"12345","Email":"joe@configcat.com"}'
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email CONTAINS ANY OF ['@configcat.com'] THEN '5' => MATCH, applying rule
   Returning '5'.""".trimIndent(),
         ),
-        )
+    )
 }

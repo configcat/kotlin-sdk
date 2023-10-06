@@ -14,16 +14,19 @@ class EvaluationTest {
 
     @Test
     fun testSimpleValue() = runTest {
-      testEvaluation(SimpleValueTests)
+        testEvaluation(SimpleValueTests)
     }
+
     @Test
     fun testOneTargetRule() = runTest {
         testEvaluation(OneTargetingRuleTests)
     }
+
     @Test
     fun testTwoTargetingRules() = runTest {
         testEvaluation(TwoTargetingRulesTests)
     }
+
     @Test
     fun testAndRules() = runTest {
         testEvaluation(AndRulesTests)
@@ -53,18 +56,22 @@ class EvaluationTest {
     fun testPrerequisiteFlag() = runTest {
         testEvaluation(PrerequisiteFlagTests)
     }
+
     @Test
     fun testSegment() = runTest {
         testEvaluation(SegmenTests)
     }
+
     @Test
     fun testOptionsAfterTargetingRule() = runTest {
         testEvaluation(OptionsAfterTargetingRuleTests)
     }
+
     @Test
     fun testOptionsBasedOnUserId() = runTest {
         testEvaluation(OptionsBasedOnUserIdTests)
     }
+
     @Test
     fun testOptionsBasedOnCustomAttr() = runTest {
         testEvaluation(OptionsBasedOnCustomAttrTests)
@@ -74,6 +81,7 @@ class EvaluationTest {
     fun testOptionsWithinTargetingRule() = runTest {
         testEvaluation(OptionsWithinTargetingRuleTests)
     }
+
     @Test
     fun testCircularDependency() = runTest {
         testEvaluation(CircularDependencyTests)
@@ -83,6 +91,7 @@ class EvaluationTest {
     fun testListTruncation() = runTest {
         testEvaluation(ListTruncationTests)
     }
+
     private suspend fun testEvaluation(testSet: TestSet) {
         var sdkKey = testSet.sdkKey
         if (sdkKey.isNullOrEmpty()) {
@@ -91,7 +100,7 @@ class EvaluationTest {
         val jsonOverride = testSet.jsonOverride
         var mockEngine: MockEngine? = null;
 
-        if(!jsonOverride.isNullOrEmpty()) {
+        if (!jsonOverride.isNullOrEmpty()) {
             mockEngine = MockEngine {
                 respond(content = testSet.jsonOverride!!, status = HttpStatusCode.OK)
             }
@@ -113,16 +122,16 @@ class EvaluationTest {
             val settingKey = test.key
 
             val result: Any = client.getAnyValue(settingKey, test.defaultValue, test.user)
-            if ( test.returnValue != result) {
+            if (test.returnValue != result) {
                 errors.add("Return value mismatch for test: %s Test Key: $settingKey Expected: ${test.returnValue}, Result: $result \n")
             }
             val expectedLog = test.expectedLog
             val logResultBuilder = StringBuilder()
             val logsList = evaluationTestLogger.getLogList()
-            for( i in logsList.indices) {
+            for (i in logsList.indices) {
                 var log = logsList[i]
                 logResultBuilder.append(log.logMessage)
-                if(i != logsList.size - 1)
+                if (i != logsList.size - 1)
                     logResultBuilder.append("\n")
             }
             val logResult: String = logResultBuilder.toString()

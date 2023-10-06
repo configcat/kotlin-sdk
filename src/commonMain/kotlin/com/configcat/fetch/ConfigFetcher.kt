@@ -1,6 +1,9 @@
 package com.configcat.fetch
 
-import com.configcat.*
+import com.configcat.Closeable
+import com.configcat.ConfigCatOptions
+import com.configcat.Constants
+import com.configcat.DataGovernance
 import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.configcat.model.Config
@@ -11,7 +14,8 @@ import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import kotlinx.atomicfu.*
+import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.update
 import kotlinx.serialization.decodeFromString
 
 internal class ConfigFetcher constructor(
@@ -95,7 +99,7 @@ internal class ConfigFetcher constructor(
                 return FetchResponse.notModified()
             } else if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.Forbidden) {
                 val message = ConfigCatLogMessages.FETCH_FAILED_DUE_TO_INVALID_SDK_KEY_ERROR +
-                    " Received response: ${response.status}"
+                        " Received response: ${response.status}"
                 logger.error(1100, message)
                 return FetchResponse.failure(message, false)
             } else {
@@ -138,12 +142,12 @@ internal class ConfigFetcher constructor(
         return try {
             val config: Config = Constants.json.decodeFromString(jsonString)
             val configSalt = config.preferences?.salt
-            if(configSalt.isNullOrEmpty()) {
+            if (configSalt.isNullOrEmpty()) {
                 throw IllegalArgumentException("Config JSON salt is missing.")
             }
             config.settings?.values?.forEach {
                 it.configSalt = configSalt
-                it.segments = config.segments?: arrayOf()
+                it.segments = config.segments ?: arrayOf()
             }
             Pair(config, null)
         } catch (e: Exception) {
