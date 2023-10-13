@@ -1,8 +1,7 @@
 package com.configcat.integration.matrix
 
 object PrerequisiteFlagMatrix : DataMatrix {
-    override val sdkKeyV5: String? = null
-    override val sdkKeyV6: String? = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/JoGwdqJZQ0K2xDy7LnbyOg"
+    override val sdkKey: String = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/JoGwdqJZQ0K2xDy7LnbyOg"
     override val data =
         """Identifier;Email;Country;Custom1;mainBoolFlag;mainStringFlag;mainIntFlag;mainDoubleFlag;stringDependsOnBool;stringDependsOnString;stringDependsOnStringCaseCheck;stringDependsOnInt;stringDependsOnDouble;stringDependsOnDoubleIntValue;boolDependsOnBool;intDependsOnBool;doubleDependsOnBool;boolDependsOnBoolDependsOnBool;mainBoolFlagEmpty;stringDependsOnEmptyBool;stringInverseDependsOnEmptyBool;mainBoolFlagInverse;boolDependsOnBoolInverse
 ##null##;;;;True;public;42;3.14;Dog;Cat;Cat;Cat;Cat;Cat;True;1;1.1;False;True;EmptyOn;EmptyOn;False;True
@@ -11,525 +10,524 @@ john@sensitivecompany.com;john@sensitivecompany.com;##null##;##null##;False;priv
 jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;Cat;Cat;Cat;Cat;True;1;1.1;False;True;EmptyOn;EmptyOn;False;True""".trimIndent()
     override val remoteJson =
         """{
-  "p": {
-    "u": "https://test-cdn-eu.configcat.com",
-    "r": 0,
-    "s": "p\u002BMaxP5JLS0HoMC\u002BoGGTnrAP5VL7czEx0F5SHsuOwzg="
-  },
-  "f": {
-    "boolDependsOnBool": {
-      "t": 0,
-      "r": [
-        {
-          "c": [
+   "p":{
+      "u":"https://cdn-global.configcat.com",
+      "r":0,
+      "s":"5ydSrHb5Xh5+EJmzVFewjgxi5RMMPA/3CxgZT7abL48="
+   },
+   "f":{
+      "boolDependsOnBool":{
+         "t":0,
+         "r":[
             {
-              "d": {
-                "f": "mainBoolFlag",
-                "c": 0,
-                "v": {
-                  "b": true
-                }
-              }
+               "c":[
+                  {
+                     "d":{
+                        "f":"mainBoolFlag",
+                        "c":0,
+                        "v":{
+                           "b":true
+                        }
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "b":true
+                  },
+                  "i":"8dc94c1d"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "b": true
-            },
-            "i": "8dc94c1d"
-          }
-        }
-      ],
-      "v": {
-        "b": false
+         ],
+         "v":{
+            "b":false
+         },
+         "i":"d6194760"
       },
-      "i": "d6194760"
-    },
-    "boolDependsOnBoolDependsOnBool": {
-      "t": 0,
-      "r": [
-        {
-          "c": [
+      "boolDependsOnBoolDependsOnBool":{
+         "t":0,
+         "r":[
             {
-              "d": {
-                "f": "boolDependsOnBool",
-                "c": 0,
-                "v": {
-                  "b": true
-                }
-              }
+               "c":[
+                  {
+                     "d":{
+                        "f":"boolDependsOnBool",
+                        "c":0,
+                        "v":{
+                           "b":true
+                        }
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "b":false
+                  },
+                  "i":"d6870486"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "b": false
-            },
-            "i": "d6870486"
-          }
-        }
-      ],
-      "v": {
-        "b": true
+         ],
+         "v":{
+            "b":true
+         },
+         "i":"cd4c95e7"
       },
-      "i": "cd4c95e7"
-    },
-    "boolDependsOnBoolInverse": {
-      "t": 0,
-      "r": [
-        {
-          "c": [
+      "boolDependsOnBoolInverse":{
+         "t":0,
+         "r":[
             {
-              "d": {
-                "f": "mainBoolFlagInverse",
-                "c": 1,
-                "v": {
-                  "b": true
-                }
-              }
+               "c":[
+                  {
+                     "d":{
+                        "f":"mainBoolFlagInverse",
+                        "c":1,
+                        "v":{
+                           "b":true
+                        }
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "b":true
+                  },
+                  "i":"3c09bff0"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "b": true
-            },
-            "i": "3c09bff0"
-          }
-        }
-      ],
-      "v": {
-        "b": false
+         ],
+         "v":{
+            "b":false
+         },
+         "i":"cecbc501"
       },
-      "i": "cecbc501"
-    },
-    "doubleDependsOnBool": {
-      "t": 3,
-      "r": [
-        {
-          "c": [
+      "doubleDependsOnBool":{
+         "t":3,
+         "r":[
             {
-              "d": {
-                "f": "mainBoolFlag",
-                "c": 0,
-                "v": {
-                  "b": true
-                }
-              }
+               "c":[
+                  {
+                     "d":{
+                        "f":"mainBoolFlag",
+                        "c":0,
+                        "v":{
+                           "b":true
+                        }
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "d":1.1
+                  },
+                  "i":"271fd003"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "d": 1.1
-            },
-            "i": "271fd003"
-          }
-        }
-      ],
-      "v": {
-        "d": 3.14
+         ],
+         "v":{
+            "d":3.14
+         },
+         "i":"718aae2b"
       },
-      "i": "718aae2b"
-    },
-    "intDependsOnBool": {
-      "t": 2,
-      "r": [
-        {
-          "c": [
+      "intDependsOnBool":{
+         "t":2,
+         "r":[
             {
-              "d": {
-                "f": "mainBoolFlag",
-                "c": 0,
-                "v": {
-                  "b": true
-                }
-              }
+               "c":[
+                  {
+                     "d":{
+                        "f":"mainBoolFlag",
+                        "c":0,
+                        "v":{
+                           "b":true
+                        }
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "i":1
+                  },
+                  "i":"d2dda649"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "i": 1
-            },
-            "i": "d2dda649"
-          }
-        }
-      ],
-      "v": {
-        "i": 42
+         ],
+         "v":{
+            "i":42
+         },
+         "i":"43ec49a8"
       },
-      "i": "43ec49a8"
-    },
-    "mainBoolFlag": {
-      "t": 0,
-      "r": [
-        {
-          "c": [
+      "mainBoolFlag":{
+         "t":0,
+         "r":[
             {
-              "t": {
-                "a": "Email",
-                "c": 24,
-                "l": [
-                  "21_b3ee43186c09233376dd8d2394450c4f899817a335c4d9213e10292d0a9b7b05"
-                ]
-              }
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":24,
+                        "l":[
+                           "21_3364be78d5eb96ea45d4f3e53b49d4ac534a688aa5c007fd39c8feb7f2e6eb76"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "b":false
+                  },
+                  "i":"e842ea6f"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "b": false
-            },
-            "i": "e842ea6f"
-          }
-        }
-      ],
-      "v": {
-        "b": true
+         ],
+         "v":{
+            "b":true
+         },
+         "i":"8a68b064"
       },
-      "i": "8a68b064"
-    },
-    "mainBoolFlagEmpty": {
-      "t": 0,
-      "v": {
-        "b": true
+      "mainBoolFlagEmpty":{
+         "t":0,
+         "v":{
+            "b":true
+         },
+         "i":"f3295d43"
       },
-      "i": "f3295d43"
-    },
-    "mainBoolFlagInverse": {
-      "t": 0,
-      "r": [
-        {
-          "c": [
+      "mainBoolFlagInverse":{
+         "t":0,
+         "r":[
             {
-              "t": {
-                "a": "Email",
-                "c": 24,
-                "l": [
-                  "21_40c8122bec31cb64a6d9179c9784d5cdc7fe451931452a110a9b2e0a3f962fbb"
-                ]
-              }
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":24,
+                        "l":[
+                           "21_18f236594e07de4af5a3ad017c113277174add4594c7a60472c4e712353c37a7"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "b":true
+                  },
+                  "i":"28c65f1f"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "b": true
-            },
-            "i": "28c65f1f"
-          }
-        }
-      ],
-      "v": {
-        "b": false
+         ],
+         "v":{
+            "b":false
+         },
+         "i":"d70e47a7"
       },
-      "i": "d70e47a7"
-    },
-    "mainDoubleFlag": {
-      "t": 3,
-      "r": [
-        {
-          "c": [
+      "mainDoubleFlag":{
+         "t":3,
+         "r":[
             {
-              "t": {
-                "a": "Email",
-                "c": 24,
-                "l": [
-                  "21_591f14e5eba4d699e95e15c8770fc3f981e4716a3ceca10270cde83096fe946e"
-                ]
-              }
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":24,
+                        "l":[
+                           "21_ba5b252b760e4503a926de4d12ae566a5c236ac8736262850a0111ac57c8dbc9"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "d":0.1
+                  },
+                  "i":"a67947ed"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "d": 0.1
-            },
-            "i": "a67947ed"
-          }
-        }
-      ],
-      "v": {
-        "d": 3.14
+         ],
+         "v":{
+            "d":3.14
+         },
+         "i":"beb3acc7"
       },
-      "i": "beb3acc7"
-    },
-    "mainIntFlag": {
-      "t": 2,
-      "r": [
-        {
-          "c": [
+      "mainIntFlag":{
+         "t":2,
+         "r":[
             {
-              "t": {
-                "a": "Email",
-                "c": 24,
-                "l": [
-                  "21_ff2aa9a8e2ed3b9c2b0b1e99accfd4e9e134f5ae016476e151f3d04d6d1cef97"
-                ]
-              }
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":24,
+                        "l":[
+                           "21_15137dc62e609cde9ee30de5dc5c87bd3d4a38d4a2242fca8c4cd1af58f8e3af"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "i":2
+                  },
+                  "i":"67e14078"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "i": 2
-            },
-            "i": "67e14078"
-          }
-        }
-      ],
-      "v": {
-        "i": 42
+         ],
+         "v":{
+            "i":42
+         },
+         "i":"a7490aca"
       },
-      "i": "a7490aca"
-    },
-    "mainStringFlag": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+      "mainStringFlag":{
+         "t":1,
+         "r":[
             {
-              "t": {
-                "a": "Email",
-                "c": 24,
-                "l": [
-                  "21_efe9ef40a5a5ab6bbc685463594f6970e917f96948e9f7798b9be9daf2926c59"
-                ]
-              }
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":24,
+                        "l":[
+                           "21_12811dbcae7021954d66e4240adef0652838c251e5e80ba485ed5af602467412"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"private"
+                  },
+                  "i":"51b57fb0"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "s": "private"
-            },
-            "i": "51b57fb0"
-          }
-        }
-      ],
-      "v": {
-        "s": "public"
+         ],
+         "v":{
+            "s":"public"
+         },
+         "i":"24c96275"
       },
-      "i": "24c96275"
-    },
-    "stringDependsOnBool": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+      "stringDependsOnBool":{
+         "t":1,
+         "r":[
             {
-              "d": {
-                "f": "mainBoolFlag",
-                "c": 0,
-                "v": {
-                  "b": true
-                }
-              }
+               "c":[
+                  {
+                     "d":{
+                        "f":"mainBoolFlag",
+                        "c":0,
+                        "v":{
+                           "b":true
+                        }
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"fc8daf80"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "s": "Dog"
-            },
-            "i": "fc8daf80"
-          }
-        }
-      ],
-      "v": {
-        "s": "Cat"
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"d53a2b42"
       },
-      "i": "d53a2b42"
-    },
-    "stringDependsOnDouble": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+      "stringDependsOnDouble":{
+         "t":1,
+         "r":[
             {
-              "d": {
-                "f": "mainDoubleFlag",
-                "c": 0,
-                "v": {
-                  "d": 0.1
-                }
-              }
+               "c":[
+                  {
+                     "d":{
+                        "f":"mainDoubleFlag",
+                        "c":0,
+                        "v":{
+                           "d":0.1
+                        }
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"84fc7ed9"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "s": "Dog"
-            },
-            "i": "84fc7ed9"
-          }
-        }
-      ],
-      "v": {
-        "s": "Cat"
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"9cc8fd8f"
       },
-      "i": "9cc8fd8f"
-    },
-    "stringDependsOnDoubleIntValue": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+      "stringDependsOnDoubleIntValue":{
+         "t":1,
+         "r":[
             {
-              "d": {
-                "f": "mainDoubleFlag",
-                "c": 0,
-                "v": {
-                  "d": 0
-                }
-              }
+               "c":[
+                  {
+                     "d":{
+                        "f":"mainDoubleFlag",
+                        "c":0,
+                        "v":{
+                           "d":0
+                        }
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"842c1d75"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "s": "Dog"
-            },
-            "i": "842c1d75"
-          }
-        }
-      ],
-      "v": {
-        "s": "Cat"
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"db7f56c8"
       },
-      "i": "db7f56c8"
-    },
-    "stringDependsOnEmptyBool": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+      "stringDependsOnEmptyBool":{
+         "t":1,
+         "r":[
             {
-              "d": {
-                "f": "mainBoolFlagEmpty",
-                "c": 0,
-                "v": {
-                  "b": true
-                }
-              }
+               "c":[
+                  {
+                     "d":{
+                        "f":"mainBoolFlagEmpty",
+                        "c":0,
+                        "v":{
+                           "b":true
+                        }
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"EmptyOn"
+                  },
+                  "i":"d5508c78"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "s": "EmptyOn"
-            },
-            "i": "d5508c78"
-          }
-        }
-      ],
-      "v": {
-        "s": "EmptyOff"
+         ],
+         "v":{
+            "s":"EmptyOff"
+         },
+         "i":"8e0dbe88"
       },
-      "i": "8e0dbe88"
-    },
-    "stringDependsOnInt": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+      "stringDependsOnInt":{
+         "t":1,
+         "r":[
             {
-              "d": {
-                "f": "mainIntFlag",
-                "c": 0,
-                "v": {
-                  "i": 2
-                }
-              }
+               "c":[
+                  {
+                     "d":{
+                        "f":"mainIntFlag",
+                        "c":0,
+                        "v":{
+                           "i":2
+                        }
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"12531eec"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "s": "Dog"
-            },
-            "i": "12531eec"
-          }
-        }
-      ],
-      "v": {
-        "s": "Cat"
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"e227d926"
       },
-      "i": "e227d926"
-    },
-    "stringDependsOnString": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+      "stringDependsOnString":{
+         "t":1,
+         "r":[
             {
-              "d": {
-                "f": "mainStringFlag",
-                "c": 0,
-                "v": {
-                  "s": "private"
-                }
-              }
+               "c":[
+                  {
+                     "d":{
+                        "f":"mainStringFlag",
+                        "c":0,
+                        "v":{
+                           "s":"private"
+                        }
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"426b6d4d"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "s": "Dog"
-            },
-            "i": "426b6d4d"
-          }
-        }
-      ],
-      "v": {
-        "s": "Cat"
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"d36000e1"
       },
-      "i": "d36000e1"
-    },
-    "stringDependsOnStringCaseCheck": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+      "stringDependsOnStringCaseCheck":{
+         "t":1,
+         "r":[
             {
-              "d": {
-                "f": "mainStringFlag",
-                "c": 0,
-                "v": {
-                  "s": "Private"
-                }
-              }
+               "c":[
+                  {
+                     "d":{
+                        "f":"mainStringFlag",
+                        "c":0,
+                        "v":{
+                           "s":"Private"
+                        }
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"87d24aed"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "s": "Dog"
-            },
-            "i": "87d24aed"
-          }
-        }
-      ],
-      "v": {
-        "s": "Cat"
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"ad94f385"
       },
-      "i": "ad94f385"
-    },
-    "stringInverseDependsOnEmptyBool": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+      "stringInverseDependsOnEmptyBool":{
+         "t":1,
+         "r":[
             {
-              "d": {
-                "f": "mainBoolFlagEmpty",
-                "c": 1,
-                "v": {
-                  "b": true
-                }
-              }
+               "c":[
+                  {
+                     "d":{
+                        "f":"mainBoolFlagEmpty",
+                        "c":1,
+                        "v":{
+                           "b":true
+                        }
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"EmptyOff"
+                  },
+                  "i":"b7c3efae"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "s": "EmptyOff"
-            },
-            "i": "b7c3efae"
-          }
-        }
-      ],
-      "v": {
-        "s": "EmptyOn"
-      },
-      "i": "f6b4b8a2"
-    }
-  }
+         ],
+         "v":{
+            "s":"EmptyOn"
+         },
+         "i":"f6b4b8a2"
+      }
+   }
 }
-
 """
 }

@@ -1,8 +1,7 @@
 package com.configcat.integration.matrix
 
 object AndOrMatrix : DataMatrix {
-    override val sdkKeyV5: String? = null
-    override val sdkKeyV6: String? = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/ByMO9yZNn02kXcm72lnY1A"
+    override val sdkKey: String = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/ByMO9yZNn02kXcm72lnY1A"
     override val data =
         """Identifier;Email;Country;Custom1;mainFeature;dependentFeature;emailAnd;emailOr
 ##null##;;;;public;Chicken;Cat;Cat
@@ -21,275 +20,430 @@ jane;jane;##null##;##null##;public;Chicken;Cat;Cat
 jane.sensitivecompany.com;jane.sensitivecompany.com;##null##;##null##;public;Chicken;Cat;Cat""".trimIndent()
     override val remoteJson =
         """{
-  "p": {
-    "u": "https://test-cdn-eu.configcat.com",
-    "r": 0,
-    "s": "W8tBvwwMoeP6Ht74jMCI7aPNTc\u002B1W6rtwob18ojXQ9U="
-  },
-  "s": [
-    {
-      "n": "Beta Users",
-      "r": [
-        {
-          "a": "Email",
-          "c": 16,
-          "l": [
-            "53b705ed36e670da5aef88e2f137ff20f12a54481ae594a3e76ec2ffbee0faae",
-            "9a043335df07ce20b25a6f954745ba5f103cef7a612ef05b1b374940d686c9ce"
-          ]
-        }
-      ]
-    },
-    {
-      "n": "Developers",
-      "r": [
-        {
-          "a": "Email",
-          "c": 16,
-          "l": [
-            "242f9fc71048494f1b6cc133e21c56356b7c8dfdea9a666549508a6b450e47a6",
-            "b2f917f06274f8f3aef56058d747507ffed572e4ef16f93df1d9220c7babe181"
-          ]
-        }
-      ]
-    }
-  ],
-  "f": {
-    "dependentFeature": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+   "p":{
+      "u":"https://cdn-global.configcat.com",
+      "r":0,
+      "s":"zlVnq+GjKscd7CCttof3QSgIrbf6guY+Wyvm43HiiwQ="
+   },
+   "s":[
+      {
+         "n":"Beta Users",
+         "r":[
             {
-              "d": {
-                "f": "mainFeature",
-                "c": 0,
-                "v": {
-                  "s": "target"
-                }
-              }
+               "a":"Email",
+               "c":16,
+               "l":[
+                  "f0c2a1171c264e84c30d06e8f0181ab060307b8be699d20c77b3563e65fc51ae",
+                  "f93f24deb25e5091d5fb51f1ae7d13cf9254607bc91c5e3cacced9b07b0f6a35"
+               ]
             }
-          ],
-          "p": [
-            {
-              "p": 25,
-              "v": {
-                "s": "Cat"
-              },
-              "i": "993d7ee0"
-            },
-            {
-              "p": 25,
-              "v": {
-                "s": "Dog"
-              },
-              "i": "08b8348e"
-            },
-            {
-              "p": 25,
-              "v": {
-                "s": "Falcon"
-              },
-              "i": "a6fb7a01"
-            },
-            {
-              "p": 25,
-              "v": {
-                "s": "Horse"
-              },
-              "i": "699fb4bf"
-            }
-          ]
-        }
-      ],
-      "v": {
-        "s": "Chicken"
+         ]
       },
-      "i": "e6198f92"
-    },
-    "emailAnd": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+      {
+         "n":"Developers",
+         "r":[
             {
-              "t": {
-                "a": "Email",
-                "c": 22,
-                "l": [
-                  "4_489600ff47625c552000830d4b6e37c5fc3318c7e0a41f5a863db09051db9efa"
-                ]
-              }
-            },
-            {
-              "t": {
-                "a": "Email",
-                "c": 2,
-                "l": [
-                  "@"
-                ]
-              }
-            },
-            {
-              "t": {
-                "a": "Email",
-                "c": 24,
-                "l": [
-                  "20_be728e1753794d1f30b35c434a76fccc9b9570ceb40fea8b6af55ec9ade4e0bc"
-                ]
-              }
+               "a":"Email",
+               "c":16,
+               "l":[
+                  "7c9aec489978fbc202dde6fb2d8fb8a35642b1bc513ada57a49451dc97de2a9c",
+                  "eb575b649594f99effdf11953e893efc8e737bf95e837cb790a0270dbf3fae20"
+               ]
             }
-          ],
-          "s": {
-            "v": {
-              "s": "Dog"
-            },
-            "i": "a1393561"
-          }
-        }
-      ],
-      "v": {
-        "s": "Cat"
+         ]
+      }
+   ],
+   "f":{
+      "dependentFeature":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "d":{
+                        "f":"mainFeature",
+                        "c":0,
+                        "v":{
+                           "s":"target"
+                        }
+                     }
+                  }
+               ],
+               "p":[
+                  {
+                     "p":25,
+                     "v":{
+                        "s":"Cat"
+                     },
+                     "i":"993d7ee0"
+                  },
+                  {
+                     "p":25,
+                     "v":{
+                        "s":"Dog"
+                     },
+                     "i":"08b8348e"
+                  },
+                  {
+                     "p":25,
+                     "v":{
+                        "s":"Falcon"
+                     },
+                     "i":"a6fb7a01"
+                  },
+                  {
+                     "p":25,
+                     "v":{
+                        "s":"Horse"
+                     },
+                     "i":"699fb4bf"
+                  }
+               ]
+            }
+         ],
+         "v":{
+            "s":"Chicken"
+         },
+         "i":"e6198f92"
       },
-      "i": "bdabd589"
-    },
-    "emailOr": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+      "dependentFeatureWithUserCondition":{
+         "t":1,
+         "r":[
             {
-              "t": {
-                "a": "Email",
-                "c": 22,
-                "l": [
-                  "5_8e188f72736a1e6028a98d7d124281b5ab2a7011bd4e5bc1732a1d1cb440cd9c"
-                ]
-              }
-            }
-          ],
-          "s": {
-            "v": {
-              "s": "Jane"
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":16,
+                        "l":[
+                           "321beeabac75ac6dcb2f2148c800febd5ad3aaea3b7d530aa3a749a36a5a2029",
+                           "94ff8bcd6db5a6659131d7efd853566521a0da896cd9da181bebb61925c3cc08"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"ef802e43"
+               }
             },
-            "i": "01383bbf"
-          }
-        },
-        {
-          "c": [
             {
-              "t": {
-                "a": "Email",
-                "c": 22,
-                "l": [
-                  "5_965119e3781f6ca2f6b9c0a54992d66a458ac45249fc45369aed7d4cacc30a61"
-                ]
-              }
+               "c":[
+                  {
+                     "d":{
+                        "f":"mainFeatureWithoutUserCondition",
+                        "c":0,
+                        "v":{
+                           "b":true
+                        }
+                     }
+                  }
+               ],
+               "p":[
+                  {
+                     "p":34,
+                     "v":{
+                        "s":"Cat"
+                     },
+                     "i":"4a65d6ef"
+                  },
+                  {
+                     "p":33,
+                     "v":{
+                        "s":"Horse"
+                     },
+                     "i":"fc3bb22b"
+                  },
+                  {
+                     "p":33,
+                     "v":{
+                        "s":"Falcon"
+                     },
+                     "i":"32e0e525"
+                  }
+               ]
             }
-          ],
-          "s": {
-            "v": {
-              "s": "John"
-            },
-            "i": "a069dc24"
-          }
-        },
-        {
-          "c": [
-            {
-              "t": {
-                "a": "Email",
-                "c": 22,
-                "l": [
-                  "5_312ad4bcbe280a5d5dea617727f0aac863eb394e2d0d8eff0e66e46a2dfc7d68"
-                ]
-              }
-            }
-          ],
-          "s": {
-            "v": {
-              "s": "Mark"
-            },
-            "i": "d7b02cc0"
-          }
-        }
-      ],
-      "v": {
-        "s": "Cat"
+         ],
+         "v":{
+            "s":"Chicken"
+         },
+         "i":"472e10f4"
       },
-      "i": "ab0b46ad"
-    },
-    "mainFeature": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+      "dependentFeatureWithUserCondition2":{
+         "t":1,
+         "r":[
             {
-              "t": {
-                "a": "Email",
-                "c": 24,
-                "l": [
-                  "21_57e6ffefe612f30121fa1b82dfb11f718a90cc5a2c39b8d9b6fccb7558dcb1d8"
-                ]
-              }
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":16,
+                        "l":[
+                           "4631ad7970aa30cc2e016d2e361f778767632e00b12ba9d6c93df83f2db73e6b",
+                           "36ebf231cd371d6fa31468f9ec28dd7490b602af4ae3cf2a631cd20dcce0cfb8"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"78eceed0"
+               }
             },
             {
-              "t": {
-                "a": "Country",
-                "c": 16,
-                "l": [
-                  "c64310b2d22611d80b9253f4a2261185456bb9f1a508b038857a3ea6cbf2f625",
-                  "ec1fdd343dbeee5860be0a4744318ea98f6752346f2dd3f7013a4084d658a933"
-                ]
-              }
+               "c":[
+                  {
+                     "d":{
+                        "f":"mainFeature",
+                        "c":0,
+                        "v":{
+                           "s":"public"
+                        }
+                     }
+                  }
+               ],
+               "p":[
+                  {
+                     "p":34,
+                     "v":{
+                        "s":"Cat"
+                     },
+                     "i":"72b97d0e"
+                  },
+                  {
+                     "p":33,
+                     "v":{
+                        "s":"Horse"
+                     },
+                     "i":"81846c69"
+                  },
+                  {
+                     "p":33,
+                     "v":{
+                        "s":"Falcon"
+                     },
+                     "i":"e2f3b509"
+                  }
+               ]
+            },
+            {
+               "c":[
+                  {
+                     "d":{
+                        "f":"mainFeature",
+                        "c":0,
+                        "v":{
+                           "s":"public"
+                        }
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Frog"
+                  },
+                  "i":"cfd56c79"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "s": "private"
-            },
-            "i": "64f8e1a6"
-          }
-        },
-        {
-          "c": [
-            {
-              "t": {
-                "a": "Country",
-                "c": 16,
-                "l": [
-                  "172faabf6aba529f302c5bb6d2aac5c8f3ffe6fa11dcee64cbfe1a57ad8f310c"
-                ]
-              }
-            },
-            {
-              "s": {
-                "s": 0,
-                "c": 1
-              }
-            },
-            {
-              "s": {
-                "s": 1,
-                "c": 1
-              }
-            }
-          ],
-          "s": {
-            "v": {
-              "s": "target"
-            },
-            "i": "f570ef26"
-          }
-        }
-      ],
-      "v": {
-        "s": "public"
+         ],
+         "v":{
+            "s":"Chicken"
+         },
+         "i":"9e8d62c6"
       },
-      "i": "f16ac582"
-    }
-  }
+      "emailAnd":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":22,
+                        "l":[
+                           "4_41a64b5ebf052a120e8a9c09138148871eb8ba6933f793e475e77732dbf6b788"
+                        ]
+                     }
+                  },
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":2,
+                        "l":[
+                           "@"
+                        ]
+                     }
+                  },
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":24,
+                        "l":[
+                           "20_e001b20def19469d7c0a86c5e6f51e23da2f3eb9a047995ad8f31752bcab30f4"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"a1393561"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"bdabd589"
+      },
+      "emailOr":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":22,
+                        "l":[
+                           "5_ba2a1cffc0c80dea98087470686004e72cea59bd028c39eea911c6982d970eb0"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Jane"
+                  },
+                  "i":"01383bbf"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":22,
+                        "l":[
+                           "5_7a2707ce87e2649ae9e249b0f0d58d58543dbdcb4f27702c37dd0c5d4111682a"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"John"
+                  },
+                  "i":"a069dc24"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":22,
+                        "l":[
+                           "5_ff5dcaab81623ad10a26a29778075c578b7d29c1f65e473b3463c839ca56f839"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Mark"
+                  },
+                  "i":"d7b02cc0"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"ab0b46ad"
+      },
+      "mainFeature":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":24,
+                        "l":[
+                           "21_2e6575d0357cd787b6e3a0c6e1fe2279e8dfdfb23071af45c57dd4fbea35d4d0"
+                        ]
+                     }
+                  },
+                  {
+                     "t":{
+                        "a":"Country",
+                        "c":16,
+                        "l":[
+                           "60a210babac9a4e2cfbe9dd5d80e140d3457e9e351391c40450d0e8db1355347",
+                           "300cf01202fdfdc31176ed5e868341b219cea9aedfaba50bff0cef3eaeab7584"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"private"
+                  },
+                  "i":"64f8e1a6"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Country",
+                        "c":16,
+                        "l":[
+                           "d34c7fab9b86c80cc0454e7ff422206ca803d7209702a30fd8be6c94b8d15185"
+                        ]
+                     }
+                  },
+                  {
+                     "s":{
+                        "s":0,
+                        "c":1
+                     }
+                  },
+                  {
+                     "s":{
+                        "s":1,
+                        "c":1
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"target"
+                  },
+                  "i":"f570ef26"
+               }
+            }
+         ],
+         "v":{
+            "s":"public"
+         },
+         "i":"f16ac582"
+      },
+      "mainFeatureWithoutUserCondition":{
+         "t":0,
+         "v":{
+            "b":true
+         },
+         "i":"1c6ca36e"
+      }
+   }
 }
-
 """
 }

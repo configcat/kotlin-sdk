@@ -2,7 +2,6 @@ package com.configcat.override
 
 import com.configcat.model.Setting
 
-
 /**
  * Describes a data source for [FlagOverrides].
  */

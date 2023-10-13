@@ -6,10 +6,12 @@ import com.configcat.log.LogLevel
 import com.configcat.manualPoll
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.fail
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class EvaluationTest {
 
     @Test
@@ -97,13 +99,9 @@ class EvaluationTest {
         if (sdkKey.isNullOrEmpty()) {
             sdkKey = TEST_SDK_KEY
         }
-        val jsonOverride = testSet.jsonOverride
-        var mockEngine: MockEngine? = null;
 
-        if (!jsonOverride.isNullOrEmpty()) {
-            mockEngine = MockEngine {
-                respond(content = testSet.jsonOverride!!, status = HttpStatusCode.OK)
-            }
+        var mockEngine = MockEngine {
+            respond(content = testSet.jsonOverride, status = HttpStatusCode.OK)
         }
 
         val evaluationTestLogger = EvaluationTestLogger()
@@ -131,8 +129,9 @@ class EvaluationTest {
             for (i in logsList.indices) {
                 var log = logsList[i]
                 logResultBuilder.append(log.logMessage)
-                if (i != logsList.size - 1)
+                if (i != logsList.size - 1) {
                     logResultBuilder.append("\n")
+                }
             }
             val logResult: String = logResultBuilder.toString()
             if (expectedLog != logResult) {

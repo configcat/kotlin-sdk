@@ -1,8 +1,7 @@
 package com.configcat.integration.matrix
 
 object NumberMatrix : DataMatrix {
-    override val sdkKeyV5: String? = "PKDVCLf-Hq-h-kCzMp-L7Q/uGyK3q9_ckmdxRyI7vjwCw"
-    override val sdkKeyV6: String? = "configcat-sdk-1/PKDVCLf-Hq-h-kCzMp-L7Q/FCWN-k1dV0iBf8QZrDgjdw"
+    override val sdkKey: String = "configcat-sdk-1/PKDVCLf-Hq-h-kCzMp-L7Q/FCWN-k1dV0iBf8QZrDgjdw"
     override val data = """Identifier;Email;Country;Custom1;numberWithPercentage;number
 ##null##;;;;Default;Default
 id1;;;0;<2.1;<>5
@@ -31,155 +30,165 @@ id18;;;4.2;80%;<>5
 id19;;;4,2;20%;<>5"""
     override val remoteJson =
         """{
-            "p": {
-                "u":"https://cdn-global.configcat.com",
-                "r":0,
-                "s": "/Y4mJ/uSa1GBTn2Wt5y33RohDIPavEWxe0TAqr5Lwp4"
-            },
-            "f": {
-                "numberWithPercentage": {
-                  "t": 1,
-                  "r": [
-                    {
-                      "c": [
-                        {
-                          "t": {
-                            "a": "Custom1",
-                            "c": 12,
-                            "d": 2.1
-                          }
-                        }
-                      ],
-                      "s": {
-                        "v": {
-                          "s": "\u003C2.1"
-                        }
-                      }
-                    },
-                    {
-                      "c": [
-                        {
-                          "t": {
-                            "a": "Custom1",
-                            "c": 13,
-                            "d": 2.1
-                          }
-                        }
-                      ],
-                      "s": {
-                        "v": {
-                          "s": "\u003C=2,1"
-                        }
-                      }
-                    },
-                    {
-                      "c": [
-                        {
-                          "t": {
-                            "a": "Custom1",
-                            "c": 10,
-                            "d": 3.5
-                          }
-                        }
-                      ],
-                      "s": {
-                        "v": {
-                          "s": "=3.5"
-                        }
-                      }
-                    },
-                    {
-                      "c": [
-                        {
-                          "t": {
-                            "a": "Custom1",
-                            "c": 14,
-                            "d": 5
-                          }
-                        }
-                      ],
-                      "s": {
-                        "v": {
-                          "s": "\u003E5"
-                        }
-                      }
-                    },
-                    {
-                      "c": [
-                        {
-                          "t": {
-                            "a": "Custom1",
-                            "c": 15,
-                            "d": 5
-                          }
-                        }
-                      ],
-                      "s": {
-                        "v": {
-                          "s": "\u003E=5"
-                        }
-                      }
-                    },
-                    {
-                      "c": [
-                        {
-                          "t": {
-                            "a": "Custom1",
-                            "c": 11,
-                            "d": 4.2
-                          }
-                        }
-                      ],
-                      "s": {
-                        "v": {
-                          "s": "\u003C\u003E4.2"
-                        }
-                      }
-                    }
-                  ],
-                  "p": [
-                    {
-                      "p": 80,
-                      "v": {
-                        "s": "80%"
-                      }
-                    },
-                    {
-                      "p": 20,
-                      "v": {
-                        "s": "20%"
-                      }
-                    }
-                  ],
-                  "v": {
-                    "s": "Default"
+   "p":{
+      "u":"https://cdn-global.configcat.com",
+      "r":0,
+      "s":"szGkvN3seFPsf1Q+K86QuipbnNFnboo+0nvKKzW9XQo="
+   },
+   "f":{
+      "number":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Custom1",
+                        "c":11,
+                        "d":5
+                     }
                   }
-                },
-                "number": {
-                  "t": 1,
-                  "r": [
-                    {
-                      "c": [
-                        {
-                          "t": {
-                            "a": "Custom1",
-                            "c": 11,
-                            "d": 5
-                          }
-                        }
-                      ],
-                      "s": {
-                        "v": {
-                          "s": "\u003C\u003E5"
-                        }
-                      }
-                    }
-                  ],
-                  "v": {
-                    "s": "Default"
-                  }
-                }
-              }
+               ],
+               "s":{
+                  "v":{
+                     "s":"<>5"
+                  },
+                  "i":"a41938c5"
+               }
             }
-            """
+         ],
+         "v":{
+            "s":"Default"
+         },
+         "i":"5ced27a9"
+      },
+      "numberWithPercentage":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Custom1",
+                        "c":12,
+                        "d":2.1
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"<2.1"
+                  },
+                  "i":"a900bc23"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Custom1",
+                        "c":13,
+                        "d":2.1
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"<=2,1"
+                  },
+                  "i":"2c85f73d"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Custom1",
+                        "c":10,
+                        "d":3.5
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"=3.5"
+                  },
+                  "i":"ae86baf5"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Custom1",
+                        "c":14,
+                        "d":5
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":">5"
+                  },
+                  "i":"c6924001"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Custom1",
+                        "c":15,
+                        "d":5
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":">=5"
+                  },
+                  "i":"8090543a"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Custom1",
+                        "c":11,
+                        "d":4.2
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"<>4.2"
+                  },
+                  "i":"2691fade"
+               }
+            }
+         ],
+         "p":[
+            {
+               "p":80,
+               "v":{
+                  "s":"80%"
+               },
+               "i":"ad5f05a7"
+            },
+            {
+               "p":20,
+               "v":{
+                  "s":"20%"
+               },
+               "i":"786b696f"
+            }
+         ],
+         "v":{
+            "s":"Default"
+         },
+         "i":"642bbb26"
+      }
+   }
+}""".trimIndent()
 }

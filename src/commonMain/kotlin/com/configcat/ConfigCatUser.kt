@@ -40,7 +40,6 @@ public class ConfigCatUser(
     override fun toString(): String {
         return "{${attributes.map { "\"${it.key}\":\"${it.value}\"" }.joinToString(",")}}"
     }
-
 }
 
 public object ConfigCatUserHelper {
@@ -62,11 +61,6 @@ public object ConfigCatUserHelper {
     }
 
     public fun attributeValueFrom(items: Array<String>): String {
-        if (items == null) {
-            throw IllegalArgumentException("Invalid 'items' parameter.")
-        }
         return Constants.json.encodeToString(items)
     }
 }
-
-

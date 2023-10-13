@@ -50,10 +50,11 @@ internal object LogHelper {
     }
 
     private fun formatStringComparisonValue(comparisonValue: String?, isSensitive: Boolean): String {
-        return if (isSensitive)
+        return if (isSensitive) {
             "'$HASHED_VALUE'"
-        else
+        } else {
             "'$comparisonValue'"
+        }
     }
 
     private fun formatDoubleComparisonValue(comparisonValue: Double?, isDate: Boolean): String {
@@ -62,7 +63,7 @@ internal object LogHelper {
         }
 
         return if (isDate) {
-            //TODO E format, this is not long
+            // TODO E format, this is not long
             val comparisonValueString = comparisonValue.toLong().toString()
             "'$comparisonValueString' (${comparisonValue.toDateTimeUTCString()} UTC)"
         } else {
@@ -73,7 +74,6 @@ internal object LogHelper {
             }
             "'$comparisonValueString'"
         }
-
     }
 
     fun formatUserCondition(userCondition: UserCondition): String {

@@ -33,7 +33,8 @@ class ConfigCatUserAttributeHelperTests {
         runAttributeValueFrom("stringlist", "a,,b,c", "[\"a\",\"\",\"b\",\"c\"]")
     }
 
-    private suspend fun runAttributeValueFrom(type: String, input: String, expected: String) {
+    private fun runAttributeValueFrom(type: String, input: String, expected: String) {
+        // TODO date test
         val result =
 //            if ("datetime" == type) {
 //            val sdf: java.text.SimpleDateFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
@@ -56,6 +57,5 @@ class ConfigCatUserAttributeHelperTests {
                 }
             }
         assertEquals(expected, result, "Formatted user attribute is not matching.")
-
     }
 }

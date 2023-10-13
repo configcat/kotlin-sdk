@@ -958,11 +958,14 @@ class ConfigCatClientTests {
     @Test
     fun testSDKKeyIsValid() {
         // TEST VALID KEYS
-        var client = ConfigCatClient("sdk-key-90123456789012/1234567890123456789012")
+        var client = ConfigCatClient("sdk-key-90123456789012/1234567890123456789012") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
         assertNotNull(client)
-        client = ConfigCatClient("configcat-sdk-1/sdk-key-90123456789012/1234567890123456789012")
+        client = ConfigCatClient("configcat-sdk-1/sdk-key-90123456789012/1234567890123456789012") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
         assertNotNull(client)
-        client = ConfigCatClient("configcat-proxy/sdk-key-90123456789012") { baseUrl = "https://my-configcat-proxy" }
+        client = ConfigCatClient("configcat-proxy/sdk-key-90123456789012") {
+            baseUrl = "https://my-configcat-proxy"
+            flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY }
+        }
         assertNotNull(client)
 
         ConfigCatClient.closeAll()

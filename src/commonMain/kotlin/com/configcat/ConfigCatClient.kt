@@ -559,22 +559,22 @@ internal class Client private constructor(
 
         private fun isValidKey(sdkKey: String, isCustomBaseURL: Boolean): Boolean {
             // configcat-proxy/ rules
-            if (isCustomBaseURL && sdkKey.length > Constants.SDK_KEY_PROXY_PREFIX.length
-                && sdkKey.startsWith(Constants.SDK_KEY_PROXY_PREFIX)
+            if (isCustomBaseURL && sdkKey.length > Constants.SDK_KEY_PROXY_PREFIX.length &&
+                sdkKey.startsWith(Constants.SDK_KEY_PROXY_PREFIX)
             ) {
                 return true
             }
             val splitSDKKey = sdkKey.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             // 22/22 rules
-            return if (splitSDKKey.size == 2 && splitSDKKey[0].length == Constants.SDK_KEY_SECTION_LENGTH
-                && splitSDKKey[1].length == Constants.SDK_KEY_SECTION_LENGTH
+            return if (splitSDKKey.size == 2 && splitSDKKey[0].length == Constants.SDK_KEY_SECTION_LENGTH &&
+                splitSDKKey[1].length == Constants.SDK_KEY_SECTION_LENGTH
             ) {
                 true
                 // configcat-sdk-1/22/22 rules
             } else {
-                splitSDKKey.size == 3 && splitSDKKey[0] == Constants.SDK_KEY_PREFIX
-                        && splitSDKKey[1].length == Constants.SDK_KEY_SECTION_LENGTH
-                        && splitSDKKey[2].length == Constants.SDK_KEY_SECTION_LENGTH
+                splitSDKKey.size == 3 && splitSDKKey[0] == Constants.SDK_KEY_PREFIX &&
+                        splitSDKKey[1].length == Constants.SDK_KEY_SECTION_LENGTH &&
+                        splitSDKKey[2].length == Constants.SDK_KEY_SECTION_LENGTH
             }
         }
 
@@ -598,6 +598,5 @@ internal class Client private constructor(
 
     internal object SettingTypeHelp {
         fun Int.toSettingTypeOrNull(): SettingType? = SettingType.values().firstOrNull { it.id == this }
-
     }
 }

@@ -1,8 +1,7 @@
 package com.configcat.integration.matrix
 
 object SegmentMatrix : DataMatrix {
-    override val sdkKeyV5: String? = null
-    override val sdkKeyV6: String? = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/h99HYXWWNE2bH8eWyLAVMA"
+    override val sdkKey: String = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/h99HYXWWNE2bH8eWyLAVMA"
     override val data =
         """Identifier;Email;Country;Custom1;developerAndBetaUserSegment
 ##null##;;;;False
@@ -13,185 +12,183 @@ kate@example.com;kate@example.com;##null##;##null##;True
 """.trimIndent()
     override val remoteJson =
         """{
-  "p": {
-    "u": "https://test-cdn-eu.configcat.com",
-    "r": 0,
-    "s": "8MlFGoGg49HzYiO/Lf3Ue1AZ\u002Bm1YJ9uS38q9MnnifNM="
-  },
-  "s": [
-    {
-      "n": "Beta Users",
-      "r": [
-        {
-          "a": "Email",
-          "c": 16,
-          "l": [
-            "355ce67eb642fe01cb3c9972f0c910496bc5d9ec8cec9ef0bb54a81acc412c24",
-            "49b5287a4269be5280e44a0f35ca632d80bbb1957bc5e14412857889fbb91406"
-          ]
-        }
-      ]
-    },
-    {
-      "n": "Developers",
-      "r": [
-        {
-          "a": "Email",
-          "c": 16,
-          "l": [
-            "b5a47cdd19b4ae8c58e034d17f3d47c1711a32614be5b9896feb7381fb50052e",
-            "732a6f070a1f78f73e599b6e3f116cdde13ee67f7c61c9b07cba3dee5e454c8c"
-          ]
-        }
-      ]
-    },
-    {
-      "n": "Not Beta Users",
-      "r": [
-        {
-          "a": "Email",
-          "c": 17,
-          "l": [
-            "1f3725b1b96012852d9ee416f114a59982c333a33c419d0add976c743fa1b8fa",
-            "d9cc2899b7b3f8c94935f44ac5008c42fa4aa68fe7755495f8ff2eab0f50328c"
-          ]
-        }
-      ]
-    },
-    {
-      "n": "Not Developers",
-      "r": [
-        {
-          "a": "Email",
-          "c": 17,
-          "l": [
-            "79b386065c5d5f60a91e3c16457f3a3d7557922d1f5a82e4731aa92445de4436",
-            "66f71cff40dc83805a3aa28be752e60a77f9c74ce87f29adf71508b079e8cd3c"
-          ]
-        }
-      ]
-    },
-    {
-      "n": "United",
-      "r": [
-        {
-          "a": "Country",
-          "c": 2,
-          "l": [
-            "United"
-          ]
-        }
-      ]
-    },
-    {
-      "n": "Not States",
-      "r": [
-        {
-          "a": "Country",
-          "c": 3,
-          "l": [
-            "States"
-          ]
-        }
-      ]
-    }
-  ],
-  "f": {
-    "countrySegment": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+   "p":{
+      "u":"https://cdn-global.configcat.com",
+      "r":0,
+      "s":"7PsdyG64LeoHUOOkK8Lj8XHEoempVtnbcXrMRGAbjio="
+   },
+   "s":[
+      {
+         "n":"Beta Users",
+         "r":[
             {
-              "s": {
-                "s": 4,
-                "c": 0
-              }
-            },
-            {
-              "s": {
-                "s": 5,
-                "c": 0
-              }
+               "a":"Email",
+               "c":16,
+               "l":[
+                  "a85b13a079d912c5cfd7710d838dea1cd95c470edb34808b663f90c8e655f59f",
+                  "05329bebdadfddff03be5acd344eac08ebe32343bbed6c48da3d3b682f24f72f"
+               ]
             }
-          ],
-          "s": {
-            "v": {
-              "s": "A"
-            },
-            "i": "9b7e6414"
-          }
-        }
-      ],
-      "v": {
-        "s": "Z"
+         ]
       },
-      "i": "f71b6d96"
-    },
-    "developerAndBetaUserSegment": {
-      "t": 0,
-      "r": [
-        {
-          "c": [
+      {
+         "n":"Developers",
+         "r":[
             {
-              "s": {
-                "s": 1,
-                "c": 0
-              }
-            },
-            {
-              "s": {
-                "s": 0,
-                "c": 1
-              }
+               "a":"Email",
+               "c":16,
+               "l":[
+                  "8ea8349bbb949c2ddbc69111a2276e3d05d9fdcf26d8f9e5f7cb3f8f110c39ea",
+                  "a547454b065be96a0a2e0b0398e05a524d08d70e73a2551d852cd273b48f9dbd"
+               ]
             }
-          ],
-          "s": {
-            "v": {
-              "b": true
-            },
-            "i": "ddc50638"
-          }
-        }
-      ],
-      "v": {
-        "b": false
+         ]
       },
-      "i": "6427f4b8"
-    },
-    "notDeveloperAndNotBetaUserSegment": {
-      "t": 0,
-      "r": [
-        {
-          "c": [
+      {
+         "n":"Not Beta Users",
+         "r":[
             {
-              "s": {
-                "s": 2,
-                "c": 0
-              }
-            },
-            {
-              "s": {
-                "s": 3,
-                "c": 1
-              }
+               "a":"Email",
+               "c":17,
+               "l":[
+                  "ac3fe8c42300e7dfab453fc5372f9243aa35aeada22e4a1ab9857492e36be977",
+                  "8a468dcce2bbe3c0b1336ec672c79786734277d9a5eab62f5f998b12cb42a494"
+               ]
             }
-          ],
-          "s": {
-            "v": {
-              "b": true
-            },
-            "i": "77081d42"
-          }
-        }
-      ],
-      "v": {
-        "b": false
+         ]
       },
-      "i": "a14eaf13"
-    }
-  }
-}
-
-"""
+      {
+         "n":"Not Developers",
+         "r":[
+            {
+               "a":"Email",
+               "c":17,
+               "l":[
+                  "256303dba70677de7b1a284cbc524cdb7725df3d87936d42a291f9811150e8d5",
+                  "83bbef514b6f4ebd0588743784dd4258a28f95d5d4318df24a3730e7fad663b0"
+               ]
+            }
+         ]
+      },
+      {
+         "n":"Not States",
+         "r":[
+            {
+               "a":"Country",
+               "c":3,
+               "l":[
+                  "States"
+               ]
+            }
+         ]
+      },
+      {
+         "n":"United",
+         "r":[
+            {
+               "a":"Country",
+               "c":2,
+               "l":[
+                  "United"
+               ]
+            }
+         ]
+      }
+   ],
+   "f":{
+      "countrySegment":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "s":{
+                        "s":5,
+                        "c":0
+                     }
+                  },
+                  {
+                     "s":{
+                        "s":4,
+                        "c":0
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"A"
+                  },
+                  "i":"9b7e6414"
+               }
+            }
+         ],
+         "v":{
+            "s":"Z"
+         },
+         "i":"f71b6d96"
+      },
+      "developerAndBetaUserSegment":{
+         "t":0,
+         "r":[
+            {
+               "c":[
+                  {
+                     "s":{
+                        "s":1,
+                        "c":0
+                     }
+                  },
+                  {
+                     "s":{
+                        "s":0,
+                        "c":1
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "b":true
+                  },
+                  "i":"ddc50638"
+               }
+            }
+         ],
+         "v":{
+            "b":false
+         },
+         "i":"6427f4b8"
+      },
+      "notDeveloperAndNotBetaUserSegment":{
+         "t":0,
+         "r":[
+            {
+               "c":[
+                  {
+                     "s":{
+                        "s":2,
+                        "c":0
+                     }
+                  },
+                  {
+                     "s":{
+                        "s":3,
+                        "c":1
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "b":true
+                  },
+                  "i":"77081d42"
+               }
+            }
+         ],
+         "v":{
+            "b":false
+         },
+         "i":"a14eaf13"
+      }
+   }
+}""".trimIndent()
 }

@@ -1,9 +1,7 @@
 package com.configcat.log
 
 import com.configcat.model.PrerequisiteFlagCondition
-
 import com.configcat.model.UserCondition
-
 
 @Suppress("TooManyFunctions")
 internal object ConfigCatLogMessages {

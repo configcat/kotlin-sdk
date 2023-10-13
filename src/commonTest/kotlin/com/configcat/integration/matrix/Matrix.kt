@@ -1,8 +1,7 @@
 package com.configcat.integration.matrix
 
 object Matrix : DataMatrix {
-    override val sdkKeyV5: String? = "PKDVCLf-Hq-h-kCzMp-L7Q/psuH7BGHoUmdONrzzUOY7A"
-    override val sdkKeyV6: String? = "configcat-sdk-1/PKDVCLf-Hq-h-kCzMp-L7Q/AG6C1ngVb0CvM07un6JisQ"
+    override val sdkKey: String = "configcat-sdk-1/PKDVCLf-Hq-h-kCzMp-L7Q/AG6C1ngVb0CvM07un6JisQ"
     override val data =
         """Identifier;Email;Country;Custom1;bool30TrueAdvancedRules;boolDefaultFalse;boolDefaultTrue;double25Pi25E25Gr25Zero;doubleDefaultPi;integer25One25Two25Three25FourAdvancedRules;integerDefaultOne;string25Cat25Dog25Falcon25Horse;string25Cat25Dog25Falcon25HorseAdvancedRules;string75Cat0Dog25Falcon0Horse;stringContainsDogDefaultCat;stringDefaultCat;stringIsInDogDefaultCat;stringIsNotInDogDefaultCat;stringNotContainsDogDefaultCat
 ##null##;;;;True;False;True;-1;3.1415;-1;1;Chicken;Chicken;Chicken;Cat;Cat;Cat;Cat;Cat
@@ -1019,542 +1018,596 @@ ullman@comcast.net;##null##;##null##;##null##;False;False;True;3.1415;3.1415;1;1
 sumdumass@outlook.com;##null##;##null##;##null##;False;False;True;2.7182;3.1415;1;1;Dog;Horse;Falcon;Cat;Cat;Cat;Cat;Cat"""
     override val remoteJson =
         """{
-  "p": {
-    "u":"https://cdn-global.configcat.com",
-    "r":0,
-    "s": "kSBpFzVdEHN7QbjOPhKkB2FHKaSXCGo8D55r0lqxhss="
-  },
-  "f": {
-    "stringDefaultCat": {
-      "t": 1,
-      "v": {
-        "s": "Cat"
-      }
-    },
-    "stringIsInDogDefaultCat": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+   "p":{
+      "u":"https://cdn-global.configcat.com",
+      "r":0,
+      "s":"3l76loPMR4zAOmGTqU57nu5eWvWd9+WPu2H424qVwUc="
+   },
+   "f":{
+      "bool30TrueAdvancedRules":{
+         "t":0,
+         "r":[
             {
-              "t": {
-                "a": "Email",
-                "c": 16,
-                "l": [
-                  "206b33d71717cc9d3b74834fe2e6e1b195f052b4cc614d80571eafb1ad831fd5",
-                  "2aa6bbf5d735ca9ace441fb4641478701bd6f364122e83b3d0bf5f54fddd550c"
-                ]
-              }
-            }
-          ],
-          "s": {
-            "v": {
-              "s": "Dog"
-            }
-          }
-        },
-        {
-          "c": [
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":16,
+                        "l":[
+                           "4bd92a613a6ce6f41afa4f864223cd8c11fca91fff300684168a10e2c2c8e452",
+                           "ea38aa06541eae41958b2aa799156d74eac837706db0398d9ec03e6e3e6e080a"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "b":false
+                  },
+                  "i":"385d9803"
+               }
+            },
             {
-              "t": {
-                "a": "Custom1",
-                "c": 16,
-                "l": [
-                  "5e7d81d60e0e5b55e2ffbdfe052b02b24afdaae16626e64ae6f3d183772cf9ec"
-                ]
-              }
+               "c":[
+                  {
+                     "t":{
+                        "a":"Country",
+                        "c":2,
+                        "l":[
+                           "United"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "b":false
+                  },
+                  "i":"385d9803"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "s": "Dog"
-            }
-          }
-        }
-      ],
-      "v": {
-        "s": "Cat"
-      }
-    },
-    "stringIsNotInDogDefaultCat": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+         ],
+         "p":[
             {
-              "t": {
-                "a": "Email",
-                "c": 17,
-                "l": [
-                  "f117c6948de816414d68207e8c9fe562b5c53b0e0d3af1b5abcc36f1e0955997",
-                  "56a3573e5aa9c408bdb83878dd038e78d555aea31f98d99f0b2b8c2867463b7c"
-                ]
-              }
-            }
-          ],
-          "s": {
-            "v": {
-              "s": "Dog"
-            }
-          }
-        }
-      ],
-      "v": {
-        "s": "Cat"
-      }
-    },
-    "stringContainsDogDefaultCat": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+               "p":30,
+               "v":{
+                  "b":true
+               },
+               "i":"607147d5"
+            },
             {
-              "t": {
-                "a": "Email",
-                "c": 2,
-                "l": [
-                  "@configcat.com"
-                ]
-              }
+               "p":70,
+               "v":{
+                  "b":false
+               },
+               "i":"385d9803"
             }
-          ],
-          "s": {
-            "v": {
-              "s": "Dog"
-            }
-          }
-        }
-      ],
-      "v": {
-        "s": "Cat"
-      }
-    },
-    "stringNotContainsDogDefaultCat": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+         ],
+         "v":{
+            "b":true
+         },
+         "i":"607147d5"
+      },
+      "boolDefaultFalse":{
+         "t":0,
+         "v":{
+            "b":false
+         },
+         "i":"489a16d2"
+      },
+      "boolDefaultTrue":{
+         "t":0,
+         "v":{
+            "b":true
+         },
+         "i":"09513143"
+      },
+      "double25Pi25E25Gr25Zero":{
+         "t":3,
+         "r":[
             {
-              "t": {
-                "a": "Email",
-                "c": 3,
-                "l": [
-                  "@configcat.com"
-                ]
-              }
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":2,
+                        "l":[
+                           "@configcat.com"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "d":5.561
+                  },
+                  "i":"3f7826de"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "s": "Dog"
-            }
-          }
-        }
-      ],
-      "v": {
-        "s": "Cat"
-      }
-    },
-    "string25Cat25Dog25Falcon25Horse": {
-      "t": 1,
-      "p": [
-        {
-          "p": 25,
-          "v": {
-            "s": "Cat"
-          }
-        },
-        {
-          "p": 25,
-          "v": {
-            "s": "Dog"
-          }
-        },
-        {
-          "p": 25,
-          "v": {
-            "s": "Falcon"
-          }
-        },
-        {
-          "p": 25,
-          "v": {
-            "s": "Horse"
-          }
-        }
-      ],
-      "v": {
-        "s": "Chicken"
-      }
-    },
-    "string75Cat0Dog25Falcon0Horse": {
-      "t": 1,
-      "p": [
-        {
-          "p": 75,
-          "v": {
-            "s": "Cat"
-          }
-        },
-        {
-          "p": 0,
-          "v": {
-            "s": "Dog"
-          }
-        },
-        {
-          "p": 25,
-          "v": {
-            "s": "Falcon"
-          }
-        },
-        {
-          "p": 0,
-          "v": {
-            "s": "Horse"
-          }
-        }
-      ],
-      "v": {
-        "s": "Chicken"
-      }
-    },
-    "string25Cat25Dog25Falcon25HorseAdvancedRules": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+         ],
+         "p":[
             {
-              "t": {
-                "a": "Country",
-                "c": 16,
-                "l": [
-                  "4af88801ac46795aac6d8e412d87eaaae27e02954464932c4d98175b3eafba9b",
-                  "825a2eb2bdc769ad45059625349b889ee32b6a86d636b96e79de4133326d030d"
-                ]
-              }
-            }
-          ],
-          "s": {
-            "v": {
-              "s": "Dolphin"
-            }
-          }
-        },
-        {
-          "c": [
+               "p":25,
+               "v":{
+                  "d":3.1415
+               },
+               "i":"6d75b4d3"
+            },
             {
-              "t": {
-                "a": "Custom1",
-                "c": 2,
-                "l": [
-                  "admi"
-                ]
-              }
-            }
-          ],
-          "s": {
-            "v": {
-              "s": "Lion"
-            }
-          }
-        },
-        {
-          "c": [
+               "p":25,
+               "v":{
+                  "d":2.7182
+               },
+               "i":"183ee713"
+            },
             {
-              "t": {
-                "a": "Email",
-                "c": 2,
-                "l": [
-                  "@configcat.com"
-                ]
-              }
-            }
-          ],
-          "s": {
-            "v": {
-              "s": "Kitten"
-            }
-          }
-        }
-      ],
-      "p": [
-        {
-          "p": 25,
-          "v": {
-            "s": "Cat"
-          }
-        },
-        {
-          "p": 25,
-          "v": {
-            "s": "Dog"
-          }
-        },
-        {
-          "p": 25,
-          "v": {
-            "s": "Falcon"
-          }
-        },
-        {
-          "p": 25,
-          "v": {
-            "s": "Horse"
-          }
-        }
-      ],
-      "v": {
-        "s": "Chicken"
-      }
-    },
-    "boolDefaultTrue": {
-      "t": 0,
-      "v": {
-        "b": true
-      }
-    },
-    "boolDefaultFalse": {
-      "t": 0,
-      "v": {
-        "b": false
-      }
-    },
-    "bool30TrueAdvancedRules": {
-      "t": 0,
-      "r": [
-        {
-          "c": [
+               "p":25,
+               "v":{
+                  "d":1.61803
+               },
+               "i":"01eb6326"
+            },
             {
-              "t": {
-                "a": "Email",
-                "c": 16,
-                "l": [
-                  "3209f667a750966e68e6f6357515b30564f5ac510d347a04cdf2f538715d3dd8",
-                  "4632d76e9719686ebefd5ac89084019f4cd6c31e2b2d25ca2aaf566a68137d29"
-                ]
-              }
+               "p":25,
+               "v":{
+                  "d":0
+               },
+               "i":"64c434ff"
             }
-          ],
-          "s": {
-            "v": {
-              "b": false
-            }
-          }
-        },
-        {
-          "c": [
+         ],
+         "v":{
+            "d":-1
+         },
+         "i":"9503a1de"
+      },
+      "doubleDefaultPi":{
+         "t":3,
+         "v":{
+            "d":3.1415
+         },
+         "i":"5af8acc7"
+      },
+      "integer25One25Two25Three25FourAdvancedRules":{
+         "t":2,
+         "r":[
             {
-              "t": {
-                "a": "Country",
-                "c": 2,
-                "l": [
-                  "United"
-                ]
-              }
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":2,
+                        "l":[
+                           "@configcat.com"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "i":5
+                  },
+                  "i":"58136ba2"
+               }
             }
-          ],
-          "s": {
-            "v": {
-              "b": false
-            }
-          }
-        }
-      ],
-      "p": [
-        {
-          "p": 30,
-          "v": {
-            "b": true
-          }
-        },
-        {
-          "p": 70,
-          "v": {
-            "b": false
-          }
-        }
-      ],
-      "v": {
-        "b": true
-      }
-    },
-    "integer25One25Two25Three25FourAdvancedRules": {
-      "t": 2,
-      "r": [
-        {
-          "c": [
+         ],
+         "p":[
             {
-              "t": {
-                "a": "Email",
-                "c": 2,
-                "l": [
-                  "@configcat.com"
-                ]
-              }
-            }
-          ],
-          "s": {
-            "v": {
-              "i": 5
-            }
-          }
-        }
-      ],
-      "p": [
-        {
-          "p": 25,
-          "v": {
-            "i": 1
-          }
-        },
-        {
-          "p": 25,
-          "v": {
-            "i": 2
-          }
-        },
-        {
-          "p": 25,
-          "v": {
-            "i": 3
-          }
-        },
-        {
-          "p": 25,
-          "v": {
-            "i": 4
-          }
-        }
-      ],
-      "v": {
-        "i": -1
-      }
-    },
-    "integerDefaultOne": {
-      "t": 2,
-      "v": {
-        "i": 1
-      }
-    },
-    "doubleDefaultPi": {
-      "t": 3,
-      "v": {
-        "d": 3.1415
-      }
-    },
-    "double25Pi25E25Gr25Zero": {
-      "t": 3,
-      "r": [
-        {
-          "c": [
+               "p":25,
+               "v":{
+                  "i":1
+               },
+               "i":"11634414"
+            },
             {
-              "t": {
-                "a": "Email",
-                "c": 2,
-                "l": [
-                  "@configcat.com"
-                ]
-              }
-            }
-          ],
-          "s": {
-            "v": {
-              "d": 5.561
-            }
-          }
-        }
-      ],
-      "p": [
-        {
-          "p": 25,
-          "v": {
-            "d": 3.1415
-          }
-        },
-        {
-          "p": 25,
-          "v": {
-            "d": 2.7182
-          }
-        },
-        {
-          "p": 25,
-          "v": {
-            "d": 1.61803
-          }
-        },
-        {
-          "p": 25,
-          "v": {
-            "d": 0
-          }
-        }
-      ],
-      "v": {
-        "d": -1
-      }
-    },
-    "keySampleText": {
-      "t": 1,
-      "r": [
-        {
-          "c": [
+               "p":25,
+               "v":{
+                  "i":2
+               },
+               "i":"5530655d"
+            },
             {
-              "t": {
-                "a": "Country",
-                "c": 16,
-                "l": [
-                  "569d4810dfac9d6a4b4196aaddf5ba3e8ef0a653cfa15054529e0e9ed76f5f25",
-                  "a7d55166218ec2c197cc4b14723cc96f00cfbee0d734cb57769bb33d30387c71"
-                ]
-              }
-            }
-          ],
-          "s": {
-            "v": {
-              "s": "Dog"
-            }
-          }
-        },
-        {
-          "c": [
+               "p":25,
+               "v":{
+                  "i":3
+               },
+               "i":"2ad19a52"
+            },
             {
-              "t": {
-                "a": "SubscriptionType",
-                "c": 16,
-                "l": [
-                  "ddd689eb98271df997e28f75dbe9a134af7235b1d6d84d7d6773cb48556103a6"
-                ]
-              }
+               "p":25,
+               "v":{
+                  "i":4
+               },
+               "i":"41b30851"
             }
-          ],
-          "s": {
-            "v": {
-              "s": "Lion"
+         ],
+         "v":{
+            "i":-1
+         },
+         "i":"ce3c4f5a"
+      },
+      "integerDefaultOne":{
+         "t":2,
+         "v":{
+            "i":1
+         },
+         "i":"faadbf54"
+      },
+      "keySampleText":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Country",
+                        "c":16,
+                        "l":[
+                           "7465add075dcb926a6402085e88ab9702ab2d9a8b14a5ec7ea151658aeac04d3",
+                           "e075d3d147f5fad316e06d9c58de864ea5ba7681225b0ff90563e75808dcad9d"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"9fa0e57e"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"SubscriptionType",
+                        "c":16,
+                        "l":[
+                           "c2cf4544cb313df965d59abf4f1485ff924ed1228137b9648948847a5dc6d165"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Lion"
+                  },
+                  "i":"2be6b03f"
+               }
             }
-          }
-        }
-      ],
-      "p": [
-        {
-          "p": 50,
-          "v": {
-            "s": "Falcon"
-          }
-        },
-        {
-          "p": 50,
-          "v": {
-            "s": "Horse"
-          }
-        }
-      ],
-      "v": {
-        "s": "Cat"
+         ],
+         "p":[
+            {
+               "p":50,
+               "v":{
+                  "s":"Falcon"
+               },
+               "i":"baff2362"
+            },
+            {
+               "p":50,
+               "v":{
+                  "s":"Horse"
+               },
+               "i":"dab78ba5"
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"69ef126c"
+      },
+      "string25Cat25Dog25Falcon25Horse":{
+         "t":1,
+         "p":[
+            {
+               "p":25,
+               "v":{
+                  "s":"Cat"
+               },
+               "i":"d227b334"
+            },
+            {
+               "p":25,
+               "v":{
+                  "s":"Dog"
+               },
+               "i":"622f5d07"
+            },
+            {
+               "p":25,
+               "v":{
+                  "s":"Falcon"
+               },
+               "i":"0ff32bab"
+            },
+            {
+               "p":25,
+               "v":{
+                  "s":"Horse"
+               },
+               "i":"6c597441"
+            }
+         ],
+         "v":{
+            "s":"Chicken"
+         },
+         "i":"2588a3e6"
+      },
+      "string25Cat25Dog25Falcon25HorseAdvancedRules":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Country",
+                        "c":16,
+                        "l":[
+                           "d4c8747dd5641e2cba3dcfcb54e4b375c7239956aa8b7a9bb713aee853e954b0",
+                           "ed15f333d682ec2328761001da2e2bbe4df0d37cb17cfb0b70b889896d70f39c"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dolphin"
+                  },
+                  "i":"3accb1d0"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Custom1",
+                        "c":2,
+                        "l":[
+                           "admi"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Lion"
+                  },
+                  "i":"e95ebf10"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":2,
+                        "l":[
+                           "@configcat.com"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Kitten"
+                  },
+                  "i":"88243650"
+               }
+            }
+         ],
+         "p":[
+            {
+               "p":25,
+               "v":{
+                  "s":"Cat"
+               },
+               "i":"83461b47"
+            },
+            {
+               "p":25,
+               "v":{
+                  "s":"Dog"
+               },
+               "i":"4f026fbc"
+            },
+            {
+               "p":25,
+               "v":{
+                  "s":"Falcon"
+               },
+               "i":"392a4d59"
+            },
+            {
+               "p":25,
+               "v":{
+                  "s":"Horse"
+               },
+               "i":"bb66b1f3"
+            }
+         ],
+         "v":{
+            "s":"Chicken"
+         },
+         "i":"8250ef5a"
+      },
+      "string75Cat0Dog25Falcon0Horse":{
+         "t":1,
+         "p":[
+            {
+               "p":75,
+               "v":{
+                  "s":"Cat"
+               },
+               "i":"93f5a1c0"
+            },
+            {
+               "p":0,
+               "v":{
+                  "s":"Dog"
+               },
+               "i":"b8f49554"
+            },
+            {
+               "p":25,
+               "v":{
+                  "s":"Falcon"
+               },
+               "i":"7beaf504"
+            },
+            {
+               "p":0,
+               "v":{
+                  "s":"Horse"
+               },
+               "i":"30ee31af"
+            }
+         ],
+         "v":{
+            "s":"Chicken"
+         },
+         "i":"aa65b5ce"
+      },
+      "stringContainsDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":2,
+                        "l":[
+                           "@configcat.com"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"d0cd8f06"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"ce564c3a"
+      },
+      "stringDefaultCat":{
+         "t":1,
+         "v":{
+            "s":"Cat"
+         },
+         "i":"7a0be518"
+      },
+      "stringIsInDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":16,
+                        "l":[
+                           "e2b54bec9035e419aece917c89f75f288b8cf492dcad9fe30b7f81705db99874",
+                           "e1e21b7f3a70ec0f032b2a0ecf7e12027caf8f20ce0977bc0709545c23ab14e8"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"5b64d9b4"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Custom1",
+                        "c":16,
+                        "l":[
+                           "4625369c98210073f030d24afc7fff7a936d5d99114ed2ef3b58c9e33c2c6930"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"5b64d9b4"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"83372510"
+      },
+      "stringIsNotInDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":17,
+                        "l":[
+                           "77e5a4f007b8ba51e1badede889fe1ac6f6a75b72f83d35d2add3b60cf8c9c65",
+                           "b5c43265050a889e5a4ca4b498bfc6863ee6bdac5098846a2d85c8a7070947ed"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"6ada5ff2"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"2459598d"
+      },
+      "stringNotContainsDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":3,
+                        "l":[
+                           "@configcat.com"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"f7f8f43d"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"44ab483a"
       }
-    }
-  }
+   }
 }
 """
 }

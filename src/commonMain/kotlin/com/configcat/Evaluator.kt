@@ -40,7 +40,6 @@ internal object ComparatorHelp {
 
 internal class Evaluator(private val logger: InternalLogger) {
 
-
     fun evaluate(
         setting: Setting,
         key: String,
@@ -48,7 +47,6 @@ internal class Evaluator(private val logger: InternalLogger) {
         settings: Map<String, Setting>?,
         evaluateLogger: EvaluateLogger?
     ): EvaluationResult {
-
         try {
             evaluateLogger?.logEvaluation(key)
             if (user != null) {
@@ -69,7 +67,6 @@ internal class Evaluator(private val logger: InternalLogger) {
             }
         }
     }
-
 
     private fun evaluateSetting(
         setting: Setting,
@@ -416,7 +413,6 @@ internal class Evaluator(private val logger: InternalLogger) {
                     )
                     throw RolloutEvaluatorException("cannot evaluate, the User.$comparisonAttribute attribute is invalid ($reason)")
                 }
-
             }
 
             Comparator.LT_SEMVER,
@@ -531,8 +527,9 @@ internal class Evaluator(private val logger: InternalLogger) {
         var matched = false
         for (value in values) {
             matched = userValue.contains(value)
-            if (matched)
+            if (matched) {
                 break
+            }
         }
         if ((matched && comparator == Comparator.CONTAINS_ANY_OF) ||
             (!matched && comparator == Comparator.NOT_CONTAINS_ANY_OF)
@@ -768,7 +765,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         }
         evaluateLogger?.logPercentageOptionEvaluation(percentageOptionAttributeName)
 
-        val hashCandidate = "${context.key}${percentageOptionAttributeValue}"
+        val hashCandidate = "${context.key}$percentageOptionAttributeValue"
         val hash = hashCandidate.encodeToByteArray().sha1().hex.substring(0, 7)
         val numberRepresentation = hash.toInt(radix = 16)
         val scale = numberRepresentation % 100
@@ -829,7 +826,6 @@ internal class Evaluator(private val logger: InternalLogger) {
         IS_IN_SEGMENT(0, "IS IN SEGMENT"),
         IS_NOT_IN_SEGMENT(1, "IS NOT IN SEGMENT")
     }
-
 }
 
 internal class EvaluateLogger {
@@ -845,8 +841,9 @@ internal class EvaluateLogger {
     }
 
     fun decreaseIndentLevel() {
-        if (indentLevel > 0)
+        if (indentLevel > 0) {
             indentLevel--
+        }
     }
 
     fun newLine() {

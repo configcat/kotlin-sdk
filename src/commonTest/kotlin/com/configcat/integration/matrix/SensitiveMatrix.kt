@@ -1,8 +1,7 @@
 package com.configcat.integration.matrix
 
 object SensitiveMatrix : DataMatrix {
-    override val sdkKeyV5: String? = "PKDVCLf-Hq-h-kCzMp-L7Q/qX3TP2dTj06ZpCCT1h_SPA"
-    override val sdkKeyV6: String? = "configcat-sdk-1/PKDVCLf-Hq-h-kCzMp-L7Q/-0YmVOUNgEGKkgRF-rU65g"
+    override val sdkKey: String = "configcat-sdk-1/PKDVCLf-Hq-h-kCzMp-L7Q/-0YmVOUNgEGKkgRF-rU65g"
     override val data = """Identifier;Email;Country;Custom1;isOneOfSensitive;isNotOneOfSensitive
 ##null##;;;;ToAll;ToAll
 id1;macska@example.com;;;Macska;Kigyo
@@ -13,144 +12,151 @@ id1;;Scotland;;Britt;Kigyo
 Macska;;USA;;ToAll;Ireland"""
     override val remoteJson =
         """{
-            "p": {
-                "u":"https://cdn-global.configcat.com",
-                "r":0,
-                "s": "PTTl5hs8rhXMOBZju\u002B30y8SsG0F4GSqhrMS\u002Bd1HGRW0="
+   "p":{
+      "u":"https://cdn-global.configcat.com",
+      "r":0,
+      "s":"I2FkyvPEzQ9r75UCw+FdU01xjJYVIJb38tgsZmG5AGA="
+   },
+   "f":{
+      "isNotOneOfSensitive":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Identifier",
+                        "c":17,
+                        "l":[
+                           "a8c0939a47609567f4392149dd4ab3d72ce53d0de56c332c5f74140e1792ba26",
+                           "9b19358c2e57fd77d23a688cdd4a275ff343ff9edcf4b337d96be53914fbb3c2"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Kigyo"
+                  },
+                  "i":"4e4356b4"
+               }
             },
-            "f": {
-                "isNotOneOfSensitive": {
-                  "t": 1,
-                  "r": [
-                    {
-                      "c": [
-                        {
-                          "t": {
-                            "a": "Identifier",
-                            "c": 17,
-                            "l": [
-                              "61338bc24f4393fb5266167100d4ab5f56f5f146fa0c1c44d0ae9dee2d2ff0e6",
-                              "ea4669a7df3b1c9989ce11e6fe1def6b92a07412c1ed5583aed6b16cca7de03c"
-                            ]
-                          }
-                        }
-                      ],
-                      "s": {
-                        "v": {
-                          "s": "Kigyo"
-                        }
-                      }
-                    },
-                    {
-                      "c": [
-                        {
-                          "t": {
-                            "a": "Email",
-                            "c": 17,
-                            "l": [
-                              "f7995450d2d32812f13d40d8c24764d01c39685fcd9bd7cc9cb66c3288564e7a",
-                              "a16c6e1a1e1bfc8f455b1f8c8756731cf5c6f456cc3e6c5c5a4226f427459d38"
-                            ]
-                          }
-                        }
-                      ],
-                      "s": {
-                        "v": {
-                          "s": "Angolna"
-                        }
-                      }
-                    },
-                    {
-                      "c": [
-                        {
-                          "t": {
-                            "a": "Country",
-                            "c": 17,
-                            "l": [
-                              "aedda83026d352c585ea7923307fb5c77859e0a68949fcb7c6c76baea517d6c1",
-                              "53652982b82dc7b32a3681ce4f0d4a6e3643333d48e5678a31d9dd46a7bc3418",
-                              "a69168fa5b2793618e0c62770c256ac568fc8322541634ed1d5bde7dcaf763fc"
-                            ]
-                          }
-                        }
-                      ],
-                      "s": {
-                        "v": {
-                          "s": "Ireland"
-                        }
-                      }
-                    }
-                  ],
-                  "v": {
-                    "s": "ToAll"
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":17,
+                        "l":[
+                           "69ee20b3dec70790b51ba750f7449795df9d8a259fb8fc849bed3d7943fdc427",
+                           "7e073415b9921ddc9b992e02e54555198e4e810cf6c672400f372df1c90aa4e7"
+                        ]
+                     }
                   }
-                },
-                "isOneOfSensitive": {
-                  "t": 1,
-                  "r": [
-                    {
-                      "c": [
-                        {
-                          "t": {
-                            "a": "Email",
-                            "c": 16,
-                            "l": [
-                              "980203a2d47f455ea84562067049bfbabe43032d750eac8471f7003e2ffcf26a"
-                            ]
-                          }
-                        }
-                      ],
-                      "s": {
-                        "v": {
-                          "s": "Macska"
-                        }
-                      }
-                    },
-                    {
-                      "c": [
-                        {
-                          "t": {
-                            "a": "Identifier",
-                            "c": 16,
-                            "l": [
-                              "8213c46251fb349f7c332e53a22238815cfba02bed3124b51cd3011be0dbb388",
-                              "4e8611c778dfd8516d43a3b9d12544674aeef2726e333dcafd158b8dce029343"
-                            ]
-                          }
-                        }
-                      ],
-                      "s": {
-                        "v": {
-                          "s": "Allat"
-                        }
-                      }
-                    },
-                    {
-                      "c": [
-                        {
-                          "t": {
-                            "a": "Country",
-                            "c": 16,
-                            "l": [
-                              "ec9d3a16c19d872cd835f8fcf7d366fb960653d41719048db325e8a0343155d3",
-                              "a3c1959a63910936a728f72bc133e1cc42120d2458d95eb041c34213567d7dc9",
-                              "111d1e465f7a84483de93bffbc344e98150e8a89c6a5830a7e17fa2b1bf45546"
-                            ]
-                          }
-                        }
-                      ],
-                      "s": {
-                        "v": {
-                          "s": "Britt"
-                        }
-                      }
-                    }
-                  ],
-                  "v": {
-                    "s": "ToAll"
+               ],
+               "s":{
+                  "v":{
+                     "s":"Angolna"
+                  },
+                  "i":"d75ea4a4"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Country",
+                        "c":17,
+                        "l":[
+                           "03e9092eae3fa4b247d2ebfae0f36413ae20eb4c0911af544cdb51c90b12415c",
+                           "41393456105d6dee2d568bd4ebab7c15cbe272b3868ba4657b5d3a5dfa3d1333",
+                           "c4c9d439346e8d1e3d66c15773d0d9e22066bc42a3ebb4ceb9eb3be4b97815e9"
+                        ]
+                     }
                   }
-                }
-              }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Ireland"
+                  },
+                  "i":"e8826a82"
+               }
             }
-            """.trimIndent()
+         ],
+         "v":{
+            "s":"ToAll"
+         },
+         "i":"97bd663d"
+      },
+      "isOneOfSensitive":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Email",
+                        "c":16,
+                        "l":[
+                           "a40a9a817d132cc6ba86de6d1541e78d2d3cedf2a0e20653e0e4b4005be80e40"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Macska"
+                  },
+                  "i":"b1dc4d99"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Identifier",
+                        "c":16,
+                        "l":[
+                           "d38b18fe82a45f957c0fc2613d99c0b2ce6d7cb941488ea01260078a8a9e7351",
+                           "f0989c27eed313f4b997b6538ccd37747fcfc723d4e3ad8b1fa1c073bf275c0c"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Allat"
+                  },
+                  "i":"fb7be8fd"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "t":{
+                        "a":"Country",
+                        "c":16,
+                        "l":[
+                           "a17a51c350757c1899b62103dc010623e155d7669562b5f44dbd2b8066c3a02c",
+                           "62adef8b90fecb3fb5d795651b538e72424648c9290a1f22bf29376f4f91169d",
+                           "8f2d8040ac60fa09938257d21e5b80cf49bab80c856a47a94f9ef2864d5fb2cc"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Britt"
+                  },
+                  "i":"f1b9ed25"
+               }
+            }
+         ],
+         "v":{
+            "s":"ToAll"
+         },
+         "i":"71a78b2a"
+      }
+   }
+}""".trimIndent()
 }
