@@ -801,6 +801,9 @@ internal class Evaluator(private val logger: InternalLogger) {
         return null
     }
 
+    /**
+     * Describes the Rollout Evaluator User Condition Comparators.
+     */
     enum class Comparator(val id: Int, val value: String) {
         CONTAINS_ANY_OF(2, "CONTAINS ANY OF"),
         NOT_CONTAINS_ANY_OF(3, "NOT CONTAINS ANY OF"),
@@ -830,11 +833,17 @@ internal class Evaluator(private val logger: InternalLogger) {
         HASHED_ARRAY_NOT_CONTAINS(27, "ARRAY NOT CONTAINS ANY OF")
     }
 
+    /**
+     * Describes the Prerequisite Comparators.
+     */
     enum class PrerequisiteComparator(val id: Int, val value: String) {
         EQUALS(0, "EQUALS"),
         NOT_EQUALS(1, "NOT EQUALS")
     }
 
+    /**
+     * Describes the Segment Comparators.
+     */
     enum class SegmentComparator(val id: Int, val value: String) {
         IS_IN_SEGMENT(0, "IS IN SEGMENT"),
         IS_NOT_IN_SEGMENT(1, "IS NOT IN SEGMENT")

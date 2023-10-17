@@ -6,12 +6,24 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
+/**
+ * ConfigCat config.
+ */
 @Serializable
 internal data class Config(
+    /**
+     * The config preferences.
+     */
     @SerialName("p")
     val preferences: Preferences?,
+    /**
+     * Map of flags / settings.
+     */
     @SerialName("f")
     var settings: Map<String, Setting>? = null,
+    /**
+     * List of segments.
+     */
     @SerialName("s")
     var segments: Array<Segment>? = null
 ) {

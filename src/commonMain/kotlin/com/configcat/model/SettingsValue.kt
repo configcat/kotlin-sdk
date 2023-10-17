@@ -3,6 +3,9 @@ package com.configcat.model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Setting Value contains the proper value based on type.
+ */
 @Serializable
 public data class SettingsValue(
     @SerialName("b")

@@ -16,19 +16,29 @@ public data class Setting(
      */
     @SerialName(value = "t")
     var type: Int = 0,
-
+    /**
+     * The User Object attribute which serves as the basis of percentage options evaluation.
+     */
     @SerialName(value = "a")
     val percentageAttribute: String? = "",
-
+    /**
+     * The list of percentage options.
+     */
     @SerialName(value = "p")
     val percentageOptions: Array<PercentageOption>? = null,
-
+    /**
+     * The list of targeting rules (where there is a logical OR relation between the items).
+     */
     @SerialName(value = "r")
     val targetingRules: Array<TargetingRule>? = null,
-
+    /**
+     * The value of the setting.
+     */
     @SerialName(value = "v")
     val settingsValue: SettingsValue,
-
+    /**
+     * The variation ID of the setting.
+     */
     @SerialName(value = "i")
     val variationId: String = ""
 ) {

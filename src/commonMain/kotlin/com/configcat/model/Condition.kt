@@ -3,6 +3,9 @@ package com.configcat.model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Container class for different condition types.
+ */
 @Serializable
 public data class Condition(
     @SerialName(value = "t")
