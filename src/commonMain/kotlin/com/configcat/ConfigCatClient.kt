@@ -493,10 +493,8 @@ internal class Client private constructor(
                 )
             }
         }
-        if (result == null) {
-            throw IllegalArgumentException(
+        require(result != null) {
                 "Setting value is not of the expected type ${settingTypeEnum.value}."
-            )
         }
         return result
     }

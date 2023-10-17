@@ -130,7 +130,8 @@ internal object ConfigCatLogMessages {
         readTimeoutMillis: Long,
         writeTimeoutMillis: Long
     ): String {
-        return "Request timed out while trying to fetch config JSON. Timeout values: [connect: ${connectTimeoutMillis}ms, read: ${readTimeoutMillis}ms, write: ${writeTimeoutMillis}ms]"
+        return "Request timed out while trying to fetch config JSON. Timeout values: [connect: " +
+                "${connectTimeoutMillis}ms, read: ${readTimeoutMillis}ms, write: ${writeTimeoutMillis}ms]"
     }
 
     /**
@@ -176,7 +177,10 @@ internal object ConfigCatLogMessages {
      * @return The formatted warn message.
      */
     fun getUserAttributeMissing(key: String, userCondition: UserCondition, attributeName: String): String {
-        return "Cannot evaluate condition (${LogHelper.formatUserCondition(userCondition)}) for setting '$key' (the User.$attributeName attribute is missing). You should set the User.$attributeName attribute in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/"
+        return "Cannot evaluate condition (${LogHelper.formatUserCondition(userCondition)}) for setting '$key' " +
+                "(the User.$attributeName attribute is missing). You should set the User.$attributeName " +
+                "attribute in order to make targeting work properly. " +
+                "Read more: https://configcat.com/docs/advanced/user-object/"
     }
 
     /**
@@ -187,7 +191,9 @@ internal object ConfigCatLogMessages {
      * @return The formatted warn message.
      */
     fun getUserAttributeMissing(key: String, attributeName: String): String {
-        return "Cannot evaluate % options for setting '$key' (the User.$attributeName attribute is missing). You should set the User.$attributeName attribute in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/"
+        return "Cannot evaluate % options for setting '$key' (the User.$attributeName attribute is missing). " +
+                "You should set the User.$attributeName attribute in order to make targeting work properly. " +
+                "Read more: https://configcat.com/docs/advanced/user-object/"
     }
 
     /**
@@ -205,7 +211,9 @@ internal object ConfigCatLogMessages {
         reason: String,
         attributeName: String
     ): String {
-        return "Cannot evaluate condition (${LogHelper.formatUserCondition(userCondition)}) for setting '$key' ($reason). Please check the User.$attributeName attribute and make sure that its value corresponds to the comparison operator."
+        return "Cannot evaluate condition (${LogHelper.formatUserCondition(userCondition)}) for setting '$key' " +
+                "($reason). Please check the User.$attributeName attribute and make sure that its value corresponds " +
+                "to the comparison operator."
     }
 
     /**
@@ -221,7 +229,9 @@ internal object ConfigCatLogMessages {
         prerequisiteFlagCondition: PrerequisiteFlagCondition,
         dependencyCycle: String
     ): String {
-        return "Cannot evaluate condition (${LogHelper.formatPrerequisiteFlagCondition(prerequisiteFlagCondition)}) for setting '$key' (circular dependency detected between the following depending flags: $dependencyCycle). Please check your feature flag definition and eliminate the circular dependency."
+        return "Cannot evaluate condition (${LogHelper.formatPrerequisiteFlagCondition(prerequisiteFlagCondition)}) " +
+                "for setting '$key' (circular dependency detected between the following depending flags: " +
+                "$dependencyCycle). Please check your feature flag definition and eliminate the circular dependency."
     }
 
     /**

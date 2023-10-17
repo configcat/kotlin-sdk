@@ -142,9 +142,7 @@ internal class ConfigFetcher constructor(
         return try {
             val config: Config = Constants.json.decodeFromString(jsonString)
             val configSalt = config.preferences?.salt
-            if (configSalt.isNullOrEmpty()) {
-                throw IllegalArgumentException("Config JSON salt is missing.")
-            }
+            require(!configSalt.isNullOrEmpty()) { "Config JSON salt is missing." }
             config.settings?.values?.forEach {
                 it.configSalt = configSalt
                 it.segments = config.segments ?: arrayOf()
