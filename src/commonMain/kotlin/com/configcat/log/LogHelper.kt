@@ -33,7 +33,7 @@ internal object LogHelper {
             if (comparisonValues.size > MAX_LIST_ELEMENT) {
                 val count = comparisonValues.size - MAX_LIST_ELEMENT
                 val countPostFix = if (count == 1) "value" else "values"
-                listPostFix = " ... <$count more $countPostFix>"
+                listPostFix = ", ... <$count more $countPostFix>"
             }
             val subList: List<String> = comparisonValues.subList(0, minOf(MAX_LIST_ELEMENT, comparisonValues.size))
             val formatListBuilder = StringBuilder()
