@@ -252,5 +252,5 @@ bryanw@verizon.net;bryanw@verizon.net;Hungary;;a0e56eda;d0dbc27f;30ba32b9;61a5a0
          "i":"cf2e9162"
       }
    }
-}""".trimIndent()
+}"""
 }

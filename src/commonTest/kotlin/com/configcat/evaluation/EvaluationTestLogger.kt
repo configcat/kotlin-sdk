@@ -51,4 +51,4 @@ class EvaluationTestLogger : Logger {
     }
 }
 
-class LogEvent(val logLevel: LogLevel, val logMessage: String) {}
+class LogEvent(val logLevel: LogLevel, val logMessage: String)

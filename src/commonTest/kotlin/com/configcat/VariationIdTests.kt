@@ -16,9 +16,7 @@ class VariationIdTests {
     @Test
     fun testGetVariationId() = runTest {
         val mockEngine = MockEngine {
-            respond(
-                content = variationIdBody, status = HttpStatusCode.OK
-            )
+            respond(content = variationIdBody, status = HttpStatusCode.OK)
         }
         val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
@@ -31,9 +29,7 @@ class VariationIdTests {
     @Test
     fun testGetVariationIdNotFound() = runTest {
         val mockEngine = MockEngine {
-            respond(
-                content = variationIdBody, status = HttpStatusCode.OK
-            )
+            respond(content = variationIdBody, status = HttpStatusCode.OK)
         }
         val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
@@ -46,9 +42,7 @@ class VariationIdTests {
     @Test
     fun testGetAllVariationIds() = runTest {
         val mockEngine = MockEngine {
-            respond(
-                content = variationIdBody, status = HttpStatusCode.OK
-            )
+            respond(content = variationIdBody, status = HttpStatusCode.OK)
         }
         val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
@@ -64,9 +58,7 @@ class VariationIdTests {
     @Test
     fun testGetAllVariationIdsEmpty() = runTest {
         val mockEngine = MockEngine {
-            respond(
-                content = "{}", status = HttpStatusCode.OK
-            )
+            respond(content = "{}", status = HttpStatusCode.OK)
         }
         val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
@@ -79,9 +71,7 @@ class VariationIdTests {
     @Test
     fun testGetKeyAndValue() = runTest {
         val mockEngine = MockEngine {
-            respond(
-                content = variationIdBody, status = HttpStatusCode.OK
-            )
+            respond(content = variationIdBody, status = HttpStatusCode.OK)
         }
         val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
@@ -103,9 +93,7 @@ class VariationIdTests {
     @Test
     fun testGetKeyAndValueNotFound() = runTest {
         val mockEngine = MockEngine {
-            respond(
-                content = "{}", status = HttpStatusCode.OK
-            )
+            respond(content = "{}", status = HttpStatusCode.OK)
         }
         val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine

@@ -92,8 +92,7 @@ INFO [5000] Evaluating 'featureWithSegmentTargeting'
   Evaluating targeting rules and applying the first match if any:
   - IF User IS IN SEGMENT 'Beta users' THEN 'true' => cannot evaluate, User Object is missing
     The current targeting rule is ignored and the evaluation continues with the next rule.
-  Returning 'false'.
-  """.trimIndent()
+  Returning 'false'."""
         ),
         TestCase(
             key = "featureWithSegmentTargeting",
@@ -110,8 +109,7 @@ INFO [5000] Evaluating 'featureWithSegmentTargeting'
       Condition (User IS IN SEGMENT 'Beta users') evaluates to true.
     )
     THEN 'true' => MATCH, applying rule
-  Returning 'true'.
-    """.trimIndent()
+  Returning 'true'."""
         ),
         TestCase(
             key = "featureWithNegatedSegmentTargeting",
@@ -128,8 +126,7 @@ INFO [5000] Evaluating 'featureWithSegmentTargeting'
       Condition (User IS NOT IN SEGMENT 'Beta users') evaluates to false.
     )
     THEN 'true' => no match
-  Returning 'false'.
-  """.trimIndent()
+  Returning 'false'."""
         )
     )
 }

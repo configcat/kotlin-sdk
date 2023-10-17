@@ -453,8 +453,7 @@ INFO [5000] Evaluating 'dependentFeatureWithUserCondition'
     THEN % options => MATCH, applying rule
     Skipping % options because the User Object is missing.
     The current targeting rule is ignored and the evaluation continues with the next rule.
-  Returning 'Chicken'.
-    """.trimIndent()
+  Returning 'Chicken'."""
         ),
         TestCase(
             key = "dependentFeature",
@@ -478,8 +477,7 @@ INFO [5000] Evaluating 'dependentFeature'
       Condition (Flag 'mainFeature' EQUALS 'target') evaluates to false.
     )
     THEN % options => no match
-  Returning 'Chicken'.
-    """.trimIndent()
+  Returning 'Chicken'."""
         ),
         TestCase(
             key = "dependentFeatureWithUserCondition2",
@@ -523,8 +521,7 @@ INFO [5000] Evaluating 'dependentFeatureWithUserCondition2'
       Condition (Flag 'mainFeature' EQUALS 'public') evaluates to true.
     )
     THEN 'Frog' => MATCH, applying rule
-  Returning 'Frog'.
-    """.trimIndent()
+  Returning 'Frog'."""
         ),
         TestCase(
             key = "dependentFeature",
@@ -562,8 +559,7 @@ INFO [5000] Evaluating 'dependentFeatureWithUserCondition2'
     Evaluating % options based on the User.Identifier attribute:
     - Computing hash in the [0..99] range from User.Identifier => 78 (this value is sticky and consistent across all SDKs)
     - Hash value 78 selects % option 4 (25%), 'Horse'.
-  Returning 'Horse'.
-    """.trimIndent()
+  Returning 'Horse'."""
         )
     )
 }

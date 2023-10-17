@@ -603,8 +603,7 @@ object SimpleValueTests : TestSet {
             defaultValue = true,
             returnValue = false,
             expectedLog = """INFO [5000] Evaluating 'boolDefaultFalse'
-  Returning 'false'.
-    """.trimIndent(),
+  Returning 'false'.""",
             user = null
         ),
         TestCase(
@@ -612,8 +611,7 @@ object SimpleValueTests : TestSet {
             defaultValue = false,
             returnValue = true,
             expectedLog = """INFO [5000] Evaluating 'boolDefaultTrue'
-  Returning 'true'.
-    """.trimIndent(),
+  Returning 'true'.""",
             user = null
         ),
         TestCase(
@@ -621,8 +619,7 @@ object SimpleValueTests : TestSet {
             defaultValue = "stringDefaultCat",
             returnValue = "Cat",
             expectedLog = """INFO [5000] Evaluating 'stringDefaultCat'
-  Returning 'Cat'.
-    """.trimIndent(),
+  Returning 'Cat'.""",
             user = null
         ),
         TestCase(
@@ -630,8 +627,7 @@ object SimpleValueTests : TestSet {
             defaultValue = 0,
             returnValue = 1,
             expectedLog = """INFO [5000] Evaluating 'integerDefaultOne'
-  Returning '1'.
-    """.trimIndent(),
+  Returning '1'.""",
             user = null
         ),
         TestCase(
@@ -639,8 +635,7 @@ object SimpleValueTests : TestSet {
             defaultValue = 0.0,
             returnValue = 3.1415,
             expectedLog = """INFO [5000] Evaluating 'doubleDefaultPi'
-  Returning '3.1415'.
-    """.trimIndent(),
+  Returning '3.1415'.""",
             user = null
         )
     )

@@ -597,8 +597,7 @@ object OptionsAfterTargetingRuleTests : TestSet {
                  "i":"69ef126c"
               }
            }
-        }
-    """.trimIndent()
+        }"""
     override val tests: Array<TestCase> = arrayOf(
         TestCase(
             key = "integer25One25Two25Three25FourAdvancedRules",
@@ -611,8 +610,7 @@ INFO [5000] Evaluating 'integer25One25Two25Three25FourAdvancedRules'
   - IF User.Email CONTAINS ANY OF ['@configcat.com'] THEN '5' => cannot evaluate, User Object is missing
     The current targeting rule is ignored and the evaluation continues with the next rule.
   Skipping % options because the User Object is missing.
-  Returning '-1'.
-  """.trimIndent()
+  Returning '-1'."""
         ),
         TestCase(
             key = "integer25One25Two25Three25FourAdvancedRules",
@@ -627,8 +625,7 @@ INFO [5000] Evaluating 'integer25One25Two25Three25FourAdvancedRules' for User '{
   Evaluating % options based on the User.Identifier attribute:
   - Computing hash in the [0..99] range from User.Identifier => 25 (this value is sticky and consistent across all SDKs)
   - Hash value 25 selects % option 2 (25%), '2'.
-  Returning '2'.
-  """.trimIndent()
+  Returning '2'."""
         ),
         TestCase(
             key = "integer25One25Two25Three25FourAdvancedRules",
@@ -641,8 +638,7 @@ INFO [5000] Evaluating 'integer25One25Two25Three25FourAdvancedRules' for User '{
   Evaluating % options based on the User.Identifier attribute:
   - Computing hash in the [0..99] range from User.Identifier => 25 (this value is sticky and consistent across all SDKs)
   - Hash value 25 selects % option 2 (25%), '2'.
-  Returning '2'.
-  """.trimIndent()
+  Returning '2'."""
         ),
         TestCase(
             key = "integer25One25Two25Three25FourAdvancedRules",
@@ -652,8 +648,7 @@ INFO [5000] Evaluating 'integer25One25Two25Three25FourAdvancedRules' for User '{
             expectedLog = """INFO [5000] Evaluating 'integer25One25Two25Three25FourAdvancedRules' for User '{"Identifier":"12345","Email":"joe@configcat.com"}'
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email CONTAINS ANY OF ['@configcat.com'] THEN '5' => MATCH, applying rule
-  Returning '5'.
-  """.trimIndent()
+  Returning '5'."""
         )
     )
 }

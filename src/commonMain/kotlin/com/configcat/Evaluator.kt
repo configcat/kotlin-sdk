@@ -268,7 +268,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             throw RolloutEvaluatorException("cannot evaluate, User Object is missing")
         }
 
-        require( segment != null) { "Segment reference is invalid." }
+        require(segment != null) { "Segment reference is invalid." }
 
         val segmentName: String? = segment.name
         require(!segmentName.isNullOrEmpty()) { "Segment name is missing." }
@@ -409,8 +409,10 @@ internal class Evaluator(private val logger: InternalLogger) {
                             comparisonAttribute
                         )
                     )
-                    throw RolloutEvaluatorException("cannot evaluate, the User.$comparisonAttribute attribute is " +
-                            "invalid ($reason)")
+                    throw RolloutEvaluatorException(
+                        "cannot evaluate, the User.$comparisonAttribute attribute is " +
+                            "invalid ($reason)"
+                    )
                 }
             }
 
@@ -433,8 +435,10 @@ internal class Evaluator(private val logger: InternalLogger) {
                             comparisonAttribute
                         )
                     )
-                    throw RolloutEvaluatorException("cannot evaluate, the User.$comparisonAttribute attribute is " +
-                            "invalid ($reason)")
+                    throw RolloutEvaluatorException(
+                        "cannot evaluate, the User.$comparisonAttribute attribute is " +
+                            "invalid ($reason)"
+                    )
                 }
             }
 
@@ -458,8 +462,10 @@ internal class Evaluator(private val logger: InternalLogger) {
                             comparisonAttribute
                         )
                     )
-                    throw RolloutEvaluatorException("cannot evaluate, the User.$comparisonAttribute attribute is " +
-                            "invalid ($reason)")
+                    throw RolloutEvaluatorException(
+                        "cannot evaluate, the User.$comparisonAttribute attribute is " +
+                            "invalid ($reason)"
+                    )
                 }
             }
 
@@ -485,8 +491,10 @@ internal class Evaluator(private val logger: InternalLogger) {
                             comparisonAttribute
                         )
                     )
-                    throw RolloutEvaluatorException("cannot evaluate, the User.$comparisonAttribute attribute is " +
-                            "invalid ($reason)")
+                    throw RolloutEvaluatorException(
+                        "cannot evaluate, the User.$comparisonAttribute attribute is " +
+                            "invalid ($reason)"
+                    )
                 }
             }
 
@@ -666,7 +674,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         for (comparisonValueHashedStartsEnds in withValuesSplit) {
             try {
                 val comparedTextLength = comparisonValueHashedStartsEnds.substringBeforeLast("_")
-                require(comparedTextLength == comparisonValueHashedStartsEnds) {
+                require(comparedTextLength != comparisonValueHashedStartsEnds) {
                     "Comparison value is missing or invalid."
                 }
                 val comparedTextLengthInt: Int = comparedTextLength.toInt()
@@ -677,7 +685,8 @@ internal class Evaluator(private val logger: InternalLogger) {
                 require(comparisonHashValue.isNotEmpty()) { "Comparison value is missing or invalid." }
                 val userValueHashed =
                     if (comparator == Comparator.HASHED_STARTS_WITH ||
-                        comparator == Comparator.HASHED_NOT_STARTS_WITH) {
+                        comparator == Comparator.HASHED_NOT_STARTS_WITH
+                    ) {
                         getSaltedUserValue(userValue.substring(0, comparedTextLengthInt), configSalt, contextSalt)
                     } else {
                         // Comparator.HASHED_ENDS_WITH, Comparator.HASHED_NOT_ENDS_WITH
@@ -891,8 +900,10 @@ internal class EvaluateLogger {
 
     fun logPercentageOptionEvaluationHash(percentageOptionsAttributeName: String, hashValue: Int) {
         newLine()
-        append("- Computing hash in the [0..99] range from User.$percentageOptionsAttributeName => " +
-                "$hashValue (this value is sticky and consistent across all SDKs)")
+        append(
+            "- Computing hash in the [0..99] range from User.$percentageOptionsAttributeName => " +
+                "$hashValue (this value is sticky and consistent across all SDKs)"
+        )
     }
 
     fun logTargetingRules() {
@@ -968,7 +979,7 @@ internal class EvaluateLogger {
         append("Segment evaluation result: User $segmentResultComparator.")
         newLine()
         append(
-            "Condition (${LogHelper.formatSegmentFlagCondition(segmentCondition,segment)}) evaluates to $result."
+            "Condition (${LogHelper.formatSegmentFlagCondition(segmentCondition, segment)}) evaluates to $result."
         )
         decreaseIndentLevel()
         newLine()
@@ -992,8 +1003,10 @@ internal class EvaluateLogger {
         val prerequisiteFlagValueFormat = prerequisiteFlagValue?.toString() ?: LogHelper.INVALID_VALUE
         append("Prerequisite flag evaluation result: '$prerequisiteFlagValueFormat'.")
         newLine()
-        append("Condition ( ${LogHelper.formatPrerequisiteFlagCondition(prerequisiteFlagCondition!!)}) " +
-                "evaluates to $result.")
+        append(
+            "Condition (${LogHelper.formatPrerequisiteFlagCondition(prerequisiteFlagCondition!!)}) " +
+                "evaluates to $result."
+        )
         decreaseIndentLevel()
         newLine()
         append(")")

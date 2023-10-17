@@ -99,7 +99,7 @@ internal class ConfigFetcher constructor(
                 return FetchResponse.notModified()
             } else if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.Forbidden) {
                 val message = ConfigCatLogMessages.FETCH_FAILED_DUE_TO_INVALID_SDK_KEY_ERROR +
-                        " Received response: ${response.status}"
+                    " Received response: ${response.status}"
                 logger.error(1100, message)
                 return FetchResponse.failure(message, false)
             } else {

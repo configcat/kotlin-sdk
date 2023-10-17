@@ -168,8 +168,7 @@ object OptionsBasedOnCustomAttrTests : TestSet {
                  "i":"05a1d8f3"
               }
            }
-        }
-    """.trimIndent()
+        }"""
     override val tests: Array<TestCase> = arrayOf(
         TestCase(
             key = "string75Cat0Dog25Falcon0HorseCustomAttr",
@@ -179,8 +178,7 @@ object OptionsBasedOnCustomAttrTests : TestSet {
             expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'string75Cat0Dog25Falcon0HorseCustomAttr' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()`/`getValueAsync()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
 INFO [5000] Evaluating 'string75Cat0Dog25Falcon0HorseCustomAttr'
   Skipping % options because the User Object is missing.
-  Returning 'Chicken'.
-  """.trimIndent()
+  Returning 'Chicken'."""
         ),
         TestCase(
             key = "string75Cat0Dog25Falcon0HorseCustomAttr",
@@ -190,8 +188,7 @@ INFO [5000] Evaluating 'string75Cat0Dog25Falcon0HorseCustomAttr'
             expectedLog = """WARNING [3003] Cannot evaluate % options for setting 'string75Cat0Dog25Falcon0HorseCustomAttr' (the User.Country attribute is missing). You should set the User.Country attribute in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
 INFO [5000] Evaluating 'string75Cat0Dog25Falcon0HorseCustomAttr' for User '{"Identifier":"12345"}'
   Skipping % options because the User.Country attribute is missing.
-  Returning 'Chicken'.
-  """.trimIndent()
+  Returning 'Chicken'."""
         ),
         TestCase(
             key = "string75Cat0Dog25Falcon0HorseCustomAttr",
@@ -202,8 +199,7 @@ INFO [5000] Evaluating 'string75Cat0Dog25Falcon0HorseCustomAttr' for User '{"Ide
   Evaluating % options based on the User.Country attribute:
   - Computing hash in the [0..99] range from User.Country => 70 (this value is sticky and consistent across all SDKs)
   - Hash value 70 selects % option 1 (75%), 'Cat'.
-  Returning 'Cat'.
-  """.trimIndent(),
+  Returning 'Cat'."""
         )
     )
 }

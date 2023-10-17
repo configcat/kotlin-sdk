@@ -22,7 +22,7 @@ class RolloutMatrixTests {
 
     @Test
     fun testMatrix() = runTest {
-        runMatrixTest(Matrix,true)
+        runMatrixTest(Matrix, true)
     }
 
     @Test

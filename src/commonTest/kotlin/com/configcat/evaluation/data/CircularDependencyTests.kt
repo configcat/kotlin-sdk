@@ -60,9 +60,8 @@ INFO [5000] Evaluating 'key1' for User '{"Identifier":"1234"}'
       Condition (Flag 'key2' EQUALS 'fourth') evaluates to true.
     )
     THEN 'first' => MATCH, applying rule
-  Returning 'first'.
-""".trimIndent(),
+  Returning 'first'.""",
             user = ConfigCatUser("1234")
-        ),
+        )
     )
 }

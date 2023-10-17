@@ -494,7 +494,7 @@ internal class Client private constructor(
             }
         }
         require(result != null) {
-                "Setting value is not of the expected type ${settingTypeEnum.value}."
+            "Setting value is not of the expected type ${settingTypeEnum.value}."
         }
         return result
     }
@@ -571,8 +571,8 @@ internal class Client private constructor(
                 // configcat-sdk-1/22/22 rules
             } else {
                 splitSDKKey.size == 3 && splitSDKKey[0] == Constants.SDK_KEY_PREFIX &&
-                        splitSDKKey[1].length == Constants.SDK_KEY_SECTION_LENGTH &&
-                        splitSDKKey[2].length == Constants.SDK_KEY_SECTION_LENGTH
+                    splitSDKKey[1].length == Constants.SDK_KEY_SECTION_LENGTH &&
+                    splitSDKKey[2].length == Constants.SDK_KEY_SECTION_LENGTH
             }
         }
 

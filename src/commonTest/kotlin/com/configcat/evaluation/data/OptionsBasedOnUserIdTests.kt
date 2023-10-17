@@ -608,8 +608,7 @@ object OptionsBasedOnUserIdTests : TestSet {
             expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'string75Cat0Dog25Falcon0Horse' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()`/`getValueAsync()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
 INFO [5000] Evaluating 'string75Cat0Dog25Falcon0Horse'
   Skipping % options because the User Object is missing.
-  Returning 'Chicken'.
-  """.trimIndent()
+  Returning 'Chicken'."""
         ),
         TestCase(
             key = "string75Cat0Dog25Falcon0Horse",
@@ -620,8 +619,7 @@ INFO [5000] Evaluating 'string75Cat0Dog25Falcon0Horse'
   Evaluating % options based on the User.Identifier attribute:
   - Computing hash in the [0..99] range from User.Identifier => 21 (this value is sticky and consistent across all SDKs)
   - Hash value 21 selects % option 1 (75%), 'Cat'.
-  Returning 'Cat'.
-    """.trimIndent()
+  Returning 'Cat'."""
         )
     )
 }

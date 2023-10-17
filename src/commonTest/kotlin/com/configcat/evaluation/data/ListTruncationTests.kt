@@ -58,9 +58,8 @@ object ListTruncationTests : TestSet {
     AND User.Identifier CONTAINS ANY OF ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10' ... <1 more value>] => true
     AND User.Identifier CONTAINS ANY OF ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10' ... <2 more values>] => true
     THEN 'true' => MATCH, applying rule
-  Returning 'true'.
-""".trimIndent(),
+  Returning 'true'.""",
             user = ConfigCatUser("12")
-        ),
+        )
     )
 }

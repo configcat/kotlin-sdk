@@ -158,5 +158,5 @@ Macska;;USA;;ToAll;Ireland"""
          "i":"71a78b2a"
       }
    }
-}""".trimIndent()
+}"""
 }

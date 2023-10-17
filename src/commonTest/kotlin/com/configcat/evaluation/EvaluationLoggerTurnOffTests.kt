@@ -11,7 +11,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class EvaluationLoggerTurnOffTest {
+class EvaluationLoggerTurnOffTests {
     // Test cases based on EvaluationTest 1_rule_no_user test case.
     private val jsonOverride = """
         {

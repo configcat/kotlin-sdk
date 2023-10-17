@@ -609,8 +609,7 @@ INFO [5000] Evaluating 'stringContainsDogDefaultCat'
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email CONTAINS ANY OF ['@configcat.com'] THEN 'Dog' => cannot evaluate, User Object is missing
     The current targeting rule is ignored and the evaluation continues with the next rule.
-  Returning 'Cat'.
-    """.trimIndent(),
+  Returning 'Cat'.""",
             user = null
         ),
         TestCase(
@@ -623,8 +622,7 @@ INFO [5000] Evaluating 'stringContainsDogDefaultCat' for User '{"Identifier":"12
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email CONTAINS ANY OF ['@configcat.com'] THEN 'Dog' => cannot evaluate, the User.Email attribute is missing
     The current targeting rule is ignored and the evaluation continues with the next rule.
-  Returning 'Cat'.
-    """.trimIndent()
+  Returning 'Cat'."""
         ),
         TestCase(
             key = "stringContainsDogDefaultCat",
@@ -634,8 +632,7 @@ INFO [5000] Evaluating 'stringContainsDogDefaultCat' for User '{"Identifier":"12
             expectedLog = """INFO [5000] Evaluating 'stringContainsDogDefaultCat' for User '{"Identifier":"12345","Email":"joe@example.com"}'
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email CONTAINS ANY OF ['@configcat.com'] THEN 'Dog' => no match
-  Returning 'Cat'.
-    """.trimIndent()
+  Returning 'Cat'."""
         ),
         TestCase(
             key = "stringContainsDogDefaultCat",
@@ -645,8 +642,7 @@ INFO [5000] Evaluating 'stringContainsDogDefaultCat' for User '{"Identifier":"12
             expectedLog = """INFO [5000] Evaluating 'stringContainsDogDefaultCat' for User '{"Identifier":"12345","Email":"joe@configcat.com"}'
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email CONTAINS ANY OF ['@configcat.com'] THEN 'Dog' => MATCH, applying rule
-  Returning 'Dog'.
-    """.trimIndent(),
+  Returning 'Dog'."""
         )
     )
 }

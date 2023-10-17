@@ -18,7 +18,7 @@ reader@configcat.com;reader@configcat.com;Canada;execute, Read;False;Cat;Dog;Cat
 writer@configcat.com;writer@configcat.com;China;Write;False;Cat;Dog;Cat;Dog;Dog;Cat;Cat;Dog;Cat;Cat;Falcon;NotFound;Horse
 admin@configcat.com;admin@configcat.com;France;read, write,execute;False;Cat;Dog;Dog;Cat;Dog;Cat;Dog;Cat;Cat;Dog;Falcon;NotFound;Horse
 user@configcat.com;user@configcat.com;Greece;,execute;False;Cat;Dog;Cat;Dog;Dog;Cat;Cat;Dog;Cat;Dog;Falcon;NotFound;Horse
-user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Cat;Dog;Dog;Cat;Cat;Dog;Cat;Dog;Falcon;NotFound;Horse""".trimIndent()
+user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Cat;Dog;Dog;Cat;Cat;Dog;Cat;Dog;Falcon;NotFound;Horse"""
     override val remoteJson =
         """{
    "p":{

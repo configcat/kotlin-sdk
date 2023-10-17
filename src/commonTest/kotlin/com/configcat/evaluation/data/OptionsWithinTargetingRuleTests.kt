@@ -168,8 +168,7 @@ object OptionsWithinTargetingRuleTests : TestSet {
                  "i":"05a1d8f3"
               }
            }
-        }
-    """.trimIndent()
+        }"""
     override val tests: Array<TestCase> = arrayOf(
         TestCase(
             key = "stringContainsString75Cat0Dog25Falcon0HorseDefaultCat",
@@ -181,8 +180,7 @@ INFO [5000] Evaluating 'stringContainsString75Cat0Dog25Falcon0HorseDefaultCat'
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email CONTAINS ANY OF ['@configcat.com'] THEN % options => cannot evaluate, User Object is missing
     The current targeting rule is ignored and the evaluation continues with the next rule.
-  Returning 'Cat'.
-    """.trimIndent()
+  Returning 'Cat'."""
         ),
         TestCase(
             key = "stringContainsString75Cat0Dog25Falcon0HorseDefaultCat",
@@ -194,8 +192,7 @@ INFO [5000] Evaluating 'stringContainsString75Cat0Dog25Falcon0HorseDefaultCat' f
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email CONTAINS ANY OF ['@configcat.com'] THEN % options => cannot evaluate, the User.Email attribute is missing
     The current targeting rule is ignored and the evaluation continues with the next rule.
-  Returning 'Cat'.
-    """.trimIndent()
+  Returning 'Cat'."""
         ),
         TestCase(
             key = "stringContainsString75Cat0Dog25Falcon0HorseDefaultCat",
@@ -205,8 +202,7 @@ INFO [5000] Evaluating 'stringContainsString75Cat0Dog25Falcon0HorseDefaultCat' f
             expectedLog = """INFO [5000] Evaluating 'stringContainsString75Cat0Dog25Falcon0HorseDefaultCat' for User '{"Identifier":"12345","Email":"joe@example.com"}'
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email CONTAINS ANY OF ['@configcat.com'] THEN % options => no match
-  Returning 'Cat'.
-    """.trimIndent()
+  Returning 'Cat'."""
         ),
         TestCase(
             key = "stringContainsString75Cat0Dog25Falcon0HorseDefaultCat",
@@ -219,8 +215,7 @@ INFO [5000] Evaluating 'stringContainsString75Cat0Dog25Falcon0HorseDefaultCat' f
   - IF User.Email CONTAINS ANY OF ['@configcat.com'] THEN % options => MATCH, applying rule
     Skipping % options because the User.Country attribute is missing.
     The current targeting rule is ignored and the evaluation continues with the next rule.
-  Returning 'Cat'.
-    """.trimIndent()
+  Returning 'Cat'."""
         ),
         TestCase(
             key = "stringContainsString75Cat0Dog25Falcon0HorseDefaultCat",
@@ -233,8 +228,7 @@ INFO [5000] Evaluating 'stringContainsString75Cat0Dog25Falcon0HorseDefaultCat' f
     Evaluating % options based on the User.Country attribute:
     - Computing hash in the [0..99] range from User.Country => 63 (this value is sticky and consistent across all SDKs)
     - Hash value 63 selects % option 1 (75%), 'Cat'.
-  Returning 'Cat'.
-    """.trimIndent()
+  Returning 'Cat'."""
         )
     )
 }

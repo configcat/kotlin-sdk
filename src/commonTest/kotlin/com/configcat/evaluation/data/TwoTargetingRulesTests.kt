@@ -612,8 +612,7 @@ INFO [5000] Evaluating 'stringIsInDogDefaultCat'
     The current targeting rule is ignored and the evaluation continues with the next rule.
   - IF User.Custom1 IS ONE OF [<1 hashed value>] THEN 'Dog' => cannot evaluate, User Object is missing
     The current targeting rule is ignored and the evaluation continues with the next rule.
-  Returning 'Cat'.
-""".trimIndent()
+  Returning 'Cat'."""
         ),
         TestCase(
             key = "stringIsInDogDefaultCat",
@@ -628,8 +627,7 @@ INFO [5000] Evaluating 'stringIsInDogDefaultCat' for User '{"Identifier":"12345"
     The current targeting rule is ignored and the evaluation continues with the next rule.
   - IF User.Custom1 IS ONE OF [<1 hashed value>] THEN 'Dog' => cannot evaluate, the User.Custom1 attribute is missing
     The current targeting rule is ignored and the evaluation continues with the next rule.
-  Returning 'Cat'.
-  """.trimIndent()
+  Returning 'Cat'."""
         ),
         TestCase(
             key = "stringIsInDogDefaultCat",
@@ -642,8 +640,7 @@ INFO [5000] Evaluating 'stringIsInDogDefaultCat' for User '{"Identifier":"12345"
   - IF User.Email IS ONE OF [<2 hashed values>] THEN 'Dog' => cannot evaluate, the User.Email attribute is missing
     The current targeting rule is ignored and the evaluation continues with the next rule.
   - IF User.Custom1 IS ONE OF [<1 hashed value>] THEN 'Dog' => no match
-  Returning 'Cat'.
-    """.trimIndent()
+  Returning 'Cat'."""
         ),
         TestCase(
             key = "stringIsInDogDefaultCat",
@@ -656,8 +653,7 @@ INFO [5000] Evaluating 'stringIsInDogDefaultCat' for User '{"Identifier":"12345"
   - IF User.Email IS ONE OF [<2 hashed values>] THEN 'Dog' => cannot evaluate, the User.Email attribute is missing
     The current targeting rule is ignored and the evaluation continues with the next rule.
   - IF User.Custom1 IS ONE OF [<1 hashed value>] THEN 'Dog' => MATCH, applying rule
-  Returning 'Dog'.
-  """.trimIndent()
+  Returning 'Dog'."""
         )
     )
 }

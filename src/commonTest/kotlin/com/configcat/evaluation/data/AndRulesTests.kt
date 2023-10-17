@@ -431,8 +431,7 @@ object AndRulesTests : TestSet {
                  "i":"1c6ca36e"
               }
            }
-        }
-    """.trimIndent()
+        }"""
     override val tests: Array<TestCase> = arrayOf(
         TestCase(
             key = "emailAnd",
@@ -445,8 +444,7 @@ INFO [5000] Evaluating 'emailAnd'
   - IF User.Email STARTS WITH ANY OF [<1 hashed value>] => false, skipping the remaining AND conditions
     THEN 'Dog' => cannot evaluate, User Object is missing
     The current targeting rule is ignored and the evaluation continues with the next rule.
-  Returning 'Cat'.
-  """.trimIndent()
+  Returning 'Cat'."""
         ),
         TestCase(
             key = "emailAnd",
@@ -459,8 +457,7 @@ INFO [5000] Evaluating 'emailAnd'
     AND User.Email CONTAINS ANY OF ['@'] => true
     AND User.Email ENDS WITH ANY OF [<1 hashed value>] => false, skipping the remaining AND conditions
     THEN 'Dog' => no match
-  Returning 'Cat'.
-  """.trimIndent()
+  Returning 'Cat'."""
         )
     )
 }

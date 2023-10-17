@@ -515,8 +515,7 @@ INFO [5000] Evaluating 'isNotOneOf' for User '{"Identifier":"12345","Custom1":"w
     The current targeting rule is ignored and the evaluation continues with the next rule.
   - IF User.Custom1 IS NOT ONE OF ['1.0.0', '3.0.1'] THEN 'Is not one of (1.0.0, 3.0.1)' => cannot evaluate, the User.Custom1 attribute is invalid ('wrong_semver' is not a valid semantic version)
     The current targeting rule is ignored and the evaluation continues with the next rule.
-  Returning 'Default'.
-    """.trimIndent()
+  Returning 'Default'."""
         ),
         TestCase(
             key = "relations",
@@ -540,8 +539,7 @@ INFO [5000] Evaluating 'relations' for User '{"Identifier":"12345","Custom1":"wr
     The current targeting rule is ignored and the evaluation continues with the next rule.
   - IF User.Custom1 >= '2.0.0' THEN '>=2.0.0' => cannot evaluate, the User.Custom1 attribute is invalid ('wrong_semver' is not a valid semantic version)
     The current targeting rule is ignored and the evaluation continues with the next rule.
-  Returning 'Default'.
-  """.trimIndent()
+  Returning 'Default'."""
         )
     )
 }

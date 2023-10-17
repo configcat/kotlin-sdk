@@ -12,7 +12,7 @@ import kotlin.test.Test
 import kotlin.test.fail
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class EvaluationTest {
+class EvaluationTests {
 
     @Test
     fun testSimpleValue() = runTest {

@@ -135,7 +135,7 @@ internal object LogHelper {
     fun formatPrerequisiteFlagCondition(prerequisiteFlagCondition: PrerequisiteFlagCondition): String {
         val prerequisiteComparator = prerequisiteFlagCondition.prerequisiteComparator.toPrerequisiteComparatorOrNull()
         return "Flag '${prerequisiteFlagCondition.prerequisiteFlagKey}' ${prerequisiteComparator?.value} " +
-                "'${prerequisiteFlagCondition.value ?: INVALID_VALUE}'"
+            "'${prerequisiteFlagCondition.value ?: INVALID_VALUE}'"
     }
 
     fun formatCircularDependencyList(visitedKeys: List<String?>, key: String?): String {

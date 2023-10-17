@@ -7,7 +7,7 @@ object PrerequisiteFlagMatrix : DataMatrix {
 ##null##;;;;True;public;42;3.14;Dog;Cat;Cat;Cat;Cat;Cat;True;1;1.1;False;True;EmptyOn;EmptyOn;False;True
 ;;;;True;public;42;3.14;Dog;Cat;Cat;Cat;Cat;Cat;True;1;1.1;False;True;EmptyOn;EmptyOn;False;True
 john@sensitivecompany.com;john@sensitivecompany.com;##null##;##null##;False;private;2;0.1;Cat;Dog;Cat;Dog;Dog;Cat;False;42;3.14;True;True;EmptyOn;EmptyOn;True;False
-jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;Cat;Cat;Cat;Cat;True;1;1.1;False;True;EmptyOn;EmptyOn;False;True""".trimIndent()
+jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;Cat;Cat;Cat;Cat;True;1;1.1;False;True;EmptyOn;EmptyOn;False;True"""
     override val remoteJson =
         """{
    "p":{

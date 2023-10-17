@@ -65,10 +65,10 @@ public class EvaluationDetails internal constructor(
     matchedPercentageOption
 ) {
     internal companion object {
-        internal fun makeError(key: String, defaultValue: Any, error: String, user: ConfigCatUser?):
-                EvaluationDetails = EvaluationDetails(
-            key, "", user, true, error,
-            defaultValue, Constants.distantPast.unixMillisLong, null, null
-        )
+        internal fun makeError(key: String, defaultValue: Any, error: String, user: ConfigCatUser?): EvaluationDetails =
+            EvaluationDetails(
+                key, "", user, true, error,
+                defaultValue, Constants.distantPast.unixMillisLong, null, null
+            )
     }
 }

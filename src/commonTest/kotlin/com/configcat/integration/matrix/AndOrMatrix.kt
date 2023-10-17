@@ -17,7 +17,7 @@ anna@sensitivecompany.com;anna@sensitivecompany.com;France;##null##;private;Chic
 jane@sensitivecompany.com;jane@sensitivecompany.com;england;##null##;public;Chicken;Dog;Jane
 jane;jane;##null##;##null##;public;Chicken;Cat;Cat
 @sensitivecompany.com;@sensitivecompany.com;##null##;##null##;public;Chicken;Cat;Cat
-jane.sensitivecompany.com;jane.sensitivecompany.com;##null##;##null##;public;Chicken;Cat;Cat""".trimIndent()
+jane.sensitivecompany.com;jane.sensitivecompany.com;##null##;##null##;public;Chicken;Cat;Cat"""
     override val remoteJson =
         """{
    "p":{

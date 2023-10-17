@@ -828,8 +828,7 @@ object ComparatorsTests : TestSet {
   - IF User.Country ARRAY CONTAINS ANY OF [<1 hashed value>] => true
     AND User.Country ARRAY NOT CONTAINS ANY OF [<1 hashed value>] => false, skipping the remaining AND conditions
     THEN '13' => no match
-  Returning 'default'.
-    """.trimIndent()
+  Returning 'default'."""
         )
     )
 }

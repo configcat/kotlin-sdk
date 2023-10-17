@@ -8,8 +8,7 @@ object SegmentMatrix : DataMatrix {
 ;;;;False
 john@example.com;john@example.com;##null##;##null##;False
 jane@example.com;jane@example.com;##null##;##null##;False
-kate@example.com;kate@example.com;##null##;##null##;True
-""".trimIndent()
+kate@example.com;kate@example.com;##null##;##null##;True"""
     override val remoteJson =
         """{
    "p":{
@@ -190,5 +189,5 @@ kate@example.com;kate@example.com;##null##;##null##;True
          "i":"a14eaf13"
       }
    }
-}""".trimIndent()
+}"""
 }

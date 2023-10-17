@@ -167,8 +167,7 @@ object NumberValidationTests : TestSet {
                  "i":"5ced27a9"
               }
            }
-        }
-    """.trimIndent()
+        }"""
     override val tests: Array<TestCase> = arrayOf(
         TestCase(
             key = "number",
@@ -180,8 +179,7 @@ INFO [5000] Evaluating 'number' for User '{"Identifier":"12345","Custom1":"not_a
   Evaluating targeting rules and applying the first match if any:
   - IF User.Custom1 != '5' THEN '<>5' => cannot evaluate, the User.Custom1 attribute is invalid ('not_a_number' is not a valid decimal number)
     The current targeting rule is ignored and the evaluation continues with the next rule.
-  Returning 'Default'.
-    """.trimIndent()
+  Returning 'Default'."""
         )
     )
 }
