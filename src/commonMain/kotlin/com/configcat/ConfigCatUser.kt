@@ -40,27 +40,18 @@ public class ConfigCatUser(
     override fun toString(): String {
         return "{${attributes.map { "\"${it.key}\":\"${it.value}\"" }.joinToString(",")}}"
     }
-}
 
-public object ConfigCatUserHelper {
-    //    public fun attributeValueFrom(date: java.util.Date?): String? {
-//        if (date == null) {
-//            throw java.lang.IllegalArgumentException("Invalid 'date' parameter.")
-//        }
-//        val unixSeconds: Double = DateTimeUtils.getUnixSeconds(date)
-//        val decimalFormat: java.text.DecimalFormat = Utils.getDecimalFormat()
-//        return decimalFormat.format(unixSeconds)
-//    }
+    public companion object {
+        public fun attributeValueFrom(number: Double): String {
+            return number.toString()
+        }
 
-    public fun attributeValueFrom(number: Double): String {
-        return number.toString()
-    }
+        public fun attributeValueFrom(number: Int): String {
+            return number.toString()
+        }
 
-    public fun attributeValueFrom(number: Int): String {
-        return number.toString()
-    }
-
-    public fun attributeValueFrom(items: Array<String>): String {
-        return Constants.json.encodeToString(items)
+        public fun attributeValueFrom(items: Array<String>): String {
+            return Constants.json.encodeToString(items)
+        }
     }
 }

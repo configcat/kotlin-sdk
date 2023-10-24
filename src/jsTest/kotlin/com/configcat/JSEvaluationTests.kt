@@ -1,9 +1,10 @@
-package com.configcat.evaluation
+package com.configcat
 
-import com.configcat.ConfigCatClient
+import com.configcat.data.JSComparatorsTests
+import com.configcat.data.JSEpochDateValidationTests
+import com.configcat.evaluation.EvaluationTestLogger
 import com.configcat.evaluation.data.*
 import com.configcat.log.LogLevel
-import com.configcat.manualPoll
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import io.ktor.util.*
@@ -12,95 +13,22 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.fail
 
+/**
+ * Run the Evaluation test cases where double format used. This tests cases has a different expected value.
+ */
 @OptIn(ExperimentalCoroutinesApi::class)
-class EvaluationTests {
-
-    @Test
-    fun testSimpleValue() = runTest {
-        testEvaluation(SimpleValueTests)
-    }
-
-    @Test
-    fun testOneTargetRule() = runTest {
-        testEvaluation(OneTargetingRuleTests)
-    }
-
-    @Test
-    fun testTwoTargetingRules() = runTest {
-        testEvaluation(TwoTargetingRulesTests)
-    }
-
-    @Test
-    fun testAndRules() = runTest {
-        testEvaluation(AndRulesTests)
-    }
+class JSEvaluationTests {
 
     @Test
     fun testComparators() = runTest {
-        // JS test run separately for this test
-        if (PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE) {
-            return@runTest
-        }
-        testEvaluation(ComparatorsTests)
-    }
-
-    @Test
-    fun testSemverValidation() = runTest {
-        testEvaluation(SemverValidationTests)
-    }
-
-    @Test
-    fun testNumberValidation() = runTest {
-        testEvaluation(NumberValidationTests)
+        // The test contains formatted double value, which is different in case of JS module
+        testEvaluation(JSComparatorsTests)
     }
 
     @Test
     fun testEpochDateValidation() = runTest {
-        // JS test run separately for this test
-        if (PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE) {
-            return@runTest
-        }
-        testEvaluation(EpochDateValidationTests)
-    }
-
-    @Test
-    fun testPrerequisiteFlag() = runTest {
-        testEvaluation(PrerequisiteFlagTests)
-    }
-
-    @Test
-    fun testSegment() = runTest {
-        testEvaluation(SegmenTests)
-    }
-
-    @Test
-    fun testOptionsAfterTargetingRule() = runTest {
-        testEvaluation(OptionsAfterTargetingRuleTests)
-    }
-
-    @Test
-    fun testOptionsBasedOnUserId() = runTest {
-        testEvaluation(OptionsBasedOnUserIdTests)
-    }
-
-    @Test
-    fun testOptionsBasedOnCustomAttr() = runTest {
-        testEvaluation(OptionsBasedOnCustomAttrTests)
-    }
-
-    @Test
-    fun testOptionsWithinTargetingRule() = runTest {
-        testEvaluation(OptionsWithinTargetingRuleTests)
-    }
-
-    @Test
-    fun testCircularDependency() = runTest {
-        testEvaluation(CircularDependencyTests)
-    }
-
-    @Test
-    fun testListTruncation() = runTest {
-        testEvaluation(ListTruncationTests)
+        // The test contains formatted double value, which is different in case of JS module
+        testEvaluation(JSEpochDateValidationTests)
     }
 
     private suspend fun testEvaluation(testSet: TestSet) {

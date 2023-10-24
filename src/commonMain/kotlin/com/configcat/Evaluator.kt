@@ -38,6 +38,7 @@ internal object ComparatorHelp {
         Evaluator.SegmentComparator.values().firstOrNull { it.id == this }
 }
 
+@Suppress("LargeClass")
 internal class Evaluator(private val logger: InternalLogger) {
 
     fun evaluate(
@@ -92,6 +93,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         return evaluationResult
     }
 
+    @Suppress("LoopWithTooManyJumpStatements")
     private fun evaluateTargetingRules(
         setting: Setting,
         context: EvaluationContext,
@@ -144,6 +146,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         return null
     }
 
+    @Suppress("NestedBlockDepth", "CyclomaticComplexMethod", "LongMethod", "LongParameterList")
     private fun evaluateConditions(
         conditions: Array<Any>,
         targetingRule: TargetingRule?,
@@ -358,6 +361,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         return result
     }
 
+    @Suppress("ThrowsCount", "ReturnCount", "CyclomaticComplexMethod", "LongMethod")
     private fun evaluateUserCondition(
         condition: UserCondition,
         configSalt: String,

@@ -2,7 +2,6 @@ package com.configcat.evaluation
 
 import com.configcat.log.LogLevel
 import com.configcat.log.Logger
-
 class EvaluationTestLogger : Logger {
     private var logList: ArrayList<LogEvent> = arrayListOf()
 

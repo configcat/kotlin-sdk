@@ -6,51 +6,33 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+// This is the same test cases as the ConfigCatUserAttributeHelperTests with different expected results.
+// The JS format the double differently to String from the other platforms.
 @OptIn(ExperimentalCoroutinesApi::class)
-class ConfigCatUserAttributeHelperTests {
+class JSConfigCatUserAttributeHelperTests {
 
     @Test
     fun testDouble1() = runTest {
-        // JS test run separately for this test
-        if (PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE) {
-            return@runTest
-        }
-        runAttributeValueFromDouble(3.0, "3.0")
+        runAttributeValueFromDouble(3.0, "3")
     }
 
     @Test
     fun testDouble2() = runTest {
-        // JS test run separately for this test
-        if (PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE) {
-            return@runTest
-        }
         runAttributeValueFromDouble(3.14, "3.14")
     }
 
     @Test
     fun testDouble3() = runTest {
-        // JS test run separately for this test
-        if (PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE) {
-            return@runTest
-        }
-        runAttributeValueFromDouble(-1.23E-100, "-1.23E-100")
+        runAttributeValueFromDouble(-1.23E-100, "-1.23e-100")
     }
 
     @Test
     fun testInt() = runTest {
-        // JS test run separately for this test
-        if (PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE) {
-            return@runTest
-        }
         runAttributeValueFromInt(3, "3")
     }
 
     @Test
     fun testArray() = runTest {
-        // JS test run separately for this test
-        if (PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE) {
-            return@runTest
-        }
         runAttributeValueFromStringArray("a,,b,c", "[\"a\",\"\",\"b\",\"c\"]")
     }
 

@@ -9,7 +9,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 public data class UserCondition(
     /**
-     * The User Object attribute that the condition is based on. Can be "User ID", "Email", "Country" or any custom attribute.
+     * The User Object attribute that the condition is based on. Can be "User ID", "Email", "Country" or
+     * any custom attribute.
      */
     @SerialName("a")
     val comparisonAttribute: String,

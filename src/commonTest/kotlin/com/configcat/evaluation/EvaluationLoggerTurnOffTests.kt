@@ -609,7 +609,7 @@ class EvaluationLoggerTurnOffTests {
     """.trimIndent()
 
     private val mockEngine = MockEngine {
-        respond(content = jsonOverride, status = HttpStatusCode.OK)
+        respond(content = jsonOverride, status = HttpStatusCode.OK, headersOf(Pair("ETag", listOf("fakeETag"))))
     }
 
     @Test
@@ -633,6 +633,7 @@ class EvaluationLoggerTurnOffTests {
         assertEquals(LogLevel.WARNING, logList[0].logLevel, "Logged event level not match.")
         assertEquals(LogLevel.INFO, logList[1].logLevel, "Logged event level not match.")
 
+        evaluationTestLogger.resetLogList()
         client.close()
     }
 
@@ -652,9 +653,10 @@ class EvaluationLoggerTurnOffTests {
 
         val logList = evaluationTestLogger.getLogList()
         assertEquals("Cat", result, "Return value not match.")
-        assertEquals(1, logList.size, "Logged event size not match.")
+        assertEquals(1, logList.size, "Logged event size not match. ")
         assertEquals(LogLevel.WARNING, logList[0].logLevel, "Logged event level not match.")
 
+        evaluationTestLogger.resetLogList()
         client.close()
     }
 }

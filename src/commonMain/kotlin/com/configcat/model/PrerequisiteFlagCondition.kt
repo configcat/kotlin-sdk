@@ -14,7 +14,8 @@ public data class PrerequisiteFlagCondition(
     @SerialName(value = "f")
     val prerequisiteFlagKey: String? = null,
     /**
-     * The operator which defines the relation between the evaluated value of the prerequisite flag and the comparison value.
+     * The operator which defines the relation between the evaluated value of the prerequisite flag and
+     * the comparison value.
      */
     @SerialName(value = "c")
     val prerequisiteComparator: Int = 0,
