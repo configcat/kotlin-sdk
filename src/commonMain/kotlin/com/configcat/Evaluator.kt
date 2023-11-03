@@ -12,6 +12,7 @@ import com.soywiz.krypto.sha256
 import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
+import kotlinx.serialization.decodeFromString
 
 internal data class EvaluationResult(
     val value: SettingsValue,
@@ -37,6 +38,8 @@ internal object ComparatorHelp {
     fun Int.toSegmentComparatorOrNull(): Evaluator.SegmentComparator? =
         Evaluator.SegmentComparator.values().firstOrNull { it.id == this }
 }
+
+private const val USER_OBJECT_IS_MISSING = "cannot evaluate, User Object is missing"
 
 @Suppress("LargeClass")
 internal class Evaluator(private val logger: InternalLogger) {
@@ -93,7 +96,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         return evaluationResult
     }
 
-    @Suppress("LoopWithTooManyJumpStatements")
+    @Suppress("LoopWithTooManyJumpStatements", "CyclomaticComplexMethod")
     private fun evaluateTargetingRules(
         setting: Setting,
         context: EvaluationContext,
@@ -108,16 +111,26 @@ internal class Evaluator(private val logger: InternalLogger) {
             if (rule.servedValue != null) {
                 servedValue = rule.servedValue.value
             }
-            val evaluateConditionsResult: Boolean = evaluateConditions(
-                (rule.conditions ?: arrayOf()) as Array<Any>,
-                rule,
-                setting.configSalt,
-                context.key,
-                context,
-                setting.segments,
-                evaluateLogger
-            )
+            var evaluateConditionsResult: Boolean
+            var error: String? = null
+            try {
+                evaluateConditionsResult = evaluateConditions(
+                    (rule.conditions ?: arrayOf()) as Array<Any>,
+                    rule,
+                    setting.configSalt,
+                    context.key,
+                    context,
+                    setting.segments,
+                    evaluateLogger
+                )
+            } catch (rolloutEvaluatorException: RolloutEvaluatorException) {
+                error = rolloutEvaluatorException.message
+                evaluateConditionsResult = false
+            }
             if (!evaluateConditionsResult) {
+                if (error != null) {
+                    evaluateLogger?.logTargetingRuleIgnored()
+                }
                 continue
             }
 
@@ -217,7 +230,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                         error = evaluatorException.message
                         conditionsEvaluationResult = false
                     }
-                    newLine = error == null || conditions.size > 1
+                    newLine = error == null || USER_OBJECT_IS_MISSING != error || conditions.size > 1
                 } else if (condition.prerequisiteFlagCondition != null) {
                     try {
                         conditionsEvaluationResult = evaluatePrerequisiteFlagCondition(
@@ -244,11 +257,12 @@ internal class Evaluator(private val logger: InternalLogger) {
             evaluateLogger?.logTargetingRuleConsequence(targetingRule, error, conditionsEvaluationResult, newLine)
         }
         if (error != null) {
-            evaluateLogger?.logTargetingRuleIgnored()
+            throw RolloutEvaluatorException(error)
         }
         return conditionsEvaluationResult
     }
 
+    @Suppress("ThrowsCount")
     private fun evaluateSegmentCondition(
         segmentCondition: SegmentCondition,
         context: EvaluationContext,
@@ -268,7 +282,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                 context.isUserMissing = true
                 this.logger.warning(3001, ConfigCatLogMessages.getUserObjectMissing(context.key))
             }
-            throw RolloutEvaluatorException("cannot evaluate, User Object is missing")
+            throw RolloutEvaluatorException(USER_OBJECT_IS_MISSING)
         }
 
         require(segment != null) { "Segment reference is invalid." }
@@ -277,9 +291,10 @@ internal class Evaluator(private val logger: InternalLogger) {
         require(!segmentName.isNullOrEmpty()) { "Segment name is missing." }
 
         evaluateLogger?.logSegmentEvaluationStart(segmentName)
+        var result: Boolean
         @Suppress("SwallowedException")
-        val segmentRulesResult = try {
-            evaluateConditions(
+        try {
+            val segmentRulesResult = evaluateConditions(
                 segment.segmentRules as Array<Any>,
                 null,
                 configSalt,
@@ -288,17 +303,18 @@ internal class Evaluator(private val logger: InternalLogger) {
                 segments,
                 evaluateLogger
             )
-        } catch (evaluatorException: RolloutEvaluatorException) {
-            false
-        }
 
-        val segmentComparator = segmentCondition.segmentComparator.toSegmentComparatorOrNull()
-            ?: throw IllegalArgumentException("Segment comparison operator is invalid.")
-        var result = segmentRulesResult
-        if (SegmentComparator.IS_NOT_IN_SEGMENT == segmentComparator) {
-            result = !result
+            val segmentComparator = segmentCondition.segmentComparator.toSegmentComparatorOrNull()
+                ?: throw IllegalArgumentException("Segment comparison operator is invalid.")
+            result = segmentRulesResult
+            if (SegmentComparator.IS_NOT_IN_SEGMENT == segmentComparator) {
+                result = !result
+            }
+            evaluateLogger?.logSegmentEvaluationResult(segmentCondition, segment, result, segmentRulesResult)
+        } catch (evaluatorException: RolloutEvaluatorException) {
+            evaluateLogger?.logSegmentEvaluationError(segmentCondition, segment, evaluatorException.message)
+            throw evaluatorException
         }
-        evaluateLogger?.logSegmentEvaluationResult(segmentCondition, segment, result, segmentRulesResult)
 
         return result
     }
@@ -375,7 +391,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                 context.isUserMissing = true
                 this.logger.warning(3001, ConfigCatLogMessages.getUserObjectMissing(context.key))
             }
-            throw RolloutEvaluatorException("cannot evaluate, User Object is missing")
+            throw RolloutEvaluatorException(USER_OBJECT_IS_MISSING)
         }
         val comparisonAttribute = condition.comparisonAttribute
         val userValue = context.user.attributeFor(comparisonAttribute)
@@ -473,6 +489,8 @@ internal class Evaluator(private val logger: InternalLogger) {
                 }
             }
 
+            Comparator.IS_ONE_OF,
+            Comparator.IS_NOT_ONE_OF,
             Comparator.ONE_OF_SENS,
             Comparator.NOT_ONE_OF_SENS -> {
                 return processSensitiveOneOf(condition, userValue, configSalt, contextSalt, comparator)
@@ -502,6 +520,8 @@ internal class Evaluator(private val logger: InternalLogger) {
                 }
             }
 
+            Comparator.TEXT_EQUALS,
+            Comparator.TEXT_NOT_EQUALS,
             Comparator.HASHED_EQUALS,
             Comparator.HASHED_NOT_EQUALS -> {
                 return processHashedEqualsCompare(condition, userValue, configSalt, contextSalt, comparator)
@@ -520,15 +540,46 @@ internal class Evaluator(private val logger: InternalLogger) {
                 )
             }
 
+            Comparator.TEXT_STARTS_WITH,
+            Comparator.TEXT_NOT_STARTS_WITH -> {
+                return processTextStartWithCompare(condition, userValue, comparator)
+            }
+
+            Comparator.TEXT_ENDS_WITH,
+            Comparator.TEXT_NOT_ENDS_WITH -> {
+                return processTextEndWithCompare(condition, userValue, comparator)
+            }
+
+            Comparator.TEXT_ARRAY_CONTAINS,
+            Comparator.TEXT_ARRAY_NOT_CONTAINS,
             Comparator.HASHED_ARRAY_CONTAINS,
             Comparator.HASHED_ARRAY_NOT_CONTAINS -> {
-                return processHashedArrayContainsCompare(
-                    condition,
-                    userValue,
-                    configSalt,
-                    contextSalt,
-                    comparator
-                )
+                @Suppress("SwallowedException")
+                return try {
+                    val userArrayValue: Array<String> = Constants.json.decodeFromString(userValue)
+                    return processHashedArrayContainsCompare(
+                        condition,
+                        userArrayValue,
+                        configSalt,
+                        contextSalt,
+                        comparator
+                    )
+                } catch (exception: Exception) {
+                    val reason = "'$userValue' is not a valid JSON string array"
+                    logger.warning(
+                        3004,
+                        ConfigCatLogMessages.getUserAttributeInvalid(
+                            context.key,
+                            condition,
+                            reason,
+                            comparisonAttribute
+                        )
+                    )
+                    throw RolloutEvaluatorException(
+                        "cannot evaluate, the User.$comparisonAttribute attribute is " +
+                            "invalid ($reason)"
+                    )
+                }
             }
         }
     }
@@ -628,10 +679,18 @@ internal class Evaluator(private val logger: InternalLogger) {
         comparator: Comparator
     ): Boolean {
         val split = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
-        val userValueHash = getSaltedUserValue(userValue, configSalt, contextSalt)
+        val formattedUserValue = if (comparator == Comparator.ONE_OF_SENS || comparator == Comparator.NOT_ONE_OF_SENS) {
+            getSaltedUserValue(userValue, configSalt, contextSalt)
+        } else {
+            userValue
+        }
         return when (comparator) {
-            Comparator.ONE_OF_SENS -> split.contains(userValueHash)
-            Comparator.NOT_ONE_OF_SENS -> !split.contains(userValueHash)
+            Comparator.ONE_OF_SENS,
+            Comparator.IS_ONE_OF -> split.contains(formattedUserValue)
+
+            Comparator.NOT_ONE_OF_SENS,
+            Comparator.IS_NOT_ONE_OF -> !split.contains(formattedUserValue)
+
             else -> false
         }
     }
@@ -657,11 +716,16 @@ internal class Evaluator(private val logger: InternalLogger) {
         contextSalt: String,
         comparator: Comparator
     ): Boolean {
-        val userValueHash = getSaltedUserValue(userValue, configSalt, contextSalt)
+        val formattedUserValue =
+            if (comparator == Comparator.HASHED_EQUALS || comparator == Comparator.HASHED_NOT_EQUALS) {
+                getSaltedUserValue(userValue, configSalt, contextSalt)
+            } else {
+                userValue
+            }
         val comparisonValue = condition.stringValue
         return when (comparator) {
-            Comparator.HASHED_EQUALS -> userValueHash == comparisonValue
-            Comparator.HASHED_NOT_EQUALS -> userValueHash != comparisonValue
+            Comparator.HASHED_EQUALS, Comparator.TEXT_EQUALS -> formattedUserValue == comparisonValue
+            Comparator.HASHED_NOT_EQUALS, Comparator.TEXT_NOT_EQUALS -> formattedUserValue != comparisonValue
             else -> false
         }
     }
@@ -714,28 +778,75 @@ internal class Evaluator(private val logger: InternalLogger) {
         return matchCondition
     }
 
-    private fun processHashedArrayContainsCompare(
+    private fun processTextStartWithCompare(
         condition: UserCondition,
         userValue: String,
+        comparator: Comparator
+    ): Boolean {
+        val withValuesSplit = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
+        var startWith = false
+        for (textValue in withValuesSplit) {
+            if (userValue.startsWith(textValue)) {
+                startWith = true
+                break
+            }
+        }
+        if (comparator == Comparator.TEXT_NOT_STARTS_WITH) {
+            startWith = !startWith
+        }
+        return startWith
+    }
+
+    private fun processTextEndWithCompare(
+        condition: UserCondition,
+        userValue: String,
+        comparator: Comparator
+    ): Boolean {
+        val withValuesSplit = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
+        var endWith = false
+        for (textValue in withValuesSplit) {
+            if (userValue.endsWith(textValue)) {
+                endWith = true
+                break
+            }
+        }
+        if (comparator == Comparator.TEXT_NOT_ENDS_WITH) {
+            endWith = !endWith
+        }
+        return endWith
+    }
+
+    private fun processHashedArrayContainsCompare(
+        condition: UserCondition,
+        userContainsArray: Array<String>,
         configSalt: String,
         contextSalt: String,
         comparator: Comparator
     ): Boolean {
         val withValuesSplit = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
-        val userCSVNotContainsHashSplit = userValue.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-        if (userCSVNotContainsHashSplit.isEmpty()) {
+        if (userContainsArray.isEmpty()) {
             return false
         }
         var contains = false
-        userCSVNotContainsHashSplit.forEach {
-            val hashedUserValue = getSaltedUserValue(it, configSalt, contextSalt)
-            if (withValuesSplit.contains(hashedUserValue)) {
+        val hashedRequired =
+            comparator == Comparator.HASHED_ARRAY_CONTAINS || comparator == Comparator.HASHED_ARRAY_NOT_CONTAINS
+        userContainsArray.forEach {
+            val correctUserValue = if (hashedRequired) {
+                getSaltedUserValue(it, configSalt, contextSalt)
+            } else {
+                it
+            }
+            if (withValuesSplit.contains(correctUserValue)) {
                 contains = true
             }
         }
         return when (comparator) {
-            Comparator.HASHED_ARRAY_CONTAINS -> contains
-            Comparator.HASHED_ARRAY_NOT_CONTAINS -> !contains
+            Comparator.HASHED_ARRAY_CONTAINS,
+            Comparator.TEXT_ARRAY_CONTAINS -> contains
+
+            Comparator.HASHED_ARRAY_NOT_CONTAINS,
+            Comparator.TEXT_ARRAY_NOT_CONTAINS -> !contains
+
             else -> false
         }
     }
@@ -809,6 +920,8 @@ internal class Evaluator(private val logger: InternalLogger) {
      * Describes the Rollout Evaluator User Condition Comparators.
      */
     enum class Comparator(val id: Int, val value: String) {
+        IS_ONE_OF(0, "IS ONE OF"),
+        IS_NOT_ONE_OF(1, "IS NOT ONE OF"),
         CONTAINS_ANY_OF(2, "CONTAINS ANY OF"),
         NOT_CONTAINS_ANY_OF(3, "NOT CONTAINS ANY OF"),
         ONE_OF_SEMVER(4, "IS ONE OF"),
@@ -834,7 +947,15 @@ internal class Evaluator(private val logger: InternalLogger) {
         HASHED_ENDS_WITH(24, "ENDS WITH ANY OF"),
         HASHED_NOT_ENDS_WITH(25, "NOT ENDS WITH ANY OF"),
         HASHED_ARRAY_CONTAINS(26, "ARRAY CONTAINS ANY OF"),
-        HASHED_ARRAY_NOT_CONTAINS(27, "ARRAY NOT CONTAINS ANY OF")
+        HASHED_ARRAY_NOT_CONTAINS(27, "ARRAY NOT CONTAINS ANY OF"),
+        TEXT_EQUALS(28, "EQUALS"),
+        TEXT_NOT_EQUALS(29, "NOT EQUALS"),
+        TEXT_STARTS_WITH(30, "STARTS WITH ANY OF"),
+        TEXT_NOT_STARTS_WITH(31, "NOT STARTS WITH ANY OF"),
+        TEXT_ENDS_WITH(32, "ENDS WITH ANY OF"),
+        TEXT_NOT_ENDS_WITH(33, "NOT ENDS WITH ANY OF"),
+        TEXT_ARRAY_CONTAINS(34, "ARRAY CONTAINS ANY OF"),
+        TEXT_ARRAY_NOT_CONTAINS(35, "ARRAY NOT CONTAINS ANY OF");
     }
 
     /**
@@ -854,6 +975,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     }
 }
 
+@Suppress("TooManyFunctions")
 internal class EvaluateLogger {
     private val entries = StringBuilder()
     private var indentLevel: Int = 0
@@ -994,6 +1116,16 @@ internal class EvaluateLogger {
         append(
             "Condition (${LogHelper.formatSegmentFlagCondition(segmentCondition, segment)}) evaluates to $result."
         )
+        decreaseIndentLevel()
+        newLine()
+        append(")")
+    }
+
+    fun logSegmentEvaluationError(segmentCondition: SegmentCondition?, segment: Segment?, error: String?) {
+        newLine()
+        append("Segment evaluation result: $error.")
+        newLine()
+        append("Condition (${LogHelper.formatSegmentFlagCondition(segmentCondition, segment)}) failed to evaluate.")
         decreaseIndentLevel()
         newLine()
         append(")")

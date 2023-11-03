@@ -1017,11 +1017,12 @@ garland@outlook.com;##null##;##null##;##null##;False;False;True;0;3.1415;1;1;Hor
 ullman@comcast.net;##null##;##null##;##null##;False;False;True;3.1415;3.1415;1;1;Horse;Falcon;Falcon;Cat;Cat;Cat;Cat;Cat
 sumdumass@outlook.com;##null##;##null##;##null##;False;False;True;2.7182;3.1415;1;1;Dog;Horse;Falcon;Cat;Cat;Cat;Cat;Cat"""
     override val remoteJson =
-        """{
+        """
+{
    "p":{
       "u":"https://cdn-global.configcat.com",
       "r":0,
-      "s":"3l76loPMR4zAOmGTqU57nu5eWvWd9+WPu2H424qVwUc="
+      "s":"2mTrfJifhGjGijMMwV06xC\u002Bg\u002Biex16oITb2wSMUgJSI="
    },
    "f":{
       "bool30TrueAdvancedRules":{
@@ -1030,12 +1031,12 @@ sumdumass@outlook.com;##null##;##null##;##null##;False;False;True;2.7182;3.1415;
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
-                        "c":16,
+                        "c":0,
                         "l":[
-                           "4bd92a613a6ce6f41afa4f864223cd8c11fca91fff300684168a10e2c2c8e452",
-                           "ea38aa06541eae41958b2aa799156d74eac837706db0398d9ec03e6e3e6e080a"
+                           "a@configcat.com",
+                           "b@configcat.com"
                         ]
                      }
                   }
@@ -1050,7 +1051,7 @@ sumdumass@outlook.com;##null##;##null##;##null##;False;False;True;2.7182;3.1415;
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Country",
                         "c":2,
                         "l":[
@@ -1108,7 +1109,7 @@ sumdumass@outlook.com;##null##;##null##;##null##;False;False;True;2.7182;3.1415;
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":2,
                         "l":[
@@ -1173,7 +1174,7 @@ sumdumass@outlook.com;##null##;##null##;##null##;False;False;True;2.7182;3.1415;
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":2,
                         "l":[
@@ -1238,12 +1239,12 @@ sumdumass@outlook.com;##null##;##null##;##null##;False;False;True;2.7182;3.1415;
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Country",
-                        "c":16,
+                        "c":0,
                         "l":[
-                           "7465add075dcb926a6402085e88ab9702ab2d9a8b14a5ec7ea151658aeac04d3",
-                           "e075d3d147f5fad316e06d9c58de864ea5ba7681225b0ff90563e75808dcad9d"
+                           "Hungary",
+                           "Bahamas"
                         ]
                      }
                   }
@@ -1258,11 +1259,11 @@ sumdumass@outlook.com;##null##;##null##;##null##;False;False;True;2.7182;3.1415;
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"SubscriptionType",
-                        "c":16,
+                        "c":0,
                         "l":[
-                           "c2cf4544cb313df965d59abf4f1485ff924ed1228137b9648948847a5dc6d165"
+                           "unlimited"
                         ]
                      }
                   }
@@ -1339,12 +1340,12 @@ sumdumass@outlook.com;##null##;##null##;##null##;False;False;True;2.7182;3.1415;
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Country",
-                        "c":16,
+                        "c":0,
                         "l":[
-                           "d4c8747dd5641e2cba3dcfcb54e4b375c7239956aa8b7a9bb713aee853e954b0",
-                           "ed15f333d682ec2328761001da2e2bbe4df0d37cb17cfb0b70b889896d70f39c"
+                           "Hungary",
+                           "United Kingdom"
                         ]
                      }
                   }
@@ -1359,7 +1360,7 @@ sumdumass@outlook.com;##null##;##null##;##null##;False;False;True;2.7182;3.1415;
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Custom1",
                         "c":2,
                         "l":[
@@ -1378,7 +1379,7 @@ sumdumass@outlook.com;##null##;##null##;##null##;False;False;True;2.7182;3.1415;
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":2,
                         "l":[
@@ -1473,7 +1474,7 @@ sumdumass@outlook.com;##null##;##null##;##null##;False;False;True;2.7182;3.1415;
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":2,
                         "l":[
@@ -1508,12 +1509,12 @@ sumdumass@outlook.com;##null##;##null##;##null##;False;False;True;2.7182;3.1415;
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
-                        "c":16,
+                        "c":0,
                         "l":[
-                           "e2b54bec9035e419aece917c89f75f288b8cf492dcad9fe30b7f81705db99874",
-                           "e1e21b7f3a70ec0f032b2a0ecf7e12027caf8f20ce0977bc0709545c23ab14e8"
+                           "a@configcat.com",
+                           "b@configcat.com"
                         ]
                      }
                   }
@@ -1528,11 +1529,11 @@ sumdumass@outlook.com;##null##;##null##;##null##;False;False;True;2.7182;3.1415;
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Custom1",
-                        "c":16,
+                        "c":0,
                         "l":[
-                           "4625369c98210073f030d24afc7fff7a936d5d99114ed2ef3b58c9e33c2c6930"
+                           "admin"
                         ]
                      }
                   }
@@ -1556,12 +1557,12 @@ sumdumass@outlook.com;##null##;##null##;##null##;False;False;True;2.7182;3.1415;
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
-                        "c":17,
+                        "c":1,
                         "l":[
-                           "77e5a4f007b8ba51e1badede889fe1ac6f6a75b72f83d35d2add3b60cf8c9c65",
-                           "b5c43265050a889e5a4ca4b498bfc6863ee6bdac5098846a2d85c8a7070947ed"
+                           "a@configcat.com",
+                           "b@configcat.com"
                         ]
                      }
                   }
@@ -1585,7 +1586,7 @@ sumdumass@outlook.com;##null##;##null##;##null##;False;False;True;2.7182;3.1415;
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":3,
                         "l":[

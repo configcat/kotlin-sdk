@@ -70,6 +70,11 @@ class RolloutMatrixTests {
         runMatrixTest(SegmentMatrix, true)
     }
 
+    @Test
+    fun testSegmentsOldMatrix() = runTest {
+        runMatrixTest(SegmentsOldMatrix, true)
+    }
+
     private suspend fun runMatrixTest(matrix: DataMatrix, isValueKind: Boolean) {
         val mockEngine = MockEngine {
             respond(content = matrix.remoteJson, status = HttpStatusCode.OK)

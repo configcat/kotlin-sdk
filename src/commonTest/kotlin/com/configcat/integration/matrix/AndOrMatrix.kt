@@ -23,7 +23,7 @@ jane.sensitivecompany.com;jane.sensitivecompany.com;##null##;##null##;public;Chi
    "p":{
       "u":"https://cdn-global.configcat.com",
       "r":0,
-      "s":"zlVnq+GjKscd7CCttof3QSgIrbf6guY+Wyvm43HiiwQ="
+      "s":"XYA\u002BaDHULdih3lcV/DfSC4I3HgX3hkoYC5Te638DGSU="
    },
    "s":[
       {
@@ -33,8 +33,8 @@ jane.sensitivecompany.com;jane.sensitivecompany.com;##null##;##null##;public;Chi
                "a":"Email",
                "c":16,
                "l":[
-                  "f0c2a1171c264e84c30d06e8f0181ab060307b8be699d20c77b3563e65fc51ae",
-                  "f93f24deb25e5091d5fb51f1ae7d13cf9254607bc91c5e3cacced9b07b0f6a35"
+                  "5a1c36ec9cb651709b85f7295405880dc4728d3c5b27b4de09476bba2c10553b",
+                  "83eea4b4f01b5471a1bf2505a1d141485fc29e576e741889a30bf6555ad02b01"
                ]
             }
          ]
@@ -46,8 +46,8 @@ jane.sensitivecompany.com;jane.sensitivecompany.com;##null##;##null##;public;Chi
                "a":"Email",
                "c":16,
                "l":[
-                  "7c9aec489978fbc202dde6fb2d8fb8a35642b1bc513ada57a49451dc97de2a9c",
-                  "eb575b649594f99effdf11953e893efc8e737bf95e837cb790a0270dbf3fae20"
+                  "3b578b8bd4998b1b3c042b3a28746c4ff1d41990a535e941a826564e1d45b523",
+                  "16cb6133c8bdc3e6d427f96f818a2b1c3a274e62c5a37ec42c4a47184ee7c54b"
                ]
             }
          ]
@@ -60,7 +60,7 @@ jane.sensitivecompany.com;jane.sensitivecompany.com;##null##;##null##;public;Chi
             {
                "c":[
                   {
-                     "d":{
+                     "p":{
                         "f":"mainFeature",
                         "c":0,
                         "v":{
@@ -112,12 +112,12 @@ jane.sensitivecompany.com;jane.sensitivecompany.com;##null##;##null##;public;Chi
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":16,
                         "l":[
-                           "321beeabac75ac6dcb2f2148c800febd5ad3aaea3b7d530aa3a749a36a5a2029",
-                           "94ff8bcd6db5a6659131d7efd853566521a0da896cd9da181bebb61925c3cc08"
+                           "c904e7bad986f101a63a5da52cdf4fbb9660bea2ad79dccbd6121075ab610b1f",
+                           "84da58e3ca0ff12167c80d39731b391f9ecd8003af693b01240897b8453f0f43"
                         ]
                      }
                   }
@@ -132,7 +132,7 @@ jane.sensitivecompany.com;jane.sensitivecompany.com;##null##;##null##;public;Chi
             {
                "c":[
                   {
-                     "d":{
+                     "p":{
                         "f":"mainFeatureWithoutUserCondition",
                         "c":0,
                         "v":{
@@ -177,12 +177,12 @@ jane.sensitivecompany.com;jane.sensitivecompany.com;##null##;##null##;public;Chi
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":16,
                         "l":[
-                           "4631ad7970aa30cc2e016d2e361f778767632e00b12ba9d6c93df83f2db73e6b",
-                           "36ebf231cd371d6fa31468f9ec28dd7490b602af4ae3cf2a631cd20dcce0cfb8"
+                           "38b591c3f8a1434d092ad362b8a3f76625938d7937cdc5bb67bda2ccc474df94",
+                           "2f985eef0a5f9b5193c88006e7ec1bb70cd4ea375273415254e538e33e033026"
                         ]
                      }
                   }
@@ -197,7 +197,7 @@ jane.sensitivecompany.com;jane.sensitivecompany.com;##null##;##null##;public;Chi
             {
                "c":[
                   {
-                     "d":{
+                     "p":{
                         "f":"mainFeature",
                         "c":0,
                         "v":{
@@ -233,7 +233,7 @@ jane.sensitivecompany.com;jane.sensitivecompany.com;##null##;##null##;public;Chi
             {
                "c":[
                   {
-                     "d":{
+                     "p":{
                         "f":"mainFeature",
                         "c":0,
                         "v":{
@@ -261,16 +261,16 @@ jane.sensitivecompany.com;jane.sensitivecompany.com;##null##;##null##;public;Chi
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":22,
                         "l":[
-                           "4_41a64b5ebf052a120e8a9c09138148871eb8ba6933f793e475e77732dbf6b788"
+                           "4_76c49f275a4016de6c7a2464942df853891f0e7c39f176136abdf9edf6f3ffd4"
                         ]
                      }
                   },
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":2,
                         "l":[
@@ -279,11 +279,11 @@ jane.sensitivecompany.com;jane.sensitivecompany.com;##null##;##null##;public;Chi
                      }
                   },
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":24,
                         "l":[
-                           "20_e001b20def19469d7c0a86c5e6f51e23da2f3eb9a047995ad8f31752bcab30f4"
+                           "20_54899f4b5464250fe02af0fc09f5bf863865bb543c9f981133151b7fcc133bb7"
                         ]
                      }
                   }
@@ -307,11 +307,11 @@ jane.sensitivecompany.com;jane.sensitivecompany.com;##null##;##null##;public;Chi
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":22,
                         "l":[
-                           "5_ba2a1cffc0c80dea98087470686004e72cea59bd028c39eea911c6982d970eb0"
+                           "5_a366d82b39567d7d60654732b75973217f90cd8b3e8cbd89f8e9247257f8f421"
                         ]
                      }
                   }
@@ -326,11 +326,11 @@ jane.sensitivecompany.com;jane.sensitivecompany.com;##null##;##null##;public;Chi
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":22,
                         "l":[
-                           "5_7a2707ce87e2649ae9e249b0f0d58d58543dbdcb4f27702c37dd0c5d4111682a"
+                           "5_b587748cc92c5f3f3f5792e82b4cb93efaab7b2211aa7d1102e78a22589715e1"
                         ]
                      }
                   }
@@ -345,11 +345,11 @@ jane.sensitivecompany.com;jane.sensitivecompany.com;##null##;##null##;public;Chi
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":22,
                         "l":[
-                           "5_ff5dcaab81623ad10a26a29778075c578b7d29c1f65e473b3463c839ca56f839"
+                           "5_670b198d20a45c499f5a32b1a46ee1e4f13d1c42594b3096e47daf340d8fb8e0"
                         ]
                      }
                   }
@@ -373,21 +373,21 @@ jane.sensitivecompany.com;jane.sensitivecompany.com;##null##;##null##;public;Chi
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":24,
                         "l":[
-                           "21_2e6575d0357cd787b6e3a0c6e1fe2279e8dfdfb23071af45c57dd4fbea35d4d0"
+                           "21_56a25e5b7dc4bff5f0634b52ec41b2e1d0ed838c7297a83967cd7aa1e14bc36a"
                         ]
                      }
                   },
                   {
-                     "t":{
+                     "u":{
                         "a":"Country",
                         "c":16,
                         "l":[
-                           "60a210babac9a4e2cfbe9dd5d80e140d3457e9e351391c40450d0e8db1355347",
-                           "300cf01202fdfdc31176ed5e868341b219cea9aedfaba50bff0cef3eaeab7584"
+                           "1fab893a891c70917518e97fb4b0be62aab1888d305a9c8f393a201a83900bc0",
+                           "0d8f106bc09eef0f6aa4a36f861b4b30c17186623543ac69bd654c9a931cd42f"
                         ]
                      }
                   }
@@ -402,11 +402,11 @@ jane.sensitivecompany.com;jane.sensitivecompany.com;##null##;##null##;public;Chi
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Country",
                         "c":16,
                         "l":[
-                           "d34c7fab9b86c80cc0454e7ff422206ca803d7209702a30fd8be6c94b8d15185"
+                           "d3be141e87c1ed4c35330fc7d7c37f617e98d4c17ee7e8be739c87ca07aa048c"
                         ]
                      }
                   },

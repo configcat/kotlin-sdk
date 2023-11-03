@@ -13,7 +13,7 @@ jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;
    "p":{
       "u":"https://cdn-global.configcat.com",
       "r":0,
-      "s":"5ydSrHb5Xh5+EJmzVFewjgxi5RMMPA/3CxgZT7abL48="
+      "s":"VrjJzqaatxwl8wvjEaKSgGmLI4tqtXWUCWblByPip4M="
    },
    "f":{
       "boolDependsOnBool":{
@@ -22,7 +22,7 @@ jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;
             {
                "c":[
                   {
-                     "d":{
+                     "p":{
                         "f":"mainBoolFlag",
                         "c":0,
                         "v":{
@@ -50,7 +50,7 @@ jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;
             {
                "c":[
                   {
-                     "d":{
+                     "p":{
                         "f":"boolDependsOnBool",
                         "c":0,
                         "v":{
@@ -78,7 +78,7 @@ jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;
             {
                "c":[
                   {
-                     "d":{
+                     "p":{
                         "f":"mainBoolFlagInverse",
                         "c":1,
                         "v":{
@@ -106,7 +106,7 @@ jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;
             {
                "c":[
                   {
-                     "d":{
+                     "p":{
                         "f":"mainBoolFlag",
                         "c":0,
                         "v":{
@@ -134,7 +134,7 @@ jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;
             {
                "c":[
                   {
-                     "d":{
+                     "p":{
                         "f":"mainBoolFlag",
                         "c":0,
                         "v":{
@@ -162,11 +162,11 @@ jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":24,
                         "l":[
-                           "21_3364be78d5eb96ea45d4f3e53b49d4ac534a688aa5c007fd39c8feb7f2e6eb76"
+                           "21_551d0379d16ec3df7a3e4f3303366fc74f53b681fdd10e8a0cb526e13694228b"
                         ]
                      }
                   }
@@ -197,11 +197,11 @@ jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":24,
                         "l":[
-                           "21_18f236594e07de4af5a3ad017c113277174add4594c7a60472c4e712353c37a7"
+                           "21_6caa25575aedf0887841fe0abf9aecad51ae78e772ae81733c305596b6d5a8f0"
                         ]
                      }
                   }
@@ -225,11 +225,11 @@ jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":24,
                         "l":[
-                           "21_ba5b252b760e4503a926de4d12ae566a5c236ac8736262850a0111ac57c8dbc9"
+                           "21_1a8f5a5548eedead214f7e3bde8df18edce179d7304c608a2b23573370b996c8"
                         ]
                      }
                   }
@@ -253,11 +253,11 @@ jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":24,
                         "l":[
-                           "21_15137dc62e609cde9ee30de5dc5c87bd3d4a38d4a2242fca8c4cd1af58f8e3af"
+                           "21_8f73d9bca2eeb929259cf137d9ab1f17c3808eec5670ee0fa612af6fb0443a31"
                         ]
                      }
                   }
@@ -281,11 +281,11 @@ jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":24,
                         "l":[
-                           "21_12811dbcae7021954d66e4240adef0652838c251e5e80ba485ed5af602467412"
+                           "21_860fe91a11ed68bd1f605e4336538136619a3f136f47b6da21cd828f068d2268"
                         ]
                      }
                   }
@@ -309,7 +309,7 @@ jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;
             {
                "c":[
                   {
-                     "d":{
+                     "p":{
                         "f":"mainBoolFlag",
                         "c":0,
                         "v":{
@@ -337,7 +337,7 @@ jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;
             {
                "c":[
                   {
-                     "d":{
+                     "p":{
                         "f":"mainDoubleFlag",
                         "c":0,
                         "v":{
@@ -365,7 +365,7 @@ jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;
             {
                "c":[
                   {
-                     "d":{
+                     "p":{
                         "f":"mainDoubleFlag",
                         "c":0,
                         "v":{
@@ -393,7 +393,7 @@ jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;
             {
                "c":[
                   {
-                     "d":{
+                     "p":{
                         "f":"mainBoolFlagEmpty",
                         "c":0,
                         "v":{
@@ -421,7 +421,7 @@ jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;
             {
                "c":[
                   {
-                     "d":{
+                     "p":{
                         "f":"mainIntFlag",
                         "c":0,
                         "v":{
@@ -449,7 +449,7 @@ jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;
             {
                "c":[
                   {
-                     "d":{
+                     "p":{
                         "f":"mainStringFlag",
                         "c":0,
                         "v":{
@@ -477,7 +477,7 @@ jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;
             {
                "c":[
                   {
-                     "d":{
+                     "p":{
                         "f":"mainStringFlag",
                         "c":0,
                         "v":{
@@ -505,7 +505,7 @@ jane@example.com;jane@example.com;##null##;##null##;True;public;42;3.14;Dog;Cat;
             {
                "c":[
                   {
-                     "d":{
+                     "p":{
                         "f":"mainBoolFlagEmpty",
                         "c":1,
                         "v":{

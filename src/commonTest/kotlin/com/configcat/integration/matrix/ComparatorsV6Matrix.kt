@@ -3,28 +3,36 @@ package com.configcat.integration.matrix
 object ComparatorsV6Matrix : DataMatrix {
     override val sdkKey: String = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/OfQqcTjfFUGBwMKqtyEOrQ"
     override val data =
-        """Identifier;Email;Country;Custom1;boolTrueIn202304;stringEqualsDogDefaultCat;stringDoseNotEqualDogDefaultCat;stringStartsWithDogDefaultCat;stringNotStartsWithDogDefaultCat;stringEndsWithDogDefaultCat;stringNotEndsWithDogDefaultCat;arrayContainsDogDefaultCat;arrayDoesNotContainDogDefaultCat;arrayContainsCaseCheckDogDefaultCat;arrayDoesNotContainCaseCheckDogDefaultCat;customPercentageAttribute;missingPercentageAttribute;countryPercentageAttribute
-##null##;;;;False;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Chicken;Chicken;Chicken
-;;;;False;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Chicken;Chicken;Chicken
-a@configcat.com;a@configcat.com;##null##;##null##;False;Dog;Dog;Dog;Cat;Dog;Cat;Cat;Cat;Cat;Cat;Chicken;NotFound;Chicken
-b@configcat.com;b@configcat.com;Hungary;0;False;Cat;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Cat;Dog;Horse;NotFound;Falcon
-c@configcat.com;c@configcat.com;United Kingdom;1680307199.9;False;Cat;Dog;Cat;Dog;Dog;Cat;Cat;Dog;Cat;Dog;Falcon;NotFound;Falcon
-anna@configcat.com;anna@configcat.com;Hungary;1681118000.56;True;Cat;Dog;Dog;Cat;Dog;Cat;Cat;Dog;Cat;Dog;Falcon;NotFound;Falcon
-bogjobber@verizon.net;bogjobber@verizon.net;##null##;1682899200.1;False;Cat;Dog;Cat;Dog;Cat;Dog;Cat;Dog;Cat;Dog;Horse;Chicken;Chicken
-cliffordj@aol.com;cliffordj@aol.com;Austria;1682999200;False;Cat;Dog;Cat;Dog;Cat;Dog;Cat;Dog;Cat;Dog;Falcon;Chicken;Falcon
-reader@configcat.com;reader@configcat.com;Bahamas;read,execute;False;Cat;Dog;Cat;Dog;Dog;Cat;Dog;Dog;Cat;Dog;Falcon;NotFound;Falcon
-writer@configcat.com;writer@configcat.com;Belgium;write, execute;False;Cat;Dog;Cat;Dog;Dog;Cat;Cat;Cat;Cat;Dog;Horse;NotFound;Horse
-reader@configcat.com;reader@configcat.com;Canada;execute, Read;False;Cat;Dog;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Dog;Horse;NotFound;Horse
-writer@configcat.com;writer@configcat.com;China;Write;False;Cat;Dog;Cat;Dog;Dog;Cat;Cat;Dog;Cat;Cat;Falcon;NotFound;Horse
-admin@configcat.com;admin@configcat.com;France;read, write,execute;False;Cat;Dog;Dog;Cat;Dog;Cat;Dog;Cat;Cat;Dog;Falcon;NotFound;Horse
-user@configcat.com;user@configcat.com;Greece;,execute;False;Cat;Dog;Cat;Dog;Dog;Cat;Cat;Dog;Cat;Dog;Falcon;NotFound;Horse
-user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Cat;Dog;Dog;Cat;Cat;Dog;Cat;Dog;Falcon;NotFound;Horse"""
+        """Identifier;Email;Country;Custom1;boolTrueIn202304;stringEqualsDogDefaultCat;stringEqualsCleartextDogDefaultCat;stringDoseNotEqualDogDefaultCat;stringNotEqualsCleartextDogDefaultCat;stringStartsWithDogDefaultCat;stringNotStartsWithDogDefaultCat;stringEndsWithDogDefaultCat;stringNotEndsWithDogDefaultCat;arrayContainsDogDefaultCat;arrayDoesNotContainDogDefaultCat;arrayContainsCaseCheckDogDefaultCat;arrayDoesNotContainCaseCheckDogDefaultCat;customPercentageAttribute;missingPercentageAttribute;countryPercentageAttribute;stringContainsAnyOfDogDefaultCat;stringNotContainsAnyOfDogDefaultCat;stringStartsWithAnyOfDogDefaultCat;stringStartsWithAnyOfCleartextDogDefaultCat;stringNotStartsWithAnyOfDogDefaultCat;stringNotStartsWithAnyOfCleartextDogDefaultCat;stringEndsWithAnyOfDogDefaultCat;stringEndsWithAnyOfCleartextDogDefaultCat;stringNotEndsWithAnyOfDogDefaultCat;stringNotEndsWithAnyOfCleartextDogDefaultCat;stringArrayContainsAnyOfDogDefaultCat;stringArrayContainsAnyOfCleartextDogDefaultCat;stringArrayNotContainsAnyOfDogDefaultCat;stringArrayNotContainsAnyOfCleartextDogDefaultCat
+##null##;;;;False;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Chicken;Chicken;Chicken;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat
+;;;;False;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Chicken;Chicken;Chicken;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat;Cat
+a@configcat.com;a@configcat.com;##null##;##null##;False;Dog;Dog;Dog;Dog;Dog;Cat;Dog;Cat;Cat;Cat;Cat;Cat;Chicken;NotFound;Chicken;Cat;Dog;Dog;Dog;Cat;Cat;Cat;Cat;Dog;Dog;Cat;Cat;Cat;Cat
+b@configcat.com;b@configcat.com;Hungary;0;False;Cat;Cat;Cat;Cat;Cat;Dog;Dog;Cat;Cat;Cat;Cat;Cat;Horse;NotFound;Falcon;Cat;Dog;Dog;Dog;Cat;Cat;Cat;Cat;Dog;Dog;Cat;Cat;Cat;Cat
+c@configcat.com;c@configcat.com;United Kingdom;1680307199.9;False;Cat;Cat;Dog;Dog;Cat;Dog;Dog;Cat;Cat;Cat;Cat;Cat;Falcon;NotFound;Falcon;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Cat;Cat
+anna@configcat.com;anna@configcat.com;Hungary;1681118000.56;True;Cat;Cat;Dog;Dog;Dog;Cat;Dog;Cat;Cat;Cat;Cat;Cat;Falcon;NotFound;Falcon;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Cat;Cat
+bogjobber@verizon.net;bogjobber@verizon.net;##null##;1682899200.1;False;Cat;Cat;Dog;Dog;Cat;Dog;Cat;Dog;Cat;Cat;Cat;Cat;Horse;Chicken;Chicken;Dog;Cat;Cat;Cat;Dog;Dog;Dog;Dog;Cat;Cat;Cat;Cat;Cat;Cat
+cliffordj@aol.com;cliffordj@aol.com;Austria;1682999200;False;Cat;Cat;Dog;Dog;Cat;Dog;Cat;Dog;Cat;Cat;Cat;Cat;Falcon;Chicken;Falcon;Dog;Cat;Cat;Cat;Dog;Dog;Dog;Dog;Cat;Cat;Cat;Cat;Cat;Cat
+reader@configcat.com;reader@configcat.com;Bahamas;read,execute;False;Cat;Cat;Dog;Dog;Cat;Dog;Dog;Cat;Cat;Cat;Cat;Cat;Falcon;NotFound;Falcon;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Cat;Cat
+writer@configcat.com;writer@configcat.com;Belgium;write, execute;False;Cat;Cat;Dog;Dog;Cat;Dog;Dog;Cat;Cat;Cat;Cat;Cat;Horse;NotFound;Horse;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Cat;Cat
+reader@configcat.com;reader@configcat.com;Canada;execute, Read;False;Cat;Cat;Dog;Dog;Cat;Dog;Dog;Cat;Cat;Cat;Cat;Cat;Horse;NotFound;Horse;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Cat;Cat
+writer@configcat.com;writer@configcat.com;China;Write;False;Cat;Cat;Dog;Dog;Cat;Dog;Dog;Cat;Cat;Cat;Cat;Cat;Falcon;NotFound;Horse;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Cat;Cat
+admin@configcat.com;admin@configcat.com;France;read, write,execute;False;Cat;Cat;Dog;Dog;Dog;Cat;Dog;Cat;Cat;Cat;Cat;Cat;Falcon;NotFound;Horse;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Cat;Cat
+user@configcat.com;user@configcat.com;Greece;,execute;False;Cat;Cat;Dog;Dog;Cat;Dog;Dog;Cat;Cat;Cat;Cat;Cat;Falcon;NotFound;Horse;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Cat;Cat
+reader@configcat.com;reader@configcat.com;Bahamas;["read","execute"];False;Cat;Cat;Dog;Dog;Cat;Dog;Dog;Cat;Dog;Dog;Cat;Dog;Falcon;NotFound;Falcon;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Dog;Dog;Cat;Cat
+writer@configcat.com;writer@configcat.com;Belgium;["write", "execute"];False;Cat;Cat;Dog;Dog;Cat;Dog;Dog;Cat;Cat;Cat;Cat;Dog;Falcon;NotFound;Horse;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Dog;Dog;Cat;Cat
+reader@configcat.com;reader@configcat.com;Canada;["execute", "Read"];False;Cat;Cat;Dog;Dog;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Dog;Horse;NotFound;Horse;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Dog;Dog;Cat;Cat
+writer@configcat.com;writer@configcat.com;China;["Write"];False;Cat;Cat;Dog;Dog;Cat;Dog;Dog;Cat;Cat;Dog;Cat;Cat;Horse;NotFound;Horse;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog
+admin@configcat.com;admin@configcat.com;France;["read", "write","execute"];False;Cat;Cat;Dog;Dog;Dog;Cat;Dog;Cat;Dog;Cat;Cat;Dog;Falcon;NotFound;Horse;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Dog;Dog;Cat;Cat
+admin@configcat.com;admin@configcat.com;France;["Read", "Write",  "execute"];False;Cat;Cat;Dog;Dog;Dog;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Horse;NotFound;Horse;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Dog;Dog;Cat;Cat
+admin@configcat.com;admin@configcat.com;France;["Read",  "Write", "eXecute"];False;Cat;Cat;Dog;Dog;Dog;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Falcon;NotFound;Horse;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog
+user@configcat.com;user@configcat.com;Greece;["","execute"];False;Cat;Cat;Dog;Dog;Cat;Dog;Dog;Cat;Cat;Dog;Cat;Dog;Horse;NotFound;Horse;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Dog;Dog;Cat;Cat
+user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Cat;Dog;Dog;Cat;Dog;Dog;Cat;Cat;Cat;Cat;Cat;Falcon;NotFound;Horse;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Cat;Cat"""
     override val remoteJson =
         """{
    "p":{
       "u":"https://cdn-global.configcat.com",
       "r":0,
-      "s":"UgZzJyRflMz2zF9hVQLdZz7POomplspehEOlXJs+rEI="
+      "s":"JEl\u002BhoGfr/01JCnpxr7kOCIoB2bYAM3uTMShm6HiAc4="
    },
    "f":{
       "allinone":{
@@ -33,115 +41,223 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":20,
-                        "s":"9e8f65438ee7112f89e37769abd01fd0631926d9c188182e53e2f2e3872bef74"
+                        "s":"0740e9103e26acb85b086dd9a15eaa84246902f096655371a5f001b9e13754e8"
                      }
                   },
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":21,
-                        "s":"9e8f65438ee7112f89e37769abd01fd0631926d9c188182e53e2f2e3872bef74"
+                        "s":"0740e9103e26acb85b086dd9a15eaa84246902f096655371a5f001b9e13754e8"
                      }
                   }
                ],
                "s":{
                   "v":{
-                     "s":"1"
+                     "s":"1h"
                   },
-                  "i":"ab0645f7"
+                  "i":"e3a79156"
                }
             },
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
+                        "a":"Email",
+                        "c":28,
+                        "s":"joe@example.com"
+                     }
+                  },
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":29,
+                        "s":"joe@example.com"
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"1c"
+                  },
+                  "i":"ed60451a"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "u":{
                         "a":"Email",
                         "c":16,
                         "l":[
-                           "9e8f65438ee7112f89e37769abd01fd0631926d9c188182e53e2f2e3872bef74"
+                           "0740e9103e26acb85b086dd9a15eaa84246902f096655371a5f001b9e13754e8"
                         ]
                      }
                   },
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":17,
                         "l":[
-                           "9e8f65438ee7112f89e37769abd01fd0631926d9c188182e53e2f2e3872bef74"
+                           "0740e9103e26acb85b086dd9a15eaa84246902f096655371a5f001b9e13754e8"
                         ]
                      }
                   }
                ],
                "s":{
                   "v":{
-                     "s":"2"
+                     "s":"2h"
                   },
-                  "i":"dbe98f44"
+                  "i":"aa24b7a3"
                }
             },
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
+                        "a":"Email",
+                        "c":0,
+                        "l":[
+                           "joe@example.com"
+                        ]
+                     }
+                  },
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":1,
+                        "l":[
+                           "joe@example.com"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"2c"
+                  },
+                  "i":"d37425a1"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "u":{
                         "a":"Email",
                         "c":22,
                         "l":[
-                           "4_3fd9e0f8253bbf39b056038e5c0598b7fa656dce5389fc912e3f162c8725f726"
+                           "4_e99c716658ca0b1035394161a3ca54f8dc688930ad90bed26aeff075cb947397"
                         ]
                      }
                   },
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":23,
                         "l":[
-                           "4_3fd9e0f8253bbf39b056038e5c0598b7fa656dce5389fc912e3f162c8725f726"
+                           "4_e99c716658ca0b1035394161a3ca54f8dc688930ad90bed26aeff075cb947397"
                         ]
                      }
                   }
                ],
                "s":{
                   "v":{
-                     "s":"3"
+                     "s":"3h"
                   },
-                  "i":"e7121806"
+                  "i":"5e6e0c6c"
                }
             },
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
+                        "a":"Email",
+                        "c":30,
+                        "l":[
+                           "joe@"
+                        ]
+                     }
+                  },
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":31,
+                        "l":[
+                           "joe@"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"3c"
+                  },
+                  "i":"5f562a70"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "u":{
                         "a":"Email",
                         "c":24,
                         "l":[
-                           "12_3fffad52e20f233dd93e0ccbe9aaffeb860c42acb0493252b83ca6d376b7475e"
+                           "12_29030906a5c2729247ccad10154b56b84d61ee4d732361e0ba7c3817da4f91b3"
                         ]
                      }
                   },
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":25,
                         "l":[
-                           "12_3fffad52e20f233dd93e0ccbe9aaffeb860c42acb0493252b83ca6d376b7475e"
+                           "12_29030906a5c2729247ccad10154b56b84d61ee4d732361e0ba7c3817da4f91b3"
                         ]
                      }
                   }
                ],
                "s":{
                   "v":{
-                     "s":"4"
+                     "s":"4h"
                   },
-                  "i":"579da034"
+                  "i":"91b91d69"
                }
             },
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
+                        "a":"Email",
+                        "c":32,
+                        "l":[
+                           "@example.com"
+                        ]
+                     }
+                  },
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":33,
+                        "l":[
+                           "@example.com"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"4c"
+                  },
+                  "i":"4c80a977"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "u":{
                         "a":"Email",
                         "c":2,
                         "l":[
@@ -150,7 +266,7 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
                      }
                   },
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":3,
                         "l":[
@@ -169,7 +285,7 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Version",
                         "c":4,
                         "l":[
@@ -178,7 +294,7 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
                      }
                   },
                   {
-                     "t":{
+                     "u":{
                         "a":"Version",
                         "c":5,
                         "l":[
@@ -197,14 +313,14 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Version",
                         "c":6,
                         "s":"1.0.1"
                      }
                   },
                   {
-                     "t":{
+                     "u":{
                         "a":"Version",
                         "c":9,
                         "s":"1.0.1"
@@ -221,14 +337,14 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Version",
                         "c":8,
                         "s":"0.9.9"
                      }
                   },
                   {
-                     "t":{
+                     "u":{
                         "a":"Version",
                         "c":7,
                         "s":"0.9.9"
@@ -245,14 +361,14 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Number",
                         "c":10,
                         "d":1
                      }
                   },
                   {
-                     "t":{
+                     "u":{
                         "a":"Number",
                         "c":11,
                         "d":1
@@ -269,14 +385,14 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Number",
                         "c":12,
                         "d":1.1
                      }
                   },
                   {
-                     "t":{
+                     "u":{
                         "a":"Number",
                         "c":15,
                         "d":1.1
@@ -293,14 +409,14 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Number",
                         "c":14,
                         "d":0.9
                      }
                   },
                   {
-                     "t":{
+                     "u":{
                         "a":"Number",
                         "c":13,
                         "d":0.9
@@ -317,14 +433,14 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Date",
                         "c":18,
                         "d":1693497600
                      }
                   },
                   {
-                     "t":{
+                     "u":{
                         "a":"Date",
                         "c":19,
                         "d":1693497600
@@ -341,29 +457,57 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Country",
                         "c":26,
                         "l":[
-                           "fcc5ea9c77f7a3f981d595af43b396adb8e09e058d4f60df0e73ecb68df42bad"
+                           "5a85699e7343a36d89ee75dca859f7a73cb6be89182095bffb021d1d78de046c"
                         ]
                      }
                   },
                   {
-                     "t":{
+                     "u":{
                         "a":"Country",
                         "c":27,
                         "l":[
-                           "fcc5ea9c77f7a3f981d595af43b396adb8e09e058d4f60df0e73ecb68df42bad"
+                           "5a85699e7343a36d89ee75dca859f7a73cb6be89182095bffb021d1d78de046c"
                         ]
                      }
                   }
                ],
                "s":{
                   "v":{
-                     "s":"13"
+                     "s":"13h"
                   },
-                  "i":"37431937"
+                  "i":"a16b1a17"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Country",
+                        "c":34,
+                        "l":[
+                           "USA"
+                        ]
+                     }
+                  },
+                  {
+                     "u":{
+                        "a":"Country",
+                        "c":35,
+                        "l":[
+                           "USA"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"13c"
+                  },
+                  "i":"1a17d1b3"
                }
             }
          ],
@@ -378,11 +522,11 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Custom1",
                         "c":26,
                         "l":[
-                           "e45c8824edfc992eadc67d82fbf933eb53a6052265db02179d4be40945e70887"
+                           "00083f86e0f648b23f6721d43033bbef14378266fbf7de8a6760cc2ad237e9f3"
                         ]
                      }
                   }
@@ -406,11 +550,11 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Custom1",
                         "c":26,
                         "l":[
-                           "4ef41bf8b329cced8e0b587c923ca7f650f3e1185b346fb2bd7f629f4d263c6d"
+                           "c2d5024661bc0e13f769cbb28bbfab7b78dac88b7876f007020f2e7cd47b1114"
                         ]
                      }
                   }
@@ -434,11 +578,11 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Custom1",
                         "c":27,
                         "l":[
-                           "e3bde2f1f172413ebe11285515e8a2a01ee8691b3a062175f1545fbfc34aa24d"
+                           "14748140c64ecab48c7fd13f03811fe6390c8f578c99df96cf36fc2c6152f660"
                         ]
                      }
                   }
@@ -462,11 +606,11 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Custom1",
                         "c":27,
                         "l":[
-                           "bb3e68b15d06b075a7e7e8ae790d4254cdb87295a6741c2d83bd92658ae69d55"
+                           "bc0c24462c5098e434c63c7fcc6343af5000a4e7affd309f365edd4ccb7f428b"
                         ]
                      }
                   }
@@ -490,14 +634,14 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Custom1",
                         "c":19,
                         "d":1680307200
                      }
                   },
                   {
-                     "t":{
+                     "u":{
                         "a":"Custom1",
                         "c":18,
                         "d":1682899200
@@ -572,11 +716,11 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":24,
                         "l":[
-                           "14_2f4e1ada7a8354c2e40558d694d64ab812db73b4dcf4bcea6bc29cb8f9c33d97"
+                           "14_902a42101e8b77851c98456b383fd959ed0f5aed5b919b4a623c8c756cf0c3ab"
                         ]
                      }
                   }
@@ -601,11 +745,11 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":24,
                         "l":[
-                           "14_2f4e1ada7a8354c2e40558d694d64ab812db73b4dcf4bcea6bc29cb8f9c33d97"
+                           "14_902a42101e8b77851c98456b383fd959ed0f5aed5b919b4a623c8c756cf0c3ab"
                         ]
                      }
                   }
@@ -623,16 +767,166 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
          },
          "i":"e5107172"
       },
+      "stringArrayContainsAnyOfCleartextDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Custom1",
+                        "c":34,
+                        "l":[
+                           "read",
+                           "write",
+                           "execute"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"9ddb8a37"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"0d45ab4b"
+      },
+      "stringArrayContainsAnyOfDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Custom1",
+                        "c":26,
+                        "l":[
+                           "090415ce6b462a2152e06d68aeb7c452a564d19a262eb959c510636a189e105d",
+                           "0aa50b49ca02a59cf507856d88ab25b76a7e69e553d25e67254359d8bbb8b1d6",
+                           "1aa91982f7ccae1943f05ac437d635b3261e3ce06aba846dd2ecc6332e4675c2"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"aa03b1ff"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"203317f5"
+      },
+      "stringArrayNotContainsAnyOfCleartextDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Custom1",
+                        "c":35,
+                        "l":[
+                           "read",
+                           "write",
+                           "execute"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"15c865df"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"6df210da"
+      },
+      "stringArrayNotContainsAnyOfDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Custom1",
+                        "c":27,
+                        "l":[
+                           "b645a36d4d2e24a0612296ded074eace87ce10a0da21c5cb2ac9a6dccbe79cc5",
+                           "552a92975423ea255384f48a6387be172c05ac72238f90050cdfe27cc4659cfd",
+                           "4c00d4171202dbeb35830b1df8e47185968351c771bb2f633ea50ac1c049e016"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"259816ba"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"60b961b0"
+      },
+      "stringContainsAnyOfDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":2,
+                        "l":[
+                           "@verizon.com",
+                           "@verizon.net",
+                           "@aol.com"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"09af657f"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"063bcf39"
+      },
       "stringDoseNotEqualDogDefaultCat":{
          "t":1,
          "r":[
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":21,
-                        "s":"53cdd8c4be263822fb7ecd309a20b68f3df839a776a601d13a84054efff0a982"
+                        "s":"3cb496a1c3844215c784116ce9e91c143860d7ef18f7fadadcc901b8df5d235c"
                      }
                   }
                ],
@@ -649,17 +943,77 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
          },
          "i":"1835a09a"
       },
+      "stringEndsWithAnyOfCleartextDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":32,
+                        "l":[
+                           "@verizon.com",
+                           "@verizon.net",
+                           "@aol.com"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"33d35402"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"31976ec3"
+      },
+      "stringEndsWithAnyOfDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":24,
+                        "l":[
+                           "12_781f5f9b054a14721a835fcdd2d03ac6d45d99eb55b387bf5938904c8f65aa35",
+                           "12_d15f199cfbd96ef1c6f7683e66d5e0f85c9c591ce377289abb2e785fc71bbdf1",
+                           "8_6ee234c513b7518bd705cc1049576c1e757a201200ff26a6a3a91821f954c6cb"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"7231ddf8"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"de17fd2a"
+      },
       "stringEndsWithDogDefaultCat":{
          "t":1,
          "r":[
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":24,
                         "l":[
-                           "14_9976015305689cd92ac1c178ff9a852ad58132aa817e8d6aadfd97b393acc2c8"
+                           "14_236ec291c9b54fad3373a0b7e0e465b33459198fd1027838c101516ad8ae1b39"
                         ]
                      }
                   }
@@ -677,16 +1031,42 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
          },
          "i":"45b7d922"
       },
+      "stringEqualsCleartextDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":28,
+                        "s":"a@configcat.com"
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"087e01dd"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"89785ab3"
+      },
       "stringEqualsDogDefaultCat":{
          "t":1,
          "r":[
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":20,
-                        "s":"b5d595db02f89a71b54379e54d756685163c8c08193f390c4d72f3baa0dc2876"
+                        "s":"86e6b430939acac093f3d8c48be10798896f0abf3b96e2e39080acedd925d887"
                      }
                   }
                ],
@@ -703,17 +1083,107 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
          },
          "i":"adc0b01c"
       },
+      "stringNotContainsAnyOfDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":3,
+                        "l":[
+                           "@verizon.com",
+                           "@verizon.net",
+                           "@aol.com"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"49627b36"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"36848b03"
+      },
+      "stringNotEndsWithAnyOfCleartextDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":33,
+                        "l":[
+                           "@verizon.com",
+                           "@verizon.net",
+                           "@aol.com"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"886ced9d"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"864b6202"
+      },
+      "stringNotEndsWithAnyOfDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":25,
+                        "l":[
+                           "12_295e66dc483034349bc6cffd14190ccff949ac1f34df5fbf01437b8162719b98",
+                           "12_11933417446186b92f63db5931a275f156485d0aef5ee8e265afb350921bd0b1",
+                           "8_aa181c1d9462e3916cb05669e2c408541edf03dad19a9655b340eb32ddd4d060"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"6eb0ec3a"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"7020bcd6"
+      },
       "stringNotEndsWithDogDefaultCat":{
          "t":1,
          "r":[
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":25,
                         "l":[
-                           "14_49b42d9d75638a99f6bea910fae5004a98b07f7b9a250d456fab17fcd64b7555"
+                           "14_141d3f398885dd06d6c14e6629602125d8cb0dddf2ef85896f682c74abb4bc28"
                         ]
                      }
                   }
@@ -731,17 +1201,103 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
          },
          "i":"91ba1bcb"
       },
+      "stringNotEqualsCleartextDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":29,
+                        "s":"b@configcat.com"
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"3ace20fb"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"09c9725f"
+      },
+      "stringNotStartsWithAnyOfCleartextDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":31,
+                        "l":[
+                           "u@",
+                           "a@",
+                           "b@"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"3717f2ca"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"1d661433"
+      },
+      "stringNotStartsWithAnyOfDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":23,
+                        "l":[
+                           "2_b0ab1063bba4431f95710a8bd9c9e2bcd1cebc09fe6803cf87ee501d045e8ee0",
+                           "2_9206a0a6b987410488c8020650788c597509af05aa5327f92cae1c999c401c34",
+                           "2_d8f5c200e2c54b0f84f7df024576f799f484d0e258c6058142a4993daa5e2998"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"b5ba025e"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"c35929e3"
+      },
       "stringNotStartsWithDogDefaultCat":{
          "t":1,
          "r":[
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":23,
                         "l":[
-                           "1_6dd5a8f4c2b9891bc90f633ecf187c692a12bfe2d234f93fc18c8c241522f315"
+                           "1_061a38ed8d5955d90b88d1b1949512a45032390a2581f3c7e36597f7459a48c7"
                         ]
                      }
                   }
@@ -759,17 +1315,77 @@ user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Dog;Ca
          },
          "i":"2b16da78"
       },
+      "stringStartsWithAnyOfCleartextDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":30,
+                        "l":[
+                           "u@",
+                           "a@",
+                           "b@"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"9e55f5cf"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"e170a185"
+      },
+      "stringStartsWithAnyOfDogDefaultCat":{
+         "t":1,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":22,
+                        "l":[
+                           "2_52f47d1a193071a304e41812055cc1282d90287e5c993ae159fa08fb1ccd3656",
+                           "2_6e5ae1bb586660088d330ac106bbf6b7f2b43be1ca70dbb766f203b76bc84049",
+                           "2_3edba8b738135ad32e85d8695acb8d8511ac67d83f50da55abd9ba469da88efe"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "s":"Dog"
+                  },
+                  "i":"1d9b7603"
+               }
+            }
+         ],
+         "v":{
+            "s":"Cat"
+         },
+         "i":"dd5b3211"
+      },
       "stringStartsWithDogDefaultCat":{
          "t":1,
          "r":[
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":22,
                         "l":[
-                           "1_7f42af44f507c0c4b2dc862e28faff00e02101cca9f632a76303efac25b5deb4"
+                           "1_55e0b0566d89dc0fda2323efcfb958c782a4648513bdcc4dc84b044fd34230dd"
                         ]
                      }
                   }

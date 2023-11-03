@@ -15,7 +15,7 @@ bryanw@verizon.net;bryanw@verizon.net;Hungary;;a0e56eda;d0dbc27f;30ba32b9;61a5a0
    "p":{
       "u":"https://cdn-global.configcat.com",
       "r":0,
-      "s":"Np54eMvkq3VOQXcY87pna2ReSVLV28tzosVse0QV02U="
+      "s":"w2mxWDHVP0tEZ3jgEie61YF\u002BWwbZgsfJgLZN7UoiTIU="
    },
    "f":{
       "boolean":{
@@ -24,7 +24,7 @@ bryanw@verizon.net;bryanw@verizon.net;Hungary;;a0e56eda;d0dbc27f;30ba32b9;61a5a0
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":2,
                         "l":[
@@ -68,7 +68,7 @@ bryanw@verizon.net;bryanw@verizon.net;Hungary;;a0e56eda;d0dbc27f;30ba32b9;61a5a0
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":2,
                         "l":[
@@ -87,11 +87,11 @@ bryanw@verizon.net;bryanw@verizon.net;Hungary;;a0e56eda;d0dbc27f;30ba32b9;61a5a0
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
-                        "c":16,
+                        "c":0,
                         "l":[
-                           "21fa563fecdf2f2afb57a5da7513f7786c0d1eff145061e6d2b031be7b881efa"
+                           "a@test.com"
                         ]
                      }
                   }
@@ -106,11 +106,11 @@ bryanw@verizon.net;bryanw@verizon.net;Hungary;;a0e56eda;d0dbc27f;30ba32b9;61a5a0
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
-                        "c":16,
+                        "c":0,
                         "l":[
-                           "a8f9ab3081aa9d8a2c3f62ad3c2f6c9123d9487e49558d6f7aafca7458eff60f"
+                           "b@test.com"
                         ]
                      }
                   }
@@ -150,7 +150,7 @@ bryanw@verizon.net;bryanw@verizon.net;Hungary;;a0e56eda;d0dbc27f;30ba32b9;61a5a0
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":2,
                         "l":[
@@ -169,7 +169,7 @@ bryanw@verizon.net;bryanw@verizon.net;Hungary;;a0e56eda;d0dbc27f;30ba32b9;61a5a0
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":2,
                         "l":[
@@ -213,7 +213,7 @@ bryanw@verizon.net;bryanw@verizon.net;Hungary;;a0e56eda;d0dbc27f;30ba32b9;61a5a0
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":2,
                         "l":[

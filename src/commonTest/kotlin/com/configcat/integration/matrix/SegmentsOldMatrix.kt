@@ -1,16 +1,20 @@
-package com.configcat.evaluation.data
+package com.configcat.integration.matrix
 
-import com.configcat.ConfigCatUser
-
-object SegmenTests : TestSet {
-    override val sdkKey = "PKDVCLf-Hq-h-kCzMp-L7Q/LcYz135LE0qbcacz2mgXnA"
-    override val baseUrl = null
-    override val jsonOverride = """
-        {
+object SegmentsOldMatrix : DataMatrix {
+    override val sdkKey: String = "configcat-sdk-1/PKDVCLf-Hq-h-kCzMp-L7Q/y_ZB7o-Xb0Swxth-ZlMSeA"
+    override val data =
+        """Identifier;Email;Country;Custom1;featureWithSegmentTargeting;featureWithSegmentTargetingCleartext;featureWithNegatedSegmentTargeting;featureWithNegatedSegmentTargetingCleartext;featureWithSegmentTargetingInverse;featureWithSegmentTargetingInverseCleartext;featureWithNegatedSegmentTargetingInverse;featureWithNegatedSegmentTargetingInverseCleartext
+##null##;;;;False;False;False;False;False;False;False;False
+;;;;False;False;False;False;False;False;False;False
+john@example.com;john@example.com;##null##;##null##;True;True;False;False;False;False;True;True
+jane@example.com;jane@example.com;##null##;##null##;True;True;False;False;False;False;True;True
+kate@example.com;kate@example.com;##null##;##null##;False;False;True;True;True;True;False;False"""
+    override val remoteJson =
+        """{
    "p":{
       "u":"https://cdn-global.configcat.com",
       "r":0,
-      "s":"pcSzZQD8WkpdKh3yPrNEP59NFwaTJL8zpJT\u002BZLGXg0I="
+      "s":"cRPeZoMoPj/uTPnoDiZhJgUCI4WxJs1P65fNbntr8mY="
    },
    "s":[
       {
@@ -20,8 +24,8 @@ object SegmenTests : TestSet {
                "a":"Email",
                "c":16,
                "l":[
-                  "fa3cdb141100ce17f451b5c1f40791c5bff2f8c0aad6eb619f5a241a1db55c03",
-                  "674ca8527bbb4b18e11777ce5231b5234d77f44db53354eb207ed17b35d027be"
+                  "b2cde2e3316460a5c0d546b1c31d21d5d1329c559beeeeb2f0adef94db24424b",
+                  "e59c6e957433ec7599bb4a53124d2bee8aabf2f05dd3e89aadd993818783b903"
                ]
             }
          ]
@@ -46,8 +50,8 @@ object SegmenTests : TestSet {
                "a":"Email",
                "c":17,
                "l":[
-                  "92aac7bb90b0313927597bf6fbea4cebb5ee4830ca1ec51c406052ef414af11a",
-                  "bfde309625ce6d3259d3e3956e271899a51fa23de369803e50746f3e3d20de55"
+                  "1b0852fa4eb5f205bbb19909c7c6ac6ca809831b14a83ccf3423c247ce429538",
+                  "0fa7e84503164cac123153185e9522af87c178e00e4d2b16c2213e526372fdc3"
                ]
             }
          ]
@@ -268,73 +272,5 @@ object SegmenTests : TestSet {
          "i":"6a3224de"
       }
    }
-}
-    """.trimIndent()
-    override val tests: Array<TestCase> = arrayOf(
-        TestCase(
-            key = "featureWithSegmentTargeting",
-            defaultValue = false,
-            returnValue = false,
-            user = null,
-            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'featureWithSegmentTargeting' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()`/`getValueAsync()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
-INFO [5000] Evaluating 'featureWithSegmentTargeting'
-  Evaluating targeting rules and applying the first match if any:
-  - IF User IS IN SEGMENT 'Beta users' THEN 'true' => cannot evaluate, User Object is missing
-    The current targeting rule is ignored and the evaluation continues with the next rule.
-  Returning 'false'."""
-        ),
-        TestCase(
-            key = "featureWithSegmentTargeting",
-            defaultValue = false,
-            returnValue = true,
-            user = ConfigCatUser("12345", "jane@example.com"),
-            expectedLog = """INFO [5000] Evaluating 'featureWithSegmentTargeting' for User '{"Identifier":"12345","Email":"jane@example.com"}'
-  Evaluating targeting rules and applying the first match if any:
-  - IF User IS IN SEGMENT 'Beta users'
-    (
-      Evaluating segment 'Beta users':
-      - IF User.Email IS ONE OF [<2 hashed values>] => true
-      Segment evaluation result: User IS IN SEGMENT.
-      Condition (User IS IN SEGMENT 'Beta users') evaluates to true.
-    )
-    THEN 'true' => MATCH, applying rule
-  Returning 'true'."""
-        ),
-        TestCase(
-            key = "featureWithNegatedSegmentTargeting",
-            defaultValue = false,
-            returnValue = false,
-            user = ConfigCatUser("12345", "jane@example.com"),
-            expectedLog = """INFO [5000] Evaluating 'featureWithNegatedSegmentTargeting' for User '{"Identifier":"12345","Email":"jane@example.com"}'
-  Evaluating targeting rules and applying the first match if any:
-  - IF User IS NOT IN SEGMENT 'Beta users'
-    (
-      Evaluating segment 'Beta users':
-      - IF User.Email IS ONE OF [<2 hashed values>] => true
-      Segment evaluation result: User IS IN SEGMENT.
-      Condition (User IS NOT IN SEGMENT 'Beta users') evaluates to false.
-    )
-    THEN 'true' => no match
-  Returning 'false'."""
-        ),
-        TestCase(
-            key = "featureWithNegatedSegmentTargetingCleartext",
-            defaultValue = false,
-            returnValue = false,
-            user = ConfigCatUser("12345"),
-            expectedLog = """WARNING [3003] Cannot evaluate condition (User.Email IS ONE OF ['jane@example.com', 'john@example.com']) for setting 'featureWithNegatedSegmentTargetingCleartext' (the User.Email attribute is missing). You should set the User.Email attribute in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
-INFO [5000] Evaluating 'featureWithNegatedSegmentTargetingCleartext' for User '{"Identifier":"12345"}'
-  Evaluating targeting rules and applying the first match if any:
-  - IF User IS NOT IN SEGMENT 'Beta users (cleartext)'
-    (
-      Evaluating segment 'Beta users (cleartext)':
-      - IF User.Email IS ONE OF ['jane@example.com', 'john@example.com'] => false, skipping the remaining AND conditions
-      Segment evaluation result: cannot evaluate, the User.Email attribute is missing.
-      Condition (User IS NOT IN SEGMENT 'Beta users (cleartext)') failed to evaluate.
-    )
-    THEN 'true' => cannot evaluate, the User.Email attribute is missing
-    The current targeting rule is ignored and the evaluation continues with the next rule.
-  Returning 'false'."""
-        )
-    )
+}"""
 }

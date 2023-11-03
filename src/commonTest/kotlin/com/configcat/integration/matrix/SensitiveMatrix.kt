@@ -15,7 +15,7 @@ Macska;;USA;;ToAll;Ireland"""
    "p":{
       "u":"https://cdn-global.configcat.com",
       "r":0,
-      "s":"I2FkyvPEzQ9r75UCw+FdU01xjJYVIJb38tgsZmG5AGA="
+      "s":"pgy7CictnJJD59UhungIc\u002BGSmms7YMn2krC9qrLpSiQ="
    },
    "f":{
       "isNotOneOfSensitive":{
@@ -24,12 +24,12 @@ Macska;;USA;;ToAll;Ireland"""
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Identifier",
                         "c":17,
                         "l":[
-                           "a8c0939a47609567f4392149dd4ab3d72ce53d0de56c332c5f74140e1792ba26",
-                           "9b19358c2e57fd77d23a688cdd4a275ff343ff9edcf4b337d96be53914fbb3c2"
+                           "ca3331a482e27456ea7d7bd0945e3ae4234b75364633472c228015e793d0f816",
+                           "dafe3c25703e720bdb610a3a8f09e7ee4d551b076344cadf9d2128c57e06fa6b"
                         ]
                      }
                   }
@@ -44,12 +44,12 @@ Macska;;USA;;ToAll;Ireland"""
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":17,
                         "l":[
-                           "69ee20b3dec70790b51ba750f7449795df9d8a259fb8fc849bed3d7943fdc427",
-                           "7e073415b9921ddc9b992e02e54555198e4e810cf6c672400f372df1c90aa4e7"
+                           "7a3045eee9d4622a44a3e325eae48efefd75a3a308a523d7b52396b9598ab89a",
+                           "f798e73a624d528559710c88c69e0cb95a08fc0c7d05b856fc92d19213ac7f78"
                         ]
                      }
                   }
@@ -64,13 +64,13 @@ Macska;;USA;;ToAll;Ireland"""
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Country",
                         "c":17,
                         "l":[
-                           "03e9092eae3fa4b247d2ebfae0f36413ae20eb4c0911af544cdb51c90b12415c",
-                           "41393456105d6dee2d568bd4ebab7c15cbe272b3868ba4657b5d3a5dfa3d1333",
-                           "c4c9d439346e8d1e3d66c15773d0d9e22066bc42a3ebb4ceb9eb3be4b97815e9"
+                           "00a23f647669f35d157a7fd6c0547ea856d90c44175316dd131e9f6fda1a2e77",
+                           "c62b92619bab9ef8de62fc5ee1ce061f026646098bb92ef184970c88a3b17179",
+                           "d6d3219369c112509674c1ba8905802a40b8d4b40298dfc617f3b4f86634b391"
                         ]
                      }
                   }
@@ -94,11 +94,11 @@ Macska;;USA;;ToAll;Ireland"""
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Email",
                         "c":16,
                         "l":[
-                           "a40a9a817d132cc6ba86de6d1541e78d2d3cedf2a0e20653e0e4b4005be80e40"
+                           "8592127ea4120babddd53ba4462b896a3a9e451f64896aa890a9a7ce2d271515"
                         ]
                      }
                   }
@@ -113,12 +113,12 @@ Macska;;USA;;ToAll;Ireland"""
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Identifier",
                         "c":16,
                         "l":[
-                           "d38b18fe82a45f957c0fc2613d99c0b2ce6d7cb941488ea01260078a8a9e7351",
-                           "f0989c27eed313f4b997b6538ccd37747fcfc723d4e3ad8b1fa1c073bf275c0c"
+                           "2b3e892bd9af98af5c91d8ab403c0babc4745b7e0668f331a6a16c7087796fdb",
+                           "6667c8a52e00103fff2b701e635a6c6b3c78b31123e46aa275ca1ee36b7b3544"
                         ]
                      }
                   }
@@ -133,13 +133,13 @@ Macska;;USA;;ToAll;Ireland"""
             {
                "c":[
                   {
-                     "t":{
+                     "u":{
                         "a":"Country",
                         "c":16,
                         "l":[
-                           "a17a51c350757c1899b62103dc010623e155d7669562b5f44dbd2b8066c3a02c",
-                           "62adef8b90fecb3fb5d795651b538e72424648c9290a1f22bf29376f4f91169d",
-                           "8f2d8040ac60fa09938257d21e5b80cf49bab80c856a47a94f9ef2864d5fb2cc"
+                           "892e9b4091539ee5485d3ee05b7d0d51360258dee4b264833ec84f0a1abab074",
+                           "493f32ed8aec79c0faf2dccfd76ab54596a746694b35de707b3b5e6498bf97a7",
+                           "808b3f5fae63871c12ca51f325c44c63c33f394ceb1fc3f6e877b907bcf19ff9"
                         ]
                      }
                   }

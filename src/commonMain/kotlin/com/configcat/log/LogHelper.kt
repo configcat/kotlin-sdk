@@ -78,10 +78,18 @@ internal object LogHelper {
     fun formatUserCondition(userCondition: UserCondition): String {
         val userComparator = userCondition.comparator.toComparatorOrNull()
         val comparisonValue: String = when (userComparator) {
+            Evaluator.Comparator.IS_ONE_OF,
+            Evaluator.Comparator.IS_NOT_ONE_OF,
             Evaluator.Comparator.CONTAINS_ANY_OF,
             Evaluator.Comparator.NOT_CONTAINS_ANY_OF,
             Evaluator.Comparator.ONE_OF_SEMVER,
-            Evaluator.Comparator.NOT_ONE_OF_SEMVER -> formatStringListComparisonValue(
+            Evaluator.Comparator.NOT_ONE_OF_SEMVER,
+            Evaluator.Comparator.TEXT_STARTS_WITH,
+            Evaluator.Comparator.TEXT_NOT_STARTS_WITH,
+            Evaluator.Comparator.TEXT_ENDS_WITH,
+            Evaluator.Comparator.TEXT_NOT_ENDS_WITH,
+            Evaluator.Comparator.TEXT_ARRAY_CONTAINS,
+            Evaluator.Comparator.TEXT_ARRAY_NOT_CONTAINS -> formatStringListComparisonValue(
                 userCondition.stringArrayValue,
                 false
             )
@@ -89,7 +97,9 @@ internal object LogHelper {
             Evaluator.Comparator.LT_SEMVER,
             Evaluator.Comparator.LTE_SEMVER,
             Evaluator.Comparator.GT_SEMVER,
-            Evaluator.Comparator.GTE_SEMVER -> formatStringComparisonValue(
+            Evaluator.Comparator.GTE_SEMVER,
+            Evaluator.Comparator.TEXT_EQUALS,
+            Evaluator.Comparator.TEXT_NOT_EQUALS -> formatStringComparisonValue(
                 userCondition.stringValue,
                 false
             )
