@@ -12,6 +12,7 @@ import com.soywiz.krypto.sha256
 import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
+import io.ktor.utils.io.charsets.*
 import kotlinx.serialization.decodeFromString
 
 internal data class EvaluationResult(
@@ -738,6 +739,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         comparator: Comparator
     ): Boolean {
         val withValuesSplit = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
+        val userValueUTF8 = userValue.encodeToByteArray()
         var matchCondition = false
         for (comparisonValueHashedStartsEnds in withValuesSplit) {
             try {
@@ -746,7 +748,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                     "Comparison value is missing or invalid."
                 }
                 val comparedTextLengthInt: Int = comparedTextLength.toInt()
-                if (userValue.length < comparedTextLengthInt) {
+                if (userValueUTF8.size < comparedTextLengthInt) {
                     continue
                 }
                 val comparisonHashValue = comparisonValueHashedStartsEnds.substringAfterLast("_")
@@ -755,14 +757,14 @@ internal class Evaluator(private val logger: InternalLogger) {
                     if (comparator == Comparator.HASHED_STARTS_WITH ||
                         comparator == Comparator.HASHED_NOT_STARTS_WITH
                     ) {
-                        getSaltedUserValue(userValue.substring(0, comparedTextLengthInt), configSalt, contextSalt)
+                        val userValueSlice = userValueUTF8.copyOfRange(0, comparedTextLengthInt).decodeToString()
+                        getSaltedUserValue(userValueSlice, configSalt, contextSalt)
                     } else {
                         // Comparator.HASHED_ENDS_WITH, Comparator.HASHED_NOT_ENDS_WITH
-                        getSaltedUserValue(
-                            userValue.substring(userValue.length - comparedTextLengthInt),
-                            configSalt,
-                            contextSalt
-                        )
+                        val userValueSlice =
+                            userValueUTF8.copyOfRange(userValueUTF8.size - comparedTextLengthInt, userValueUTF8.size)
+                                .decodeToString()
+                        getSaltedUserValue(userValueSlice, configSalt, contextSalt)
                     }
                 if (userValueHashed == comparisonHashValue) {
                     matchCondition = true
