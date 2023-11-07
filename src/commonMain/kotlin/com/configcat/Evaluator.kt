@@ -558,7 +558,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                 @Suppress("SwallowedException")
                 return try {
                     val userArrayValue: Array<String> = Constants.json.decodeFromString(userValue)
-                    return processHashedArrayContainsCompare(
+                    processHashedArrayContainsCompare(
                         condition,
                         userArrayValue,
                         configSalt,

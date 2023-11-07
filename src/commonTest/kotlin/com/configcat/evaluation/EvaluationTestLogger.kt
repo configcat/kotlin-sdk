@@ -34,7 +34,6 @@ class EvaluationTestLogger : Logger {
 
     private fun logMessage(message: String, logLevel: LogLevel) {
         logList.add(LogEvent(logLevel, message))
-        println(message)
     }
 
     fun getLogList(): List<LogEvent> {

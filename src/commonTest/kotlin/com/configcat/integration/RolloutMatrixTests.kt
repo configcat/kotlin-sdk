@@ -4,6 +4,7 @@ import com.configcat.ConfigCatClient
 import com.configcat.ConfigCatUser
 import com.configcat.getValueDetails
 import com.configcat.integration.matrix.*
+import com.configcat.log.LogLevel
 import com.configcat.manualPoll
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
@@ -87,6 +88,7 @@ class RolloutMatrixTests {
         val client = ConfigCatClient(matrix.sdkKey) {
             pollingMode = manualPoll()
             httpEngine = mockEngine
+            logLevel = LogLevel.ERROR
         }
         client.forceRefresh()
 
