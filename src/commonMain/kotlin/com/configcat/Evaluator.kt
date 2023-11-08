@@ -116,7 +116,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             var error: String? = null
             try {
                 evaluateConditionsResult = evaluateConditions(
-                    (rule.conditions ?: arrayOf()) as Array<Any>,
+                    rule.conditionAccessors,
                     rule,
                     setting.configSalt,
                     context.key,
@@ -162,7 +162,7 @@ internal class Evaluator(private val logger: InternalLogger) {
 
     @Suppress("NestedBlockDepth", "CyclomaticComplexMethod", "LongMethod", "LongParameterList")
     private fun evaluateConditions(
-        conditions: Array<Any>,
+        conditions: List<ConditionAccessor>,
         targetingRule: TargetingRule?,
         configSalt: String,
         contextSalt: String,
@@ -170,28 +170,27 @@ internal class Evaluator(private val logger: InternalLogger) {
         segments: Array<Segment>,
         evaluateLogger: EvaluateLogger?
     ): Boolean {
-        // Conditions are ANDs so if One is not matching return false, if all matching return true
-        var firstConditionFlag = true
         var conditionsEvaluationResult = false
         var error: String? = null
         var newLine = false
-        for (i in conditions.indices) {
-            val rawCondition = conditions.get(i)
-            if (firstConditionFlag) {
-                firstConditionFlag = false
-                evaluateLogger?.newLine()
-                evaluateLogger?.append("- IF ")
-                evaluateLogger?.increaseIndentLevel()
-            } else {
-                evaluateLogger?.increaseIndentLevel()
-                evaluateLogger?.newLine()
-                evaluateLogger?.append("AND ")
+        for ((index, condition) in conditions.withIndex()) {
+            when (index) {
+                0 -> {
+                    evaluateLogger?.newLine()
+                    evaluateLogger?.append("- IF ")
+                    evaluateLogger?.increaseIndentLevel()
+                }
+                else -> {
+                    evaluateLogger?.increaseIndentLevel()
+                    evaluateLogger?.newLine()
+                    evaluateLogger?.append("AND ")
+                }
             }
 
-            if (targetingRule == null) {
+            condition.userCondition?.let { userCondition ->
                 try {
                     conditionsEvaluationResult = evaluateUserCondition(
-                        rawCondition as UserCondition,
+                        userCondition,
                         configSalt,
                         context,
                         contextSalt,
@@ -202,50 +201,38 @@ internal class Evaluator(private val logger: InternalLogger) {
                     conditionsEvaluationResult = false
                 }
                 newLine = conditions.size > 1
-            } else {
-                val condition = rawCondition as Condition
-                if (condition.userCondition != null) {
-                    try {
-                        conditionsEvaluationResult = evaluateUserCondition(
-                            condition.userCondition,
-                            configSalt,
-                            context,
-                            context.key,
-                            evaluateLogger
-                        )
-                    } catch (evaluatorException: RolloutEvaluatorException) {
-                        error = evaluatorException.message
-                        conditionsEvaluationResult = false
-                    }
-                    newLine = conditions.size > 1
-                } else if (condition.segmentCondition != null) {
-                    try {
-                        conditionsEvaluationResult = evaluateSegmentCondition(
-                            condition.segmentCondition,
-                            context,
-                            configSalt,
-                            segments,
-                            evaluateLogger
-                        )
-                    } catch (evaluatorException: RolloutEvaluatorException) {
-                        error = evaluatorException.message
-                        conditionsEvaluationResult = false
-                    }
-                    newLine = error == null || USER_OBJECT_IS_MISSING != error || conditions.size > 1
-                } else if (condition.prerequisiteFlagCondition != null) {
-                    try {
-                        conditionsEvaluationResult = evaluatePrerequisiteFlagCondition(
-                            condition.prerequisiteFlagCondition,
-                            context,
-                            evaluateLogger
-                        )
-                    } catch (evaluatorException: RolloutEvaluatorException) {
-                        error = evaluatorException.message
-                        conditionsEvaluationResult = false
-                    }
-                    newLine = error == null || conditions.size > 1
-                }
             }
+
+            condition.segmentCondition?.let { segmentCondition ->
+                try {
+                    conditionsEvaluationResult = evaluateSegmentCondition(
+                        segmentCondition,
+                        context,
+                        configSalt,
+                        segments,
+                        evaluateLogger
+                    )
+                } catch (evaluatorException: RolloutEvaluatorException) {
+                    error = evaluatorException.message
+                    conditionsEvaluationResult = false
+                }
+                newLine = error == null || USER_OBJECT_IS_MISSING != error || conditions.size > 1
+            }
+
+            condition.prerequisiteFlagCondition?.let { prerequisiteCondition ->
+                try {
+                    conditionsEvaluationResult = evaluatePrerequisiteFlagCondition(
+                        prerequisiteCondition,
+                        context,
+                        evaluateLogger
+                    )
+                } catch (evaluatorException: RolloutEvaluatorException) {
+                    error = evaluatorException.message
+                    conditionsEvaluationResult = false
+                }
+                newLine = error == null || conditions.size > 1
+            }
+
             if (targetingRule == null || conditions.size > 1) {
                 evaluateLogger?.logConditionConsequence(conditionsEvaluationResult)
             }
@@ -254,10 +241,10 @@ internal class Evaluator(private val logger: InternalLogger) {
                 break
             }
         }
-        if (targetingRule != null) {
+        targetingRule?.let {
             evaluateLogger?.logTargetingRuleConsequence(targetingRule, error, conditionsEvaluationResult, newLine)
         }
-        if (error != null) {
+        error?.let {
             throw RolloutEvaluatorException(error)
         }
         return conditionsEvaluationResult
@@ -296,7 +283,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         @Suppress("SwallowedException")
         try {
             val segmentRulesResult = evaluateConditions(
-                segment.segmentRules as Array<Any>,
+                segment.conditionAccessors,
                 null,
                 configSalt,
                 segmentName,
@@ -332,10 +319,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         require(!prerequisiteFlagKey.isNullOrEmpty() && prerequisiteFlagSetting != null) {
             "Prerequisite flag key is missing or invalid."
         }
-        var visitedKeys: ArrayList<String>? = context.visitedKeys
-        if (visitedKeys == null) {
-            visitedKeys = ArrayList()
-        }
+        val visitedKeys: ArrayList<String> = context.visitedKeys ?: ArrayList()
         visitedKeys.add(context.key)
         if (visitedKeys.contains(prerequisiteFlagKey)) {
             val dependencyCycle: String =

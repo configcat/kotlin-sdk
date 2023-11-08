@@ -34,6 +34,8 @@ public data class UserCondition(
      */
     @SerialName("l")
     val stringArrayValue: Array<String>? = null
-) {
-    // No implementation
+) : ConditionAccessor {
+    override val userCondition: UserCondition = this
+    override val segmentCondition: SegmentCondition? = null
+    override val prerequisiteFlagCondition: PrerequisiteFlagCondition? = null
 }

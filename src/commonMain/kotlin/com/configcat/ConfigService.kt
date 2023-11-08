@@ -24,7 +24,7 @@ internal data class SettingResult(val settings: Map<String, Setting>?, val fetch
     }
 }
 
-internal class ConfigService constructor(
+internal class ConfigService(
     private val options: ConfigCatOptions,
     private val configFetcher: ConfigFetcher,
     private val logger: InternalLogger,

@@ -1,9 +1,7 @@
 package com.configcat
 
-import com.configcat.model.FlagValueSerializer
 import com.soywiz.klock.DateTime
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
 
 internal interface Closeable {
     fun close()
@@ -23,8 +21,5 @@ internal object Constants {
     val distantFuture = DateTime.now().add(10_000, 0.0)
     val json = Json {
         ignoreUnknownKeys = true
-        serializersModule = SerializersModule {
-            contextual(Any::class, FlagValueSerializer)
-        }
     }
 }

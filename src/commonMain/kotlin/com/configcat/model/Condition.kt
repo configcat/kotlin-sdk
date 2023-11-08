@@ -9,11 +9,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 public data class Condition(
     @SerialName(value = "u")
-    val userCondition: UserCondition? = null,
+    override val userCondition: UserCondition? = null,
     @SerialName(value = "s")
-    val segmentCondition: SegmentCondition? = null,
+    override val segmentCondition: SegmentCondition? = null,
     @SerialName(value = "p")
-    val prerequisiteFlagCondition: PrerequisiteFlagCondition? = null
-) {
-    // No implementation
-}
+    override val prerequisiteFlagCondition: PrerequisiteFlagCondition? = null
+) : ConditionAccessor

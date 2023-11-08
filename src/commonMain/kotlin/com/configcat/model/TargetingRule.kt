@@ -26,7 +26,7 @@ public data class TargetingRule(
     @SerialName(value = "s")
     val servedValue: ServedValue? = null
 ) {
-    // No implementation
+    internal val conditionAccessors: List<ConditionAccessor> = conditions?.let { condition -> condition.map { it } } ?: listOf()
 }
 
 @Serializable

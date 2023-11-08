@@ -19,5 +19,5 @@ internal data class Segment(
     @SerialName("r")
     val segmentRules: Array<UserCondition>
 ) {
-    // No implementation
+    internal val conditionAccessors: List<ConditionAccessor> = segmentRules.let { condition -> condition.map { it } }
 }
