@@ -1,6 +1,9 @@
 package com.configcat.model
 
-internal interface ConditionAccessor {
+import kotlinx.serialization.Serializable
+
+@Serializable
+internal sealed interface ConditionAccessor {
     val userCondition: UserCondition?
     val segmentCondition: SegmentCondition?
     val prerequisiteFlagCondition: PrerequisiteFlagCondition?

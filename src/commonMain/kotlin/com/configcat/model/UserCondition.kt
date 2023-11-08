@@ -2,6 +2,7 @@ package com.configcat.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 /**
  * User Condition.
@@ -35,7 +36,12 @@ public data class UserCondition(
     @SerialName("l")
     val stringArrayValue: Array<String>? = null
 ) : ConditionAccessor {
+    @Transient
     override val userCondition: UserCondition = this
+
+    @Transient
     override val segmentCondition: SegmentCondition? = null
+
+    @Transient
     override val prerequisiteFlagCondition: PrerequisiteFlagCondition? = null
 }
