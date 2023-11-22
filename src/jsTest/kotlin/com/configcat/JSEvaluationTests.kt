@@ -81,7 +81,6 @@ class JSEvaluationTests {
             evaluationTestLogger.resetLogList()
         }
         if (errors.isNotEmpty()) {
-            println("\n == ERRORS == \n")
             fail(errors.joinToString("\n"))
         }
         client.close()
