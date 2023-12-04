@@ -1,6 +1,5 @@
 package com.configcat.log
 
-import com.configcat.model.PrerequisiteFlagCondition
 import com.configcat.model.UserCondition
 
 @Suppress("TooManyFunctions")
@@ -104,6 +103,35 @@ internal object ConfigCatLogMessages {
             ", ",
             transform = { availableKey -> "'$availableKey'" }
         ) + "]."
+    }
+
+    /**
+     * Log message for Setting Evaluation errors when the method returns with empty value. The log eventId is 1002.
+     *
+     * @param methodName  The method name where the error is logged.
+     * @param emptyResult The empty result.
+     * @return The formatted error message.
+     */
+    fun getSettingEvaluationErrorWithEmptyValue(methodName: String, emptyResult: String): String {
+        return "Error occurred in the `$methodName` method. Returning $emptyResult."
+    }
+
+    /**
+     * Log message for Setting Evaluation errors when the method returns with default value. The log eventId is 1002.
+     *
+     * @param methodName        The method name where the error is logged.
+     * @param key               The feature flag key.
+     * @param defaultParamName  The default parameter name.
+     * @param defaultParamValue The default parameter value.
+     * @return The formatted error message.
+     */
+    fun getSettingEvaluationErrorWithDefaultValue(
+        methodName: String,
+        key: String,
+        defaultParamName: String,
+        defaultParamValue: Any
+    ): String {
+        return "Error occurred in the `$methodName` method while evaluating setting '$key'. Returning the `$defaultParamName` parameter that you specified in your application: '$defaultParamValue'."
     }
 
     /**
@@ -217,21 +245,21 @@ internal object ConfigCatLogMessages {
     }
 
     /**
-     * Log message for User Attribute is invalid warning. The log eventId 3004.
+     * Log message for User Attribute value is automatically converted warning. The log eventId 3005.
      *
-     * @param key The feature flag setting key.
-     * @param prerequisiteFlagCondition The condition where the circularity is detected.
-     * @param dependencyCycle The dependency cycle.
+     * @param key            The feature flag setting key.
+     * @param userCondition  The condition where the circularity is detected.
+     * @param attributeName  The user attribute name.
+     * @param attributeValue The user attribute value.
      * @return The formatted warn message.
      */
-    fun getCircularDependencyDetected(
+    fun getUserObjectAttributeIsAutoConverted(
         key: String,
-        prerequisiteFlagCondition: PrerequisiteFlagCondition,
-        dependencyCycle: String
+        userCondition: UserCondition,
+        attributeName: String,
+        attributeValue: String
     ): String {
-        return "Cannot evaluate condition (${LogHelper.formatPrerequisiteFlagCondition(prerequisiteFlagCondition)}) " +
-            "for setting '$key' (circular dependency detected between the following depending flags: " +
-            "$dependencyCycle). Please check your feature flag definition and eliminate the circular dependency."
+        return "Evaluation of condition (${LogHelper.formatUserCondition(userCondition)}) for setting '$key' may not produce the expected result (the User.$attributeName attribute is not a string value, thus it was automatically converted to the string value '$attributeValue'). Please make sure that using a non-string value was intended."
     }
 
     /**

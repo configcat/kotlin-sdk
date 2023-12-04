@@ -16,11 +16,11 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-internal data class SettingResult(val settings: Map<String, Setting>?, val fetchTime: DateTime) {
+internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: DateTime) {
     fun isEmpty(): Boolean = this === empty
 
     companion object {
-        val empty: SettingResult = SettingResult(null, Constants.distantPast)
+        val empty: SettingResult = SettingResult(emptyMap(), Constants.distantPast)
     }
 }
 
@@ -64,7 +64,7 @@ internal class ConfigService(
                 if (result.first.isEmpty()) {
                     SettingResult.empty
                 } else {
-                    SettingResult(result.first.config.settings, result.first.fetchTime)
+                    SettingResult(result.first.config.settings ?: emptyMap(), result.first.fetchTime)
                 }
             }
 
@@ -73,7 +73,7 @@ internal class ConfigService(
                 if (result.first.isEmpty()) {
                     SettingResult.empty
                 } else {
-                    SettingResult(result.first.config.settings, result.first.fetchTime)
+                    SettingResult(result.first.config.settings ?: emptyMap(), result.first.fetchTime)
                 }
             }
         }
@@ -220,6 +220,7 @@ internal class ConfigService(
             cachedJsonString = cached
             Entry.fromString(cached)
         } catch (e: Exception) {
+            println(cachedJsonString)
             logger.error(2200, ConfigCatLogMessages.CONFIG_SERVICE_CACHE_READ_ERROR, e)
             Entry.empty
         }

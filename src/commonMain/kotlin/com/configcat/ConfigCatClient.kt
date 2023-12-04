@@ -196,6 +196,19 @@ public fun ConfigCatClient(
     block: ConfigCatOptions.() -> Unit = {}
 ): ConfigCatClient = Client.get(sdkKey, block)
 
+@PublishedApi
+internal inline fun <reified T : Any> validateValueType(value: Any): T {
+    if (value !is T) {
+        throw IllegalArgumentException(
+            "The type of a setting must match the type of the setting's default value. " +
+                "Setting's type was {" + value::class.toString() + "} but the default value's type was {" + T::class.toString() + "}. " +
+                "Please use a default value which corresponds to the setting type {" + value::class.toString() + "}." +
+                "Learn more: https://configcat.com/docs/sdk-reference/dotnet/#setting-type-mapping"
+        )
+    }
+    return value
+}
+
 /**
  * Gets the value of a feature flag or setting as [T] identified by the given [key].
  * In case of any failure, [defaultValue] will be returned. The [user] param identifies the caller.
@@ -204,7 +217,10 @@ public suspend inline fun <reified T : Any> ConfigCatClient.getValue(
     key: String,
     defaultValue: T,
     user: ConfigCatUser? = null
-): T = this.getAnyValue(key, defaultValue, user) as? T ?: defaultValue
+): T {
+    val anyValue = this.getAnyValue(key, defaultValue, user)
+    return validateValueType(anyValue)
+}
 
 /**
  * Gets the value and evaluation details of a feature flag or setting identified by the given [key].
@@ -263,29 +279,50 @@ internal class Client private constructor(
     override suspend fun getAnyValue(key: String, defaultValue: Any, user: ConfigCatUser?): Any {
         val settingResult = getSettings()
         val evalUser = user ?: defaultUser
-        val checkSettingAvailableMessage = checkSettingAvailable(settingResult, key, defaultValue)
-        if (checkSettingAvailableMessage != null) {
-            val details = EvaluationDetails.makeError(key, defaultValue, checkSettingAvailableMessage, evalUser)
+        val checkSettingAvailable = checkSettingAvailable(settingResult, key, defaultValue)
+        val setting = checkSettingAvailable.second
+        if (setting == null) {
+            val details = EvaluationDetails.makeError(key, defaultValue, checkSettingAvailable.first, evalUser)
             hooks.invokeOnFlagEvaluated(details)
             return defaultValue
         }
-        val setting = settingResult.settings?.get(key)
-
-        return evaluate(setting!!, key, evalUser, settingResult.fetchTime, settingResult.settings).value
+        return try {
+            evaluate(setting, key, evalUser, settingResult.fetchTime, settingResult.settings).value
+        } catch (exception: Exception) {
+            val errorMessage = ConfigCatLogMessages.getSettingEvaluationErrorWithDefaultValue(
+                "getAnyValue",
+                key,
+                "defaultValue",
+                defaultValue
+            )
+            logger.error(1002, errorMessage, exception)
+            defaultValue
+        }
     }
 
     override suspend fun getAnyValueDetails(key: String, defaultValue: Any, user: ConfigCatUser?): EvaluationDetails {
         val settingResult = getSettings()
         val evalUser = user ?: defaultUser
-        val checkSettingAvailableMessage = checkSettingAvailable(settingResult, key, defaultValue)
-        if (checkSettingAvailableMessage != null) {
-            val details = EvaluationDetails.makeError(key, defaultValue, checkSettingAvailableMessage, evalUser)
+
+        val checkSettingAvailable = checkSettingAvailable(settingResult, key, defaultValue)
+        val setting = checkSettingAvailable.second
+        if (setting == null) {
+            val details = EvaluationDetails.makeError(key, defaultValue, checkSettingAvailable.first, evalUser)
             hooks.invokeOnFlagEvaluated(details)
             return details
         }
-        val setting = settingResult.settings?.get(key)
-
-        return evaluate(setting!!, key, evalUser, settingResult.fetchTime, settingResult.settings)
+        return try {
+            evaluate(setting, key, evalUser, settingResult.fetchTime, settingResult.settings)
+        } catch (exception: Exception) {
+            val errorMessage = ConfigCatLogMessages.getSettingEvaluationErrorWithDefaultValue(
+                "getAnyValueDetails",
+                key,
+                "defaultValue",
+                defaultValue
+            )
+            logger.error(1002, errorMessage, exception)
+            EvaluationDetails.makeError(key, defaultValue, exception.message ?: "", evalUser)
+        }
     }
 
     override suspend fun getAllValueDetails(user: ConfigCatUser?): Collection<EvaluationDetails> {
@@ -293,9 +330,16 @@ internal class Client private constructor(
         if (!checkSettingsAvailable(settingResult, "empty list")) {
             return emptyList()
         }
-        return settingResult.settings?.map {
-            evaluate(it.value, it.key, user ?: defaultUser, settingResult.fetchTime, settingResult.settings)
-        } ?: emptyList()
+        return try {
+            settingResult.settings.map {
+                evaluate(it.value, it.key, user ?: defaultUser, settingResult.fetchTime, settingResult.settings)
+            }
+        } catch (exception: Exception) {
+            val errorMessage =
+                ConfigCatLogMessages.getSettingEvaluationErrorWithEmptyValue("getAllValueDetails", "empty list")
+            logger.error(1002, errorMessage, exception)
+            emptyList()
+        }
     }
 
     override suspend fun getKeyAndValue(variationId: String): Pair<String, Any>? {
@@ -303,7 +347,7 @@ internal class Client private constructor(
         if (!checkSettingsAvailable(settingResult, "null")) {
             return null
         }
-        val settings = settingResult.settings ?: emptyMap()
+        val settings = settingResult.settings
         for (setting in settings) {
             if (setting.value.variationId == variationId) {
                 return Pair(setting.key, parseSettingValue(setting.value.settingsValue, setting.value.type))
@@ -328,7 +372,7 @@ internal class Client private constructor(
         if (!checkSettingsAvailable(settingResult, "empty array")) {
             return emptyList()
         }
-        return settingResult.settings?.keys ?: emptyList()
+        return settingResult.settings.keys
     }
 
     override suspend fun getAllValues(user: ConfigCatUser?): Map<String, Any> {
@@ -336,11 +380,17 @@ internal class Client private constructor(
         if (!checkSettingsAvailable(settingResult, "empty map")) {
             return emptyMap()
         }
-        return settingResult.settings?.map {
-            val evaluated =
-                evaluate(it.value, it.key, user ?: defaultUser, settingResult.fetchTime, settingResult.settings)
-            it.key to evaluated.value
-        }?.toMap() ?: emptyMap()
+        return try {
+            return settingResult.settings.map {
+                val evaluated =
+                    evaluate(it.value, it.key, user ?: defaultUser, settingResult.fetchTime, settingResult.settings)
+                it.key to evaluated.value
+            }.toMap()
+        } catch (exception: Exception) {
+            val errorMessage = ConfigCatLogMessages.getSettingEvaluationErrorWithEmptyValue("getAllValues", "empty map")
+            logger.error(1002, errorMessage, exception)
+            emptyMap()
+        }
     }
 
     override suspend fun forceRefresh(): RefreshResult = service?.refresh() ?: RefreshResult(
@@ -511,25 +561,25 @@ internal class Client private constructor(
         settingResult: SettingResult,
         key: String,
         defaultValue: T
-    ): String? {
+    ): Pair<String, Setting?> {
         if (settingResult.isEmpty()) {
             val errorMessage =
                 ConfigCatLogMessages.getConfigJsonIsNotPresentedWithDefaultValue(key, "defaultValue", defaultValue)
             logger.error(1000, errorMessage)
-            return errorMessage
+            return Pair(errorMessage, null)
         }
-        val setting = settingResult.settings?.get(key)
+        val setting = settingResult.settings[key]
         if (setting == null) {
             val errorMessage = ConfigCatLogMessages.getSettingEvaluationFailedDueToMissingKey(
                 key,
                 "defaultValue",
                 defaultValue,
-                settingResult.settings?.keys ?: emptySet()
+                settingResult.settings.keys
             )
             logger.error(1001, errorMessage)
-            return errorMessage
+            return Pair(errorMessage, null)
         }
-        return null
+        return return Pair("", setting)
     }
 
     companion object {

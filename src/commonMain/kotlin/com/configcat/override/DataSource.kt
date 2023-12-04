@@ -24,23 +24,39 @@ public interface OverrideDataSource {
 
         private fun convertToSetting(value: Any): Setting {
             val setting = Setting()
+            //TODO remove prtln
+            if(value is Int) {
+                println("this is int $value")
+                println()
+            }
+            if(value is Number) {
+                println("this is double $value")
+                println()
+            }
             when (value) {
                 is Boolean -> {
+                    println("Boolean")
                     setting.settingsValue.booleanValue = value
                     setting.type = 0
                 }
 
                 is Int -> {
+                    println("INT")
+
                     setting.settingsValue.integerValue = value
                     setting.type = 2
                 }
 
                 is Double -> {
+                    println("DOUBLE")
+
                     setting.settingsValue.doubleValue = value
                     setting.type = 3
                 }
 
                 else -> {
+                    println("STRING")
+
                     setting.settingsValue.stringValue = value.toString()
                     setting.type = 1
                 }

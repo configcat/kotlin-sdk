@@ -14,7 +14,7 @@ internal object LogHelper {
     private const val HASHED_VALUE = "<hashed value>"
     const val INVALID_VALUE = "<invalid value>"
     private const val INVALID_NAME = "<invalid name>"
-    const val INVALID_REFERENCE = "<invalid reference>"
+    private const val INVALID_REFERENCE = "<invalid reference>"
     private const val MAX_LIST_ELEMENT = 10
     private fun formatStringListComparisonValue(comparisonValue: Array<String>?, isSensitive: Boolean): String {
         if (comparisonValue == null) {
@@ -157,11 +157,10 @@ internal object LogHelper {
     }
 
     fun formatSegmentFlagCondition(segmentCondition: SegmentCondition?, segment: Segment?): String {
-        val segmentName: String?
-        if (segment != null) {
-            segmentName = segment.name ?: INVALID_NAME
+        val segmentName: String = if (segment != null) {
+            segment.name ?: INVALID_NAME
         } else {
-            segmentName = INVALID_REFERENCE
+            INVALID_REFERENCE
         }
         val prerequisiteComparator = segmentCondition?.segmentComparator?.toSegmentComparatorOrNull()
         return "User ${prerequisiteComparator?.value} '$segmentName'"

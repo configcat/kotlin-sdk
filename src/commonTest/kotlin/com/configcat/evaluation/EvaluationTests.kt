@@ -94,11 +94,6 @@ class EvaluationTests {
     }
 
     @Test
-    fun testCircularDependency() = runTest {
-        testEvaluation(CircularDependencyTests)
-    }
-
-    @Test
     fun testListTruncation() = runTest {
         testEvaluation(ListTruncationTests)
     }

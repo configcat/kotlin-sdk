@@ -1,5 +1,6 @@
 package com.configcat
 
+import com.configcat.Client.SettingTypeHelp.toSettingTypeOrNull
 import com.configcat.ComparatorHelp.toComparatorOrNull
 import com.configcat.ComparatorHelp.toPrerequisiteComparatorOrNull
 import com.configcat.ComparatorHelp.toSegmentComparatorOrNull
@@ -7,19 +8,21 @@ import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.configcat.log.LogHelper
 import com.configcat.model.*
+import com.soywiz.klock.DateTime
 import com.soywiz.krypto.sha1
 import com.soywiz.krypto.sha256
 import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
+import io.ktor.http.*
 import io.ktor.utils.io.charsets.*
 import kotlinx.serialization.decodeFromString
 
 internal data class EvaluationResult(
     val value: SettingsValue,
     val variationId: String?,
-    val targetingRule: TargetingRule? = null,
-    val percentageRule: PercentageOption? = null
+    val matchedTargetingRule: TargetingRule? = null,
+    val matchedPercentageOption: PercentageOption? = null
 )
 
 internal data class EvaluationContext(
@@ -108,10 +111,6 @@ internal class Evaluator(private val logger: InternalLogger) {
         }
         evaluateLogger?.logTargetingRules()
         for (rule: TargetingRule in setting.targetingRules) {
-            var servedValue: SettingsValue? = null
-            if (rule.servedValue != null) {
-                servedValue = rule.servedValue.value
-            }
             var evaluateConditionsResult: Boolean
             var error: String? = null
             try {
@@ -135,8 +134,8 @@ internal class Evaluator(private val logger: InternalLogger) {
                 continue
             }
 
-            if (servedValue != null) {
-                return rule.servedValue?.let { EvaluationResult(it.value, rule.servedValue.variationId, rule, null) }
+            if (rule.servedValue != null) {
+                return rule.servedValue.let { EvaluationResult(it.value, rule.servedValue.variationId, rule, null) }
             }
             if (rule.percentageOptions.isNullOrEmpty()) {
                 continue
@@ -180,6 +179,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                     evaluateLogger?.append("- IF ")
                     evaluateLogger?.increaseIndentLevel()
                 }
+
                 else -> {
                     evaluateLogger?.increaseIndentLevel()
                     evaluateLogger?.newLine()
@@ -230,7 +230,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                     error = evaluatorException.message
                     conditionsEvaluationResult = false
                 }
-                newLine = error == null || conditions.size > 1
+                newLine = true
             }
 
             if (targetingRule == null || conditions.size > 1) {
@@ -319,20 +319,23 @@ internal class Evaluator(private val logger: InternalLogger) {
         require(!prerequisiteFlagKey.isNullOrEmpty() && prerequisiteFlagSetting != null) {
             "Prerequisite flag key is missing or invalid."
         }
+
+        val settingType = prerequisiteFlagSetting.type.toSettingTypeOrNull()
+        require(
+            settingType == SettingType.BOOLEAN && prerequisiteFlagCondition.value?.booleanValue != null ||
+                settingType == SettingType.STRING && prerequisiteFlagCondition.value?.stringValue != null ||
+                settingType == SettingType.INT && prerequisiteFlagCondition.value?.integerValue != null ||
+                settingType == SettingType.DOUBLE && prerequisiteFlagCondition.value?.doubleValue != null
+        ) {
+            "Type mismatch between comparison value '${prerequisiteFlagCondition.value}' and prerequisite flag '$prerequisiteFlagKey'."
+        }
+
         val visitedKeys: ArrayList<String> = context.visitedKeys ?: ArrayList()
         visitedKeys.add(context.key)
         if (visitedKeys.contains(prerequisiteFlagKey)) {
             val dependencyCycle: String =
                 LogHelper.formatCircularDependencyList(visitedKeys, prerequisiteFlagKey)
-            logger.warning(
-                3005,
-                ConfigCatLogMessages.getCircularDependencyDetected(
-                    context.key,
-                    prerequisiteFlagCondition,
-                    dependencyCycle
-                )
-            )
-            throw RolloutEvaluatorException("cannot evaluate, circular dependency detected")
+            throw IllegalArgumentException("Circular dependency detected between the following depending flags: $dependencyCycle.")
         }
         evaluateLogger?.logPrerequisiteFlagEvaluationStart(prerequisiteFlagKey)
 
@@ -383,7 +386,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         val comparator = condition.comparator.toComparatorOrNull()
             ?: throw IllegalArgumentException("Comparison operator is invalid.")
 
-        if (userValue.isNullOrEmpty()) {
+        if (userValue == null) {
             logger.warning(
                 3003,
                 ConfigCatLogMessages.getUserAttributeMissing(context.key, condition, comparisonAttribute)
@@ -394,57 +397,25 @@ internal class Evaluator(private val logger: InternalLogger) {
         when (comparator) {
             Comparator.CONTAINS_ANY_OF,
             Comparator.NOT_CONTAINS_ANY_OF -> {
-                return processContains(condition, userValue, comparator)
+                val userAttributeAsString =
+                    getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
+                return processContains(condition, userAttributeAsString, comparator)
             }
 
             Comparator.ONE_OF_SEMVER,
             Comparator.NOT_ONE_OF_SEMVER -> {
-                @Suppress("SwallowedException")
-                return try {
-                    val userVersion = userValue.toVersion()
-                    processSemVerOneOf(condition, userVersion, comparator)
-                } catch (e: VersionFormatException) {
-                    val reason = "'$userValue' is not a valid semantic version"
-                    logger.warning(
-                        3004,
-                        ConfigCatLogMessages.getUserAttributeInvalid(
-                            context.key,
-                            condition,
-                            reason,
-                            comparisonAttribute
-                        )
-                    )
-                    throw RolloutEvaluatorException(
-                        "cannot evaluate, the User.$comparisonAttribute attribute is " +
-                            "invalid ($reason)"
-                    )
-                }
+                val userAttributeAsVersion =
+                    getUserAttributeAsVersion(context.key, condition, comparisonAttribute, userValue)
+                return processSemVerOneOf(condition, userAttributeAsVersion, comparator)
             }
 
             Comparator.LT_SEMVER,
             Comparator.LTE_SEMVER,
             Comparator.GT_SEMVER,
             Comparator.GTE_SEMVER -> {
-                @Suppress("SwallowedException")
-                return try {
-                    val userVersion = userValue.toVersion()
-                    processSemVerCompare(condition, userVersion, comparator)
-                } catch (e: VersionFormatException) {
-                    val reason = "'$userValue' is not a valid semantic version"
-                    logger.warning(
-                        3004,
-                        ConfigCatLogMessages.getUserAttributeInvalid(
-                            context.key,
-                            condition,
-                            reason,
-                            comparisonAttribute
-                        )
-                    )
-                    throw RolloutEvaluatorException(
-                        "cannot evaluate, the User.$comparisonAttribute attribute is " +
-                            "invalid ($reason)"
-                    )
-                }
+                val userAttributeAsVersion =
+                    getUserAttributeAsVersion(context.key, condition, comparisonAttribute, userValue)
+                return processSemVerCompare(condition, userAttributeAsVersion, comparator)
             }
 
             Comparator.EQ_NUM,
@@ -453,72 +424,44 @@ internal class Evaluator(private val logger: InternalLogger) {
             Comparator.LTE_NUM,
             Comparator.GT_NUM,
             Comparator.GTE_NUM -> {
-                return try {
-                    val userNumber = userValue.trim().replace(",", ".").toDouble()
-                    processNumber(condition, userNumber, comparator)
-                } catch (e: NumberFormatException) {
-                    val reason = "'$userValue' is not a valid decimal number"
-                    logger.warning(
-                        3004,
-                        ConfigCatLogMessages.getUserAttributeInvalid(
-                            context.key,
-                            condition,
-                            reason,
-                            comparisonAttribute
-                        )
-                    )
-                    throw RolloutEvaluatorException(
-                        "cannot evaluate, the User.$comparisonAttribute attribute is " +
-                            "invalid ($reason)"
-                    )
-                }
+                val userAttributeAsDouble =
+                    getUserAttributeAsDouble(context.key, condition, comparisonAttribute, userValue)
+                return processNumber(condition, userAttributeAsDouble, comparator)
             }
 
             Comparator.IS_ONE_OF,
             Comparator.IS_NOT_ONE_OF,
             Comparator.ONE_OF_SENS,
             Comparator.NOT_ONE_OF_SENS -> {
-                return processSensitiveOneOf(condition, userValue, configSalt, contextSalt, comparator)
+                val userAttributeAsString =
+                    getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
+                return processSensitiveOneOf(condition, userAttributeAsString, configSalt, contextSalt, comparator)
             }
 
             Comparator.DATE_BEFORE,
             Comparator.DATE_AFTER -> {
-                return try {
-                    val userDateDouble = userValue.trim().replace(",", ".").toDouble()
-                    processDateCompare(condition, userDateDouble, comparator)
-                } catch (e: NumberFormatException) {
-                    val reason =
-                        "'$userValue' is not a valid Unix timestamp (number of seconds elapsed since Unix epoch)"
-                    logger.warning(
-                        3004,
-                        ConfigCatLogMessages.getUserAttributeInvalid(
-                            context.key,
-                            condition,
-                            reason,
-                            comparisonAttribute
-                        )
-                    )
-                    throw RolloutEvaluatorException(
-                        "cannot evaluate, the User.$comparisonAttribute attribute is " +
-                            "invalid ($reason)"
-                    )
-                }
+                val userAttributeForDate = getUserAttributeForDate(condition, context, comparisonAttribute, userValue)
+                return processDateCompare(condition, userAttributeForDate, comparator)
             }
 
             Comparator.TEXT_EQUALS,
             Comparator.TEXT_NOT_EQUALS,
             Comparator.HASHED_EQUALS,
             Comparator.HASHED_NOT_EQUALS -> {
-                return processHashedEqualsCompare(condition, userValue, configSalt, contextSalt, comparator)
+                val userAttributeAsString =
+                    getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
+                return processHashedEqualsCompare(condition, userAttributeAsString, configSalt, contextSalt, comparator)
             }
 
             Comparator.HASHED_STARTS_WITH,
             Comparator.HASHED_NOT_STARTS_WITH,
             Comparator.HASHED_ENDS_WITH,
             Comparator.HASHED_NOT_ENDS_WITH -> {
+                val userAttributeAsString =
+                    getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
                 return processHashedStartEndsWithCompare(
                     condition,
-                    userValue,
+                    userAttributeAsString,
                     configSalt,
                     contextSalt,
                     comparator
@@ -527,44 +470,30 @@ internal class Evaluator(private val logger: InternalLogger) {
 
             Comparator.TEXT_STARTS_WITH,
             Comparator.TEXT_NOT_STARTS_WITH -> {
-                return processTextStartWithCompare(condition, userValue, comparator)
+                val userAttributeAsString =
+                    getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
+                return processTextStartWithCompare(condition, userAttributeAsString, comparator)
             }
 
             Comparator.TEXT_ENDS_WITH,
             Comparator.TEXT_NOT_ENDS_WITH -> {
-                return processTextEndWithCompare(condition, userValue, comparator)
+                val userAttributeAsString =
+                    getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
+                return processTextEndWithCompare(condition, userAttributeAsString, comparator)
             }
 
             Comparator.TEXT_ARRAY_CONTAINS,
             Comparator.TEXT_ARRAY_NOT_CONTAINS,
             Comparator.HASHED_ARRAY_CONTAINS,
             Comparator.HASHED_ARRAY_NOT_CONTAINS -> {
-                @Suppress("SwallowedException")
-                return try {
-                    val userArrayValue: Array<String> = Constants.json.decodeFromString(userValue)
-                    processHashedArrayContainsCompare(
-                        condition,
-                        userArrayValue,
-                        configSalt,
-                        contextSalt,
-                        comparator
-                    )
-                } catch (exception: Exception) {
-                    val reason = "'$userValue' is not a valid JSON string array"
-                    logger.warning(
-                        3004,
-                        ConfigCatLogMessages.getUserAttributeInvalid(
-                            context.key,
-                            condition,
-                            reason,
-                            comparisonAttribute
-                        )
-                    )
-                    throw RolloutEvaluatorException(
-                        "cannot evaluate, the User.$comparisonAttribute attribute is " +
-                            "invalid ($reason)"
-                    )
-                }
+                val userArrayValue = getUserAttributeAsStringArray(condition, context, comparisonAttribute, userValue)
+                return processHashedArrayContainsCompare(
+                    condition,
+                    userArrayValue,
+                    configSalt,
+                    contextSalt,
+                    comparator
+                )
             }
         }
     }
@@ -864,7 +793,8 @@ internal class Evaluator(private val logger: InternalLogger) {
             percentageOptionAttributeName = "Identifier"
             percentageOptionAttributeValue = context.user.identifier
         } else {
-            percentageOptionAttributeValue = context.user.attributeFor(percentageOptionAttributeName)
+            percentageOptionAttributeValue =
+                userAttributeToString(context.user.attributeFor(percentageOptionAttributeName))
             if (percentageOptionAttributeValue == null) {
                 evaluateLogger?.logPercentageOptionUserAttributeMissing(percentageOptionAttributeName)
                 if (!context.isUserAttributeMissing) {
@@ -900,6 +830,199 @@ internal class Evaluator(private val logger: InternalLogger) {
         }
 
         return null
+    }
+
+    private fun getUserAttributeAsStringArray(
+        userCondition: UserCondition,
+        context: EvaluationContext,
+        comparisonAttribute: String,
+        userAttribute: Any
+    ): Array<String> {
+        try {
+            if (userAttribute is Array<*> && userAttribute.all { it is String }) {
+                return userAttribute as Array<String>
+            }
+
+            if ((userAttribute is List<*>) && userAttribute.all { it is String }) {
+                var stringList: List<String> = userAttribute as List<String>
+                return stringList.toTypedArray()
+            }
+
+            if (userAttribute is String) {
+                return Constants.json.decodeFromString(userAttribute)
+            }
+        } catch (exception: Exception) {
+            // if exception or no return yet, then throw RolloutEvaluatorException
+        }
+        val reason = "'$userAttribute' is not a valid JSON string array"
+        logger.warning(
+            3004,
+            ConfigCatLogMessages.getUserAttributeInvalid(
+                context.key,
+                userCondition,
+                reason,
+                comparisonAttribute
+            )
+        )
+        throw RolloutEvaluatorException(
+            "cannot evaluate, the User.$comparisonAttribute attribute is " +
+                "invalid ($reason)"
+        )
+    }
+
+    private fun getUserAttributeAsVersion(
+        key: String,
+        userCondition: UserCondition,
+        comparisonAttribute: String,
+        userValue: Any
+    ): Version {
+        @Suppress("SwallowedException")
+        try {
+            if (userValue is String) {
+                return userValue.toVersion()
+            }
+        } catch (e: VersionFormatException) {
+            // Version parse failed continue with the RolloutEvaluatorException
+        }
+        val reason = "'$userValue' is not a valid semantic version"
+        logger.warning(
+            3004,
+            ConfigCatLogMessages.getUserAttributeInvalid(
+                key,
+                userCondition,
+                reason,
+                comparisonAttribute
+            )
+        )
+        throw RolloutEvaluatorException(
+            "cannot evaluate, the User.$comparisonAttribute attribute is " +
+                "invalid ($reason)"
+        )
+    }
+
+    private fun getUserAttributeAsDouble(
+        key: String,
+        userCondition: UserCondition,
+        comparisonAttribute: String,
+        userValue: Any
+    ): Double {
+        var converted: Double
+        try {
+            if (userValue is Double) {
+                converted = userValue
+            } else {
+                converted = userAttributeToDouble(userValue)
+            }
+            if (converted.isNaN()) {
+                throw NumberFormatException()
+            }
+        } catch (e: NumberFormatException) {
+            val reason = "'$userValue' is not a valid decimal number"
+            logger.warning(
+                3004,
+                ConfigCatLogMessages.getUserAttributeInvalid(
+                    key,
+                    userCondition,
+                    reason,
+                    comparisonAttribute
+                )
+            )
+            throw RolloutEvaluatorException(
+                "cannot evaluate, the User.$comparisonAttribute attribute is " +
+                    "invalid ($reason)"
+            )
+        }
+        return converted
+    }
+
+    private fun getUserAttributeForDate(
+        userCondition: UserCondition,
+        context: EvaluationContext,
+        comparisonAttribute: String,
+        userValue: Any
+    ): Double {
+        try {
+            if (userValue is DateTime) {
+                return userValue.unixMillisDouble / 1000
+            }
+            val userAttributeToDouble = userAttributeToDouble(userValue)
+            if (userAttributeToDouble.isNaN()) {
+                throw NumberFormatException()
+            }
+            return userAttributeToDouble
+        } catch (e: NumberFormatException) {
+            val reason =
+                "'$userValue' is not a valid Unix timestamp (number of seconds elapsed since Unix epoch)"
+            logger.warning(
+                3004,
+                ConfigCatLogMessages.getUserAttributeInvalid(
+                    context.key,
+                    userCondition,
+                    reason,
+                    comparisonAttribute
+                )
+            )
+            throw RolloutEvaluatorException(
+                "cannot evaluate, the User.$comparisonAttribute attribute is " +
+                    "invalid ($reason)"
+            )
+        }
+    }
+
+    private fun getUserAttributeAsString(
+        key: String,
+        userCondition: UserCondition,
+        userAttributeName: String,
+        userValue: Any
+    ): String {
+        if (userValue is String) {
+            return userValue
+        }
+        val userAttributeToString = userAttributeToString(userValue) ?: ""
+        logger.warning(
+            3005,
+            ConfigCatLogMessages.getUserObjectAttributeIsAutoConverted(
+                key,
+                userCondition,
+                userAttributeName,
+                userAttributeToString
+            )
+        )
+
+        return userAttributeToString
+    }
+
+    private fun userAttributeToString(userValue: Any?): String? {
+        if (userValue == null) {
+            return null
+        }
+        if (userValue is String) {
+            return userValue
+        }
+        if (userValue is DateTime) {
+            return (userValue.milliseconds / 1000).toString()
+        }
+        return userValue.toString()
+    }
+
+    private fun userAttributeToDouble(userValue: Any): Double {
+        if (userValue is Double) {
+            return userValue
+        }
+        if (userValue is Float) {
+            return userValue.toDouble()
+        }
+        if (userValue is Int) {
+            return userValue.toDouble()
+        }
+        if (userValue is Long) {
+            return userValue.toDouble()
+        }
+        if (userValue is String) {
+            return userValue.trim().replace(",", ".").toDouble()
+        }
+
+        throw NumberFormatException()
     }
 
     /**

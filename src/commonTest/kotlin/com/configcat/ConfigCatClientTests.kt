@@ -87,8 +87,11 @@ class ConfigCatClientTests {
             httpEngine = mockEngine
         }
 
-        assertEquals(0, client.getValue("fakeKey", 0))
-        assertEquals(1, mockEngine.requestHistory.size)
+        assertFailsWith(
+            exceptionClass = IllegalArgumentException::class,
+            message = "The type of a setting must match the type of the setting's default value. Setting's type was {class java.lang.String} but the default value's type was {class java.lang.Integer}. Please use a default value which corresponds to the setting type {class java.lang.String}.Learn more: https://configcat.com/docs/sdk-reference/dotnet/#setting-type-mapping",
+            block = { client.getValue("fakeKey", 0) }
+        )
     }
 
     @Test
@@ -231,8 +234,11 @@ class ConfigCatClientTests {
             httpEngine = mockEngine
         }
 
-        assertEquals("55".toFloat(), client.getValue("fakeKey", "55".toFloat()))
-        assertEquals(1, mockEngine.requestHistory.size)
+        assertFailsWith(
+            exceptionClass = IllegalArgumentException::class,
+            message = "The type of a setting must match the type of the setting's default value. Setting's type was {class java.lang.Boolean} but the default value's type was {class java.lang.Float}. Please use a default value which corresponds to the setting type {class java.lang.Boolean}.Learn more: https://configcat.com/docs/sdk-reference/dotnet/#setting-type-mapping",
+            block = { client.getValue("fakeKey", "55".toFloat()) }
+        )
     }
 
     @Test
@@ -958,9 +964,13 @@ class ConfigCatClientTests {
     @Test
     fun testSDKKeyIsValid() {
         // TEST VALID KEYS
-        var client = ConfigCatClient("sdk-key-90123456789012/1234567890123456789012") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        var client = ConfigCatClient("sdk-key-90123456789012/1234567890123456789012") {
+            flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY }
+        }
         assertNotNull(client)
-        client = ConfigCatClient("configcat-sdk-1/sdk-key-90123456789012/1234567890123456789012") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        client = ConfigCatClient("configcat-sdk-1/sdk-key-90123456789012/1234567890123456789012") {
+            flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY }
+        }
         assertNotNull(client)
         client = ConfigCatClient("configcat-proxy/sdk-key-90123456789012") {
             baseUrl = "https://my-configcat-proxy"
