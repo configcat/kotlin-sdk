@@ -1,6 +1,7 @@
 package com.configcat.evaluation
 
 import com.configcat.ConfigCatClient
+import com.configcat.SingleValueCache
 import com.configcat.evaluation.data.*
 import com.configcat.log.LogLevel
 import com.configcat.manualPoll
@@ -119,6 +120,9 @@ class EvaluationTests {
             httpEngine = mockEngine
             logger = evaluationTestLogger
             logLevel = LogLevel.INFO
+
+            // add empty SingleValueCache to avoid JS extra cache logs
+            configCache = SingleValueCache("")
         }
         client.forceRefresh()
 
