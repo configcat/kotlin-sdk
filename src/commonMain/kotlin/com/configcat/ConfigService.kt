@@ -220,7 +220,6 @@ internal class ConfigService(
             cachedJsonString = cached
             Entry.fromString(cached)
         } catch (e: Exception) {
-            println(cachedJsonString)
             logger.error(2200, ConfigCatLogMessages.CONFIG_SERVICE_CACHE_READ_ERROR, e)
             Entry.empty
         }

@@ -517,7 +517,6 @@ internal class Client private constructor(
 
     private fun parseSettingValue(settingsValue: SettingsValue?, settingType: Int): Any {
         val settingTypeEnum = settingType.toSettingTypeOrNull()
-
         require(settingsValue != null) { "Setting value is missing." }
         val result: Any?
         result = when (settingTypeEnum) {
@@ -537,6 +536,9 @@ internal class Client private constructor(
                 settingsValue.doubleValue
             }
 
+            SettingType.JS_NUMBER -> {
+                settingsValue.doubleValue
+            }
             else -> {
                 throw IllegalArgumentException(
                     "The setting type is not valid. Only String, Int, Double or Boolean types are supported."
@@ -579,7 +581,7 @@ internal class Client private constructor(
             logger.error(1001, errorMessage)
             return Pair(errorMessage, null)
         }
-        return return Pair("", setting)
+        return Pair("", setting)
     }
 
     companion object {

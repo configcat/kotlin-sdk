@@ -313,7 +313,6 @@ internal class Evaluator(private val logger: InternalLogger) {
         evaluateLogger: EvaluateLogger?
     ): Boolean {
         evaluateLogger?.append(LogHelper.formatPrerequisiteFlagCondition(prerequisiteFlagCondition))
-
         val prerequisiteFlagKey: String? = prerequisiteFlagCondition.prerequisiteFlagKey
         val prerequisiteFlagSetting = context.settings?.get(prerequisiteFlagKey)
         require(!prerequisiteFlagKey.isNullOrEmpty() && prerequisiteFlagSetting != null) {
@@ -322,7 +321,8 @@ internal class Evaluator(private val logger: InternalLogger) {
 
         val settingType = prerequisiteFlagSetting.type.toSettingTypeOrNull()
         require(
-            settingType == SettingType.BOOLEAN && prerequisiteFlagCondition.value?.booleanValue != null ||
+            settingType == SettingType.JS_NUMBER && (prerequisiteFlagCondition.value?.doubleValue != null || prerequisiteFlagCondition.value?.integerValue != null) ||
+                settingType == SettingType.BOOLEAN && prerequisiteFlagCondition.value?.booleanValue != null ||
                 settingType == SettingType.STRING && prerequisiteFlagCondition.value?.stringValue != null ||
                 settingType == SettingType.INT && prerequisiteFlagCondition.value?.integerValue != null ||
                 settingType == SettingType.DOUBLE && prerequisiteFlagCondition.value?.doubleValue != null

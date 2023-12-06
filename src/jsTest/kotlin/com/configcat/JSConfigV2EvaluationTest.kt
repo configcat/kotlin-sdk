@@ -35,12 +35,14 @@ class JSConfigV2EvaluationTest {
         runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", 1, "Cat")
         runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", "2", "")
         runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", true, "")
+        // in js the Double converted to Int and vice versa 2.0 == 2 and 2 results Dog
         runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", 2.0, "Dog")
         runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", 0.1, "Dog")
         runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", 0.11, "Cat")
         runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", "0.1", "")
         runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", true, "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", 1, "")
+        // in js the Double converted to Int and vice versa 1 == 1.0 and 1.0 results Dog
+        runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", 1, "Cat")
     }
 
     private suspend fun runPrerequisiteFlagTypeMismatchTest(

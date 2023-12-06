@@ -26,12 +26,12 @@ public data class SettingsValue(
 
         other as SettingsValue
 
-        if (booleanValue != other.booleanValue) return false
-        if (stringValue != other.stringValue) return false
-        if (integerValue != other.integerValue) return false
-        if (doubleValue != other.doubleValue) return false
+        if (booleanValue != null && booleanValue == other.booleanValue) return true
+        if (stringValue != null && stringValue == other.stringValue) return true
+        if (integerValue != null && integerValue == other.integerValue) return true
+        if (doubleValue != null && doubleValue == other.doubleValue) return true
 
-        return true
+        return false
     }
 
     override fun hashCode(): Int {
