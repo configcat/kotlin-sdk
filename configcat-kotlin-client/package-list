@@ -33,6 +33,7 @@ $dokka.location:com.configcat.override/OverrideBehavior/valueOf/#kotlin.String/P
 $dokka.location:com.configcat.override/OverrideBehavior/values/#/PointingToDeclaration/configcat-kotlin-client/com.configcat.override/-override-behavior/values.html
 $dokka.location:com.configcat.override/OverrideDataSource.Companion///PointingToDeclaration/configcat-kotlin-client/com.configcat.override/-override-data-source/-companion/index.html
 $dokka.location:com.configcat.override/OverrideDataSource.Companion/map/#kotlin.collections.Map[kotlin.String,kotlin.Any]/PointingToDeclaration/configcat-kotlin-client/com.configcat.override/-override-data-source/-companion/map.html
+$dokka.location:com.configcat.override/OverrideDataSource.Companion/settings/#kotlin.collections.Map[kotlin.String,com.configcat.Setting]/PointingToDeclaration/configcat-kotlin-client/com.configcat.override/-override-data-source/-companion/settings.html
 $dokka.location:com.configcat.override/OverrideDataSource///PointingToDeclaration/configcat-kotlin-client/com.configcat.override/-override-data-source/index.html
 $dokka.location:com.configcat.override/OverrideDataSource/getOverrides/#/PointingToDeclaration/configcat-kotlin-client/com.configcat.override/-override-data-source/get-overrides.html
 $dokka.location:com.configcat////PointingToDeclaration/configcat-kotlin-client/com.configcat/index.html
