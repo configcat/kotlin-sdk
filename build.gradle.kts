@@ -14,8 +14,8 @@ buildscript {
 apply(plugin = "kotlinx-atomicfu")
 
 plugins {
-    kotlin("multiplatform") version "1.7.10"
-    kotlin("plugin.serialization") version "1.7.10"
+    kotlin("multiplatform") version "1.8.22"
+    kotlin("plugin.serialization") version "1.8.22"
     id("com.android.library")
     id("maven-publish")
     id("signing")
@@ -69,7 +69,7 @@ kotlin {
         publishLibraryVariants("release")
     }
 
-    js(BOTH) {
+    js(IR) {
         browser {
             testTask {
                 useKarma {
@@ -77,7 +77,9 @@ kotlin {
                 }
             }
             commonWebpackConfig {
-                cssSupport.enabled = true
+                cssSupport {
+                    enabled.set(true)
+                }
             }
         }
         nodejs {
@@ -101,7 +103,6 @@ kotlin {
 
     // iOS
     addNativeTarget(presets["iosArm64"], Host.MAC_OS)
-    addNativeTarget(presets["iosArm32"], Host.MAC_OS)
     addNativeTarget(presets["iosX64"], Host.MAC_OS)
     addNativeTarget(presets["iosSimulatorArm64"], Host.MAC_OS)
 
@@ -165,7 +166,7 @@ kotlin {
             }
         }
 
-        val androidTest by getting {
+        val androidUnitTest by getting {
             dependsOn(commonTest)
         }
 
