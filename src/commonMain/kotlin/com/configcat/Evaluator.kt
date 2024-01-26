@@ -352,6 +352,8 @@ internal class Evaluator(private val logger: InternalLogger) {
             prerequisiteFlagContext
         )
 
+        visitedKeys.remove(context.key)
+
         val prerequisiteComparator = prerequisiteFlagCondition.prerequisiteComparator.toPrerequisiteComparatorOrNull()
             ?: throw IllegalArgumentException("Prerequisite Flag comparison operator is invalid.")
         val conditionValue: SettingsValue? = prerequisiteFlagCondition.value
