@@ -35,7 +35,7 @@ internal data class EvaluationContext(
 )
 
 internal object ComparatorHelp {
-    fun Int.toComparatorOrNull(): Evaluator.Comparator? = Evaluator.Comparator.values().firstOrNull { it.id == this }
+    fun Int.toComparatorOrNull(): Evaluator.UserComparator? = Evaluator.UserComparator.values().firstOrNull { it.id == this }
     fun Int.toPrerequisiteComparatorOrNull(): Evaluator.PrerequisiteComparator? =
         Evaluator.PrerequisiteComparator.values().firstOrNull { it.id == this }
 
@@ -169,7 +169,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         segments: Array<Segment>,
         evaluateLogger: EvaluateLogger?
     ): Boolean {
-        var conditionsEvaluationResult = false
+        var conditionsEvaluationResult = true
         var error: String? = null
         var newLine = false
         for ((index, condition) in conditions.withIndex()) {
@@ -397,68 +397,68 @@ internal class Evaluator(private val logger: InternalLogger) {
         }
 
         when (comparator) {
-            Comparator.CONTAINS_ANY_OF,
-            Comparator.NOT_CONTAINS_ANY_OF -> {
+            UserComparator.CONTAINS_ANY_OF,
+            UserComparator.NOT_CONTAINS_ANY_OF -> {
                 val userAttributeAsString =
                     getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
                 return processContains(condition, userAttributeAsString, comparator)
             }
 
-            Comparator.ONE_OF_SEMVER,
-            Comparator.NOT_ONE_OF_SEMVER -> {
+            UserComparator.ONE_OF_SEMVER,
+            UserComparator.NOT_ONE_OF_SEMVER -> {
                 val userAttributeAsVersion =
                     getUserAttributeAsVersion(context.key, condition, comparisonAttribute, userValue)
                 return processSemVerOneOf(condition, userAttributeAsVersion, comparator)
             }
 
-            Comparator.LT_SEMVER,
-            Comparator.LTE_SEMVER,
-            Comparator.GT_SEMVER,
-            Comparator.GTE_SEMVER -> {
+            UserComparator.LT_SEMVER,
+            UserComparator.LTE_SEMVER,
+            UserComparator.GT_SEMVER,
+            UserComparator.GTE_SEMVER -> {
                 val userAttributeAsVersion =
                     getUserAttributeAsVersion(context.key, condition, comparisonAttribute, userValue)
                 return processSemVerCompare(condition, userAttributeAsVersion, comparator)
             }
 
-            Comparator.EQ_NUM,
-            Comparator.NOT_EQ_NUM,
-            Comparator.LT_NUM,
-            Comparator.LTE_NUM,
-            Comparator.GT_NUM,
-            Comparator.GTE_NUM -> {
+            UserComparator.EQ_NUM,
+            UserComparator.NOT_EQ_NUM,
+            UserComparator.LT_NUM,
+            UserComparator.LTE_NUM,
+            UserComparator.GT_NUM,
+            UserComparator.GTE_NUM -> {
                 val userAttributeAsDouble =
                     getUserAttributeAsDouble(context.key, condition, comparisonAttribute, userValue)
                 return processNumber(condition, userAttributeAsDouble, comparator)
             }
 
-            Comparator.IS_ONE_OF,
-            Comparator.IS_NOT_ONE_OF,
-            Comparator.ONE_OF_SENS,
-            Comparator.NOT_ONE_OF_SENS -> {
+            UserComparator.IS_ONE_OF,
+            UserComparator.IS_NOT_ONE_OF,
+            UserComparator.ONE_OF_SENS,
+            UserComparator.NOT_ONE_OF_SENS -> {
                 val userAttributeAsString =
                     getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
                 return processSensitiveOneOf(condition, userAttributeAsString, configSalt, contextSalt, comparator)
             }
 
-            Comparator.DATE_BEFORE,
-            Comparator.DATE_AFTER -> {
+            UserComparator.DATE_BEFORE,
+            UserComparator.DATE_AFTER -> {
                 val userAttributeForDate = getUserAttributeForDate(condition, context, comparisonAttribute, userValue)
                 return processDateCompare(condition, userAttributeForDate, comparator)
             }
 
-            Comparator.TEXT_EQUALS,
-            Comparator.TEXT_NOT_EQUALS,
-            Comparator.HASHED_EQUALS,
-            Comparator.HASHED_NOT_EQUALS -> {
+            UserComparator.TEXT_EQUALS,
+            UserComparator.TEXT_NOT_EQUALS,
+            UserComparator.HASHED_EQUALS,
+            UserComparator.HASHED_NOT_EQUALS -> {
                 val userAttributeAsString =
                     getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
                 return processHashedEqualsCompare(condition, userAttributeAsString, configSalt, contextSalt, comparator)
             }
 
-            Comparator.HASHED_STARTS_WITH,
-            Comparator.HASHED_NOT_STARTS_WITH,
-            Comparator.HASHED_ENDS_WITH,
-            Comparator.HASHED_NOT_ENDS_WITH -> {
+            UserComparator.HASHED_STARTS_WITH,
+            UserComparator.HASHED_NOT_STARTS_WITH,
+            UserComparator.HASHED_ENDS_WITH,
+            UserComparator.HASHED_NOT_ENDS_WITH -> {
                 val userAttributeAsString =
                     getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
                 return processHashedStartEndsWithCompare(
@@ -470,24 +470,24 @@ internal class Evaluator(private val logger: InternalLogger) {
                 )
             }
 
-            Comparator.TEXT_STARTS_WITH,
-            Comparator.TEXT_NOT_STARTS_WITH -> {
+            UserComparator.TEXT_STARTS_WITH,
+            UserComparator.TEXT_NOT_STARTS_WITH -> {
                 val userAttributeAsString =
                     getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
                 return processTextStartWithCompare(condition, userAttributeAsString, comparator)
             }
 
-            Comparator.TEXT_ENDS_WITH,
-            Comparator.TEXT_NOT_ENDS_WITH -> {
+            UserComparator.TEXT_ENDS_WITH,
+            UserComparator.TEXT_NOT_ENDS_WITH -> {
                 val userAttributeAsString =
                     getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
                 return processTextEndWithCompare(condition, userAttributeAsString, comparator)
             }
 
-            Comparator.TEXT_ARRAY_CONTAINS,
-            Comparator.TEXT_ARRAY_NOT_CONTAINS,
-            Comparator.HASHED_ARRAY_CONTAINS,
-            Comparator.HASHED_ARRAY_NOT_CONTAINS -> {
+            UserComparator.TEXT_ARRAY_CONTAINS,
+            UserComparator.TEXT_ARRAY_NOT_CONTAINS,
+            UserComparator.HASHED_ARRAY_CONTAINS,
+            UserComparator.HASHED_ARRAY_NOT_CONTAINS -> {
                 val userArrayValue = getUserAttributeAsStringArray(condition, context, comparisonAttribute, userValue)
                 return processHashedArrayContainsCompare(
                     condition,
@@ -503,7 +503,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun processContains(
         condition: UserCondition,
         userValue: String,
-        comparator: Comparator
+        userComparator: UserComparator
     ): Boolean {
         val values = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
         var matched = false
@@ -513,8 +513,8 @@ internal class Evaluator(private val logger: InternalLogger) {
                 break
             }
         }
-        if ((matched && comparator == Comparator.CONTAINS_ANY_OF) ||
-            (!matched && comparator == Comparator.NOT_CONTAINS_ANY_OF)
+        if ((matched && userComparator == UserComparator.CONTAINS_ANY_OF) ||
+            (!matched && userComparator == UserComparator.NOT_CONTAINS_ANY_OF)
         ) {
             return true
         }
@@ -524,7 +524,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun processSemVerOneOf(
         condition: UserCondition,
         userVersion: Version,
-        comparator: Comparator
+        userComparator: UserComparator
     ): Boolean {
         @Suppress("SwallowedException")
         try {
@@ -533,8 +533,8 @@ internal class Evaluator(private val logger: InternalLogger) {
             for (value in values) {
                 matched = value.toVersion() == userVersion || matched
             }
-            if ((matched && comparator == Comparator.ONE_OF_SEMVER) ||
-                (!matched && comparator == Comparator.NOT_ONE_OF_SEMVER)
+            if ((matched && userComparator == UserComparator.ONE_OF_SEMVER) ||
+                (!matched && userComparator == UserComparator.NOT_ONE_OF_SEMVER)
             ) {
                 return true
             }
@@ -549,16 +549,16 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun processSemVerCompare(
         condition: UserCondition,
         userVersion: Version,
-        comparator: Comparator
+        userComparator: UserComparator
     ): Boolean {
         @Suppress("SwallowedException")
         return try {
             val comparisonVersion = let { condition.stringValue ?: "" }.trim().toVersion()
-            when (comparator) {
-                Comparator.LT_SEMVER -> userVersion < comparisonVersion
-                Comparator.LTE_SEMVER -> userVersion <= comparisonVersion
-                Comparator.GT_SEMVER -> userVersion > comparisonVersion
-                Comparator.GTE_SEMVER -> userVersion >= comparisonVersion
+            when (userComparator) {
+                UserComparator.LT_SEMVER -> userVersion < comparisonVersion
+                UserComparator.LTE_SEMVER -> userVersion <= comparisonVersion
+                UserComparator.GT_SEMVER -> userVersion > comparisonVersion
+                UserComparator.GTE_SEMVER -> userVersion >= comparisonVersion
                 else -> false
             }
         } catch (e: VersionFormatException) {
@@ -571,18 +571,18 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun processNumber(
         condition: UserCondition,
         userNumber: Double,
-        comparator: Comparator
+        userComparator: UserComparator
     ): Boolean {
         val comparisonNumber = condition.doubleValue
             ?: throw IllegalArgumentException("Comparison value is missing or invalid.")
 
-        return when (comparator) {
-            Comparator.EQ_NUM -> userNumber == comparisonNumber
-            Comparator.NOT_EQ_NUM -> userNumber != comparisonNumber
-            Comparator.LT_NUM -> userNumber < comparisonNumber
-            Comparator.LTE_NUM -> userNumber <= comparisonNumber
-            Comparator.GT_NUM -> userNumber > comparisonNumber
-            Comparator.GTE_NUM -> userNumber >= comparisonNumber
+        return when (userComparator) {
+            UserComparator.EQ_NUM -> userNumber == comparisonNumber
+            UserComparator.NOT_EQ_NUM -> userNumber != comparisonNumber
+            UserComparator.LT_NUM -> userNumber < comparisonNumber
+            UserComparator.LTE_NUM -> userNumber <= comparisonNumber
+            UserComparator.GT_NUM -> userNumber > comparisonNumber
+            UserComparator.GTE_NUM -> userNumber >= comparisonNumber
             else -> false
         }
     }
@@ -592,20 +592,20 @@ internal class Evaluator(private val logger: InternalLogger) {
         userValue: String,
         configSalt: String,
         contextSalt: String,
-        comparator: Comparator
+        userComparator: UserComparator
     ): Boolean {
         val split = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
-        val formattedUserValue = if (comparator == Comparator.ONE_OF_SENS || comparator == Comparator.NOT_ONE_OF_SENS) {
+        val formattedUserValue = if (userComparator == UserComparator.ONE_OF_SENS || userComparator == UserComparator.NOT_ONE_OF_SENS) {
             getSaltedUserValue(userValue, configSalt, contextSalt)
         } else {
             userValue
         }
-        return when (comparator) {
-            Comparator.ONE_OF_SENS,
-            Comparator.IS_ONE_OF -> split.contains(formattedUserValue)
+        return when (userComparator) {
+            UserComparator.ONE_OF_SENS,
+            UserComparator.IS_ONE_OF -> split.contains(formattedUserValue)
 
-            Comparator.NOT_ONE_OF_SENS,
-            Comparator.IS_NOT_ONE_OF -> !split.contains(formattedUserValue)
+            UserComparator.NOT_ONE_OF_SENS,
+            UserComparator.IS_NOT_ONE_OF -> !split.contains(formattedUserValue)
 
             else -> false
         }
@@ -614,13 +614,13 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun processDateCompare(
         condition: UserCondition,
         userDateDouble: Double,
-        comparator: Comparator
+        userComparator: UserComparator
     ): Boolean {
         val comparisonDateDouble =
             condition.doubleValue ?: throw IllegalArgumentException("Comparison value is missing or invalid.")
-        return when (comparator) {
-            Comparator.DATE_BEFORE -> userDateDouble < comparisonDateDouble
-            Comparator.DATE_AFTER -> userDateDouble > comparisonDateDouble
+        return when (userComparator) {
+            UserComparator.DATE_BEFORE -> userDateDouble < comparisonDateDouble
+            UserComparator.DATE_AFTER -> userDateDouble > comparisonDateDouble
             else -> false
         }
     }
@@ -630,18 +630,18 @@ internal class Evaluator(private val logger: InternalLogger) {
         userValue: String,
         configSalt: String,
         contextSalt: String,
-        comparator: Comparator
+        userComparator: UserComparator
     ): Boolean {
         val formattedUserValue =
-            if (comparator == Comparator.HASHED_EQUALS || comparator == Comparator.HASHED_NOT_EQUALS) {
+            if (userComparator == UserComparator.HASHED_EQUALS || userComparator == UserComparator.HASHED_NOT_EQUALS) {
                 getSaltedUserValue(userValue, configSalt, contextSalt)
             } else {
                 userValue
             }
         val comparisonValue = condition.stringValue
-        return when (comparator) {
-            Comparator.HASHED_EQUALS, Comparator.TEXT_EQUALS -> formattedUserValue == comparisonValue
-            Comparator.HASHED_NOT_EQUALS, Comparator.TEXT_NOT_EQUALS -> formattedUserValue != comparisonValue
+        return when (userComparator) {
+            UserComparator.HASHED_EQUALS, UserComparator.TEXT_EQUALS -> formattedUserValue == comparisonValue
+            UserComparator.HASHED_NOT_EQUALS, UserComparator.TEXT_NOT_EQUALS -> formattedUserValue != comparisonValue
             else -> false
         }
     }
@@ -651,7 +651,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         userValue: String,
         configSalt: String,
         contextSalt: String,
-        comparator: Comparator
+        userComparator: UserComparator
     ): Boolean {
         val withValuesSplit = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
         val userValueUTF8 = userValue.encodeToByteArray()
@@ -669,8 +669,8 @@ internal class Evaluator(private val logger: InternalLogger) {
                 val comparisonHashValue = comparisonValueHashedStartsEnds.substringAfterLast("_")
                 require(comparisonHashValue.isNotEmpty()) { "Comparison value is missing or invalid." }
                 val userValueHashed =
-                    if (comparator == Comparator.HASHED_STARTS_WITH ||
-                        comparator == Comparator.HASHED_NOT_STARTS_WITH
+                    if (userComparator == UserComparator.HASHED_STARTS_WITH ||
+                        userComparator == UserComparator.HASHED_NOT_STARTS_WITH
                     ) {
                         val userValueSlice = userValueUTF8.copyOfRange(0, comparedTextLengthInt).decodeToString()
                         getSaltedUserValue(userValueSlice, configSalt, contextSalt)
@@ -688,7 +688,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                 throw IllegalArgumentException("Comparison value is missing or invalid.")
             }
         }
-        if (comparator == Comparator.HASHED_NOT_STARTS_WITH || comparator == Comparator.HASHED_NOT_ENDS_WITH) {
+        if (userComparator == UserComparator.HASHED_NOT_STARTS_WITH || userComparator == UserComparator.HASHED_NOT_ENDS_WITH) {
             // negate the match in case of NOT ANY OF
             matchCondition = !matchCondition
         }
@@ -698,7 +698,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun processTextStartWithCompare(
         condition: UserCondition,
         userValue: String,
-        comparator: Comparator
+        userComparator: UserComparator
     ): Boolean {
         val withValuesSplit = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
         var startWith = false
@@ -708,7 +708,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                 break
             }
         }
-        if (comparator == Comparator.TEXT_NOT_STARTS_WITH) {
+        if (userComparator == UserComparator.TEXT_NOT_STARTS_WITH) {
             startWith = !startWith
         }
         return startWith
@@ -717,7 +717,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun processTextEndWithCompare(
         condition: UserCondition,
         userValue: String,
-        comparator: Comparator
+        userComparator: UserComparator
     ): Boolean {
         val withValuesSplit = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
         var endWith = false
@@ -727,7 +727,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                 break
             }
         }
-        if (comparator == Comparator.TEXT_NOT_ENDS_WITH) {
+        if (userComparator == UserComparator.TEXT_NOT_ENDS_WITH) {
             endWith = !endWith
         }
         return endWith
@@ -738,7 +738,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         userContainsArray: Array<String>,
         configSalt: String,
         contextSalt: String,
-        comparator: Comparator
+        userComparator: UserComparator
     ): Boolean {
         val withValuesSplit = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
         if (userContainsArray.isEmpty()) {
@@ -746,7 +746,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         }
         var contains = false
         val hashedRequired =
-            comparator == Comparator.HASHED_ARRAY_CONTAINS || comparator == Comparator.HASHED_ARRAY_NOT_CONTAINS
+            userComparator == UserComparator.HASHED_ARRAY_CONTAINS || userComparator == UserComparator.HASHED_ARRAY_NOT_CONTAINS
         userContainsArray.forEach {
             val correctUserValue = if (hashedRequired) {
                 getSaltedUserValue(it, configSalt, contextSalt)
@@ -757,12 +757,12 @@ internal class Evaluator(private val logger: InternalLogger) {
                 contains = true
             }
         }
-        return when (comparator) {
-            Comparator.HASHED_ARRAY_CONTAINS,
-            Comparator.TEXT_ARRAY_CONTAINS -> contains
+        return when (userComparator) {
+            UserComparator.HASHED_ARRAY_CONTAINS,
+            UserComparator.TEXT_ARRAY_CONTAINS -> contains
 
-            Comparator.HASHED_ARRAY_NOT_CONTAINS,
-            Comparator.TEXT_ARRAY_NOT_CONTAINS -> !contains
+            UserComparator.HASHED_ARRAY_NOT_CONTAINS,
+            UserComparator.TEXT_ARRAY_NOT_CONTAINS -> !contains
 
             else -> false
         }
@@ -1030,7 +1030,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     /**
      * Describes the Rollout Evaluator User Condition Comparators.
      */
-    enum class Comparator(val id: Int, val value: String) {
+    enum class UserComparator(val id: Int, val value: String) {
         IS_ONE_OF(0, "IS ONE OF"),
         IS_NOT_ONE_OF(1, "IS NOT ONE OF"),
         CONTAINS_ANY_OF(2, "CONTAINS ANY OF"),

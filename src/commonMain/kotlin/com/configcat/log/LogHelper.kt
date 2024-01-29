@@ -78,60 +78,60 @@ internal object LogHelper {
     fun formatUserCondition(userCondition: UserCondition): String {
         val userComparator = userCondition.comparator.toComparatorOrNull()
         val comparisonValue: String = when (userComparator) {
-            Evaluator.Comparator.IS_ONE_OF,
-            Evaluator.Comparator.IS_NOT_ONE_OF,
-            Evaluator.Comparator.CONTAINS_ANY_OF,
-            Evaluator.Comparator.NOT_CONTAINS_ANY_OF,
-            Evaluator.Comparator.ONE_OF_SEMVER,
-            Evaluator.Comparator.NOT_ONE_OF_SEMVER,
-            Evaluator.Comparator.TEXT_STARTS_WITH,
-            Evaluator.Comparator.TEXT_NOT_STARTS_WITH,
-            Evaluator.Comparator.TEXT_ENDS_WITH,
-            Evaluator.Comparator.TEXT_NOT_ENDS_WITH,
-            Evaluator.Comparator.TEXT_ARRAY_CONTAINS,
-            Evaluator.Comparator.TEXT_ARRAY_NOT_CONTAINS -> formatStringListComparisonValue(
+            Evaluator.UserComparator.IS_ONE_OF,
+            Evaluator.UserComparator.IS_NOT_ONE_OF,
+            Evaluator.UserComparator.CONTAINS_ANY_OF,
+            Evaluator.UserComparator.NOT_CONTAINS_ANY_OF,
+            Evaluator.UserComparator.ONE_OF_SEMVER,
+            Evaluator.UserComparator.NOT_ONE_OF_SEMVER,
+            Evaluator.UserComparator.TEXT_STARTS_WITH,
+            Evaluator.UserComparator.TEXT_NOT_STARTS_WITH,
+            Evaluator.UserComparator.TEXT_ENDS_WITH,
+            Evaluator.UserComparator.TEXT_NOT_ENDS_WITH,
+            Evaluator.UserComparator.TEXT_ARRAY_CONTAINS,
+            Evaluator.UserComparator.TEXT_ARRAY_NOT_CONTAINS -> formatStringListComparisonValue(
                 userCondition.stringArrayValue,
                 false
             )
 
-            Evaluator.Comparator.LT_SEMVER,
-            Evaluator.Comparator.LTE_SEMVER,
-            Evaluator.Comparator.GT_SEMVER,
-            Evaluator.Comparator.GTE_SEMVER,
-            Evaluator.Comparator.TEXT_EQUALS,
-            Evaluator.Comparator.TEXT_NOT_EQUALS -> formatStringComparisonValue(
+            Evaluator.UserComparator.LT_SEMVER,
+            Evaluator.UserComparator.LTE_SEMVER,
+            Evaluator.UserComparator.GT_SEMVER,
+            Evaluator.UserComparator.GTE_SEMVER,
+            Evaluator.UserComparator.TEXT_EQUALS,
+            Evaluator.UserComparator.TEXT_NOT_EQUALS -> formatStringComparisonValue(
                 userCondition.stringValue,
                 false
             )
 
-            Evaluator.Comparator.EQ_NUM,
-            Evaluator.Comparator.NOT_EQ_NUM,
-            Evaluator.Comparator.LT_NUM,
-            Evaluator.Comparator.LTE_NUM,
-            Evaluator.Comparator.GT_NUM,
-            Evaluator.Comparator.GTE_NUM -> formatDoubleComparisonValue(
+            Evaluator.UserComparator.EQ_NUM,
+            Evaluator.UserComparator.NOT_EQ_NUM,
+            Evaluator.UserComparator.LT_NUM,
+            Evaluator.UserComparator.LTE_NUM,
+            Evaluator.UserComparator.GT_NUM,
+            Evaluator.UserComparator.GTE_NUM -> formatDoubleComparisonValue(
                 userCondition.doubleValue,
                 false
             )
 
-            Evaluator.Comparator.ONE_OF_SENS,
-            Evaluator.Comparator.NOT_ONE_OF_SENS,
-            Evaluator.Comparator.HASHED_STARTS_WITH,
-            Evaluator.Comparator.HASHED_NOT_STARTS_WITH,
-            Evaluator.Comparator.HASHED_ENDS_WITH,
-            Evaluator.Comparator.HASHED_NOT_ENDS_WITH,
-            Evaluator.Comparator.HASHED_ARRAY_CONTAINS,
-            Evaluator.Comparator.HASHED_ARRAY_NOT_CONTAINS -> formatStringListComparisonValue(
+            Evaluator.UserComparator.ONE_OF_SENS,
+            Evaluator.UserComparator.NOT_ONE_OF_SENS,
+            Evaluator.UserComparator.HASHED_STARTS_WITH,
+            Evaluator.UserComparator.HASHED_NOT_STARTS_WITH,
+            Evaluator.UserComparator.HASHED_ENDS_WITH,
+            Evaluator.UserComparator.HASHED_NOT_ENDS_WITH,
+            Evaluator.UserComparator.HASHED_ARRAY_CONTAINS,
+            Evaluator.UserComparator.HASHED_ARRAY_NOT_CONTAINS -> formatStringListComparisonValue(
                 userCondition.stringArrayValue,
                 true
             )
 
-            Evaluator.Comparator.DATE_BEFORE, Evaluator.Comparator.DATE_AFTER -> formatDoubleComparisonValue(
+            Evaluator.UserComparator.DATE_BEFORE, Evaluator.UserComparator.DATE_AFTER -> formatDoubleComparisonValue(
                 userCondition.doubleValue,
                 true
             )
 
-            Evaluator.Comparator.HASHED_EQUALS, Evaluator.Comparator.HASHED_NOT_EQUALS -> formatStringComparisonValue(
+            Evaluator.UserComparator.HASHED_EQUALS, Evaluator.UserComparator.HASHED_NOT_EQUALS -> formatStringComparisonValue(
                 userCondition.stringValue,
                 true
             )

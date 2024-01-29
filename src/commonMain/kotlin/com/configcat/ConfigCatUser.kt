@@ -56,7 +56,9 @@ public class ConfigCatUser(
         }
         if (custom != null) {
             for (item in custom) {
-                attr[item.key] = item.value
+                if (item.key != "Identifier" && item.key != "Email" && item.key != "Country") {
+                    attr[item.key] = item.value
+                }
             }
         }
         attributes = attr
@@ -70,6 +72,7 @@ public class ConfigCatUser(
     }
 
     override fun toString(): String {
+        // TODO allinone fix
         return "{${attributes.map { "\"${it.key}\":\"${it.value}\"" }.joinToString(",")}}"
     }
 }

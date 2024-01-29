@@ -104,69 +104,85 @@ class VariationIdTests {
 
     companion object {
         const val variationIdBody = """
-                   {   "p": {"u":"https://cdn-global.configcat.com","r":"0","s": "test-slat"},
-                       "f":{
-                           "key1":{
-                                "t": 0,
-                                "v":{ "b": true},
-                                "i":"fakeId1",
-                                "p":[
-                                    {
-                                        "v":{ "b": true},
-                                        "p":50,
-                                        "i":"percentageId1"
-                                    },
-                                    {
-                                        "v":{ "b": false},
-                                        "p":50,
-                                        "i":"percentageId2"
-                                    }
-                                ],
-                                "r":[
-                                    {
-                                        "c": [{ 
-                                                "t": {
-                                                    "a":"Email",
-                                                    "c":2,
-                                                    "l":["@configcat.com"]
-                                                 }
-                                            }],
-                                        "p": [
-                                        ],
-                                        "s": {
-                                            "v": { "b": true}, 
-                                            "i": "rolloutId1"
-                                        }
-                                    }, 
-                                    {
-                                        "c": [{ 
-                                                "t": {
-                                                    "a":"Email",
-                                                    "c":2,
-                                                    "l": ["@test.com"]
-                                               }
-                                        }],
-                                        "p": [
-                                        ],
-                                        "s": {
-                                            "v": { "b": false}, 
-                                            "i": "rolloutId2"
-                                        }
-                                    }
-                                ],
-                                "a":""
-                           },
-                           "key2":{
-                                "t": 0,
-                                "v": { "b": false},
-                                "i":"fakeId2",
-                                "p":[],
-                                "r":[],
-                                "a":""
-                           }
-                       },
-                       "s":[]
-                   }
+                   {
+   "p":{
+      "u":"https://cdn-global.configcat.com",
+      "r":"0",
+      "s":"PJUt0np9JA4ukMciF3BVAVRJiwIjTOiX\u002BE8B1HQohck="
+   },
+   "f":{
+      "key1":{
+         "t":0,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":2,
+                        "l":[
+                           "@configcat.com"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "b":true
+                  },
+                  "i":"rolloutId1"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":2,
+                        "l":[
+                           "@test.com"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "b":false
+                  },
+                  "i":"rolloutId2"
+               }
+            }
+         ],
+         "p":[
+            {
+               "p":50,
+               "v":{
+                  "b":true
+               },
+               "i":"percentageId1"
+            },
+            {
+               "p":50,
+               "v":{
+                  "b":false
+               },
+               "i":"percentageId2"
+            }
+         ],
+         "v":{
+            "b":true
+         },
+         "i":"fakeId1"
+      },
+      "key2":{
+         "t":0,
+         "v":{
+            "b":false
+         },
+         "i":"fakeId2"
+      }
+   }
+}
                    """
     }
 }
