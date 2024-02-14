@@ -355,13 +355,13 @@ internal class Client private constructor(
             setting.value.targetingRules?.forEach { targetingRule ->
                 if (targetingRule.servedValue?.variationId == variationId) {
                     return Pair(setting.key, parseSettingValue(targetingRule.servedValue.value, setting.value.type))
-                }
-                targetingRule.percentageOptions?.forEach { percentageOption ->
-                    if (percentageOption.variationId == variationId) {
-                        return Pair(setting.key, parseSettingValue(percentageOption.value, setting.value.type))
+                } else {
+                    targetingRule.percentageOptions?.forEach { percentageOption ->
+                        if (percentageOption.variationId == variationId) {
+                            return Pair(setting.key, parseSettingValue(percentageOption.value, setting.value.type))
+                        }
                     }
                 }
-
             }
             setting.value.percentageOptions?.forEach { percentageOption ->
                 if (percentageOption.variationId == variationId) {

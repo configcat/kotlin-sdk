@@ -831,7 +831,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             }
         }
 
-        return null
+        throw IllegalArgumentException("Sum of percentage option percentages are less than 100.")
     }
 
     private fun getUserAttributeAsStringArray(
