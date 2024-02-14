@@ -16,5 +16,5 @@ internal data class Preferences(
      * The config salt which was used to hash sensitive data.
      */
     @SerialName(value = "s")
-    val salt: String
+    val salt: String?
 )

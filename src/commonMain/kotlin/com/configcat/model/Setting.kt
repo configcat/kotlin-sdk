@@ -43,7 +43,7 @@ public data class Setting(
     val variationId: String = ""
 ) {
 
-    var configSalt: String = ""
+    var configSalt: String? = null
     internal var segments: Array<Segment> = arrayOf()
 
     public constructor() : this(0, "", null, null, SettingsValue(), "")

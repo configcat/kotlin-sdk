@@ -163,7 +163,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun evaluateConditions(
         conditions: List<ConditionAccessor>,
         targetingRule: TargetingRule?,
-        configSalt: String,
+        configSalt: String?,
         contextSalt: String,
         context: EvaluationContext,
         segments: Array<Segment>,
@@ -254,7 +254,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun evaluateSegmentCondition(
         segmentCondition: SegmentCondition,
         context: EvaluationContext,
-        configSalt: String,
+        configSalt: String?,
         segments: Array<Segment>,
         evaluateLogger: EvaluateLogger?
     ): Boolean {
@@ -370,7 +370,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     @Suppress("ThrowsCount", "ReturnCount", "CyclomaticComplexMethod", "LongMethod")
     private fun evaluateUserCondition(
         condition: UserCondition,
-        configSalt: String,
+        configSalt: String?,
         context: EvaluationContext,
         contextSalt: String,
         evaluateLogger: EvaluateLogger?
@@ -464,7 +464,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                 return processHashedStartEndsWithCompare(
                     condition,
                     userAttributeAsString,
-                    configSalt,
+                    ensureConfigSalt(configSalt),
                     contextSalt,
                     comparator
                 )
@@ -590,13 +590,13 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun processSensitiveOneOf(
         condition: UserCondition,
         userValue: String,
-        configSalt: String,
+        configSalt: String?,
         contextSalt: String,
         userComparator: UserComparator
     ): Boolean {
         val split = condition.stringArrayValue?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
         val formattedUserValue = if (userComparator == UserComparator.ONE_OF_SENS || userComparator == UserComparator.NOT_ONE_OF_SENS) {
-            getSaltedUserValue(userValue, configSalt, contextSalt)
+            getSaltedUserValue(userValue, ensureConfigSalt(configSalt), contextSalt)
         } else {
             userValue
         }
@@ -628,13 +628,13 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun processHashedEqualsCompare(
         condition: UserCondition,
         userValue: String,
-        configSalt: String,
+        configSalt: String?,
         contextSalt: String,
         userComparator: UserComparator
     ): Boolean {
         val formattedUserValue =
             if (userComparator == UserComparator.HASHED_EQUALS || userComparator == UserComparator.HASHED_NOT_EQUALS) {
-                getSaltedUserValue(userValue, configSalt, contextSalt)
+                getSaltedUserValue(userValue, ensureConfigSalt(configSalt), contextSalt)
             } else {
                 userValue
             }
@@ -736,7 +736,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun processHashedArrayContainsCompare(
         condition: UserCondition,
         userContainsArray: Array<String>,
-        configSalt: String,
+        configSalt: String?,
         contextSalt: String,
         userComparator: UserComparator
     ): Boolean {
@@ -749,7 +749,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             userComparator == UserComparator.HASHED_ARRAY_CONTAINS || userComparator == UserComparator.HASHED_ARRAY_NOT_CONTAINS
         userContainsArray.forEach {
             val correctUserValue = if (hashedRequired) {
-                getSaltedUserValue(it, configSalt, contextSalt)
+                getSaltedUserValue(it, ensureConfigSalt(configSalt), contextSalt)
             } else {
                 it
             }
@@ -1025,6 +1025,13 @@ internal class Evaluator(private val logger: InternalLogger) {
         }
 
         throw NumberFormatException()
+    }
+
+    private fun ensureConfigSalt(configSalt: String?): String{
+        if(configSalt != null){
+            return configSalt
+        }
+        throw IllegalArgumentException("Config JSON salt is missing.")
     }
 
     /**
