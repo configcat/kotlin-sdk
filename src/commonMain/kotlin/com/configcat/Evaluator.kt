@@ -657,36 +657,36 @@ internal class Evaluator(private val logger: InternalLogger) {
         val userValueUTF8 = userValue.encodeToByteArray()
         var matchCondition = false
         for (comparisonValueHashedStartsEnds in withValuesSplit) {
-            try {
+
                 val comparedTextLength = comparisonValueHashedStartsEnds.substringBeforeLast("_")
                 require(comparedTextLength != comparisonValueHashedStartsEnds) {
                     "Comparison value is missing or invalid."
                 }
-                val comparedTextLengthInt: Int = comparedTextLength.toInt()
+                val comparedTextLengthInt: Int
+                try {
+                     comparedTextLengthInt = comparedTextLength.toInt()
+                } catch (e: NumberFormatException) {
+                    throw IllegalArgumentException("Comparison value is missing or invalid.")
+                }
                 if (userValueUTF8.size < comparedTextLengthInt) {
                     continue
                 }
                 val comparisonHashValue = comparisonValueHashedStartsEnds.substringAfterLast("_")
                 require(comparisonHashValue.isNotEmpty()) { "Comparison value is missing or invalid." }
-                val userValueHashed =
+                val userValueSlice =
                     if (userComparator == UserComparator.HASHED_STARTS_WITH ||
                         userComparator == UserComparator.HASHED_NOT_STARTS_WITH
                     ) {
-                        val userValueSlice = userValueUTF8.copyOfRange(0, comparedTextLengthInt).decodeToString()
-                        getSaltedUserValue(userValueSlice, configSalt, contextSalt)
+                         userValueUTF8.copyOfRange(0, comparedTextLengthInt)
                     } else {
                         // Comparator.HASHED_ENDS_WITH, Comparator.HASHED_NOT_ENDS_WITH
-                        val userValueSlice =
                             userValueUTF8.copyOfRange(userValueUTF8.size - comparedTextLengthInt, userValueUTF8.size)
-                                .decodeToString()
-                        getSaltedUserValue(userValueSlice, configSalt, contextSalt)
                     }
+                val userValueHashed = getSaltedUserValueSlice(userValueSlice, configSalt, contextSalt)
                 if (userValueHashed == comparisonHashValue) {
                     matchCondition = true
                 }
-            } catch (e: NumberFormatException) {
-                throw IllegalArgumentException("Comparison value is missing or invalid.")
-            }
+
         }
         if (userComparator == UserComparator.HASHED_NOT_STARTS_WITH || userComparator == UserComparator.HASHED_NOT_ENDS_WITH) {
             // negate the match in case of NOT ANY OF
@@ -771,6 +771,13 @@ internal class Evaluator(private val logger: InternalLogger) {
     private fun getSaltedUserValue(userValue: String, configSalt: String, contextSalt: String): String {
         val value = userValue + configSalt + contextSalt
         return value.encodeToByteArray().sha256().hex
+    }
+
+    private fun getSaltedUserValueSlice(userValue: ByteArray, configSalt: String, contextSalt: String): String {
+        val configSaltByteArray = configSalt.encodeToByteArray()
+        val contextSaltByteArray = contextSalt.encodeToByteArray()
+        val concatByteArray = userValue + configSaltByteArray + contextSaltByteArray
+        return concatByteArray.sha256().hex
     }
 
     private fun evaluatePercentageOptions(
