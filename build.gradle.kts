@@ -54,6 +54,13 @@ kotlin {
         }
     }
 
+    fun addNativeTarget2(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget, desiredHost: Host) {
+        if (host == desiredHost) {
+            nativeMainSets.add(target.compilations.getByName("main").kotlinSourceSets.first())
+            nativeTestSets.add(target.compilations.getByName("test").kotlinSourceSets.first())
+        }
+    }
+
     explicitApi()
 
     jvm {
@@ -62,7 +69,7 @@ kotlin {
         }
     }
 
-    android {
+    androidTarget() {
         compilations.all {
             kotlinOptions.jvmTarget = "1.8"
         }
@@ -92,29 +99,37 @@ kotlin {
     }
 
     // Windows
-    addNativeTarget(presets["mingwX64"], Host.WINDOWS)
+    //addNativeTarget(presets["mingwX64"], Host.WINDOWS)
+    addNativeTarget2(mingwX64(), Host.WINDOWS)
+
 
     // Linux
-    addNativeTarget(presets["linuxX64"], Host.LINUX)
+    //addNativeTarget(presets["linuxX64"], Host.LINUX)
+    addNativeTarget2(linuxX64(), Host.LINUX)
 
     // MacOS
-    addNativeTarget(presets["macosX64"], Host.MAC_OS)
-    addNativeTarget(presets["macosArm64"], Host.MAC_OS)
+//    addNativeTarget(presets["macosX64"], Host.MAC_OS)
+//    addNativeTarget(presets["macosArm64"], Host.MAC_OS)
+    addNativeTarget2(macosX64(), Host.MAC_OS)
+    addNativeTarget2(macosArm64(), Host.MAC_OS)
 
     // iOS
-    addNativeTarget(presets["iosArm64"], Host.MAC_OS)
-    addNativeTarget(presets["iosX64"], Host.MAC_OS)
-    addNativeTarget(presets["iosSimulatorArm64"], Host.MAC_OS)
+//    addNativeTarget(presets["iosArm64"], Host.MAC_OS)
+//    addNativeTarget(presets["iosX64"], Host.MAC_OS)
+//    addNativeTarget(presets["iosSimulatorArm64"], Host.MAC_OS)
+    addNativeTarget2(iosArm64(), Host.MAC_OS)
+    addNativeTarget2(iosX64(), Host.MAC_OS)
+    addNativeTarget2(iosSimulatorArm64(), Host.MAC_OS)
 
     // watchOS
-    addNativeTarget(presets["watchosArm32"], Host.MAC_OS)
-    addNativeTarget(presets["watchosArm64"], Host.MAC_OS)
-    addNativeTarget(presets["watchosSimulatorArm64"], Host.MAC_OS)
+    addNativeTarget2(watchosArm32(), Host.MAC_OS)
+    addNativeTarget2(watchosArm64(), Host.MAC_OS)
+    addNativeTarget2(watchosSimulatorArm64(), Host.MAC_OS)
 
     // tvOS
-    addNativeTarget(presets["tvosArm64"], Host.MAC_OS)
-    addNativeTarget(presets["tvosX64"], Host.MAC_OS)
-    addNativeTarget(presets["tvosSimulatorArm64"], Host.MAC_OS)
+    addNativeTarget2(tvosArm64(), Host.MAC_OS)
+    addNativeTarget2(tvosX64(), Host.MAC_OS)
+    addNativeTarget2(tvosSimulatorArm64(), Host.MAC_OS)
 
     sourceSets {
         val commonMain by getting {
