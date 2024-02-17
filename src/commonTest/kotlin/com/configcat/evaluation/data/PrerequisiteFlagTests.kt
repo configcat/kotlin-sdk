@@ -504,7 +504,7 @@ object PrerequisiteFlagTests : TestSet {
             defaultValue = "default",
             returnValue = "Chicken",
             user = null,
-            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'dependentFeatureWithUserCondition' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()`/`getValueAsync()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
+            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'dependentFeatureWithUserCondition' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
 INFO [5000] Evaluating 'dependentFeatureWithUserCondition'
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email IS ONE OF [<2 hashed values>] THEN 'Dog' => cannot evaluate, User Object is missing
@@ -525,7 +525,7 @@ INFO [5000] Evaluating 'dependentFeatureWithUserCondition'
             defaultValue = "default",
             returnValue = "Chicken",
             user = null,
-            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'mainFeature' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()`/`getValueAsync()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
+            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'mainFeature' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
 INFO [5000] Evaluating 'dependentFeature'
   Evaluating targeting rules and applying the first match if any:
   - IF Flag 'mainFeature' EQUALS 'target'
@@ -549,9 +549,9 @@ INFO [5000] Evaluating 'dependentFeature'
             defaultValue = "default",
             returnValue = "Frog",
             user = null,
-            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'dependentFeatureWithUserCondition2' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()`/`getValueAsync()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
-WARNING [3001] Cannot evaluate targeting rules and % options for setting 'mainFeature' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()`/`getValueAsync()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
-WARNING [3001] Cannot evaluate targeting rules and % options for setting 'mainFeature' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()`/`getValueAsync()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
+            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'dependentFeatureWithUserCondition2' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
+WARNING [3001] Cannot evaluate targeting rules and % options for setting 'mainFeature' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
+WARNING [3001] Cannot evaluate targeting rules and % options for setting 'mainFeature' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
 INFO [5000] Evaluating 'dependentFeatureWithUserCondition2'
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email IS ONE OF [<2 hashed values>] THEN 'Dog' => cannot evaluate, User Object is missing

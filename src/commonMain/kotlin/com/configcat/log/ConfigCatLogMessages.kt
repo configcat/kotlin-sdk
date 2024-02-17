@@ -192,7 +192,7 @@ internal object ConfigCatLogMessages {
      */
     fun getUserObjectMissing(key: String): String {
         return "Cannot evaluate targeting rules and % options for setting '$key' (User Object is missing). " +
-            "You should pass a User Object to the evaluation methods like `getValue()`/`getValueAsync()` " +
+            "You should pass a User Object to the evaluation methods like `getValue()` " +
             "in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/"
     }
 

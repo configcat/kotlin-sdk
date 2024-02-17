@@ -200,7 +200,7 @@ public fun ConfigCatClient(
 internal inline fun <reified T : Any> validateValueType(value: Any): T {
     if (value !is T) {
         throw IllegalArgumentException(
-            "The type of a setting must match the type of the setting's default value. " +
+            "The type of a setting must match the type of the specified default value. " +
                 "Setting's type was {" + value::class.toString() + "} but the default value's type was {" + T::class.toString() + "}. " +
                 "Please use a default value which corresponds to the setting type {" + value::class.toString() + "}." +
                 "Learn more: https://configcat.com/docs/sdk-reference/dotnet/#setting-type-mapping"

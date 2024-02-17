@@ -438,7 +438,7 @@ object AndRulesTests : TestSet {
             defaultValue = "default",
             returnValue = "Cat",
             user = null,
-            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'emailAnd' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()`/`getValueAsync()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
+            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'emailAnd' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
 INFO [5000] Evaluating 'emailAnd'
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email STARTS WITH ANY OF [<1 hashed value>] => false, skipping the remaining AND conditions

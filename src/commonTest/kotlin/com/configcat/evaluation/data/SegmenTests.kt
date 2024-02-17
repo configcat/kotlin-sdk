@@ -310,7 +310,7 @@ object SegmenTests : TestSet {
             defaultValue = false,
             returnValue = false,
             user = null,
-            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'featureWithSegmentTargeting' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()`/`getValueAsync()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
+            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'featureWithSegmentTargeting' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
 INFO [5000] Evaluating 'featureWithSegmentTargeting'
   Evaluating targeting rules and applying the first match if any:
   - IF User IS IN SEGMENT 'Beta users' THEN 'true' => cannot evaluate, User Object is missing
@@ -375,7 +375,7 @@ INFO [5000] Evaluating 'featureWithNegatedSegmentTargetingCleartext' for User '{
             defaultValue = false,
             returnValue = false,
             user = null,
-            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'featureWithSegmentTargetingMultipleConditions' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()`/`getValueAsync()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
+            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'featureWithSegmentTargetingMultipleConditions' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
 INFO [5000] Evaluating 'featureWithSegmentTargetingMultipleConditions'
   Evaluating targeting rules and applying the first match if any:
   - IF User IS IN SEGMENT 'Beta users (cleartext)' => false, skipping the remaining AND conditions

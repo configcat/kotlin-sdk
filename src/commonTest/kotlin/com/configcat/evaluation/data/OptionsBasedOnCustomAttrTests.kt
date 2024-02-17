@@ -175,7 +175,7 @@ object OptionsBasedOnCustomAttrTests : TestSet {
             defaultValue = "default",
             returnValue = "Chicken",
             user = null,
-            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'string75Cat0Dog25Falcon0HorseCustomAttr' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()`/`getValueAsync()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
+            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'string75Cat0Dog25Falcon0HorseCustomAttr' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
 INFO [5000] Evaluating 'string75Cat0Dog25Falcon0HorseCustomAttr'
   Skipping % options because the User Object is missing.
   Returning 'Chicken'."""

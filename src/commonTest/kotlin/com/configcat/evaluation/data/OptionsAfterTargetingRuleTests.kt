@@ -604,7 +604,7 @@ object OptionsAfterTargetingRuleTests : TestSet {
             defaultValue = 42,
             returnValue = -1,
             user = null,
-            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'integer25One25Two25Three25FourAdvancedRules' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()`/`getValueAsync()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
+            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'integer25One25Two25Three25FourAdvancedRules' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
 INFO [5000] Evaluating 'integer25One25Two25Three25FourAdvancedRules'
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email CONTAINS ANY OF ['@configcat.com'] THEN '5' => cannot evaluate, User Object is missing
