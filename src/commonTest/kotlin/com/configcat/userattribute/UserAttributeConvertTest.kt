@@ -83,10 +83,10 @@ class UserAttributeConvertTest {
         runConvertTest(NumberConvertData, "2", "<2.1")
         runConvertTest(NumberConvertData, "3", "<>4.2")
         runConvertTest(NumberConvertData, "5", ">=5")
-        runConvertTest(NumberConvertData, Double.NaN, "80%")
+        runConvertTest(NumberConvertData, Double.NaN, "<>4.2")
         runConvertTest(NumberConvertData, Double.POSITIVE_INFINITY, ">5")
         runConvertTest(NumberConvertData, Double.NEGATIVE_INFINITY, "<2.1")
-        runConvertTest(NumberConvertData, Float.NaN, "80%")
+        runConvertTest(NumberConvertData, Float.NaN, "<>4.2")
         runConvertTest(NumberConvertData, Float.POSITIVE_INFINITY, ">5")
         runConvertTest(NumberConvertData, Float.NEGATIVE_INFINITY, "<2.1")
         runConvertTest(NumberConvertData, Long.MAX_VALUE, ">5")
@@ -94,6 +94,9 @@ class UserAttributeConvertTest {
         runConvertTest(NumberConvertData, Int.MAX_VALUE, ">5")
         runConvertTest(NumberConvertData, Int.MIN_VALUE, "<2.1")
         runConvertTest(NumberConvertData, "NotANumber", "80%")
+        runConvertTest(NumberConvertData, "Infinity", ">5")
+        runConvertTest(NumberConvertData, "NaN",  "<>4.2")
+        runConvertTest(NumberConvertData, "NaNa", "80%")
     }
 
     private suspend fun runConvertTest(data: ConvertData, customAttributeValue: Any, expectedValue: Any) {
@@ -107,7 +110,7 @@ class UserAttributeConvertTest {
         }
         client.forceRefresh()
 
-        var customAttributes = mutableMapOf<String, Any>()
+        val customAttributes = mutableMapOf<String, Any>()
         customAttributes["Custom1"] = customAttributeValue
 
         val configCatUser = ConfigCatUser(identifier = "12345", custom = customAttributes)

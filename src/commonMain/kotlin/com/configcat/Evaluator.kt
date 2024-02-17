@@ -907,15 +907,11 @@ internal class Evaluator(private val logger: InternalLogger) {
         comparisonAttribute: String,
         userValue: Any
     ): Double {
-        val converted: Double
         try {
-            if (userValue is Double) {
-                converted = userValue
+            return if (userValue is Double) {
+                userValue
             } else {
-                converted = userAttributeToDouble(userValue)
-            }
-            if (converted.isNaN()) {
-                throw NumberFormatException()
+                userAttributeToDouble(userValue)
             }
         } catch (e: NumberFormatException) {
             val reason = "'$userValue' is not a valid decimal number"
@@ -933,7 +929,6 @@ internal class Evaluator(private val logger: InternalLogger) {
                     "invalid ($reason)"
             )
         }
-        return converted
     }
 
     private fun getUserAttributeForDate(
@@ -946,11 +941,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             if (userValue is DateTime) {
                 return userValue.unixMillisDouble / 1000
             }
-            val userAttributeToDouble = userAttributeToDouble(userValue)
-            if (userAttributeToDouble.isNaN()) {
-                throw NumberFormatException()
-            }
-            return userAttributeToDouble
+            return userAttributeToDouble(userValue)
         } catch (e: NumberFormatException) {
             val reason =
                 "'$userValue' is not a valid Unix timestamp (number of seconds elapsed since Unix epoch)"
