@@ -76,7 +76,11 @@ class JSConfigV2EvaluationTest {
 
         val value = client.getValue(key, "", null)
         var errorLogs = mutableListOf<LogEvent>()
-        assertEquals(expectedValue, value, "Flag key: $key PrerequisiteFlagKey: $prerequisiteFlagKey PrerequisiteFlagValue: $prerequisiteFlagValue")
+        assertEquals(
+            expectedValue,
+            value,
+            "Flag key: $key PrerequisiteFlagKey: $prerequisiteFlagKey PrerequisiteFlagValue: $prerequisiteFlagValue"
+        )
         if (expectedValue.isNullOrEmpty()) {
             val logsList = evaluationTestLogger.getLogList()
             for (i in logsList.indices) {

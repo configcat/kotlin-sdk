@@ -95,7 +95,7 @@ class UserAttributeConvertTest {
         runConvertTest(NumberConvertData, Int.MIN_VALUE, "<2.1")
         runConvertTest(NumberConvertData, "NotANumber", "80%")
         runConvertTest(NumberConvertData, "Infinity", ">5")
-        runConvertTest(NumberConvertData, "NaN",  "<>4.2")
+        runConvertTest(NumberConvertData, "NaN", "<>4.2")
         runConvertTest(NumberConvertData, "NaNa", "80%")
     }
 

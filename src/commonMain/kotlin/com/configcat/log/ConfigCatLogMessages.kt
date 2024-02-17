@@ -44,7 +44,8 @@ internal object ConfigCatLogMessages {
     /**
      * Log message for Fetch Failed Due To Unexpected error. The log eventId is 1103.
      */
-    const val FETCH_FAILED_DUE_TO_UNEXPECTED_ERROR = "Unexpected error occurred while trying to fetch config JSON. It is most likely due to a local network issue. Please make sure your application can reach the ConfigCat CDN servers (or your proxy server) over HTTP."
+    const val FETCH_FAILED_DUE_TO_UNEXPECTED_ERROR =
+        "Unexpected error occurred while trying to fetch config JSON. It is most likely due to a local network issue. Please make sure your application can reach the ConfigCat CDN servers (or your proxy server) over HTTP."
 
     /**
      * Log message for Fetch Failed Due To Invalid Sdk Key error. The log eventId is 1100.

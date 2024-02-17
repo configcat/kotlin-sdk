@@ -1002,7 +1002,8 @@ class ConfigCatClientTests {
         })
 
         //TEST OverrideBehaviour.localOnly skip sdkKey validation
-        client = ConfigCatClient("sdk-key-90123456789012"){flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        client =
+            ConfigCatClient("sdk-key-90123456789012") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         assertNotNull(client)
 

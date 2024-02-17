@@ -545,6 +545,7 @@ internal class Client private constructor(
             SettingType.JS_NUMBER -> {
                 settingsValue.doubleValue
             }
+
             else -> {
                 throw IllegalArgumentException(
                     "The setting type is not valid. Only String, Int, Double or Boolean types are supported."

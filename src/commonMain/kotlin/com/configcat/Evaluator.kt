@@ -35,7 +35,9 @@ internal data class EvaluationContext(
 )
 
 internal object ComparatorHelp {
-    fun Int.toComparatorOrNull(): Evaluator.UserComparator? = Evaluator.UserComparator.values().firstOrNull { it.id == this }
+    fun Int.toComparatorOrNull(): Evaluator.UserComparator? =
+        Evaluator.UserComparator.values().firstOrNull { it.id == this }
+
     fun Int.toPrerequisiteComparatorOrNull(): Evaluator.PrerequisiteComparator? =
         Evaluator.PrerequisiteComparator.values().firstOrNull { it.id == this }
 
@@ -444,7 +446,14 @@ internal class Evaluator(private val logger: InternalLogger) {
 
                 val userAttributeAsString =
                     getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
-                return processSensitiveOneOf(condition, userAttributeAsString, configSalt, contextSalt, negateIsOneOf,sensitiveIsOneOf )
+                return processSensitiveOneOf(
+                    condition,
+                    userAttributeAsString,
+                    configSalt,
+                    contextSalt,
+                    negateIsOneOf,
+                    sensitiveIsOneOf
+                )
             }
 
             UserComparator.DATE_BEFORE,
@@ -464,7 +473,14 @@ internal class Evaluator(private val logger: InternalLogger) {
 
                 val userAttributeAsString =
                     getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
-                return processHashedEqualsCompare(condition, userAttributeAsString, configSalt, contextSalt, negateEquals, hashedEquals)
+                return processHashedEqualsCompare(
+                    condition,
+                    userAttributeAsString,
+                    configSalt,
+                    contextSalt,
+                    negateEquals,
+                    hashedEquals
+                )
             }
 
             UserComparator.HASHED_STARTS_WITH,
@@ -547,7 +563,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                 continue
             }
             matched = try {
-                 semVer.trim().toVersion() == userVersion || matched
+                semVer.trim().toVersion() == userVersion || matched
             } catch (exception: VersionFormatException) {
                 // Previous versions of the evaluation algorithm ignored invalid comparison values.
                 // We keep this behavior for backward compatibility.
@@ -564,14 +580,14 @@ internal class Evaluator(private val logger: InternalLogger) {
         userComparator: UserComparator
     ): Boolean {
         val comparisonVersion =
-        @Suppress("SwallowedException")
-        try {
-            ensureComparisonValue(condition.stringValue).trim().toVersion()
-        } catch (e: VersionFormatException) {
-            // NOTE: Previous versions of the evaluation algorithm ignored invalid comparison values.
-            // We keep this behavior for backward compatibility.
-            return false
-        }
+            @Suppress("SwallowedException")
+            try {
+                ensureComparisonValue(condition.stringValue).trim().toVersion()
+            } catch (e: VersionFormatException) {
+                // NOTE: Previous versions of the evaluation algorithm ignored invalid comparison values.
+                // We keep this behavior for backward compatibility.
+                return false
+            }
         return when (userComparator) {
             UserComparator.LT_SEMVER -> userVersion < comparisonVersion
             UserComparator.LTE_SEMVER -> userVersion <= comparisonVersion
@@ -607,9 +623,9 @@ internal class Evaluator(private val logger: InternalLogger) {
         sensitiveIsOneOf: Boolean
     ): Boolean {
         val comparisonValues = ensureComparisonValue(condition.stringArrayValue)
-        val userIsOneOfValue: String = if(sensitiveIsOneOf){
+        val userIsOneOfValue: String = if (sensitiveIsOneOf) {
             getSaltedUserValue(userValue, ensureConfigSalt(configSalt), contextSalt)
-        }else{
+        } else {
             userValue
         }
 
@@ -646,7 +662,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         val comparisonValue = ensureComparisonValue(condition.stringValue)
         val valueEquals = if (hashedEquals) {
             getSaltedUserValue(userValue, ensureConfigSalt(configSalt), contextSalt)
-        }else{
+        } else {
             userValue
         }
 
@@ -665,34 +681,34 @@ internal class Evaluator(private val logger: InternalLogger) {
         var matchCondition = false
         for (comparisonValueHashedStartsEnds in withValuesSplit) {
 
-                val comparedTextLength = comparisonValueHashedStartsEnds.substringBeforeLast("_")
-                require(comparedTextLength != comparisonValueHashedStartsEnds) {
-                    "Comparison value is missing or invalid."
+            val comparedTextLength = comparisonValueHashedStartsEnds.substringBeforeLast("_")
+            require(comparedTextLength != comparisonValueHashedStartsEnds) {
+                "Comparison value is missing or invalid."
+            }
+            val comparedTextLengthInt: Int
+            try {
+                comparedTextLengthInt = comparedTextLength.toInt()
+            } catch (e: NumberFormatException) {
+                throw IllegalArgumentException("Comparison value is missing or invalid.")
+            }
+            if (userValueUTF8.size < comparedTextLengthInt) {
+                continue
+            }
+            val comparisonHashValue = comparisonValueHashedStartsEnds.substringAfterLast("_")
+            require(comparisonHashValue.isNotEmpty()) { "Comparison value is missing or invalid." }
+            val userValueSlice =
+                if (userComparator == UserComparator.HASHED_STARTS_WITH ||
+                    userComparator == UserComparator.HASHED_NOT_STARTS_WITH
+                ) {
+                    userValueUTF8.copyOfRange(0, comparedTextLengthInt)
+                } else {
+                    // Comparator.HASHED_ENDS_WITH, Comparator.HASHED_NOT_ENDS_WITH
+                    userValueUTF8.copyOfRange(userValueUTF8.size - comparedTextLengthInt, userValueUTF8.size)
                 }
-                val comparedTextLengthInt: Int
-                try {
-                     comparedTextLengthInt = comparedTextLength.toInt()
-                } catch (e: NumberFormatException) {
-                    throw IllegalArgumentException("Comparison value is missing or invalid.")
-                }
-                if (userValueUTF8.size < comparedTextLengthInt) {
-                    continue
-                }
-                val comparisonHashValue = comparisonValueHashedStartsEnds.substringAfterLast("_")
-                require(comparisonHashValue.isNotEmpty()) { "Comparison value is missing or invalid." }
-                val userValueSlice =
-                    if (userComparator == UserComparator.HASHED_STARTS_WITH ||
-                        userComparator == UserComparator.HASHED_NOT_STARTS_WITH
-                    ) {
-                         userValueUTF8.copyOfRange(0, comparedTextLengthInt)
-                    } else {
-                        // Comparator.HASHED_ENDS_WITH, Comparator.HASHED_NOT_ENDS_WITH
-                            userValueUTF8.copyOfRange(userValueUTF8.size - comparedTextLengthInt, userValueUTF8.size)
-                    }
-                val userValueHashed = getSaltedUserValueSlice(userValueSlice, configSalt, contextSalt)
-                if (userValueHashed == comparisonHashValue) {
-                    matchCondition = true
-                }
+            val userValueHashed = getSaltedUserValueSlice(userValueSlice, configSalt, contextSalt)
+            if (userValueHashed == comparisonHashValue) {
+                matchCondition = true
+            }
 
         }
         if (userComparator == UserComparator.HASHED_NOT_STARTS_WITH || userComparator == UserComparator.HASHED_NOT_ENDS_WITH) {
@@ -1017,15 +1033,15 @@ internal class Evaluator(private val logger: InternalLogger) {
         throw NumberFormatException()
     }
 
-    private fun ensureConfigSalt(configSalt: String?): String{
-        if(configSalt != null){
+    private fun ensureConfigSalt(configSalt: String?): String {
+        if (configSalt != null) {
             return configSalt
         }
         throw IllegalArgumentException("Config JSON salt is missing.")
     }
 
-    private inline fun <reified T> ensureComparisonValue(value: T?) : T {
-        if(value != null){
+    private inline fun <reified T> ensureComparisonValue(value: T?): T {
+        if (value != null) {
             return value
         }
         throw IllegalArgumentException("Comparison value is missing or invalid.")
