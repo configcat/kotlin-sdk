@@ -964,17 +964,12 @@ class ConfigCatClientTests {
     @Test
     fun testSDKKeyIsValid() {
         // TEST VALID KEYS
-        var client = ConfigCatClient("sdk-key-90123456789012/1234567890123456789012") {
-            flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY }
-        }
+        var client = ConfigCatClient("sdk-key-90123456789012/1234567890123456789012")
         assertNotNull(client)
-        client = ConfigCatClient("configcat-sdk-1/sdk-key-90123456789012/1234567890123456789012") {
-            flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY }
-        }
+        client = ConfigCatClient("configcat-sdk-1/sdk-key-90123456789012/1234567890123456789012")
         assertNotNull(client)
         client = ConfigCatClient("configcat-proxy/sdk-key-90123456789012") {
             baseUrl = "https://my-configcat-proxy"
-            flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY }
         }
         assertNotNull(client)
 
@@ -1005,5 +1000,12 @@ class ConfigCatClientTests {
         assertFailsWith(IllegalArgumentException::class, "SDK Key 'configcat-proxy/' is invalid.", block = {
             ConfigCatClient("configcat-proxy/") { baseUrl = "https://my-configcat-proxy" }
         })
+
+        //TEST OverrideBehaviour.localOnly skip sdkKey validation
+        client = ConfigCatClient("sdk-key-90123456789012"){flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+
+        assertNotNull(client)
+
+        ConfigCatClient.closeAll()
     }
 }
