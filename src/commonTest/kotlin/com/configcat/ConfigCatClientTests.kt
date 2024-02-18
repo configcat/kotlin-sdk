@@ -963,13 +963,24 @@ class ConfigCatClientTests {
 
     @Test
     fun testSDKKeyIsValid() {
+        val mockEngine = MockEngine {
+            respond(
+                content = Data.formatJsonBodyWithBoolean(true),
+                status = HttpStatusCode.OK
+            )
+        }
         // TEST VALID KEYS
-        var client = ConfigCatClient("sdk-key-90123456789012/1234567890123456789012")
+        var client = ConfigCatClient("sdk-key-90123456789012/1234567890123456789012") {
+            httpEngine = mockEngine
+        }
         assertNotNull(client)
-        client = ConfigCatClient("configcat-sdk-1/sdk-key-90123456789012/1234567890123456789012")
+        client = ConfigCatClient("configcat-sdk-1/sdk-key-90123456789012/1234567890123456789012") {
+            httpEngine = mockEngine
+        }
         assertNotNull(client)
         client = ConfigCatClient("configcat-proxy/sdk-key-90123456789012") {
             baseUrl = "https://my-configcat-proxy"
+            httpEngine = mockEngine
         }
         assertNotNull(client)
 
@@ -1003,7 +1014,9 @@ class ConfigCatClientTests {
 
         //TEST OverrideBehaviour.localOnly skip sdkKey validation
         client =
-            ConfigCatClient("sdk-key-90123456789012") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+            ConfigCatClient("sdk-key-90123456789012") {
+                flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY }
+            }
 
         assertNotNull(client)
 
