@@ -165,6 +165,62 @@ class ConfigV2EvaluationTest {
             OverrideBehavior.LOCAL_ONLY,
             ""
         )
+        runPrerequisiteFlagOverrideTest(
+            "stringDependsOnInt",
+            "1",
+            "john@sensitivecompany.com",
+            null,
+            "Dog"
+        )
+        runPrerequisiteFlagOverrideTest(
+            "stringDependsOnInt",
+            "1",
+            "john@sensitivecompany.com",
+            OverrideBehavior.REMOTE_OVER_LOCAL,
+            "Dog"
+        )
+        runPrerequisiteFlagOverrideTest(
+            "stringDependsOnInt",
+            "1",
+            "john@sensitivecompany.com",
+            OverrideBehavior.LOCAL_OVER_REMOTE,
+            "Falcon"
+        )
+        runPrerequisiteFlagOverrideTest(
+            "stringDependsOnInt",
+            "1",
+            "john@sensitivecompany.com",
+            OverrideBehavior.LOCAL_ONLY,
+            "Falcon"
+        )
+        runPrerequisiteFlagOverrideTest(
+            "stringDependsOnInt",
+            "1",
+            "john@notsensitivecompany.com",
+            null,
+            "Cat"
+        )
+        runPrerequisiteFlagOverrideTest(
+            "stringDependsOnInt",
+            "1",
+            "john@notsensitivecompany.com",
+            OverrideBehavior.REMOTE_OVER_LOCAL,
+            "Cat"
+        )
+        runPrerequisiteFlagOverrideTest(
+            "stringDependsOnInt",
+            "1",
+            "john@notsensitivecompany.com",
+            OverrideBehavior.LOCAL_OVER_REMOTE,
+            "Falcon"
+        )
+        runPrerequisiteFlagOverrideTest(
+            "stringDependsOnInt",
+            "1",
+            "john@notsensitivecompany.com",
+            OverrideBehavior.LOCAL_ONLY,
+            "Falcon"
+        )
     }
 
     private suspend fun runRuleAndPercentageOptionTest(
@@ -250,7 +306,7 @@ class ConfigV2EvaluationTest {
         client.forceRefresh()
 
         val value = client.getValue(key, "", null)
-        var errorLogs = mutableListOf<LogEvent>()
+        val errorLogs = mutableListOf<LogEvent>()
         assertEquals(
             expectedValue,
             value,
@@ -259,7 +315,7 @@ class ConfigV2EvaluationTest {
         if (expectedValue.isNullOrEmpty()) {
             val logsList = evaluationTestLogger.getLogList()
             for (i in logsList.indices) {
-                var log = logsList[i]
+                val log = logsList[i]
                 if (log.logLevel == LogLevel.ERROR) {
                     errorLogs.add(log)
                 }
@@ -268,11 +324,7 @@ class ConfigV2EvaluationTest {
             val errorMessage: String = errorLogs[0].logMessage
             assertContains(errorMessage, "[1002]")
 
-            if (prerequisiteFlagValue == null) {
-                assertContains(errorMessage, "Setting value is null")
-            } else {
-                assertContains(errorMessage, "Type mismatch between comparison value")
-            }
+            assertContains(errorMessage, "Type mismatch between comparison value")
 
             evaluationTestLogger.resetLogList()
         }
@@ -291,8 +343,9 @@ class ConfigV2EvaluationTest {
         if (userId != null) {
             user = ConfigCatUser(identifier = userId, email = email)
         }
-        var overrideMap = mutableMapOf<String, Any>()
+        val overrideMap = mutableMapOf<String, Any>()
         overrideMap["mainStringFlag"] = "private"
+        overrideMap["stringDependsOnInt"] = "Falcon"
 
         val mockEngine = MockEngine {
             respond(content = prerequisiteFlagMismatchRemoteJson, status = HttpStatusCode.OK)
