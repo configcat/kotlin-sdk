@@ -893,7 +893,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         @Suppress("SwallowedException")
         try {
             if (userValue is String) {
-                return userValue.toVersion()
+                return userValue.trim().toVersion()
             }
         } catch (e: VersionFormatException) {
             // Version parse failed continue with the RolloutEvaluatorException

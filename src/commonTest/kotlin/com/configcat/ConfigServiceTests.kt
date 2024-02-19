@@ -208,7 +208,7 @@ class ConfigServiceTests {
         val service = Services.createConfigService(mockEngine, autoPoll { pollingInterval = 1.seconds }, null)
 
         TestUtils.awaitUntil {
-            service.getSettings().settings.values.first()?.settingsValue?.stringValue == "test2"
+            service.getSettings().settings.values.first().settingsValue.stringValue == "test2"
         }
 
         assertTrue(mockEngine.requestHistory.size in 2..3)
