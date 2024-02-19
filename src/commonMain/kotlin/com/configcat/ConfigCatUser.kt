@@ -1,5 +1,7 @@
 package com.configcat
 
+import kotlinx.serialization.encodeToString
+
 /**
  * An object containing attributes to properly identify a given user for variation evaluation.
  * Its only mandatory attribute is the [identifier].
@@ -72,7 +74,6 @@ public class ConfigCatUser(
     }
 
     override fun toString(): String {
-        // TODO allinone fix
-        return "{${attributes.map { "\"${it.key}\":\"${it.value}\"" }.joinToString(",")}}"
+        return Constants.json.encodeToString(attributes)
     }
 }

@@ -1395,7 +1395,7 @@ object ComparatorsTests : TestSet {
                 "[\"USA\"]",
                 custom = mapOf("Version" to "1.0.0", "Number" to "1.0", "Date" to "1693497500")
             ),
-            expectedLog = """INFO [5000] Evaluating 'allinone' for User '{"Identifier":"12345","Email":"joe@example.com","Country":"["USA"]","Version":"1.0.0","Number":"1.0","Date":"1693497500"}'
+            expectedLog = """INFO [5000] Evaluating 'allinone' for User '{"Identifier":"12345","Email":"joe@example.com","Country":"[\"USA\"]","Version":"1.0.0","Number":"1.0","Date":"1693497500"}'
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email EQUALS '<hashed value>' => true
     AND User.Email NOT EQUALS '<hashed value>' => false, skipping the remaining AND conditions
