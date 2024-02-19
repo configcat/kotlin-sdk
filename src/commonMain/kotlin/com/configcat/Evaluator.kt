@@ -17,6 +17,7 @@ import io.github.z4kn4fein.semver.toVersion
 import io.ktor.http.*
 import io.ktor.utils.io.charsets.*
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 
 internal data class EvaluationResult(
     val value: SettingsValue,
@@ -1003,6 +1004,12 @@ internal class Evaluator(private val logger: InternalLogger) {
         }
         if (userValue is String) {
             return userValue
+        }
+        if (userValue is Array<*>) {
+            return Constants.json.encodeToString(userValue)
+        }
+        if (userValue is List<*>) {
+            return Constants.json.encodeToString(userValue)
         }
         if (userValue is DateTime) {
             return (userValue.milliseconds / 1000).toString()
