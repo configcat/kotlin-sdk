@@ -97,6 +97,14 @@ class UserAttributeConvertTest {
         runConvertTest(NumberConvertData, "Infinity", ">5")
         runConvertTest(NumberConvertData, "NaN", "<>4.2")
         runConvertTest(NumberConvertData, "NaNa", "80%")
+        runConvertTest(NumberConvertData, (-1).toByte(), "<2.1")
+        runConvertTest(NumberConvertData, (2).toByte(), "<2.1")
+        runConvertTest(NumberConvertData, (3).toByte(), "<>4.2")
+        runConvertTest(NumberConvertData, (5).toByte(), ">=5")
+        runConvertTest(NumberConvertData, (-1).toShort(), "<2.1")
+        runConvertTest(NumberConvertData, (2).toShort(), "<2.1")
+        runConvertTest(NumberConvertData, (3).toShort(), "<>4.2")
+        runConvertTest(NumberConvertData, (5).toShort(), ">=5")
     }
 
     private suspend fun runConvertTest(data: ConvertData, customAttributeValue: Any, expectedValue: Any) {

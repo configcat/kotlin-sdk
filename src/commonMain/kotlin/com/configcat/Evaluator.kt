@@ -1023,6 +1023,12 @@ internal class Evaluator(private val logger: InternalLogger) {
         if (userValue is Long) {
             return userValue.toDouble()
         }
+        if (userValue is Byte) {
+            return userValue.toDouble()
+        }
+        if (userValue is Short) {
+            return userValue.toDouble()
+        }
         if (userValue is String) {
             return userValue.trim().replace(",", ".").toDouble()
         }

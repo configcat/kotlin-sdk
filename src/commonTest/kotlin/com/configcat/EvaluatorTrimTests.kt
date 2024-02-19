@@ -16,7 +16,7 @@ class EvaluatorTrimTests {
     private val testCountry = "[\"USA\"]"
     private val testCountryWithWhiteSpaces = "[\" USA \"]"
 
-    //1705253400 - 2014.01.14 17:30:00 +1 - test check between 17:00 and 18:00
+    // 1705253400 - 2014.01.14 17:30:00 +1 - test check between 17:00 and 18:00
     private val testDate = "1705253400"
 
     @Test
@@ -45,8 +45,8 @@ class EvaluatorTrimTests {
         runComparatorValueTrimsTest("notstartwithanyofhashed", "default")
         runComparatorValueTrimsTest("endswithanyofhashed", "default")
         runComparatorValueTrimsTest("notendswithanyofhashed", "default")
-        //semver comparator values trimmed because of backward compatibility
-        //semver comparator values trimmed because of backward compatibility
+        // semver comparator values trimmed because of backward compatibility
+        // semver comparator values trimmed because of backward compatibility
         runComparatorValueTrimsTest("semverisoneof", "4 trim")
         runComparatorValueTrimsTest("semverisnotoneof", "5 trim")
         runComparatorValueTrimsTest("semverless", "6 trim")
@@ -99,16 +99,16 @@ class EvaluatorTrimTests {
         runUserValueTrimsTest("notstartwithanyofhashed", "no trim")
         runUserValueTrimsTest("endswithanyofhashed", "no trim")
         runUserValueTrimsTest("notendswithanyofhashed", "no trim")
-        //semver comparators user values trimmed because of backward compatibility
-        //semver comparators user values trimmed because of backward compatibility
+        // semver comparators user values trimmed because of backward compatibility
+        // semver comparators user values trimmed because of backward compatibility
         runUserValueTrimsTest("semverisoneof", "4 trim")
         runUserValueTrimsTest("semverisnotoneof", "5 trim")
         runUserValueTrimsTest("semverless", "6 trim")
         runUserValueTrimsTest("semverlessequals", "7 trim")
         runUserValueTrimsTest("semvergreater", "8 trim")
         runUserValueTrimsTest("semvergreaterequals", "9 trim")
-        //number and date comparators user values trimmed because of backward compatibility
-        //number and date comparators user values trimmed because of backward compatibility
+        // number and date comparators user values trimmed because of backward compatibility
+        // number and date comparators user values trimmed because of backward compatibility
         runUserValueTrimsTest("numberequals", "10 trim")
         runUserValueTrimsTest("numbernotequals", "11 trim")
         runUserValueTrimsTest("numberless", "12 trim")
@@ -117,8 +117,8 @@ class EvaluatorTrimTests {
         runUserValueTrimsTest("numbergreaterequals", "15 trim")
         runUserValueTrimsTest("datebefore", "18 trim")
         runUserValueTrimsTest("dateafter", "19 trim")
-        //"contains any of" and "not contains any of" is a special case, the not trimmed user attribute checked against not trimmed comparator values.
-        //"contains any of" and "not contains any of" is a special case, the not trimmed user attribute checked against not trimmed comparator values.
+        // "contains any of" and "not contains any of" is a special case, the not trimmed user attribute checked against not trimmed comparator values.
+        // "contains any of" and "not contains any of" is a special case, the not trimmed user attribute checked against not trimmed comparator values.
         runUserValueTrimsTest("containsanyof", "no trim")
         runUserValueTrimsTest("notcontainsanyof", "no trim")
     }
@@ -169,10 +169,6 @@ class EvaluatorTrimTests {
         return " $raw "
     }
 
-    /**
-     * The comparatorTestContent contains settings with invalid comparator values. The server default handles the
-     * trimming. To test the client the comparator values contains pre and post whitespaces.
-     */
     /**
      * The comparatorTestContent contains settings with invalid comparator values. The server default handles the
      * trimming. To test the client the comparator values contains pre and post whitespaces.
@@ -957,11 +953,6 @@ class EvaluatorTrimTests {
         }
     """
 
-    /**
-     * trim_user_values.json contains valid settings. Expect "containsanyof" and "notcontainsanyof" flags where the
-     * comparator values contains pre and post white spaces, the untrimmed user value can be properly compared
-     * against the invalid data.
-     */
     /**
      * trim_user_values.json contains valid settings. Expect "containsanyof" and "notcontainsanyof" flags where the
      * comparator values contains pre and post white spaces, the untrimmed user value can be properly compared
