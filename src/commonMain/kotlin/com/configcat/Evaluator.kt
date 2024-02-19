@@ -680,7 +680,6 @@ internal class Evaluator(private val logger: InternalLogger) {
         val userValueUTF8 = userValue.encodeToByteArray()
         var matchCondition = false
         for (comparisonValueHashedStartsEnds in withValuesSplit) {
-
             val comparedTextLength = comparisonValueHashedStartsEnds.substringBeforeLast("_")
             require(comparedTextLength != comparisonValueHashedStartsEnds) {
                 "Comparison value is missing or invalid."
@@ -709,7 +708,6 @@ internal class Evaluator(private val logger: InternalLogger) {
             if (userValueHashed == comparisonHashValue) {
                 matchCondition = true
             }
-
         }
         if (userComparator == UserComparator.HASHED_NOT_STARTS_WITH || userComparator == UserComparator.HASHED_NOT_ENDS_WITH) {
             // negate the match in case of NOT ANY OF
@@ -856,7 +854,6 @@ internal class Evaluator(private val logger: InternalLogger) {
         comparisonAttribute: String,
         userAttribute: Any
     ): Array<String> {
-
         try {
             if (userAttribute is Array<*> && userAttribute.all { it is String }) {
                 return userAttribute as Array<String>
