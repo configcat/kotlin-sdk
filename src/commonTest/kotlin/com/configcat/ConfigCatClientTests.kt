@@ -1022,4 +1022,97 @@ class ConfigCatClientTests {
 
         ConfigCatClient.closeAll()
     }
+
+    @Test
+    fun testSpecialCharactersWorks() = runTest {
+        // override content with configcat-sdk-1/PKDVCLf-Hq-h-kCzMp-L7Q/u28_1qNyZ0Wz-ldYHIU7-g
+        val mockEngine = MockEngine {
+            respond(
+                content = specialCharacterContent,
+                status = HttpStatusCode.OK
+            )
+        }
+
+        val client = ConfigCatClient("configcat-sdk-1/PKDVCLf-Hq-h-kCzMp-L7Q/u28_1qNyZ0Wz-ldYHIU7-g") {
+            httpEngine = mockEngine
+        }
+        // äöüÄÖÜçéèñışğâ¢™✓😀
+        val specialCharacters = "äöüÄÖÜçéèñışğâ¢™✓\uD83D\uDE00"
+
+        val user = ConfigCatUser(specialCharacters)
+
+        assertEquals(specialCharacters, client.getValue("specialCharacters", "NOT_CAT", user ))
+
+        assertEquals(specialCharacters,  client.getValue("specialCharactersHashed", "NOT_CAT", user))
+
+        ConfigCatClient.closeAll()
+    }
+
+    private val specialCharacterContent = """
+        {
+           "p":{
+              "u":"https://cdn-global.configcat.com",
+              "r":0,
+              "s":"ABWpFwDcdChe8DCLRnfe1qcRzFaRWqFKifbGCBnkHTU="
+           },
+           "f":{
+              "specialCharacters":{
+                 "t":1,
+                 "r":[
+                    {
+                       "c":[
+                          {
+                             "u":{
+                                "a":"Identifier",
+                                "c":30,
+                                "l":[
+                                   "äöüÄÖÜçéèñışğâ¢™✓😀"
+                                ]
+                             }
+                          }
+                       ],
+                       "s":{
+                          "v":{
+                             "s":"äöüÄÖÜçéèñışğâ¢™✓😀"
+                          },
+                          "i":"1238ed4f"
+                       }
+                    }
+                 ],
+                 "v":{
+                    "s":"NOT_CAT"
+                 },
+                 "i":"6a20318f"
+              },
+              "specialCharactersHashed":{
+                 "t":1,
+                 "r":[
+                    {
+                       "c":[
+                          {
+                             "u":{
+                                "a":"Identifier",
+                                "c":22,
+                                "l":[
+                                   "40_4e37b40f1a89cf05c99a9451f6baa1d149a79c5f9a9a3793a6782c8eed9f605d"
+                                ]
+                             }
+                          }
+                       ],
+                       "s":{
+                          "v":{
+                             "s":"äöüÄÖÜçéèñışğâ¢™✓😀"
+                          },
+                          "i":"bb95d969"
+                       }
+                    }
+                 ],
+                 "v":{
+                    "s":"NOT_CAT"
+                 },
+                 "i":"33f810a1"
+              }
+           }
+        }
+    """
 }
