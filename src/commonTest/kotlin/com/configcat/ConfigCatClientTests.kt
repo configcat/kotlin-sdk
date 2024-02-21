@@ -1012,7 +1012,7 @@ class ConfigCatClientTests {
             ConfigCatClient("configcat-proxy/") { baseUrl = "https://my-configcat-proxy" }
         })
 
-        //TEST OverrideBehaviour.localOnly skip sdkKey validation
+        // TEST OverrideBehaviour.localOnly skip sdkKey validation
         client =
             ConfigCatClient("sdk-key-90123456789012") {
                 flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY }
@@ -1041,9 +1041,9 @@ class ConfigCatClientTests {
 
         val user = ConfigCatUser(specialCharacters)
 
-        assertEquals(specialCharacters, client.getValue("specialCharacters", "NOT_CAT", user ))
+        assertEquals(specialCharacters, client.getValue("specialCharacters", "NOT_CAT", user))
 
-        assertEquals(specialCharacters,  client.getValue("specialCharactersHashed", "NOT_CAT", user))
+        assertEquals(specialCharacters, client.getValue("specialCharactersHashed", "NOT_CAT", user))
 
         ConfigCatClient.closeAll()
     }

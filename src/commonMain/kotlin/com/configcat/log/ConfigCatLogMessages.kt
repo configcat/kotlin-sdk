@@ -1,5 +1,6 @@
 package com.configcat.log
 
+import com.configcat.EvaluatorLogHelper
 import com.configcat.model.UserCondition
 
 @Suppress("TooManyFunctions")
@@ -206,7 +207,7 @@ internal object ConfigCatLogMessages {
      * @return The formatted warn message.
      */
     fun getUserAttributeMissing(key: String, userCondition: UserCondition, attributeName: String): String {
-        return "Cannot evaluate condition (${LogHelper.formatUserCondition(userCondition)}) for setting '$key' " +
+        return "Cannot evaluate condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting '$key' " +
             "(the User.$attributeName attribute is missing). You should set the User.$attributeName " +
             "attribute in order to make targeting work properly. " +
             "Read more: https://configcat.com/docs/advanced/user-object/"
@@ -240,7 +241,7 @@ internal object ConfigCatLogMessages {
         reason: String,
         attributeName: String
     ): String {
-        return "Cannot evaluate condition (${LogHelper.formatUserCondition(userCondition)}) for setting '$key' " +
+        return "Cannot evaluate condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting '$key' " +
             "($reason). Please check the User.$attributeName attribute and make sure that its value corresponds " +
             "to the comparison operator."
     }
@@ -260,7 +261,7 @@ internal object ConfigCatLogMessages {
         attributeName: String,
         attributeValue: String
     ): String {
-        return "Evaluation of condition (${LogHelper.formatUserCondition(userCondition)}) for setting '$key' may not produce the expected result (the User.$attributeName attribute is not a string value, thus it was automatically converted to the string value '$attributeValue'). Please make sure that using a non-string value was intended."
+        return "Evaluation of condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting '$key' may not produce the expected result (the User.$attributeName attribute is not a string value, thus it was automatically converted to the string value '$attributeValue'). Please make sure that using a non-string value was intended."
     }
 
     /**
