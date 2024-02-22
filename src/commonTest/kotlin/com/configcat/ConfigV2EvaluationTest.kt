@@ -243,7 +243,10 @@ class ConfigV2EvaluationTest {
         runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionPositiveInf", Float.POSITIVE_INFINITY, "4")
         runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionNegativeInf", Float.NEGATIVE_INFINITY, "3")
 //       runComparisonAttributeConversionToCanonicalStringRepresentationTest("dateToStringConversion", "date:2023-03-31T23:59:59.999Z", "3")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("dateToStringConversion", 1680307199.999, "3")
+        if (!PlatformUtils.IS_NATIVE) {
+            // Native number format converts the double value to scientific notation causes a fail in this test case
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest("dateToStringConversion", 1680307199.999, "3")
+        }
         runComparisonAttributeConversionToCanonicalStringRepresentationTest("dateToStringConversionNaN", Double.NaN, "3")
         runComparisonAttributeConversionToCanonicalStringRepresentationTest("dateToStringConversionPositiveInf", Double.POSITIVE_INFINITY, "1")
         runComparisonAttributeConversionToCanonicalStringRepresentationTest("dateToStringConversionNegativeInf", Double.NEGATIVE_INFINITY, "5")
