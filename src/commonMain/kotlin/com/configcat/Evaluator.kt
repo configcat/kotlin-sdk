@@ -18,6 +18,8 @@ import io.ktor.http.*
 import io.ktor.utils.io.charsets.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
+import kotlin.math.absoluteValue
+
 
 internal data class EvaluationResult(
     val value: SettingsValue,
@@ -1005,14 +1007,19 @@ internal class Evaluator(private val logger: InternalLogger) {
         if (userValue is String) {
             return userValue
         }
-        if (userValue is Array<*>) {
-            return Constants.json.encodeToString(userValue)
+        if (userValue is Array<*> && userValue.all { it is String })  {
+            return Constants.json.encodeToString(userValue as Array<String>)
         }
-        if (userValue is List<*>) {
-            return Constants.json.encodeToString(userValue)
+        if (userValue is List<*> && userValue.all { it is String })  {
+            return Constants.json.encodeToString(userValue as List<String>)
+        }
+        if (userValue is Double) {
+            val numberFormatter = numberFormatter()
+            return numberFormatter.doubleToString(userValue)
         }
         if (userValue is DateTime) {
-            return (userValue.milliseconds / 1000).toString()
+            val numberFormatter = numberFormatter()
+            return numberFormatter.doubleToString((userValue.milliseconds / 1000).toDouble())
         }
         return userValue.toString()
     }
@@ -1349,7 +1356,7 @@ internal object EvaluatorLogHelper {
         if (comparisonValue == null) {
             return INVALID_VALUE
         }
-
+        // TODO should fix the number format if already added because of platform based doubleToString?
         return if (isDate) {
             val comparisonValueString = comparisonValue.toDouble().toString()
             "'$comparisonValueString' (${comparisonValue.toDateTimeUTCString()} UTC)"

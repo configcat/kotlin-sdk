@@ -222,7 +222,35 @@ class ConfigV2EvaluationTest {
             "Falcon"
         )
     }
-
+    @Test
+    fun runComparisonAttributeConversionToCanonicalStringRepresentationTest() = runTest {
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversion", .12345, "1")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversion", .12345f, "1")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversion", 0.12345f, "1")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionInt", 125.toByte(), "4")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionInt", 125.toShort(), "4")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionInt", 125, "4")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionInt", 125L, "4")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionPositiveExp", -1.23456789e96, "2")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionNegativeExp", -12345.6789E-100, "4")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionNaN", Double.NaN, "3")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionPositiveInf", Double.POSITIVE_INFINITY, "4")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionNegativeInf", Double.NEGATIVE_INFINITY, "3")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionPositiveExp", -1.23456789e96, "2")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionNegativeExp", -12345.6789E-100, "4")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionNaN", Float.NaN, "3")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionPositiveInf", Float.POSITIVE_INFINITY, "4")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionNegativeInf", Float.NEGATIVE_INFINITY, "3")
+//       runComparisonAttributeConversionToCanonicalStringRepresentationTest("dateToStringConversion", "date:2023-03-31T23:59:59.999Z", "3")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("dateToStringConversion", 1680307199.999, "3")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("dateToStringConversionNaN", Double.NaN, "3")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("dateToStringConversionPositiveInf", Double.POSITIVE_INFINITY, "1")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("dateToStringConversionNegativeInf", Double.NEGATIVE_INFINITY, "5")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("stringArrayToStringConversion", arrayOf("read", "Write", " eXecute "), "4")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("stringArrayToStringConversionEmpty", arrayOfNulls<String>(0), "5")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("stringArrayToStringConversionSpecialChars", arrayOf("+<>%\"'\\/\t\r\n"), "3")
+       runComparisonAttributeConversionToCanonicalStringRepresentationTest("stringArrayToStringConversionUnicode", arrayOf("äöüÄÖÜçéèñışğâ¢™✓\uD83D\uDE00"), "2")
+    }
     private suspend fun runRuleAndPercentageOptionTest(
         userId: String,
         email: String?,
@@ -370,6 +398,42 @@ class ConfigV2EvaluationTest {
         assertEquals(expectedValue, value)
 
         ConfigCatClient.closeAll()
+    }
+
+    private suspend fun runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+        key: String,
+        userAttribute: Any,
+        expectedValue: String
+    ) {
+        val mockEngine = MockEngine {
+            respond(
+                content = comparisionAttributeConversionRemoteJson,
+                status = HttpStatusCode.OK
+            )
+        }
+        val client = ConfigCatClient(Data.SDK_KEY) {
+            httpEngine = mockEngine
+        }
+
+        if (userAttribute is String) {
+            // TODO fix String to date parse
+//            if (userAttribute.startsWith("date:")) {
+//                val sdf: java.text.SimpleDateFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSSSSSS'Z'")
+//                sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT"))
+//            //    userAttribute = sdf.parse(userAttribute.substring(5))
+//            }
+        }
+        val customMap = mutableMapOf<String, Any>()
+        customMap["Custom1"] = userAttribute
+
+        val user = ConfigCatUser(identifier = "12345", custom = customMap)
+
+        val result: String = client.getValue(key, "default", user)
+
+        assertEquals(expectedValue, result)
+
+        ConfigCatClient.closeAll()
+
     }
 
     private val circularDependencyTestRemoteJson = """
@@ -1226,4 +1290,811 @@ class ConfigV2EvaluationTest {
            }
         }
     """.trimIndent()
+
+    private val comparisionAttributeConversionRemoteJson = """
+        {
+  "p": {
+    "u": "https://test-cdn-global.configcat.com",
+    "r": 0,
+    "s": "uM29sy1rjx71ze3ehr\u002BqCnoIpx8NZgL8V//MN7OL1aM="
+  },
+  "f": {
+    "numberToStringConversion": {
+      "t": 1,
+      "a": "Custom1",
+      "r": [
+        {
+          "c": [
+            {
+              "u": {
+                "a": "Custom1",
+                "c": 28,
+                "s": "0.12345"
+              }
+            }
+          ],
+          "p": [
+            {
+              "p": 20,
+              "v": {
+                "s": "1"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "2"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "3"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "4"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "5"
+              }
+            }
+          ]
+        }
+      ],
+      "v": {
+        "s": "0"
+      },
+      "i": "test-variation-id"
+    },
+    "numberToStringConversionInt": {
+      "t": 1,
+      "a": "Custom1",
+      "r": [
+        {
+          "c": [
+            {
+              "u": {
+                "a": "Custom1",
+                "c": 28,
+                "s": "125"
+              }
+            }
+          ],
+          "p": [
+            {
+              "p": 20,
+              "v": {
+                "s": "1"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "2"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "3"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "4"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "5"
+              }
+            }
+          ]
+        }
+      ],
+      "v": {
+        "s": "0"
+      },
+      "i": "test-variation-id"
+    },
+    "numberToStringConversionPositiveExp": {
+      "t": 1,
+      "a": "Custom1",
+      "r": [
+        {
+          "c": [
+            {
+              "u": {
+                "a": "Custom1",
+                "c": 28,
+                "s": "-1.23456789e+96"
+              }
+            }
+          ],
+          "p": [
+            {
+              "p": 20,
+              "v": {
+                "s": "1"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "2"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "3"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "4"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "5"
+              }
+            }
+          ]
+        }
+      ],
+      "v": {
+        "s": "0"
+      },
+      "i": "test-variation-id"
+    },
+    "numberToStringConversionNegativeExp": {
+      "t": 1,
+      "a": "Custom1",
+      "r": [
+        {
+          "c": [
+            {
+              "u": {
+                "a": "Custom1",
+                "c": 28,
+                "s": "-1.23456789e-96"
+              }
+            }
+          ],
+          "p": [
+            {
+              "p": 20,
+              "v": {
+                "s": "1"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "2"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "3"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "4"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "5"
+              }
+            }
+          ]
+        }
+      ],
+      "v": {
+        "s": "0"
+      },
+      "i": "test-variation-id"
+    },
+    "numberToStringConversionNaN": {
+      "t": 1,
+      "a": "Custom1",
+      "r": [
+        {
+          "c": [
+            {
+              "u": {
+                "a": "Custom1",
+                "c": 28,
+                "s": "NaN"
+              }
+            }
+          ],
+          "p": [
+            {
+              "p": 20,
+              "v": {
+                "s": "1"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "2"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "3"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "4"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "5"
+              }
+            }
+          ]
+        }
+      ],
+      "v": {
+        "s": "0"
+      },
+      "i": "test-variation-id"
+    },
+    "numberToStringConversionPositiveInf": {
+      "t": 1,
+      "a": "Custom1",
+      "r": [
+        {
+          "c": [
+            {
+              "u": {
+                "a": "Custom1",
+                "c": 28,
+                "s": "Infinity"
+              }
+            }
+          ],
+          "p": [
+            {
+              "p": 20,
+              "v": {
+                "s": "1"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "2"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "3"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "4"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "5"
+              }
+            }
+          ]
+        }
+      ],
+      "v": {
+        "s": "0"
+      },
+      "i": "test-variation-id"
+    },
+    "numberToStringConversionNegativeInf": {
+      "t": 1,
+      "a": "Custom1",
+      "r": [
+        {
+          "c": [
+            {
+              "u": {
+                "a": "Custom1",
+                "c": 28,
+                "s": "-Infinity"
+              }
+            }
+          ],
+          "p": [
+            {
+              "p": 20,
+              "v": {
+                "s": "1"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "2"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "3"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "4"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "5"
+              }
+            }
+          ]
+        }
+      ],
+      "v": {
+        "s": "0"
+      },
+      "i": "test-variation-id"
+    },
+    "dateToStringConversion": {
+      "t": 1,
+      "a": "Custom1",
+      "r": [
+        {
+          "c": [
+            {
+              "u": {
+                "a": "Custom1",
+                "c": 28,
+                "s": "1680307199.999"
+              }
+            }
+          ],
+          "p": [
+            {
+              "p": 20,
+              "v": {
+                "s": "1"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "2"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "3"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "4"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "5"
+              }
+            }
+          ]
+        }
+      ],
+      "v": {
+        "s": "0"
+      },
+      "i": "test-variation-id"
+    },
+    "dateToStringConversionNaN": {
+      "t": 1,
+      "a": "Custom1",
+      "r": [
+        {
+          "c": [
+            {
+              "u": {
+                "a": "Custom1",
+                "c": 28,
+                "s": "NaN"
+              }
+            }
+          ],
+          "p": [
+            {
+              "p": 20,
+              "v": {
+                "s": "1"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "2"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "3"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "4"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "5"
+              }
+            }
+          ]
+        }
+      ],
+      "v": {
+        "s": "0"
+      },
+      "i": "test-variation-id"
+    },
+    "dateToStringConversionPositiveInf": {
+      "t": 1,
+      "a": "Custom1",
+      "r": [
+        {
+          "c": [
+            {
+              "u": {
+                "a": "Custom1",
+                "c": 28,
+                "s": "Infinity"
+              }
+            }
+          ],
+          "p": [
+            {
+              "p": 20,
+              "v": {
+                "s": "1"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "2"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "3"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "4"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "5"
+              }
+            }
+          ]
+        }
+      ],
+      "v": {
+        "s": "0"
+      },
+      "i": "test-variation-id"
+    },
+    "dateToStringConversionNegativeInf": {
+      "t": 1,
+      "a": "Custom1",
+      "r": [
+        {
+          "c": [
+            {
+              "u": {
+                "a": "Custom1",
+                "c": 28,
+                "s": "-Infinity"
+              }
+            }
+          ],
+          "p": [
+            {
+              "p": 20,
+              "v": {
+                "s": "1"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "2"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "3"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "4"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "5"
+              }
+            }
+          ]
+        }
+      ],
+      "v": {
+        "s": "0"
+      },
+      "i": "test-variation-id"
+    },
+    "stringArrayToStringConversion": {
+      "t": 1,
+      "a": "Custom1",
+      "r": [
+        {
+          "c": [
+            {
+              "u": {
+                "a": "Custom1",
+                "c": 28,
+                "s": "[\"read\",\"Write\",\" eXecute \"]"
+              }
+            }
+          ],
+          "p": [
+            {
+              "p": 20,
+              "v": {
+                "s": "1"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "2"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "3"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "4"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "5"
+              }
+            }
+          ]
+        }
+      ],
+      "v": {
+        "s": "0"
+      },
+      "i": "test-variation-id"
+    },
+    "stringArrayToStringConversionEmpty": {
+      "t": 1,
+      "a": "Custom1",
+      "r": [
+        {
+          "c": [
+            {
+              "u": {
+                "a": "Custom1",
+                "c": 28,
+                "s": "[]"
+              }
+            }
+          ],
+          "p": [
+            {
+              "p": 20,
+              "v": {
+                "s": "1"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "2"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "3"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "4"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "5"
+              }
+            }
+          ]
+        }
+      ],
+      "v": {
+        "s": "0"
+      },
+      "i": "test-variation-id"
+    },
+    "stringArrayToStringConversionSpecialChars": {
+      "t": 1,
+      "a": "Custom1",
+      "r": [
+        {
+          "c": [
+            {
+              "u": {
+                "a": "Custom1",
+                "c": 28,
+                "s": "[\"+<>%\\\"'\\\\/\\t\\r\\n\"]"
+              }
+            }
+          ],
+          "p": [
+            {
+              "p": 20,
+              "v": {
+                "s": "1"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "2"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "3"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "4"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "5"
+              }
+            }
+          ]
+        }
+      ],
+      "v": {
+        "s": "0"
+      },
+      "i": "test-variation-id"
+    },
+    "stringArrayToStringConversionUnicode": {
+      "t": 1,
+      "a": "Custom1",
+      "r": [
+        {
+          "c": [
+            {
+              "u": {
+                "a": "Custom1",
+                "c": 28,
+                "s": "[\"äöüÄÖÜçéèñışğâ¢™✓😀\"]"
+              }
+            }
+          ],
+          "p": [
+            {
+              "p": 20,
+              "v": {
+                "s": "1"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "2"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "3"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "4"
+              }
+            },
+            {
+              "p": 20,
+              "v": {
+                "s": "5"
+              }
+            }
+          ]
+        }
+      ],
+      "v": {
+        "s": "0"
+      },
+      "i": "test-variation-id"
+    }
+  }
+}
+    """
 }

@@ -75,6 +75,7 @@ internal class ConfigFetcher constructor(
     private suspend fun fetchHTTP(baseUrl: String, eTag: String): FetchResponse {
         val url = "$baseUrl/configuration-files/${options.sdkKey}/${Constants.configFileName}"
         try {
+            // TODO platform based HttpRequestBuilder - js should use url and parameters
             val response = httpClient.get(url) {
                 headers {
                     append(
