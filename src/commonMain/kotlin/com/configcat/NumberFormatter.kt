@@ -18,17 +18,18 @@ public interface NumberFormatter {
 // TODO DefaultNumberFormatter can be removed if never used
 internal class DefaultNumberFormatter : NumberFormatter {
     override fun doubleToString(doubleToString: Double): String {
-            if(doubleToString.isNaN() || doubleToString.isInfinite()) {
-                return  doubleToString.toString()
-            }
-            // Scientific Notation use cannot be turned on or off in native and no formatter can be used properly.
-            // As best effort we replace the "," and the "E" if presented.
-            val stringFormatScientificNotation = doubleToString.toString().replace(",", ".")
-            return if (doubleToString.absoluteValue > 1) {
-                stringFormatScientificNotation.replace("E", "e+")
-            } else {
-                stringFormatScientificNotation.replace("E-", "e-")
-            }
+        if (doubleToString.isNaN() || doubleToString.isInfinite()) {
+            return doubleToString.toString()
+        }
+        // Scientific Notation use cannot be turned on or off in native and no formatter can be used properly.
+        // As best effort we replace the "," and the "E" if presented.
+        val stringFormatScientificNotation = doubleToString.toString().replace(",", ".")
+        return if (doubleToString.absoluteValue > 1) {
+            stringFormatScientificNotation.replace("E", "e+")
+        } else {
+            stringFormatScientificNotation.replace("E-", "e-")
+        }
     }
 }
+
 internal expect fun numberFormatter(): NumberFormatter

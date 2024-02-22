@@ -7,7 +7,6 @@ import kotlin.math.abs
 
 public class JvmNumberFormatter : NumberFormatter {
     override fun doubleToString(doubleToString: Double): String {
-
         // Handle Double.NaN, Double.POSITIVE_INFINITY and Double.NEGATIVE_INFINITY
         if (doubleToString.isNaN() || doubleToString.isInfinite()) {
             return doubleToString.toString()

@@ -1,7 +1,5 @@
 package com.configcat
 
-import kotlin.math.abs
-
 public class IosNumberFormatter : NumberFormatter {
     override fun doubleToString(doubleToString: Double): String {
         return doubleToString.toString()

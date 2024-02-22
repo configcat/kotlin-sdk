@@ -1005,10 +1005,10 @@ internal class Evaluator(private val logger: InternalLogger) {
         if (userValue is String) {
             return userValue
         }
-        if (userValue is Array<*> && userValue.all { it is String })  {
+        if (userValue is Array<*> && userValue.all { it is String }) {
             return Constants.json.encodeToString(userValue as Array<String>)
         }
-        if (userValue is List<*> && userValue.all { it is String })  {
+        if (userValue is List<*> && userValue.all { it is String }) {
             return Constants.json.encodeToString(userValue as List<String>)
         }
         if (userValue is Double) {
@@ -1271,7 +1271,9 @@ internal class EvaluateLogger {
         newLine()
         append("Segment evaluation result: $error.")
         newLine()
-        append("Condition (${EvaluatorLogHelper.formatSegmentFlagCondition(segmentCondition, segment)}) failed to evaluate.")
+        append(
+            "Condition (${EvaluatorLogHelper.formatSegmentFlagCondition(segmentCondition, segment)}) failed to evaluate."
+        )
         decreaseIndentLevel()
         newLine()
         append(")")
@@ -1303,6 +1305,7 @@ internal class EvaluateLogger {
         append(")")
     }
 }
+
 internal object EvaluatorLogHelper {
     private const val HASHED_VALUE = "<hashed value>"
     const val INVALID_VALUE = "<invalid value>"
