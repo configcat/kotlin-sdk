@@ -91,4 +91,48 @@ class OverrideTests {
         assertEquals(true, client.getValue("nonexisting", false))
         assertEquals(1, mockEngine.requestHistory.size)
     }
+
+    @Test
+    fun testSettingOverride() = runTest {
+        val mockEngine = MockEngine {
+            respond(content = Data.formatJsonBody(false), status = HttpStatusCode.OK)
+        }
+        val user = ConfigCatUser("test@test1.com")
+
+        val client = ConfigCatClient("local") {
+            httpEngine = mockEngine
+            flagOverrides = {
+                behavior = OverrideBehavior.LOCAL_ONLY
+                dataSource = OverrideDataSource.settings(
+                    mapOf(
+                        "noRuleOverride" to Setting("noRule", 1, emptyList(), emptyList(), "myVariationId"),
+                        "ruleOverride" to Setting(
+                            "noMatch",
+                            1,
+                            emptyList(),
+                            listOf(
+                                RolloutRule("ruleMatch", "Identifier", 2, "@test1", "ruleVariationId")
+                            ),
+                            "myVariationId"
+                        ),
+                        "percentageOverride" to Setting(
+                            "noMatch",
+                            1,
+                            listOf(
+                                PercentageRule("A", 75.0, "percentageAVariationID"),
+                                PercentageRule("B", 25.0, "percentageAVariationID")
+                            ),
+                            emptyList(),
+                            "myVariationId"
+                        )
+                    )
+                )
+            }
+        }
+
+        assertEquals("noRule", client.getValue("noRuleOverride", ""))
+        assertEquals("ruleMatch", client.getValue("ruleOverride", "", user))
+        assertEquals("B", client.getValue("percentageOverride", "", user))
+        assertEquals(0, mockEngine.requestHistory.size)
+    }
 }
