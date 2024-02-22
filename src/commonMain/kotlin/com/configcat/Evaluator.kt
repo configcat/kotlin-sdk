@@ -18,8 +18,6 @@ import io.ktor.http.*
 import io.ktor.utils.io.charsets.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
-import kotlin.math.absoluteValue
-
 
 internal data class EvaluationResult(
     val value: SettingsValue,
@@ -1143,7 +1141,7 @@ internal class EvaluateLogger {
     }
 
     fun newLine() {
-        entries.append("\n")
+        entries.appendLine()
         for (i in 0 until indentLevel) {
             entries.append("  ")
         }
