@@ -31,6 +31,7 @@ internal data class Entry(
             val configJson = cacheValue.substring(eTagIndex + 1)
             require(configJson.isNotEmpty()) { "Empty config jsom value." }
             return try {
+                // TODO here the parse should be used?
                 val config: Config = Constants.json.decodeFromString(configJson)
                 Entry(config, eTag, configJson, DateTime(fetchTimeUnixMillis))
             } catch (e: Exception) {

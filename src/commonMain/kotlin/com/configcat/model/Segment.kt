@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
  * ConfigCat segment.
  */
 @Serializable
-internal data class Segment(
+public data class Segment(
     /**
      * The name of the segment.
      */

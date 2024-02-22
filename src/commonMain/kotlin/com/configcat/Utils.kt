@@ -1,9 +1,11 @@
 package com.configcat
 
+import com.configcat.model.Config
 import com.soywiz.klock.DateTime
 import kotlinx.serialization.ContextualSerializer
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
@@ -61,5 +63,19 @@ internal object Constants {
         @OptIn(ExperimentalSerializationApi::class)
         override val descriptor: SerialDescriptor =
             ContextualSerializer(Any::class, null, emptyArray()).descriptor
+    }
+}
+
+public fun parseConfigJson(jsonString: String): Pair<Config, String?> {
+    val config: Config = Constants.json.decodeFromString(jsonString)
+    addConfigSaltAndSegmentsToSettings(config)
+    return Pair(config, null)
+}
+
+public fun addConfigSaltAndSegmentsToSettings(config: Config) {
+    val configSalt = config.preferences?.salt
+    config.settings?.values?.forEach {
+        it.configSalt = configSalt
+        it.segments = config.segments ?: arrayOf()
     }
 }

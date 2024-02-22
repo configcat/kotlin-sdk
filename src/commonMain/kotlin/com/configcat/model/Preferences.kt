@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
  * The config preferences.
  */
 @Serializable
-internal data class Preferences(
+public data class Preferences(
     @SerialName(value = "u")
     val baseUrl: String,
     @SerialName(value = "r")

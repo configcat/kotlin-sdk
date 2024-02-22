@@ -1,5 +1,7 @@
 package com.configcat.override
 
+import com.configcat.addConfigSaltAndSegmentsToSettings
+import com.configcat.model.Config
 import com.configcat.model.Setting
 
 /**
@@ -23,10 +25,10 @@ public interface OverrideDataSource {
         }
 
         /**
-         * Create an [OverrideDataSource] that stores the override settings in a key-value map.
+         * Create an [OverrideDataSource] that stores the override config in a key-value map.
          */
-        public fun settings(map: Map<String, Setting>): OverrideDataSource {
-            return SettingsOverrideDataSource(map)
+        public fun config(config: Config): OverrideDataSource {
+            return ConfigOverrideDataSource(config)
         }
     }
 }
@@ -65,8 +67,10 @@ internal class MapOverrideDataSource constructor(private val map: Map<String, Se
     }
 }
 
-internal class SettingsOverrideDataSource constructor(private val map: Map<String, Setting>) : OverrideDataSource {
+internal class ConfigOverrideDataSource constructor(private val config: Config) : OverrideDataSource {
     override fun getOverrides(): Map<String, Setting> {
-        return map
+        addConfigSaltAndSegmentsToSettings(config)
+        return config.settings ?: emptyMap()
+
     }
 }

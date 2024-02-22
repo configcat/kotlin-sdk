@@ -1,5 +1,6 @@
 package com.configcat
 
+import com.configcat.model.*
 import com.configcat.override.OverrideBehavior
 import com.configcat.override.OverrideDataSource
 import io.ktor.client.engine.mock.*
@@ -92,49 +93,68 @@ class OverrideTests {
         assertEquals(1, mockEngine.requestHistory.size)
     }
 
-    // TODO settings overrode will be changed to config override. test will be repalced
-//    @Test
-//    fun testSettingOverride() = runTest {
-//        val mockEngine = MockEngine {
-//            respond(content = Data.formatJsonBodyWithBoolean(false), status = HttpStatusCode.OK)
-//        }
+    @Test
+    fun testSettingOverride() = runTest {
+        val mockEngine = MockEngine {
+            respond(content = Data.formatJsonBodyWithBoolean(false), status = HttpStatusCode.OK)
+        }
 
-//        val user = ConfigCatUser("test@test1.com")
-//
-//        val client = ConfigCatClient(Data.SDK_KEY) {
-//            httpEngine = mockEngine
-//            flagOverrides = {
-//                behavior = OverrideBehavior.LOCAL_ONLY
-//                dataSource = OverrideDataSource.settings(
-//                    mapOf(
-//                        "noRuleOverride" to Setting("noRule", 1, emptyList(), emptyList(), "myVariationId"),
-//                        "ruleOverride" to Setting(
-//                            "noMatch",
-//                            1,
-//                            emptyList(),
-//                            listOf(
-//                                RolloutRule("ruleMatch", "Identifier", 2, "@test1", "ruleVariationId")
-//                            ),
-//                            "myVariationId"
-//                        ),
-//                        "percentageOverride" to Setting(
-//                            "noMatch",
-//                            1,
-//                            listOf(
-//                                PercentageRule("A", 75.0, "percentageAVariationID"),
-//                                PercentageRule("B", 25.0, "percentageAVariationID")
-//                            ),
-//                            emptyList(),
-//                            "myVariationId"
-//                        )
-//                    )
-//                )
-//            }
-//        }
-//
-//        assertEquals("noRule", client.getValue("noRuleOverride", ""))
-//        assertEquals("ruleMatch", client.getValue("ruleOverride", "", user))
-//        assertEquals("B", client.getValue("percentageOverride", "", user))
-//        assertEquals(0, mockEngine.requestHistory.size)
-//    }
+        val user = ConfigCatUser("test@test1.com")
+
+        val client = ConfigCatClient(Data.SDK_KEY) {
+            httpEngine = mockEngine
+            flagOverrides = {
+                behavior = OverrideBehavior.LOCAL_ONLY
+                dataSource = OverrideDataSource.config(
+                    config = Config(
+                        preferences = Preferences(baseUrl = "test", salt = "test-salt"),
+                        settings = mapOf(
+                            "noRuleOverride" to Setting(
+                                1,
+                                "",
+                                null,
+                                null,
+                                SettingsValue(stringValue = "noRule"),
+                                "myVariationId"
+                            ),
+                            "ruleOverride" to Setting(
+                                1, "", null, arrayOf(
+                                    TargetingRule(
+                                        conditions = arrayOf(
+                                            Condition(
+                                                UserCondition("Identifier", 2, stringArrayValue =  arrayOf("@test1")),
+                                                null,
+                                                null
+                                            )
+                                        ),
+                                        null,
+                                        ServedValue(
+                                            SettingsValue(stringValue = "ruleMatch"),
+                                            "ruleVariationId"
+                                        )
+                                    )
+                                ), SettingsValue(stringValue = "noMatch"), "myVariationId"
+                            ),
+                            "percentageOverride" to Setting(
+                                1,
+                                "",
+                                arrayOf(
+                                    PercentageOption(75, SettingsValue(stringValue = "A"), "percentageAVariationID"),
+                                    PercentageOption(25, SettingsValue(stringValue = "B"), "percentageAVariationID")
+                                ),
+                                emptyArray(),
+                                SettingsValue(stringValue = "noMatch"),
+                                "myVariationId"
+                            )
+                        )
+                    )
+                )
+            }
+        }
+
+        assertEquals("noRule", client.getValue("noRuleOverride", ""))
+        assertEquals("ruleMatch", client.getValue("ruleOverride", "", user))
+        assertEquals("B", client.getValue("percentageOverride", "", user))
+        assertEquals(0, mockEngine.requestHistory.size)
+    }
 }

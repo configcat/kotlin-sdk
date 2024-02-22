@@ -1,9 +1,8 @@
 package com.configcat.fetch
 
+import com.configcat.*
 import com.configcat.Closeable
-import com.configcat.ConfigCatOptions
 import com.configcat.Constants
-import com.configcat.DataGovernance
 import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.configcat.model.Config
@@ -16,7 +15,6 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
-import kotlinx.serialization.decodeFromString
 
 internal class ConfigFetcher constructor(
     private val options: ConfigCatOptions,
@@ -75,7 +73,7 @@ internal class ConfigFetcher constructor(
     private suspend fun fetchHTTP(baseUrl: String, eTag: String): FetchResponse {
         val url = "$baseUrl/configuration-files/${options.sdkKey}/${Constants.configFileName}"
         try {
-            // TODO platform based HttpRequestBuilder - js should use url and parameters
+            // TODO platfrom based HttpRequestBuilder - js should use url and parameters
             val response = httpClient.get(url) {
                 headers {
                     append(
@@ -89,7 +87,7 @@ internal class ConfigFetcher constructor(
                 logger.debug("Fetch was successful: new config fetched.")
                 val body = response.bodyAsText()
                 val newETag = response.etag()
-                val (config, err) = parseConfigJson(body)
+                val (config, err) = deserializeConfig(body)
                 if (err != null) {
                     return FetchResponse.failure(err, true)
                 }
@@ -139,15 +137,9 @@ internal class ConfigFetcher constructor(
         }
     }
 
-    private fun parseConfigJson(jsonString: String): Pair<Config, String?> {
+    private fun deserializeConfig(jsonString: String): Pair<Config, String?> {
         return try {
-            val config: Config = Constants.json.decodeFromString(jsonString)
-            val configSalt = config.preferences?.salt
-            config.settings?.values?.forEach {
-                it.configSalt = configSalt
-                it.segments = config.segments ?: arrayOf()
-            }
-            Pair(config, null)
+            parseConfigJson(jsonString)
         } catch (e: Exception) {
             logger.error(1105, ConfigCatLogMessages.FETCH_RECEIVED_200_WITH_INVALID_BODY_ERROR, e)
             Pair(Config.empty, e.message)

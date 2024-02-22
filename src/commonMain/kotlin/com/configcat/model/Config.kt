@@ -7,7 +7,7 @@ import kotlinx.serialization.json.*
  * ConfigCat config.
  */
 @Serializable
-internal data class Config(
+public data class Config(
     /**
      * The config preferences.
      */
