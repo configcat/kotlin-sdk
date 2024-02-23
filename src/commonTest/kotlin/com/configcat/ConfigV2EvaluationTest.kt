@@ -5,6 +5,7 @@ import com.configcat.evaluation.LogEvent
 import com.configcat.log.LogLevel
 import com.configcat.override.OverrideBehavior
 import com.configcat.override.OverrideDataSource
+import com.soywiz.klock.DateTime
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import io.ktor.util.*
@@ -290,9 +291,13 @@ class ConfigV2EvaluationTest {
             Float.NEGATIVE_INFINITY,
             "3"
         )
-//       runComparisonAttributeConversionToCanonicalStringRepresentationTest("dateToStringConversion", "date:2023-03-31T23:59:59.999Z", "3")
         if (!PlatformUtils.IS_NATIVE) {
-            // Native number format converts the double value to scientific notation causes a fail in this test case
+            // Native number format converts the double value to scientific notation causes a fail in these test cases
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "dateToStringConversion",
+                "date:2023-03-31T23:59:59.999Z",
+                "3"
+            )
             runComparisonAttributeConversionToCanonicalStringRepresentationTest(
                 "dateToStringConversion",
                 1680307199.999,
@@ -499,17 +504,13 @@ class ConfigV2EvaluationTest {
         val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
-
-        if (userAttribute is String) {
-            // TODO fix String to date parse
-//            if (userAttribute.startsWith("date:")) {
-//                val sdf: java.text.SimpleDateFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSSSSSS'Z'")
-//                sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT"))
-//            //    userAttribute = sdf.parse(userAttribute.substring(5))
-//            }
+        val userAttributeToMap: Any = if (userAttribute is String && userAttribute.startsWith("date:")) {
+            DateTime.fromString(userAttribute.substring(5))
+        } else {
+            userAttribute
         }
         val customMap = mutableMapOf<String, Any>()
-        customMap["Custom1"] = userAttribute
+        customMap["Custom1"] = userAttributeToMap
 
         val user = ConfigCatUser(identifier = "12345", custom = customMap)
 

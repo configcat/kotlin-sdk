@@ -9,6 +9,7 @@ import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.configcat.model.*
 import com.soywiz.klock.DateTime
+import com.soywiz.klock.DateTimeTz
 import com.soywiz.krypto.sha1
 import com.soywiz.krypto.sha256
 import io.github.z4kn4fein.semver.Version
@@ -956,6 +957,9 @@ internal class Evaluator(private val logger: InternalLogger) {
             if (userValue is DateTime) {
                 return userValue.unixMillisDouble / 1000
             }
+            if (userValue is DateTimeTz) {
+                return userValue.local.unixMillisDouble / 1000
+            }
             return userAttributeToDouble(userValue)
         } catch (e: NumberFormatException) {
             val reason =
@@ -1016,7 +1020,10 @@ internal class Evaluator(private val logger: InternalLogger) {
             return doubleToString(userValue)
         }
         if (userValue is DateTime) {
-            return doubleToString((userValue.milliseconds / 1000).toDouble())
+            return doubleToString((userValue.unixMillisDouble / 1000))
+        }
+        if (userValue is DateTimeTz) {
+            return doubleToString((userValue.local.unixMillisDouble / 1000))
         }
         return userValue.toString()
     }

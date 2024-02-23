@@ -1,7 +1,8 @@
 package com.configcat
 
 internal actual fun doubleToString(doubleToString: Double): String {
-    return doubleToString.toString()
+    return commonDoubleToString(doubleToString)
+    // return doubleToString.toString()
     // Handle Double.NaN, Double.POSITIVE_INFINITY and Double.NEGATIVE_INFINITY
 //        if (doubleToString.isNaN() || doubleToString.isInfinite()) {
 //            return doubleToString.toString()
