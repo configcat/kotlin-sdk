@@ -38,8 +38,8 @@ class EvaluationTests {
 
     @Test
     fun testComparators() = runTest {
-        // JS test run separately for this test
-        if (PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE) {
+        // Native test run separately for this test
+        if (PlatformUtils.IS_NATIVE) {
             return@runTest
         }
         testEvaluation(ComparatorsTests)
@@ -57,8 +57,8 @@ class EvaluationTests {
 
     @Test
     fun testEpochDateValidation() = runTest {
-        // JS test run separately for this test
-        if (PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE) {
+        // Native test run separately for this test
+        if (PlatformUtils.IS_NATIVE) {
             return@runTest
         }
         testEvaluation(EpochDateValidationTests)
@@ -105,7 +105,7 @@ class EvaluationTests {
             sdkKey = TEST_SDK_KEY
         }
 
-        var mockEngine = MockEngine {
+        val mockEngine = MockEngine {
             respond(
                 content = testSet.jsonOverride,
                 status = HttpStatusCode.OK,
@@ -127,7 +127,7 @@ class EvaluationTests {
         client.forceRefresh()
 
         val tests = testSet.tests
-        var errors: ArrayList<String> = arrayListOf()
+        val errors: ArrayList<String> = arrayListOf()
         for (test in tests!!) {
             val settingKey = test.key
 
@@ -139,7 +139,7 @@ class EvaluationTests {
             val logResultBuilder = StringBuilder()
             val logsList = evaluationTestLogger.getLogList()
             for (i in logsList.indices) {
-                var log = logsList[i]
+                val log = logsList[i]
                 logResultBuilder.append(log.logMessage)
                 if (i != logsList.size - 1) {
                     logResultBuilder.append("\n")

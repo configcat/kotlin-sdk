@@ -4,7 +4,7 @@ import com.configcat.ConfigCatUser
 import com.configcat.evaluation.data.TestCase
 import com.configcat.evaluation.data.TestSet
 
-object JSComparatorsTests : TestSet {
+object NativeComparatorsTests : TestSet {
     override val sdkKey = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/OfQqcTjfFUGBwMKqtyEOrQ"
     override val baseUrl = null
     override val jsonOverride = """
@@ -1444,8 +1444,8 @@ object JSComparatorsTests : TestSet {
   - IF User.Number > '0.9' => true
     AND User.Number <= '0.9' => false, skipping the remaining AND conditions
     THEN '11' => no match
-  - IF User.Date BEFORE '1693497600' (2023-08-31T16:00:00.000Z UTC) => true
-    AND User.Date AFTER '1693497600' (2023-08-31T16:00:00.000Z UTC) => false, skipping the remaining AND conditions
+  - IF User.Date BEFORE '1.6934976E9' (2023-08-31T16:00:00.000Z UTC) => true
+    AND User.Date AFTER '1.6934976E9' (2023-08-31T16:00:00.000Z UTC) => false, skipping the remaining AND conditions
     THEN '12' => no match
   - IF User.Country ARRAY CONTAINS ANY OF [<1 hashed value>] => true
     AND User.Country ARRAY NOT CONTAINS ANY OF [<1 hashed value>] => false, skipping the remaining AND conditions

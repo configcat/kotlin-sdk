@@ -1,7 +1,7 @@
 package com.configcat
 
-import com.configcat.data.JSComparatorsTests
-import com.configcat.data.JSEpochDateValidationTests
+import com.configcat.data.NativeComparatorsTests
+import com.configcat.data.NativeEpochDateValidationTests
 import com.configcat.evaluation.EvaluationTestLogger
 import com.configcat.evaluation.data.*
 import com.configcat.log.LogLevel
@@ -13,23 +13,22 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.fail
 
-// TODO if formatter fixed these can be removed
 /**
  * Run the Evaluation test cases where double format used. This tests cases has a different expected value.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
-class JSEvaluationTests {
+class NativeEvaluationTests {
 
     @Test
     fun testComparators() = runTest {
         // The test contains formatted double value, which is different in case of JS module
-        testEvaluation(JSComparatorsTests)
+        testEvaluation(NativeComparatorsTests)
     }
 
     @Test
     fun testEpochDateValidation() = runTest {
         // The test contains formatted double value, which is different in case of JS module
-        testEvaluation(JSEpochDateValidationTests)
+        testEvaluation(NativeEpochDateValidationTests)
     }
 
     private suspend fun testEvaluation(testSet: TestSet) {
@@ -38,7 +37,7 @@ class JSEvaluationTests {
             sdkKey = TEST_SDK_KEY
         }
 
-        var mockEngine = MockEngine {
+        val mockEngine = MockEngine {
             respond(
                 content = testSet.jsonOverride,
                 status = HttpStatusCode.OK,
@@ -57,7 +56,7 @@ class JSEvaluationTests {
         client.forceRefresh()
 
         val tests = testSet.tests
-        var errors: ArrayList<String> = arrayListOf()
+        val errors: ArrayList<String> = arrayListOf()
         for (test in tests!!) {
             val settingKey = test.key
 
@@ -69,7 +68,7 @@ class JSEvaluationTests {
             val logResultBuilder = StringBuilder()
             val logsList = evaluationTestLogger.getLogList()
             for (i in logsList.indices) {
-                var log = logsList[i]
+                val log = logsList[i]
                 logResultBuilder.append(log.logMessage)
                 if (i != logsList.size - 1) {
                     logResultBuilder.append("\n")

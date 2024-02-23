@@ -27,3 +27,9 @@ internal actual fun doubleToString(doubleToString: Double): String {
     fmt.decimalFormatSymbols = symbols
     return fmt.format(doubleToString)
 }
+
+internal actual fun formatDoubleForLog(doubleToFormat: Double): String {
+    val decimalFormat = DecimalFormat("0.#####")
+    decimalFormat.decimalFormatSymbols = DecimalFormatSymbols.getInstance(Locale.UK)
+    return decimalFormat.format(doubleToFormat)
+}

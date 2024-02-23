@@ -1138,6 +1138,12 @@ internal class Evaluator(private val logger: InternalLogger) {
  */
 internal expect fun doubleToString(doubleToString: Double): String
 
+/**
+ * Format [Double] value for logging.
+ *
+ **/
+internal expect fun formatDoubleForLog(doubleToFormat: Double): String
+
 internal fun commonDoubleToString(doubleToString: Double): String {
     if (doubleToString.isNaN() || doubleToString.isInfinite()) {
         return doubleToString.toString()
@@ -1149,6 +1155,15 @@ internal fun commonDoubleToString(doubleToString: Double): String {
         stringFormatScientificNotation.replace("E", "e+")
     } else {
         stringFormatScientificNotation.replace("E-", "e-")
+    }
+}
+
+internal fun commonFormatDoubleForLog(doubleToFormat: Double): String {
+    val comparisonValueString = doubleToFormat.toString().replace(',', '.')
+    return if (comparisonValueString.contains('.') || comparisonValueString.contains(',')) {
+        comparisonValueString.trimEnd { it == '0' }.trimEnd { it == '.' }
+    } else {
+        comparisonValueString
     }
 }
 
@@ -1388,16 +1403,10 @@ internal object EvaluatorLogHelper {
         if (comparisonValue == null) {
             return INVALID_VALUE
         }
-        // TODO should fix the number format if already added because of platform based doubleToString?
+        val comparisonValueString = formatDoubleForLog(comparisonValue)
         return if (isDate) {
-            val comparisonValueString = comparisonValue.toDouble().toString()
             "'$comparisonValueString' (${comparisonValue.toDateTimeUTCString()} UTC)"
         } else {
-            var comparisonValueString = comparisonValue.toString()
-            if (comparisonValueString.contains('.') || comparisonValueString.contains(',')) {
-                comparisonValueString =
-                    comparisonValueString.trimEnd { it == '0' }.trimEnd { it == '.' }.trimEnd { it == ',' }
-            }
             "'$comparisonValueString'"
         }
     }

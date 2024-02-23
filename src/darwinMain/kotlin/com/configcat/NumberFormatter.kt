@@ -29,3 +29,7 @@ internal actual fun doubleToString(doubleToString: Double): String {
 //        fmt.decimalFormatSymbols = symbols
 //        return fmt.format(doubleToString)
 }
+
+internal actual fun formatDoubleForLog(doubleToFormat: Double): String {
+    return commonFormatDoubleForLog(doubleToFormat)
+}
