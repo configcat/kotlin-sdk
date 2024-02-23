@@ -18,6 +18,7 @@ import io.ktor.http.*
 import io.ktor.utils.io.charsets.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
+import kotlin.math.absoluteValue
 
 internal data class EvaluationResult(
     val value: SettingsValue,
@@ -1012,12 +1013,10 @@ internal class Evaluator(private val logger: InternalLogger) {
             return Constants.json.encodeToString(userValue as List<String>)
         }
         if (userValue is Double) {
-            val numberFormatter = numberFormatter()
-            return numberFormatter.doubleToString(userValue)
+            return doubleToString(userValue)
         }
         if (userValue is DateTime) {
-            val numberFormatter = numberFormatter()
-            return numberFormatter.doubleToString((userValue.milliseconds / 1000).toDouble())
+            return doubleToString((userValue.milliseconds / 1000).toDouble())
         }
         return userValue.toString()
     }
@@ -1118,6 +1117,31 @@ internal class Evaluator(private val logger: InternalLogger) {
     enum class SegmentComparator(val id: Int, val value: String) {
         IS_IN_SEGMENT(0, "IS IN SEGMENT"),
         IS_NOT_IN_SEGMENT(1, "IS NOT IN SEGMENT")
+    }
+}
+
+/**
+ * Convert [Double] to [String] based on the following format rules.
+ *
+ * To get similar result between different SDKs the Double value format is modified.
+ * Between 1e-6 and 1e21 we don't use scientific-notation. Over these limits scientific-notation used but the ExponentSeparator replaced with "e" and "e+".
+ * "." used as decimal separator in all cases.
+ *
+ * For [Double.NaN], [Double.POSITIVE_INFINITY] and [Double.NEGATIVE_INFINITY] simple String representation used.
+ */
+internal expect fun doubleToString(doubleToString: Double): String
+
+internal fun commonDoubleToString(doubleToString: Double): String {
+    if (doubleToString.isNaN() || doubleToString.isInfinite()) {
+        return doubleToString.toString()
+    }
+    // Scientific Notation use cannot be turned on or off in native and no formatter can be used properly.
+    // As best effort we replace the "," and the "E" if presented.
+    val stringFormatScientificNotation = doubleToString.toString().replace(",", ".")
+    return if (doubleToString.absoluteValue > 1) {
+        stringFormatScientificNotation.replace("E", "e+")
+    } else {
+        stringFormatScientificNotation.replace("E-", "e-")
     }
 }
 
