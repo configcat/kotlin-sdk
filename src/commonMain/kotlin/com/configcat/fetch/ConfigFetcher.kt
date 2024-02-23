@@ -1,8 +1,6 @@
 package com.configcat.fetch
 
 import com.configcat.*
-import com.configcat.Closeable
-import com.configcat.Constants
 import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.configcat.model.Config
@@ -73,14 +71,16 @@ internal class ConfigFetcher constructor(
     private suspend fun fetchHTTP(baseUrl: String, eTag: String): FetchResponse {
         val url = "$baseUrl/configuration-files/${options.sdkKey}/${Constants.configFileName}"
         try {
-            // TODO platfrom based HttpRequestBuilder - js should use url and parameters
+            val httpRequestBuilder =
+                httpRequestBuilder("ConfigCat-Kotlin/${options.pollingMode.identifier}-${Constants.version}", eTag)
             val response = httpClient.get(url) {
-                headers {
-                    append(
-                        "X-ConfigCat-UserAgent",
-                        "ConfigCat-Kotlin/${options.pollingMode.identifier}-${Constants.version}"
-                    )
-                    if (eTag.isNotEmpty()) append(HttpHeaders.IfNoneMatch, eTag)
+                httpRequestBuilder.headers.entries().forEach {
+                    headers.appendAll(it.key, it.value)
+                }
+                url {
+                    httpRequestBuilder.url.parameters.entries().forEach {
+                        parameters.appendAll(it.key, it.value)
+                    }
                 }
             }
             if (response.status.value in 200..299) {
@@ -145,4 +145,18 @@ internal class ConfigFetcher constructor(
             Pair(Config.empty, e.message)
         }
     }
+}
+
+internal expect fun httpRequestBuilder(configCatUserAgent: String, eTag: String): HttpRequestBuilder
+
+internal fun commonHttpRequestBuilder(configCatUserAgent: String, eTag: String): HttpRequestBuilder {
+    val httpRequestBuilder = HttpRequestBuilder()
+    httpRequestBuilder.headers {
+        append(
+            "X-ConfigCat-UserAgent",
+            configCatUserAgent
+        )
+        if (eTag.isNotEmpty()) append(HttpHeaders.IfNoneMatch, eTag)
+    }
+    return httpRequestBuilder
 }

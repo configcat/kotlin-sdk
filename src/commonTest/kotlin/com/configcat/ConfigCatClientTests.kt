@@ -5,6 +5,7 @@ import com.soywiz.klock.DateTime
 import com.soywiz.krypto.sha1
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -530,10 +531,18 @@ class ConfigCatClientTests {
         }
 
         client.getValue("fakeKey", false)
-        assertEquals(
-            "ConfigCat-Kotlin/a-${Constants.version}",
-            mockEngine.requestHistory.last().headers["X-ConfigCat-UserAgent"]
-        )
+        // For Js we check the query params
+        if (PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE) {
+            assertEquals(
+                "ConfigCat-Kotlin/a-${Constants.version}",
+                mockEngine.requestHistory.last().url.parameters["sdk"]
+            )
+        } else {
+            assertEquals(
+                "ConfigCat-Kotlin/a-${Constants.version}",
+                mockEngine.requestHistory.last().headers["X-ConfigCat-UserAgent"]
+            )
+        }
     }
 
     @Test
@@ -550,10 +559,18 @@ class ConfigCatClientTests {
         }
 
         client.getValue("fakeKey", false)
-        assertEquals(
-            "ConfigCat-Kotlin/l-${Constants.version}",
-            mockEngine.requestHistory.last().headers["X-ConfigCat-UserAgent"]
-        )
+        // For Js we check the query params
+        if (PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE) {
+            assertEquals(
+                "ConfigCat-Kotlin/l-${Constants.version}",
+                mockEngine.requestHistory.last().url.parameters["sdk"]
+            )
+        } else {
+            assertEquals(
+                "ConfigCat-Kotlin/l-${Constants.version}",
+                mockEngine.requestHistory.last().headers["X-ConfigCat-UserAgent"]
+            )
+        }
     }
 
     @Test
@@ -570,10 +587,18 @@ class ConfigCatClientTests {
         }
 
         client.forceRefresh()
-        assertEquals(
-            "ConfigCat-Kotlin/m-${Constants.version}",
-            mockEngine.requestHistory.last().headers["X-ConfigCat-UserAgent"]
-        )
+        // For Js we check the query params
+        if (PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE) {
+            assertEquals(
+                "ConfigCat-Kotlin/m-${Constants.version}",
+                mockEngine.requestHistory.last().url.parameters["sdk"]
+            )
+        } else {
+            assertEquals(
+                "ConfigCat-Kotlin/m-${Constants.version}",
+                mockEngine.requestHistory.last().headers["X-ConfigCat-UserAgent"]
+            )
+        }
     }
 
     @Test

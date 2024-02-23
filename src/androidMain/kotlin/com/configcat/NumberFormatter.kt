@@ -29,6 +29,7 @@ public class AndroidNumberFormatter : NumberFormatter {
         return fmt.format(doubleToString)
     }
 }
+
 internal actual fun numberFormatter(): NumberFormatter {
     return AndroidNumberFormatter()
 }

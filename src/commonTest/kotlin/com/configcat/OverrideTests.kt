@@ -118,11 +118,14 @@ class OverrideTests {
                                 "myVariationId"
                             ),
                             "ruleOverride" to Setting(
-                                1, "", null, arrayOf(
+                                1,
+                                "",
+                                null,
+                                arrayOf(
                                     TargetingRule(
                                         conditions = arrayOf(
                                             Condition(
-                                                UserCondition("Identifier", 2, stringArrayValue =  arrayOf("@test1")),
+                                                UserCondition("Identifier", 2, stringArrayValue = arrayOf("@test1")),
                                                 null,
                                                 null
                                             )
@@ -133,7 +136,9 @@ class OverrideTests {
                                             "ruleVariationId"
                                         )
                                     )
-                                ), SettingsValue(stringValue = "noMatch"), "myVariationId"
+                                ),
+                                SettingsValue(stringValue = "noMatch"),
+                                "myVariationId"
                             ),
                             "percentageOverride" to Setting(
                                 1,

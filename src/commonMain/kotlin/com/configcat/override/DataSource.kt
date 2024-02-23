@@ -71,6 +71,5 @@ internal class ConfigOverrideDataSource constructor(private val config: Config) 
     override fun getOverrides(): Map<String, Setting> {
         addConfigSaltAndSegmentsToSettings(config)
         return config.settings ?: emptyMap()
-
     }
 }

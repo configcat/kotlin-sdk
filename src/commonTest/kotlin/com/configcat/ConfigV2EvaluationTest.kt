@@ -228,33 +228,114 @@ class ConfigV2EvaluationTest {
         runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversion", .12345, "1")
         runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversion", .12345f, "1")
         runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversion", 0.12345f, "1")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionInt", 125.toByte(), "4")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionInt", 125.toShort(), "4")
+        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+            "numberToStringConversionInt",
+            125.toByte(),
+            "4"
+        )
+        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+            "numberToStringConversionInt",
+            125.toShort(),
+            "4"
+        )
         runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionInt", 125, "4")
         runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionInt", 125L, "4")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionPositiveExp", -1.23456789e96, "2")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionNegativeExp", -12345.6789E-100, "4")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionNaN", Double.NaN, "3")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionPositiveInf", Double.POSITIVE_INFINITY, "4")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionNegativeInf", Double.NEGATIVE_INFINITY, "3")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionPositiveExp", -1.23456789e96, "2")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionNegativeExp", -12345.6789E-100, "4")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionNaN", Float.NaN, "3")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionPositiveInf", Float.POSITIVE_INFINITY, "4")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionNegativeInf", Float.NEGATIVE_INFINITY, "3")
+        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+            "numberToStringConversionPositiveExp",
+            -1.23456789e96,
+            "2"
+        )
+        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+            "numberToStringConversionNegativeExp",
+            -12345.6789E-100,
+            "4"
+        )
+        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+            "numberToStringConversionNaN",
+            Double.NaN,
+            "3"
+        )
+        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+            "numberToStringConversionPositiveInf",
+            Double.POSITIVE_INFINITY,
+            "4"
+        )
+        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+            "numberToStringConversionNegativeInf",
+            Double.NEGATIVE_INFINITY,
+            "3"
+        )
+        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+            "numberToStringConversionPositiveExp",
+            -1.23456789e96,
+            "2"
+        )
+        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+            "numberToStringConversionNegativeExp",
+            -12345.6789E-100,
+            "4"
+        )
+        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+            "numberToStringConversionNaN",
+            Float.NaN,
+            "3"
+        )
+        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+            "numberToStringConversionPositiveInf",
+            Float.POSITIVE_INFINITY,
+            "4"
+        )
+        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+            "numberToStringConversionNegativeInf",
+            Float.NEGATIVE_INFINITY,
+            "3"
+        )
 //       runComparisonAttributeConversionToCanonicalStringRepresentationTest("dateToStringConversion", "date:2023-03-31T23:59:59.999Z", "3")
         if (!PlatformUtils.IS_NATIVE) {
             // Native number format converts the double value to scientific notation causes a fail in this test case
-            runComparisonAttributeConversionToCanonicalStringRepresentationTest("dateToStringConversion", 1680307199.999, "3")
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "dateToStringConversion",
+                1680307199.999,
+                "3"
+            )
         }
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("dateToStringConversionNaN", Double.NaN, "3")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("dateToStringConversionPositiveInf", Double.POSITIVE_INFINITY, "1")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("dateToStringConversionNegativeInf", Double.NEGATIVE_INFINITY, "5")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("stringArrayToStringConversion", arrayOf("read", "Write", " eXecute "), "4")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("stringArrayToStringConversionEmpty", arrayOfNulls<String>(0), "5")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("stringArrayToStringConversionSpecialChars", arrayOf("+<>%\"'\\/\t\r\n"), "3")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("stringArrayToStringConversionUnicode", arrayOf("äöüÄÖÜçéèñışğâ¢™✓\uD83D\uDE00"), "2")
+        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+            "dateToStringConversionNaN",
+            Double.NaN,
+            "3"
+        )
+        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+            "dateToStringConversionPositiveInf",
+            Double.POSITIVE_INFINITY,
+            "1"
+        )
+        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+            "dateToStringConversionNegativeInf",
+            Double.NEGATIVE_INFINITY,
+            "5"
+        )
+        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+            "stringArrayToStringConversion",
+            arrayOf("read", "Write", " eXecute "),
+            "4"
+        )
+        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+            "stringArrayToStringConversionEmpty",
+            arrayOfNulls<String>(0),
+            "5"
+        )
+        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+            "stringArrayToStringConversionSpecialChars",
+            arrayOf("+<>%\"'\\/\t\r\n"),
+            "3"
+        )
+        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+            "stringArrayToStringConversionUnicode",
+            arrayOf("äöüÄÖÜçéèñışğâ¢™✓\uD83D\uDE00"),
+            "2"
+        )
     }
+
     private suspend fun runRuleAndPercentageOptionTest(
         userId: String,
         email: String?,

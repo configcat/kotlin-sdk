@@ -6,6 +6,7 @@ public class JsNumberFormatter : NumberFormatter {
         return doubleToString.toString()
     }
 }
+
 internal actual fun numberFormatter(): NumberFormatter {
     return JsNumberFormatter()
 }
