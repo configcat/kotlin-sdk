@@ -3,6 +3,8 @@ package com.configcat
 import platform.Foundation.NSNumber
 import platform.Foundation.NSNumberFormatter
 import platform.Foundation.NSNumberFormatterStyle
+import platform.Foundation.NSNumberFormatterStyle.NSNumberFormatterDecimalStyle
+import platform.Foundation.NSNumberFormatterStyle.NSNumberFormatterScientificStyle
 import kotlin.math.abs
 
 internal actual fun doubleToString(doubleToString: Double): String {
