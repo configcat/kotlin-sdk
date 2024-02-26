@@ -29,7 +29,6 @@ internal actual fun doubleToString(doubleToString: Double): String {
         formatter.numberStyle = NSNumberFormatterStyle.NSNumberFormatterScientificStyle
     }
     return formatter.stringFromNumber(NSNumber(doubleToString))
-
 }
 
 internal actual fun formatDoubleForLog(doubleToFormat: Double): String {
