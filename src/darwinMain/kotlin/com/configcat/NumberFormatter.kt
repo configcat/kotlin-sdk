@@ -1,12 +1,11 @@
 package com.configcat
 
+import kotlinx.cinterop.UnsafeNumber
 import platform.Foundation.NSNumber
 import platform.Foundation.NSNumberFormatter
-import platform.Foundation.NSNumberFormatterStyle
-import platform.Foundation.NSNumberFormatterStyle.NSNumberFormatterDecimalStyle
-import platform.Foundation.NSNumberFormatterStyle.NSNumberFormatterScientificStyle
 import kotlin.math.abs
 
+@OptIn(UnsafeNumber::class)
 internal actual fun doubleToString(doubleToString: Double): String {
     // TODO remove commonDoubleToString if not used any more
     // return commonDoubleToString(doubleToString)
@@ -25,20 +24,21 @@ internal actual fun doubleToString(doubleToString: Double): String {
     formatter.minimumFractionDigits = 0u
     formatter.maximumFractionDigits = 17u
     if (1e-6 <= abs && abs < 1e21) {
-        formatter.numberStyle = NSNumberFormatterStyle.NSNumberFormatterDecimalStyle
+        formatter.numberStyle = 1u
     } else {
         formatter.exponentSymbol = "e"
-        formatter.numberStyle = NSNumberFormatterStyle.NSNumberFormatterScientificStyle
+        formatter.numberStyle = 4u
     }
-    return formatter.stringFromNumber(NSNumber(doubleToString))
+    return formatter.stringFromNumber(NSNumber(doubleToString)) ?: ""
 }
 
+@OptIn(UnsafeNumber::class)
 internal actual fun formatDoubleForLog(doubleToFormat: Double): String {
     // TODO remove commonFormatDoubleForLog if not used any more
     // return commonFormatDoubleForLog(doubleToFormat)
     val formatter = NSNumberFormatter()
     formatter.minimumFractionDigits = 0u
     formatter.maximumFractionDigits = 4u
-    formatter.numberStyle = NSNumberFormatterStyle.NSNumberFormatterDecimalStyle
-    return formatter.stringFromNumber(NSNumber(doubleToFormat))
+    formatter.numberStyle = 1u
+    return formatter.stringFromNumber(NSNumber(doubleToFormat)) ?: ""
 }
