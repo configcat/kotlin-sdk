@@ -72,6 +72,11 @@ internal object Data {
         return "${fetchTimeUnixSeconds}\n$value\n" + """{"f":{"fakeKey":{"v":$value}}}"""
     }
 
+    fun formatCacheEntryWithEtag(value: Any, etag: String): String {
+        val fetchTimeUnixSeconds = DateTime.now().unixMillis.toLong()
+        return "${fetchTimeUnixSeconds}\n$etag\n" + """{"f":{"fakeKey":{"v":$value}}}"""
+    }
+
     fun formatCacheEntryWithDate(value: Any, time: DateTime): String {
         val fetchTimeUnixSeconds = time.unixMillis.toLong()
         return "${fetchTimeUnixSeconds}\n$value\n" + """{"f":{"fakeKey":{"v":$value}}}"""
