@@ -7,9 +7,6 @@ import kotlin.math.abs
 
 @OptIn(UnsafeNumber::class)
 internal actual fun doubleToString(doubleToString: Double): String {
-    // TODO remove commonDoubleToString if not used any more
-    // return commonDoubleToString(doubleToString)
-
     // Handle Double.NaN, Double.POSITIVE_INFINITY and Double.NEGATIVE_INFINITY
     if (doubleToString.isNaN() || doubleToString.isInfinite()) {
         return doubleToString.toString()
@@ -21,22 +18,23 @@ internal actual fun doubleToString(doubleToString: Double): String {
     // "." used as decimal separator in all cases.
     val abs = abs(doubleToString)
     val formatter = NSNumberFormatter()
+    formatter.usesGroupingSeparator = false
     formatter.minimumFractionDigits = 0u
     formatter.maximumFractionDigits = 17u
     if (1e-6 <= abs && abs < 1e21) {
         formatter.numberStyle = 1u
+        return formatter.stringFromNumber(NSNumber(doubleToString)) ?: ""
     } else {
-        formatter.exponentSymbol = "e"
-        formatter.numberStyle = 4u
+        val str = NSNumber(doubleToString)
+        return str.description ?: ""
     }
-    return formatter.stringFromNumber(NSNumber(doubleToString)) ?: ""
+
 }
 
 @OptIn(UnsafeNumber::class)
 internal actual fun formatDoubleForLog(doubleToFormat: Double): String {
-    // TODO remove commonFormatDoubleForLog if not used any more
-    // return commonFormatDoubleForLog(doubleToFormat)
     val formatter = NSNumberFormatter()
+    formatter.usesGroupingSeparator = false
     formatter.minimumFractionDigits = 0u
     formatter.maximumFractionDigits = 4u
     formatter.numberStyle = 1u
