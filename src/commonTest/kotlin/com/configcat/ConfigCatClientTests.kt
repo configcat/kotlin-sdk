@@ -1073,6 +1073,117 @@ class ConfigCatClientTests {
         ConfigCatClient.closeAll()
     }
 
+    @Test
+    fun testGetValueValidTypes() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = testGetValueTypes,
+                status = HttpStatusCode.OK
+            )
+        }
+
+        val client = ConfigCatClient(Data.SDK_KEY) {
+            httpEngine = mockEngine
+        }
+        // String
+        assertEquals("fakeValueString", client.getValue("fakeKeyString", "default", null))
+        // Boolean
+        assertEquals(true, client.getValue("fakeKeyBoolean", false, null))
+        // Int
+        assertEquals(1, client.getValue("fakeKeyInt", 0, null))
+        // Double
+        assertEquals(2.1, client.getValue("fakeKeyDouble", 1.1, null))
+    }
+
+    @Test
+    fun testGetValueInvalidTypes() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = testGetValueTypes,
+                status = HttpStatusCode.OK
+            )
+        }
+
+        val client = ConfigCatClient(Data.SDK_KEY) {
+            httpEngine = mockEngine
+        }
+        // Float
+        assertFailsWith(
+            exceptionClass = IllegalArgumentException::class,
+            message = "The setting type is not valid. Only String, Int, Double or Boolean types are supported.",
+            block = { client.getValue("fakeKeyString", 3.14f) }
+        )
+        // Object
+        assertFailsWith(
+            exceptionClass = IllegalArgumentException::class,
+            message = "The setting type is not valid. Only String, Int, Double or Boolean types are supported.",
+            block = { client.getValue("fakeKeyString", ConfigCatUser("testId")) }
+        )
+    }
+
+    private val testGetValueTypes = """
+        {
+           "p":{
+              "s":"test-salt",
+              "u":"test"
+           },
+           "f":{
+              "fakeKeyString":{
+                 "t":1,
+                 "v":{
+                    "s":"fakeValueString"
+                 },
+                 "s":0,
+                 "p":[
+                    
+                 ],
+                 "r":[
+                    
+                 ]
+              },
+              "fakeKeyInt":{
+                 "t":2,
+                 "v":{
+                    "i":1
+                 },
+                 "s":0,
+                 "p":[
+                    
+                 ],
+                 "r":[
+                    
+                 ]
+              },
+              "fakeKeyDouble":{
+                 "t":3,
+                 "v":{
+                    "d":2.1
+                 },
+                 "s":0,
+                 "p":[
+                    
+                 ],
+                 "r":[
+                    
+                 ]
+              },
+              "fakeKeyBoolean":{
+                 "t":0,
+                 "v":{
+                    "b":true
+                 },
+                 "s":0,
+                 "p":[
+                    
+                 ],
+                 "r":[
+                    
+                 ]
+              }
+           }
+        }
+    """.trimIndent()
+
     private val specialCharacterContent = """
         {
            "p":{

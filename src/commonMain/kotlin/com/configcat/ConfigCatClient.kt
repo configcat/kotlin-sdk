@@ -101,24 +101,33 @@ public class ConfigCatOptions {
 public interface ConfigCatClient {
     /**
      * Gets the value of a feature flag or setting as [Any] identified by the given [key].
-     * In case of any failure, [defaultValue] will be returned. The [user] param identifies the caller.
+     *
+     * @param key          the identifier of the feature flag or setting.
+     * @param defaultValue in case of any failure, this value will be returned.
+     * @param user         the user object.
      */
     public suspend fun getAnyValue(key: String, defaultValue: Any, user: ConfigCatUser?): Any
 
     /**
      * Gets the value and evaluation details of a feature flag or setting identified by the given [key].
-     * The [user] param identifies the caller.
+     *
+     * @param key          the identifier of the feature flag or setting.
+     * @param defaultValue in case of any failure, this value will be returned.
+     * @param user         the user object.
      */
     public suspend fun getAnyValueDetails(key: String, defaultValue: Any, user: ConfigCatUser?): EvaluationDetails
 
     /**
      * Gets the values along with evaluation details of all feature flags and settings.
-     * The [user] param identifies the caller.
+     *
+     * @param user the user object.
      */
     public suspend fun getAllValueDetails(user: ConfigCatUser? = null): Collection<EvaluationDetails>
 
     /**
      * Gets the key of a setting and its value identified by the given [variationId] (analytics).
+     *
+     * @param variationId the Variation ID.
      */
     public suspend fun getKeyAndValue(variationId: String): Pair<String, Any>?
 
@@ -129,21 +138,23 @@ public interface ConfigCatClient {
 
     /**
      * Gets the values of all feature flags or settings. The [user] param identifies the caller.
+     *
+     * @param user the user object.
      */
     public suspend fun getAllValues(user: ConfigCatUser? = null): Map<String, Any>
 
     /**
-     * Downloads the latest feature flag and configuration values.
+     * Initiates a force refresh on the cached configuration.
      */
     public suspend fun forceRefresh(): RefreshResult
 
     /**
-     * Configures the SDK to allow HTTP requests.
+     * Configures the SDK to not initiate HTTP requests and work only from its cache.
      */
     public fun setOnline()
 
     /**
-     * Configures the SDK to not initiate HTTP requests.
+     * Set the client to offline mode. HTTP calls are not allowed.
      */
     public fun setOffline()
 
@@ -159,6 +170,10 @@ public interface ConfigCatClient {
 
     /**
      * Sets the default user.
+     * If no user specified in the following calls [getValue], [getAnyValue], [getAllValues], [getValueDetails], [getAnyValueDetails], [getAllValueDetails]
+     * the default user value will be used.
+     *
+     * @param user The new default user.
      */
     public fun setDefaultUser(user: ConfigCatUser)
 
@@ -197,6 +212,14 @@ public fun ConfigCatClient(
 ): ConfigCatClient = Client.get(sdkKey, block)
 
 @PublishedApi
+internal inline fun <reified T : Any> validateDefaultValueType(defaultValue: T){
+    if(!(defaultValue is String || defaultValue is Boolean || defaultValue is Int || defaultValue is Double )) {
+        throw IllegalArgumentException("The setting type is not valid. Only String, Int, Double or Boolean types are supported.")
+
+    }
+}
+
+@PublishedApi
 internal inline fun <reified T : Any> validateValueType(value: Any): T {
     if (value !is T) {
         throw IllegalArgumentException(
@@ -211,35 +234,45 @@ internal inline fun <reified T : Any> validateValueType(value: Any): T {
 
 /**
  * Gets the value of a feature flag or setting as [T] identified by the given [key].
- * In case of any failure, [defaultValue] will be returned. The [user] param identifies the caller.
+ *
+ * @param key          the identifier of the feature flag or setting.
+ * @param defaultValue in case of any failure, this value will be returned.
+ * @param user         the user object.
+ * @param T            the type of the desired feature flag or setting. Only the following types are allowed: [String], [Boolean], [Int] and [Double].
  */
 public suspend inline fun <reified T : Any> ConfigCatClient.getValue(
     key: String,
     defaultValue: T,
     user: ConfigCatUser? = null
 ): T {
-    val anyValue = this.getAnyValue(key, defaultValue, user)
-    return validateValueType(anyValue)
+    validateDefaultValueType(defaultValue)
+    val result = this.getAnyValue(key, defaultValue, user)
+    return validateValueType(result)
 }
 
 /**
  * Gets the value and evaluation details of a feature flag or setting identified by the given [key].
- * The [user] param identifies the caller.
+ *
+ * @param key          the identifier of the feature flag or setting.
+ * @param defaultValue in case of any failure, this value will be returned.
+ * @param user         the user object.
+ * @param T            the type of the desired feature flag or setting. Only the following types are allowed: [String], [Boolean], [Int] and [Double].
  */
 public suspend inline fun <reified T : Any> ConfigCatClient.getValueDetails(
     key: String,
     defaultValue: T,
     user: ConfigCatUser? = null
 ): TypedEvaluationDetails<T> {
+    validateDefaultValueType(defaultValue)
     val details = this.getAnyValueDetails(key, defaultValue, user)
-    val value = details.value as? T
+    val value = validateValueType<T>(details.value)
     return TypedEvaluationDetails(
         details.key,
         details.variationId,
         user,
-        details.isDefaultValue || value == null,
+        details.isDefaultValue,
         details.error,
-        value ?: defaultValue,
+        value,
         details.fetchTimeUnixMilliseconds,
         details.matchedTargetingRule,
         details.matchedPercentageOption
@@ -545,10 +578,9 @@ internal class Client private constructor(
             SettingType.JS_NUMBER -> {
                 settingsValue.doubleValue
             }
-
             else -> {
                 throw IllegalArgumentException(
-                    "The setting type is not valid. Only String, Int, Double or Boolean types are supported."
+                    "Setting is of an unsupported type ($settingTypeEnum)."
                 )
             }
         }

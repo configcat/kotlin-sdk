@@ -22,7 +22,7 @@ class VariationIdTests {
             httpEngine = mockEngine
         }
 
-        val variationId = client.getValueDetails("key1", "defaultValue").variationId
+        val variationId = client.getValueDetails("key1", false).variationId
         assertEquals("fakeId1", variationId)
     }
 

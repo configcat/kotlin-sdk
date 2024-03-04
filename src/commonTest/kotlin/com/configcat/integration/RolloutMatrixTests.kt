@@ -2,7 +2,6 @@ package com.configcat.integration
 
 import com.configcat.ConfigCatClient
 import com.configcat.ConfigCatUser
-import com.configcat.getValueDetails
 import com.configcat.integration.matrix.*
 import com.configcat.log.LogLevel
 import com.configcat.manualPoll
@@ -154,7 +153,7 @@ class RolloutMatrixTests {
                         errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
                     }
                 } else {
-                    val variationId = client.getValueDetails(settingKey, "", user).variationId
+                    val variationId = client.getAnyValueDetails(settingKey, "", user).variationId
                     if (variationId != testObjects[j + 4]) {
                         errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: ${testObjects[j + 4]}, Result: $variationId")
                     }
