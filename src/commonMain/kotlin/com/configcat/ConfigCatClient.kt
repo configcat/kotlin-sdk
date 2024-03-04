@@ -212,10 +212,9 @@ public fun ConfigCatClient(
 ): ConfigCatClient = Client.get(sdkKey, block)
 
 @PublishedApi
-internal inline fun <reified T : Any> validateDefaultValueType(defaultValue: T){
-    if(!(defaultValue is String || defaultValue is Boolean || defaultValue is Int || defaultValue is Double )) {
+internal inline fun <reified T : Any> validateDefaultValueType(defaultValue: T) {
+    if (!(defaultValue is String || defaultValue is Boolean || defaultValue is Int || defaultValue is Double)) {
         throw IllegalArgumentException("The setting type is not valid. Only String, Int, Double or Boolean types are supported.")
-
     }
 }
 
