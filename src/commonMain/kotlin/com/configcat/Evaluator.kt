@@ -140,7 +140,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             }
 
             if (rule.servedValue != null) {
-                return rule.servedValue.let { EvaluationResult(it.value, rule.servedValue.variationId, rule, null) }
+                return EvaluationResult(rule.servedValue.value, rule.servedValue.variationId, rule, null)
             }
             if (rule.percentageOptions.isNullOrEmpty()) {
                 continue
