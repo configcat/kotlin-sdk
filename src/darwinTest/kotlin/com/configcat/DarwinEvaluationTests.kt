@@ -1,5 +1,6 @@
 
 import com.configcat.ConfigCatClient
+import com.configcat.SingleValueCache
 import com.configcat.data.DarwinComparatorsTests
 import com.configcat.data.DarwinEpochDateValidationTests
 import com.configcat.evaluation.EvaluationTestLogger
@@ -50,6 +51,9 @@ class DarwinEvaluationTests {
             httpEngine = mockEngine
             logger = evaluationTestLogger
             logLevel = LogLevel.INFO
+
+            // add empty SingleValueCache to avoid JS extra cache logs
+            configCache = SingleValueCache("")
         }
         client.forceRefresh()
 
@@ -82,12 +86,7 @@ class DarwinEvaluationTests {
         client.close()
 
         if (errors.isNotEmpty()) {
-            var errorsString = ""
-            for (error in errors) {
-                errorsString = errorsString.plus(error).plus("\n")
-            }
-            fail(errorsString)
-//            fail(errors.joinToString("\n"))
+            fail(errors.joinToString("\n"))
         }
     }
 
