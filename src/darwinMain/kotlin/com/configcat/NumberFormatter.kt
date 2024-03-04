@@ -28,7 +28,6 @@ internal actual fun doubleToString(doubleToString: Double): String {
         val str = NSNumber(doubleToString)
         return str.description ?: ""
     }
-
 }
 
 @OptIn(UnsafeNumber::class)
