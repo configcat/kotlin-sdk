@@ -82,9 +82,9 @@ class DarwinEvaluationTests {
         client.close()
 
         if (errors.isNotEmpty()) {
-            val errorsString = ""
+            var errorsString = ""
             for (error in errors) {
-                errorsString.plus(error).plus("\n")
+                errorsString = errorsString.plus(error).plus("\n")
             }
             fail(errorsString)
 //            fail(errors.joinToString("\n"))
