@@ -78,10 +78,17 @@ class DarwinEvaluationTests {
             }
             evaluationTestLogger.resetLogList()
         }
-        if (errors.isNotEmpty()) {
-            fail(errors.joinToString("\n"))
-        }
+
         client.close()
+
+        if (errors.isNotEmpty()) {
+            val errorsString = ""
+            for (error in errors) {
+                errorsString.plus(error).plus("\n")
+            }
+            fail(errorsString)
+//            fail(errors.joinToString("\n"))
+        }
     }
 
     companion object {
