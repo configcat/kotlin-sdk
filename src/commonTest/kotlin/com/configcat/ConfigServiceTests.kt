@@ -424,6 +424,28 @@ class ConfigServiceTests {
     }
 
     @Test
+    fun testCacheTTLRespectsExternalCache() = runTest {
+        val mockEngine = MockEngine {
+            respond(content = Data.formatJsonBody("test_remote"), status = HttpStatusCode.OK)
+        }
+        val cache = SingleValueCache(Data.formatCacheEntryWithEtag("test_local", "etag"))
+        val service = Services.createConfigService(
+            mockEngine,
+            lazyLoad {
+                cacheRefreshInterval = 1.seconds
+            },
+            cache
+        )
+        assertEquals("test_local", service.getSettings().settings["fakeKey"]?.value.toString())
+        assertEquals(0, mockEngine.requestHistory.size)
+        TestUtils.wait(1.seconds)
+
+        cache.write("", Data.formatCacheEntryWithEtag("test_local2", "etag2"))
+        assertEquals("test_local2", service.getSettings().settings["fakeKey"]?.value.toString())
+        assertEquals(0, mockEngine.requestHistory.size)
+    }
+
+    @Test
     fun testLazyOnlineOffline() = runTest {
         val mockEngine = MockEngine.create {
             this.addHandler {

@@ -69,7 +69,7 @@ internal class ConfigService(
             }
 
             else -> {
-                val result = fetchIfOlder(Constants.distantPast, preferCached = true)
+                val result = fetchIfOlder(Constants.distantPast, preferCached = initialized.value) // If we are initialized, we prefer the cached results
                 if (result.first.isEmpty()) {
                     SettingResult.empty
                 } else {
@@ -108,29 +108,21 @@ internal class ConfigService(
     }
 
     @Suppress("ComplexMethod")
-    private suspend fun fetchIfOlder(time: DateTime, preferCached: Boolean = false): Pair<Entry, String?> {
+    private suspend fun fetchIfOlder(threshold: DateTime, preferCached: Boolean = false): Pair<Entry, String?> {
         mutex.withLock {
             // Sync up with the cache and use it when it's not expired.
-            if (cachedEntry.isEmpty() || cachedEntry.fetchTime > time) {
-                val entry = readCache()
-                if (!entry.isEmpty() && entry.eTag != cachedEntry.eTag) {
-                    cachedEntry = entry
-                    hooks.invokeOnConfigChanged(entry.config.settings)
-                }
-                // Cache isn't expired
-                if (cachedEntry.fetchTime > time) {
-                    setInitialized()
-                    return Pair(cachedEntry, null)
-                }
+            val fromCache = readCache()
+            if (!fromCache.isEmpty() && fromCache.eTag != cachedEntry.eTag) {
+                hooks.invokeOnConfigChanged(fromCache.config.settings)
+                cachedEntry = fromCache
             }
-            // Use cache anyway (get calls on auto & manual poll must not initiate fetch).
-            // The initialized check ensures that we subscribe for the ongoing fetch during the
-            // max init wait time window in case of auto poll.
-            if (preferCached && initialized.value) {
+            // Cache isn't expired
+            if (cachedEntry.fetchTime > threshold) {
+                setInitialized()
                 return Pair(cachedEntry, null)
             }
-            // If we are in offline mode we are not allowed to initiate fetch.
-            if (offline.value) {
+            // If we are in offline mode or the caller prefers cached values, do not initiate fetch.
+            if (offline.value || preferCached) {
                 return Pair(cachedEntry, null)
             }
 
