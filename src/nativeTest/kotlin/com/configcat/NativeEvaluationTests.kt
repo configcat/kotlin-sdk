@@ -60,7 +60,7 @@ class NativeEvaluationTests {
         for (test in tests!!) {
             val settingKey = test.key
 
-            val result: Any = client.getAnyValue(settingKey, test.defaultValue, test.user)
+            val result: Any? = client.getAnyValue(settingKey, test.defaultValue, test.user)
             if (test.returnValue != result) {
                 errors.add("Return value mismatch for test: %s Test Key: $settingKey Expected: ${test.returnValue}, Result: $result \n")
             }

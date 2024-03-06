@@ -94,6 +94,7 @@ class ConfigCatClientTests {
             httpEngine = mockEngine
             logLevel = LogLevel.ERROR
             logger = evaluationTestLogger
+            configCache = SingleValueCache("")
         }
 
         val result = client.getValue("fakeKey", 0)
@@ -112,7 +113,8 @@ class ConfigCatClientTests {
         val errorMessage: String = errorLogs[0].logMessage
         assertContains(errorMessage, "[1002]")
         assertContains(errorMessage, "Error occurred in the `getAnyValue` method while evaluating setting 'fakeKey'. Returning the `defaultValue` parameter that you specified in your application: '0'.")
-        assertContains(errorMessage, "The type of a setting must match the type of the specified default value. Setting's type was {STRING} but the default value's type was {class java.lang.Integer (Kotlin reflection is not available)}. Please use a default value which corresponds to the setting type {STRING}.Learn more: https://configcat.com/docs/sdk-reference/dotnet/#setting-type-mapping")
+        // we don't check the full exception message because the Integer class can be different in other platforms. We only check the first part of the message
+        assertContains(errorMessage, "The type of a setting must match the type of the specified default value. Setting's type was {STRING} but the default value's type was ")
         evaluationTestLogger.resetLogList()
     }
 
@@ -242,25 +244,6 @@ class ConfigCatClientTests {
 
         assertEquals(false, client.getValue("fakeKey", false))
         assertEquals(1, mockEngine.requestHistory.size)
-    }
-
-    @Test
-    fun testGetValueInvalidType() = runTest {
-        val mockEngine = MockEngine {
-            respond(
-                content = Data.formatJsonBodyWithBoolean(true),
-                status = HttpStatusCode.OK
-            )
-        }
-        val client = ConfigCatClient(Data.SDK_KEY) {
-            httpEngine = mockEngine
-        }
-
-        assertFailsWith(
-            exceptionClass = IllegalArgumentException::class,
-            message = "The type of a setting must match the type of the setting's default value. Setting's type was {class java.lang.Boolean} but the default value's type was {class java.lang.Float}. Please use a default value which corresponds to the setting type {class java.lang.Boolean}.Learn more: https://configcat.com/docs/sdk-reference/dotnet/#setting-type-mapping",
-            block = { client.getValue("fakeKey", "55".toFloat()) }
-        )
     }
 
     @Test
@@ -1002,9 +985,10 @@ class ConfigCatClientTests {
 
     @Test
     fun testSDKKeyIsNotEmpty() {
-        assertFailsWith(IllegalArgumentException::class, "SDK Key cannot be empty.", block = {
+        val exception = assertFailsWith(IllegalArgumentException::class, block = {
             ConfigCatClient("")
         })
+        assertEquals("SDK Key cannot be empty.", exception.message)
     }
 
     @Test
@@ -1049,14 +1033,16 @@ class ConfigCatClientTests {
             "configcat-proxy/sdk-key-90123456789012"
         )
         wrongSDKKeys.forEach {
-            assertFailsWith(IllegalArgumentException::class, "SDK Key '$it' is invalid.", block = {
+            val exception = assertFailsWith(IllegalArgumentException::class, block = {
                 ConfigCatClient(it)
             })
+            assertEquals("SDK Key '$it' is invalid.", exception.message)
         }
 
-        assertFailsWith(IllegalArgumentException::class, "SDK Key 'configcat-proxy/' is invalid.", block = {
+        val exception = assertFailsWith(IllegalArgumentException::class, block = {
             ConfigCatClient("configcat-proxy/") { baseUrl = "https://my-configcat-proxy" }
         })
+        assertEquals("SDK Key 'configcat-proxy/' is invalid.", exception.message)
 
         // TEST OverrideBehaviour.localOnly skip sdkKey validation
         client =
@@ -1130,25 +1116,30 @@ class ConfigCatClientTests {
         val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
-        // Float
-        assertFailsWith(
-            exceptionClass = IllegalArgumentException::class,
-            message = "The setting type is not valid. Only String, Int, Double or Boolean types are supported.",
-            block = { client.getValue("fakeKeyString", 3.14f) }
-        )
+
+        // In case of JS the float is converted to an accepted type, in this case sskip this test
+        if (!(PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE)) {
+            // Float
+            val floatException = assertFailsWith(
+                exceptionClass = IllegalArgumentException::class,
+                block = { client.getValue("fakeKeyString", 3.14f) }
+            )
+            assertEquals("The setting type is not valid. Only String, Int, Double or Boolean types are supported.", floatException.message)
+        }
+
         // Object
-        assertFailsWith(
+        val exception = assertFailsWith(
             exceptionClass = IllegalArgumentException::class,
-            message = "The setting type is not valid. Only String, Int, Double or Boolean types are supported.",
             block = { client.getValue("fakeKeyString", ConfigCatUser("testId")) }
         )
+        assertEquals("The setting type is not valid. Only String, Int, Double or Boolean types are supported.", exception.message)
 
-        // getAnyValue only allows Only String, Int, Double or Boolean types are supported.",
-        assertFailsWith(
+        // getAnyValue actually only allows String, Int, Double or Boolean types.
+        val getAnyException = assertFailsWith(
             exceptionClass = IllegalArgumentException::class,
-            message = "The setting type is not valid. Only String, Int, Double or Boolean types are supported.",
-            block = { client.getAnyValue("fakeKeyString", 3.14f, null) }
+            block = { client.getAnyValue("fakeKeyString", ConfigCatUser("testId"), null) }
         )
+        assertEquals("The setting type is not valid. Only String, Int, Double or Boolean types are supported.", getAnyException.message)
     }
 
     private val testGetValueTypes = """

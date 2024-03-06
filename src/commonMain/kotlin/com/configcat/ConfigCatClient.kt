@@ -569,7 +569,17 @@ internal class Client private constructor(
         if (defaultValue == null) {
             return
         }
-        if (!((defaultValue is String && settingType == SettingType.STRING) || (defaultValue is Boolean && settingType == SettingType.BOOLEAN) || (defaultValue is Int && settingType == SettingType.INT) || (defaultValue is Double && settingType == SettingType.DOUBLE))) {
+        if (!(
+            (defaultValue is String && settingType == SettingType.STRING) ||
+                (defaultValue is Boolean && settingType == SettingType.BOOLEAN) ||
+                (
+                    defaultValue is Int && (settingType == SettingType.INT || settingType == SettingType.JS_NUMBER)
+                    ) ||
+                (
+                    defaultValue is Double && (settingType == SettingType.DOUBLE || settingType == SettingType.JS_NUMBER)
+                    )
+            )
+        ) {
             throw IllegalArgumentException(
                 "The type of a setting must match the type of the specified default value. " +
                     "Setting's type was {" + settingType + "} but the default value's type was {" + defaultValue::class.toString() + "}. " +
@@ -603,6 +613,7 @@ internal class Client private constructor(
             SettingType.JS_NUMBER -> {
                 settingsValue.doubleValue
             }
+
             else -> {
                 throw IllegalArgumentException(
                     "Setting is of an unsupported type ($settingTypeEnum)."
