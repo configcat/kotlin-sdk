@@ -625,7 +625,7 @@ class EvaluationLoggerTurnOffTests {
         }
         client.forceRefresh()
 
-        val result: Any = client.getAnyValue("stringContainsDogDefaultCat", "default", null)
+        val result: Any? = client.getAnyValue("stringContainsDogDefaultCat", "default", null)
 
         val logList = evaluationTestLogger.getLogList()
         assertEquals("Cat", result, "Return value not match.")
@@ -649,7 +649,7 @@ class EvaluationLoggerTurnOffTests {
         }
         client.forceRefresh()
 
-        val result: Any = client.getAnyValue("stringContainsDogDefaultCat", "default", null)
+        val result: Any? = client.getAnyValue("stringContainsDogDefaultCat", "default", null)
 
         val logList = evaluationTestLogger.getLogList()
         assertEquals("Cat", result, "Return value not match.")

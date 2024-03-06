@@ -1,5 +1,8 @@
 package com.configcat
 
+import com.configcat.evaluation.EvaluationTestLogger
+import com.configcat.evaluation.LogEvent
+import com.configcat.log.LogLevel
 import com.configcat.override.OverrideBehavior
 import com.soywiz.klock.DateTime
 import com.soywiz.krypto.sha1
@@ -84,15 +87,33 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
+
+        val evaluationTestLogger = EvaluationTestLogger()
+
         val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
+            logLevel = LogLevel.ERROR
+            logger = evaluationTestLogger
         }
 
-        assertFailsWith(
-            exceptionClass = IllegalArgumentException::class,
-            message = "The type of a setting must match the type of the setting's default value. Setting's type was {class java.lang.String} but the default value's type was {class java.lang.Integer}. Please use a default value which corresponds to the setting type {class java.lang.String}.Learn more: https://configcat.com/docs/sdk-reference/dotnet/#setting-type-mapping",
-            block = { client.getValue("fakeKey", 0) }
-        )
+        val result = client.getValue("fakeKey", 0)
+        assertEquals(0, result)
+
+        val errorLogs = mutableListOf<LogEvent>()
+
+        val logsList = evaluationTestLogger.getLogList()
+        for (i in logsList.indices) {
+            val log = logsList[i]
+            if (log.logLevel == LogLevel.ERROR) {
+                errorLogs.add(log)
+            }
+        }
+        assertEquals(1, errorLogs.size, "Error size not matching")
+        val errorMessage: String = errorLogs[0].logMessage
+        assertContains(errorMessage, "[1002]")
+        assertContains(errorMessage, "Error occurred in the `getAnyValue` method while evaluating setting 'fakeKey'. Returning the `defaultValue` parameter that you specified in your application: '0'.")
+        assertContains(errorMessage, "The type of a setting must match the type of the specified default value. Setting's type was {STRING} but the default value's type was {class java.lang.Integer (Kotlin reflection is not available)}. Please use a default value which corresponds to the setting type {STRING}.Learn more: https://configcat.com/docs/sdk-reference/dotnet/#setting-type-mapping")
+        evaluationTestLogger.resetLogList()
     }
 
     @Test
@@ -1093,6 +1114,8 @@ class ConfigCatClientTests {
         assertEquals(1, client.getValue("fakeKeyInt", 0, null))
         // Double
         assertEquals(2.1, client.getValue("fakeKeyDouble", 1.1, null))
+        // getAnyValue allows null as default value
+        assertEquals(2.1, client.getAnyValue("fakeKeyDouble", null, null))
     }
 
     @Test
@@ -1118,6 +1141,13 @@ class ConfigCatClientTests {
             exceptionClass = IllegalArgumentException::class,
             message = "The setting type is not valid. Only String, Int, Double or Boolean types are supported.",
             block = { client.getValue("fakeKeyString", ConfigCatUser("testId")) }
+        )
+
+        // getAnyValue only allows Only String, Int, Double or Boolean types are supported.",
+        assertFailsWith(
+            exceptionClass = IllegalArgumentException::class,
+            message = "The setting type is not valid. Only String, Int, Double or Boolean types are supported.",
+            block = { client.getAnyValue("fakeKeyString", 3.14f, null) }
         )
     }
 

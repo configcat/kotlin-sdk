@@ -3,7 +3,7 @@ package com.configcat.userattribute.data
 object StringConvertData : ConvertData {
     override val sdkKey = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/OfQqcTjfFUGBwMKqtyEOrQ"
     override val flagKey = "boolTextEqualsNumber"
-    override val defaultValue = ""
+    override val defaultValue = false
     override val remoteJson = """
         {
            "p":{

@@ -103,19 +103,19 @@ public interface ConfigCatClient {
      * Gets the value of a feature flag or setting as [Any] identified by the given [key].
      *
      * @param key          the identifier of the feature flag or setting.
-     * @param defaultValue in case of any failure, this value will be returned.
+     * @param defaultValue in case of any failure, this value will be returned. Only the following types and [null] are allowed: [String], [Boolean], [Int] and [Double].
      * @param user         the user object.
      */
-    public suspend fun getAnyValue(key: String, defaultValue: Any, user: ConfigCatUser?): Any
+    public suspend fun getAnyValue(key: String, defaultValue: Any?, user: ConfigCatUser?): Any?
 
     /**
      * Gets the value and evaluation details of a feature flag or setting identified by the given [key].
      *
      * @param key          the identifier of the feature flag or setting.
-     * @param defaultValue in case of any failure, this value will be returned.
+     * @param defaultValue in case of any failure, this value will be returned. Only the following types and [null] are allowed: [String], [Boolean], [Int] and [Double].
      * @param user         the user object.
      */
-    public suspend fun getAnyValueDetails(key: String, defaultValue: Any, user: ConfigCatUser?): EvaluationDetails
+    public suspend fun getAnyValueDetails(key: String, defaultValue: Any?, user: ConfigCatUser?): EvaluationDetails
 
     /**
      * Gets the values along with evaluation details of all feature flags and settings.
@@ -141,7 +141,7 @@ public interface ConfigCatClient {
      *
      * @param user the user object.
      */
-    public suspend fun getAllValues(user: ConfigCatUser? = null): Map<String, Any>
+    public suspend fun getAllValues(user: ConfigCatUser? = null): Map<String, Any?>
 
     /**
      * Initiates a force refresh on the cached configuration.
@@ -211,26 +211,6 @@ public fun ConfigCatClient(
     block: ConfigCatOptions.() -> Unit = {}
 ): ConfigCatClient = Client.get(sdkKey, block)
 
-@PublishedApi
-internal inline fun <reified T : Any> validateDefaultValueType(defaultValue: T) {
-    if (!(defaultValue is String || defaultValue is Boolean || defaultValue is Int || defaultValue is Double)) {
-        throw IllegalArgumentException("The setting type is not valid. Only String, Int, Double or Boolean types are supported.")
-    }
-}
-
-@PublishedApi
-internal inline fun <reified T : Any> validateValueType(value: Any): T {
-    if (value !is T) {
-        throw IllegalArgumentException(
-            "The type of a setting must match the type of the specified default value. " +
-                "Setting's type was {" + value::class.toString() + "} but the default value's type was {" + T::class.toString() + "}. " +
-                "Please use a default value which corresponds to the setting type {" + value::class.toString() + "}." +
-                "Learn more: https://configcat.com/docs/sdk-reference/dotnet/#setting-type-mapping"
-        )
-    }
-    return value
-}
-
 /**
  * Gets the value of a feature flag or setting as [T] identified by the given [key].
  *
@@ -244,9 +224,7 @@ public suspend inline fun <reified T : Any> ConfigCatClient.getValue(
     defaultValue: T,
     user: ConfigCatUser? = null
 ): T {
-    validateDefaultValueType(defaultValue)
-    val result = this.getAnyValue(key, defaultValue, user)
-    return validateValueType(result)
+    return this.getAnyValue(key, defaultValue, user) as? T ?: defaultValue
 }
 
 /**
@@ -262,16 +240,15 @@ public suspend inline fun <reified T : Any> ConfigCatClient.getValueDetails(
     defaultValue: T,
     user: ConfigCatUser? = null
 ): TypedEvaluationDetails<T> {
-    validateDefaultValueType(defaultValue)
     val details = this.getAnyValueDetails(key, defaultValue, user)
-    val value = validateValueType<T>(details.value)
+    val value = details.value as? T
     return TypedEvaluationDetails(
         details.key,
         details.variationId,
         user,
-        details.isDefaultValue,
+        details.isDefaultValue || value == null,
         details.error,
-        value,
+        value ?: defaultValue,
         details.fetchTimeUnixMilliseconds,
         details.matchedTargetingRule,
         details.matchedPercentageOption
@@ -286,8 +263,8 @@ internal class Client private constructor(
     private val service: ConfigService?
     private val flagOverrides: FlagOverrides?
     private val evaluator: Evaluator
-    private val logger: InternalLogger
     private val logLevel: LogLevel
+    private val logger: InternalLogger
     private var defaultUser: ConfigCatUser?
     private val isClosed = atomic(false)
 
@@ -308,7 +285,11 @@ internal class Client private constructor(
         evaluator = Evaluator(logger)
     }
 
-    override suspend fun getAnyValue(key: String, defaultValue: Any, user: ConfigCatUser?): Any {
+    override suspend fun getAnyValue(key: String, defaultValue: Any?, user: ConfigCatUser?): Any? {
+        if (key.isEmpty()) {
+            throw IllegalArgumentException("'key' cannot be empty.")
+        }
+        validateDefaultValueType(defaultValue)
         val settingResult = getSettings()
         val evalUser = user ?: defaultUser
         val checkSettingAvailable = checkSettingAvailable(settingResult, key, defaultValue)
@@ -319,20 +300,26 @@ internal class Client private constructor(
             return defaultValue
         }
         return try {
+            validateValueType(setting.type, defaultValue)
             evaluate(setting, key, evalUser, settingResult.fetchTime, settingResult.settings).value
         } catch (exception: Exception) {
             val errorMessage = ConfigCatLogMessages.getSettingEvaluationErrorWithDefaultValue(
                 "getAnyValue",
                 key,
                 "defaultValue",
-                defaultValue
+                defaultValue ?: "null"
             )
             logger.error(1002, errorMessage, exception)
+            hooks.invokeOnFlagEvaluated(EvaluationDetails.makeError(key, defaultValue, errorMessage, evalUser))
             defaultValue
         }
     }
 
-    override suspend fun getAnyValueDetails(key: String, defaultValue: Any, user: ConfigCatUser?): EvaluationDetails {
+    override suspend fun getAnyValueDetails(key: String, defaultValue: Any?, user: ConfigCatUser?): EvaluationDetails {
+        if (key.isEmpty()) {
+            throw IllegalArgumentException("'key' cannot be empty.")
+        }
+        validateDefaultValueType(defaultValue)
         val settingResult = getSettings()
         val evalUser = user ?: defaultUser
 
@@ -344,16 +331,19 @@ internal class Client private constructor(
             return details
         }
         return try {
+            validateValueType(setting.type, defaultValue)
             evaluate(setting, key, evalUser, settingResult.fetchTime, settingResult.settings)
         } catch (exception: Exception) {
             val errorMessage = ConfigCatLogMessages.getSettingEvaluationErrorWithDefaultValue(
                 "getAnyValueDetails",
                 key,
                 "defaultValue",
-                defaultValue
+                defaultValue ?: "null"
             )
             logger.error(1002, errorMessage, exception)
-            EvaluationDetails.makeError(key, defaultValue, exception.message ?: "", evalUser)
+            val errorDetails = EvaluationDetails.makeError(key, defaultValue, exception.message ?: "", evalUser)
+            hooks.invokeOnFlagEvaluated(errorDetails)
+            errorDetails
         }
     }
 
@@ -375,34 +365,49 @@ internal class Client private constructor(
     }
 
     override suspend fun getKeyAndValue(variationId: String): Pair<String, Any>? {
-        val settingResult = getSettings()
-        if (!checkSettingsAvailable(settingResult, "null")) {
-            return null
+        if (variationId.isEmpty()) {
+            throw IllegalArgumentException("'variationId' cannot be empty.")
         }
-        val settings = settingResult.settings
-        for (setting in settings) {
-            if (setting.value.variationId == variationId) {
-                return Pair(setting.key, parseSettingValue(setting.value.settingsValue, setting.value.type))
+        try {
+            val settingResult = getSettings()
+            if (!checkSettingsAvailable(settingResult, "null")) {
+                return null
             }
-            setting.value.targetingRules?.forEach { targetingRule ->
-                if (targetingRule.servedValue?.variationId == variationId) {
-                    return Pair(setting.key, parseSettingValue(targetingRule.servedValue.value, setting.value.type))
-                } else {
-                    targetingRule.percentageOptions?.forEach { percentageOption ->
-                        if (percentageOption.variationId == variationId) {
-                            return Pair(setting.key, parseSettingValue(percentageOption.value, setting.value.type))
+            val settings = settingResult.settings
+            for (setting in settings) {
+                if (setting.value.variationId == variationId) {
+                    return Pair(setting.key, validateSettingValueType(setting.value.settingsValue, setting.value.type))
+                }
+                setting.value.targetingRules?.forEach { targetingRule ->
+                    if (targetingRule.servedValue?.variationId == variationId) {
+                        return Pair(
+                            setting.key,
+                            validateSettingValueType(targetingRule.servedValue.value, setting.value.type)
+                        )
+                    } else {
+                        targetingRule.percentageOptions?.forEach { percentageOption ->
+                            if (percentageOption.variationId == variationId) {
+                                return Pair(
+                                    setting.key,
+                                    validateSettingValueType(percentageOption.value, setting.value.type)
+                                )
+                            }
                         }
                     }
                 }
-            }
-            setting.value.percentageOptions?.forEach { percentageOption ->
-                if (percentageOption.variationId == variationId) {
-                    return Pair(setting.key, parseSettingValue(percentageOption.value, setting.value.type))
+                setting.value.percentageOptions?.forEach { percentageOption ->
+                    if (percentageOption.variationId == variationId) {
+                        return Pair(setting.key, validateSettingValueType(percentageOption.value, setting.value.type))
+                    }
                 }
             }
+            this.logger.error(2011, ConfigCatLogMessages.getSettingForVariationIdIsNotPresent(variationId))
+            return null
+        } catch (exception: Exception) {
+            val errorMessage = ConfigCatLogMessages.getSettingEvaluationErrorWithEmptyValue("getKeyAndValue", "null")
+            logger.error(1002, errorMessage, exception)
+            return null
         }
-        this.logger.error(2011, ConfigCatLogMessages.getSettingForVariationIdIsNotPresent(variationId))
-        return null
     }
 
     override suspend fun getAllKeys(): Collection<String> {
@@ -413,7 +418,7 @@ internal class Client private constructor(
         return settingResult.settings.keys
     }
 
-    override suspend fun getAllValues(user: ConfigCatUser?): Map<String, Any> {
+    override suspend fun getAllValues(user: ConfigCatUser?): Map<String, Any?> {
         val settingResult = getSettings()
         if (!checkSettingsAvailable(settingResult, "empty map")) {
             return emptyMap()
@@ -519,7 +524,7 @@ internal class Client private constructor(
             evaluateLogger
         )
         val details = EvaluationDetails(
-            key, variationId, user, false, null, parseSettingValue(value, setting.type),
+            key, variationId, user, false, null, validateSettingValueType(value, setting.type),
             fetchTime.unixMillisLong, targetingRule, percentageRule
         )
         hooks.invokeOnFlagEvaluated(details)
@@ -553,7 +558,28 @@ internal class Client private constructor(
         return service?.getSettings() ?: SettingResult(mapOf(), Constants.distantPast)
     }
 
-    private fun parseSettingValue(settingsValue: SettingsValue?, settingType: Int): Any {
+    private fun validateDefaultValueType(defaultValue: Any?) {
+        if (!(defaultValue is String? || defaultValue is Boolean? || defaultValue is Int? || defaultValue is Double?)) {
+            throw IllegalArgumentException("The setting type is not valid. Only String, Int, Double or Boolean types are supported.")
+        }
+    }
+
+    private fun validateValueType(settingTypeInt: Int, defaultValue: Any?) {
+        val settingType = settingTypeInt.toSettingTypeOrNull()
+        if (defaultValue == null) {
+            return
+        }
+        if (!((defaultValue is String && settingType == SettingType.STRING) || (defaultValue is Boolean && settingType == SettingType.BOOLEAN) || (defaultValue is Int && settingType == SettingType.INT) || (defaultValue is Double && settingType == SettingType.DOUBLE))) {
+            throw IllegalArgumentException(
+                "The type of a setting must match the type of the specified default value. " +
+                    "Setting's type was {" + settingType + "} but the default value's type was {" + defaultValue::class.toString() + "}. " +
+                    "Please use a default value which corresponds to the setting type {" + settingType + "}." +
+                    "Learn more: https://configcat.com/docs/sdk-reference/dotnet/#setting-type-mapping"
+            )
+        }
+    }
+
+    private fun validateSettingValueType(settingsValue: SettingsValue?, settingType: Int): Any {
         val settingTypeEnum = settingType.toSettingTypeOrNull()
         require(settingsValue != null) { "Setting value is missing." }
         val result: Any?

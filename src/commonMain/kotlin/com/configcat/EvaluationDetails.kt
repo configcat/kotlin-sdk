@@ -50,7 +50,7 @@ public class EvaluationDetails internal constructor(
     user: ConfigCatUser?,
     isDefaultValue: Boolean,
     error: String?,
-    public val value: Any,
+    public val value: Any?,
     fetchTimeUnixMilliseconds: Long,
     matchedTargetingRule: TargetingRule?,
     matchedPercentageOption: PercentageOption?
@@ -65,7 +65,7 @@ public class EvaluationDetails internal constructor(
     matchedPercentageOption
 ) {
     internal companion object {
-        internal fun makeError(key: String, defaultValue: Any, error: String, user: ConfigCatUser?): EvaluationDetails =
+        internal fun makeError(key: String, defaultValue: Any?, error: String, user: ConfigCatUser?): EvaluationDetails =
             EvaluationDetails(
                 key, "", user, true, error,
                 defaultValue, Constants.distantPast.unixMillisLong, null, null

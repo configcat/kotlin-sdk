@@ -122,7 +122,7 @@ class RolloutMatrixTests {
 
             for ((j, settingKey) in settingKeys.withIndex()) {
                 if (isValueKind) {
-                    val value = client.getAnyValue(settingKey, "", user)
+                    val value = client.getAnyValue(settingKey, null, user)
                     val boolVal = value as? Boolean
                     if (boolVal != null) {
                         val expected = testObjects[j + 4].lowercase().toBooleanStrictOrNull()
@@ -153,7 +153,7 @@ class RolloutMatrixTests {
                         errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
                     }
                 } else {
-                    val variationId = client.getAnyValueDetails(settingKey, "", user).variationId
+                    val variationId = client.getAnyValueDetails(settingKey, null, user).variationId
                     if (variationId != testObjects[j + 4]) {
                         errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: ${testObjects[j + 4]}, Result: $variationId")
                     }
