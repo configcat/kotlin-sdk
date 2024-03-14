@@ -1117,14 +1117,14 @@ class ConfigCatClientTests {
             httpEngine = mockEngine
         }
 
-        // In case of JS the float is converted to an accepted type, in this case sskip this test
+        // In case of JS the float is converted to an accepted type, in this case skip this test
         if (!(PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE)) {
             // Float
             val floatException = assertFailsWith(
                 exceptionClass = IllegalArgumentException::class,
                 block = { client.getValue("fakeKeyString", 3.14f) }
             )
-            assertEquals("The setting type is not valid. Only String, Int, Double or Boolean types are supported.", floatException.message)
+            assertEquals("Only the following types are supported: String, Boolean, Int, Double (both nullable and non-nullable).", floatException.message)
         }
 
         // Object
@@ -1132,14 +1132,20 @@ class ConfigCatClientTests {
             exceptionClass = IllegalArgumentException::class,
             block = { client.getValue("fakeKeyString", ConfigCatUser("testId")) }
         )
-        assertEquals("The setting type is not valid. Only String, Int, Double or Boolean types are supported.", exception.message)
+        assertEquals("Only the following types are supported: String, Boolean, Int, Double (both nullable and non-nullable).", exception.message)
 
-        // getAnyValue actually only allows String, Int, Double or Boolean types.
-        val getAnyException = assertFailsWith(
-            exceptionClass = IllegalArgumentException::class,
-            block = { client.getAnyValue("fakeKeyString", ConfigCatUser("testId"), null) }
-        )
-        assertEquals("The setting type is not valid. Only String, Int, Double or Boolean types are supported.", getAnyException.message)
+        // getValue allows null.
+        val value1 = client.getValue<Boolean?>("wrongKey", null, null)
+        assertNull(value1)
+
+        // getAnyValue allows null.
+        val value2 = client.getAnyValue("wrongKey", null, null)
+        assertNull(value2)
+
+        // getAnyValue allows any default value.
+        val defaultValue = ConfigCatUser("testId")
+        val value3 = client.getAnyValue("wrongKey", defaultValue, null)
+        assertEquals(defaultValue, value3)
     }
 
     private val testGetValueTypes = """

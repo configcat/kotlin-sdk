@@ -123,7 +123,7 @@ class UserAttributeConvertTest {
 
         val configCatUser = ConfigCatUser(identifier = "12345", custom = customAttributes)
 
-        val value = client.getValue(key = data.flagKey, defaultValue = data.defaultValue, user = configCatUser)
+        val value = client.getAnyValue(key = data.flagKey, defaultValue = data.defaultValue, user = configCatUser)
 
         assertEquals(expectedValue, value)
 
