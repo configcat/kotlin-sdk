@@ -19,7 +19,7 @@ public data class UserCondition(
      * The operator which defines the relation between the comparison attribute and the comparison value.
      */
     @SerialName("c")
-    val comparator: Int,
+    val comparator: Int = -1,
     /**
      * The String value that the attribute is compared or {@code null} if the comparator use a different type.
      */

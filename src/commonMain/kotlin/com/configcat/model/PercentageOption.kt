@@ -17,7 +17,7 @@ public data class PercentageOption(
      * The server value of the percentage option.
      */
     @SerialName(value = "v")
-    val value: SettingsValue,
+    val value: SettingValue,
     /**
      * The variation ID of the percentage option.
      */

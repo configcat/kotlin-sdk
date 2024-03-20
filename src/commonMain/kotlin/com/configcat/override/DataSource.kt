@@ -39,22 +39,22 @@ internal fun commonConvertToSetting(value: Any): Setting {
     val setting = Setting()
     when (value) {
         is Boolean -> {
-            setting.settingsValue.booleanValue = value
+            setting.settingValue.booleanValue = value
             setting.type = 0
         }
 
         is Int -> {
-            setting.settingsValue.integerValue = value
+            setting.settingValue.integerValue = value
             setting.type = 2
         }
 
         is Double -> {
-            setting.settingsValue.doubleValue = value
+            setting.settingValue.doubleValue = value
             setting.type = 3
         }
 
         else -> {
-            setting.settingsValue.stringValue = value.toString()
+            setting.settingValue.stringValue = value.toString()
             setting.type = 1
         }
     }

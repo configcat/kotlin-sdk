@@ -115,8 +115,8 @@ internal class EvaluateLogger {
         decreaseIndentLevel()
     }
 
-    fun logPercentageEvaluationReturnValue(hashValue: Int, i: Int, percentage: Int, settingsValue: SettingsValue?) {
-        val percentageOptionValue = settingsValue?.toString() ?: EvaluatorLogHelper.INVALID_VALUE
+    fun logPercentageEvaluationReturnValue(hashValue: Int, i: Int, percentage: Int, settingValue: SettingValue?) {
+        val percentageOptionValue = settingValue?.toString() ?: EvaluatorLogHelper.INVALID_VALUE
         newLine()
         append("- Hash value $hashValue selects % option ${(i + 1)} ($percentage%), '$percentageOptionValue'.")
     }
@@ -174,7 +174,7 @@ internal class EvaluateLogger {
 
     fun logPrerequisiteFlagEvaluationResult(
         prerequisiteFlagCondition: PrerequisiteFlagCondition?,
-        prerequisiteFlagValue: SettingsValue?,
+        prerequisiteFlagValue: SettingValue?,
         result: Boolean
     ) {
         newLine()

@@ -15,12 +15,12 @@ public data class Setting(
      * 3 -> [Double],
      */
     @SerialName(value = "t")
-    var type: Int = 0,
+    var type: Int = -1,
     /**
      * The User Object attribute which serves as the basis of percentage options evaluation.
      */
     @SerialName(value = "a")
-    val percentageAttribute: String? = "",
+    val percentageAttribute: String? = null,
     /**
      * The list of percentage options.
      */
@@ -35,16 +35,16 @@ public data class Setting(
      * The value of the setting.
      */
     @SerialName(value = "v")
-    val settingsValue: SettingsValue,
+    val settingValue: SettingValue,
     /**
      * The variation ID of the setting.
      */
     @SerialName(value = "i")
-    val variationId: String = ""
+    val variationId: String? = null
 ) {
 
     var configSalt: String? = null
     internal var segments: Array<Segment> = arrayOf()
 
-    public constructor() : this(0, "", null, null, SettingsValue(), "")
+    public constructor() : this(0, "", null, null, SettingValue(), "")
 }

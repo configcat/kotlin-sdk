@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
  * Setting Value contains the proper value based on type.
  */
 @Serializable
-public data class SettingsValue(
+public data class SettingValue(
     @SerialName("b")
     var booleanValue: Boolean? = null,
 
@@ -24,7 +24,7 @@ public data class SettingsValue(
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
-        other as SettingsValue
+        other as SettingValue
 
         if (booleanValue != null && booleanValue == other.booleanValue) return true
         if (stringValue != null && stringValue == other.stringValue) return true

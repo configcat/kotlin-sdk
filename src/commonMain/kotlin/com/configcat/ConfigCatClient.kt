@@ -6,7 +6,7 @@ import com.configcat.fetch.RefreshResult
 import com.configcat.log.*
 import com.configcat.model.Setting
 import com.configcat.model.SettingType
-import com.configcat.model.SettingsValue
+import com.configcat.model.SettingValue
 import com.configcat.override.FlagOverrides
 import com.configcat.override.OverrideBehavior
 import com.soywiz.klock.DateTime
@@ -376,7 +376,7 @@ internal class Client private constructor(
             val settings = settingResult.settings
             for (setting in settings) {
                 if (setting.value.variationId == variationId) {
-                    return Pair(setting.key, validateSettingValueType(setting.value.settingsValue, setting.value.type))
+                    return Pair(setting.key, validateSettingValueType(setting.value.settingValue, setting.value.type))
                 }
                 setting.value.targetingRules?.forEach { targetingRule ->
                     if (targetingRule.servedValue?.variationId == variationId) {
@@ -566,6 +566,7 @@ internal class Client private constructor(
 
     private fun validateValueType(settingTypeInt: Int, defaultValue: Any?) {
         val settingType = settingTypeInt.toSettingTypeOrNull()
+            ?: throw IllegalArgumentException("The setting type is not valid. Only String, Int, Double or Boolean types are supported.")
         if (defaultValue == null) {
             return
         }
@@ -589,29 +590,29 @@ internal class Client private constructor(
         }
     }
 
-    private fun validateSettingValueType(settingsValue: SettingsValue?, settingType: Int): Any {
+    private fun validateSettingValueType(settingValue: SettingValue?, settingType: Int): Any {
         val settingTypeEnum = settingType.toSettingTypeOrNull()
-        require(settingsValue != null) { "Setting value is missing." }
+        require(settingValue != null) { "Setting value is missing." }
         val result: Any?
         result = when (settingTypeEnum) {
             SettingType.BOOLEAN -> {
-                settingsValue.booleanValue
+                settingValue.booleanValue
             }
 
             SettingType.STRING -> {
-                settingsValue.stringValue
+                settingValue.stringValue
             }
 
             SettingType.INT -> {
-                settingsValue.integerValue
+                settingValue.integerValue
             }
 
             SettingType.DOUBLE -> {
-                settingsValue.doubleValue
+                settingValue.doubleValue
             }
 
             SettingType.JS_NUMBER -> {
-                settingsValue.doubleValue
+                settingValue.doubleValue
             }
 
             else -> {

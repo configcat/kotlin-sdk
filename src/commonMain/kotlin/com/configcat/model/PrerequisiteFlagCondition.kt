@@ -18,12 +18,12 @@ public data class PrerequisiteFlagCondition(
      * the comparison value.
      */
     @SerialName(value = "c")
-    val prerequisiteComparator: Int = 0,
+    val prerequisiteComparator: Int = -1,
     /**
      * The value that the evaluated value of the prerequisite flag is compared to.
      */
     @SerialName(value = "v")
-    val value: SettingsValue? = null
+    val value: SettingValue? = null
 ) {
     // No implementation
 }

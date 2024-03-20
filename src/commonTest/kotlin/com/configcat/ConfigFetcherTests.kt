@@ -23,7 +23,7 @@ class ConfigFetcherTests {
         val result = fetcher.fetch("")
 
         assertTrue(result.isFetched)
-        assertEquals("fakeValue", result.entry.config.settings?.get("fakeKey")?.settingsValue?.stringValue)
+        assertEquals("fakeValue", result.entry.config.settings?.get("fakeKey")?.settingValue?.stringValue)
         assertEquals(1, mockEngine.requestHistory.size)
     }
 

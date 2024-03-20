@@ -21,7 +21,7 @@ import kotlinx.serialization.encodeToString
 import kotlin.math.absoluteValue
 
 internal data class EvaluationResult(
-    val value: SettingsValue,
+    val value: SettingValue,
     val variationId: String?,
     val matchedTargetingRule: TargetingRule? = null,
     val matchedPercentageOption: PercentageOption? = null
@@ -99,7 +99,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             )
         }
         if (evaluationResult == null) {
-            evaluationResult = EvaluationResult(setting.settingsValue, setting.variationId)
+            evaluationResult = EvaluationResult(setting.settingValue, setting.variationId)
         }
         return evaluationResult
     }
@@ -264,7 +264,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     ): Boolean {
         val segmentIndex: Int = segmentCondition.segmentIndex
         var segment: Segment? = null
-        if (segmentIndex < segments.size) {
+        if (0 <= segmentIndex && segmentIndex < segments.size) {
             segment = segments[segmentIndex]
         }
         evaluateLogger?.append(EvaluatorLogHelper.formatSegmentFlagCondition(segmentCondition, segment))
@@ -360,7 +360,7 @@ internal class Evaluator(private val logger: InternalLogger) {
 
         val prerequisiteComparator = prerequisiteFlagCondition.prerequisiteComparator.toPrerequisiteComparatorOrNull()
             ?: throw IllegalArgumentException("Prerequisite Flag comparison operator is invalid.")
-        val conditionValue: SettingsValue? = prerequisiteFlagCondition.value
+        val conditionValue: SettingValue? = prerequisiteFlagCondition.value
         var result = conditionValue == evaluateResult.value
 
         if (PrerequisiteComparator.NOT_EQUALS == prerequisiteComparator) {
@@ -807,7 +807,7 @@ internal class Evaluator(private val logger: InternalLogger) {
 
         val percentageOptionAttributeValue: String?
         var percentageOptionAttributeName = percentageOptionAttribute
-        if (percentageOptionAttributeName.isNullOrEmpty()) {
+        if (percentageOptionAttributeName == null) {
             percentageOptionAttributeName = "Identifier"
             percentageOptionAttributeValue = context.user.identifier
         } else {

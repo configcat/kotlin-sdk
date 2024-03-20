@@ -33,9 +33,9 @@ public data class TargetingRule(
 @Serializable
 public data class ServedValue(
     @SerialName(value = "v")
-    val value: SettingsValue,
+    val value: SettingValue,
     @SerialName(value = "i")
-    val variationId: String = ""
+    val variationId: String? = null
 ) {
     // No implementation
 }

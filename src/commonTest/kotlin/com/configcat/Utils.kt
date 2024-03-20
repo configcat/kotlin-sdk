@@ -81,7 +81,7 @@ internal object Data {
                             ),
                             emptyArray(),
                             servedValue = ServedValue(
-                                value = SettingsValue(stringValue = "fake1"),
+                                value = SettingValue(stringValue = "fake1"),
                                 variationId = "fakeId1"
                             )
                         ),
@@ -101,12 +101,12 @@ internal object Data {
                             ),
                             emptyArray(),
                             servedValue = ServedValue(
-                                value = SettingsValue(stringValue = "fake2"),
+                                value = SettingValue(stringValue = "fake2"),
                                 variationId = "fakeId2"
                             )
                         )
                     ),
-                    settingsValue = SettingsValue(stringValue = "default"),
+                    settingValue = SettingValue(stringValue = "default"),
                     variationId = "defaultId"
                 )
             ),

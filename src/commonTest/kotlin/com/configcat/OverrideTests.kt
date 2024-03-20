@@ -114,7 +114,7 @@ class OverrideTests {
                                 "",
                                 null,
                                 null,
-                                SettingsValue(stringValue = "noRule"),
+                                SettingValue(stringValue = "noRule"),
                                 "myVariationId"
                             ),
                             "ruleOverride" to Setting(
@@ -132,23 +132,23 @@ class OverrideTests {
                                         ),
                                         null,
                                         ServedValue(
-                                            SettingsValue(stringValue = "ruleMatch"),
+                                            SettingValue(stringValue = "ruleMatch"),
                                             "ruleVariationId"
                                         )
                                     )
                                 ),
-                                SettingsValue(stringValue = "noMatch"),
+                                SettingValue(stringValue = "noMatch"),
                                 "myVariationId"
                             ),
                             "percentageOverride" to Setting(
                                 1,
                                 "",
                                 arrayOf(
-                                    PercentageOption(75, SettingsValue(stringValue = "A"), "percentageAVariationID"),
-                                    PercentageOption(25, SettingsValue(stringValue = "B"), "percentageAVariationID")
+                                    PercentageOption(75, SettingValue(stringValue = "A"), "percentageAVariationID"),
+                                    PercentageOption(25, SettingValue(stringValue = "B"), "percentageAVariationID")
                                 ),
                                 emptyArray(),
-                                SettingsValue(stringValue = "noMatch"),
+                                SettingValue(stringValue = "noMatch"),
                                 "myVariationId"
                             )
                         )
