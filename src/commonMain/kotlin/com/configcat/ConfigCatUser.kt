@@ -21,13 +21,13 @@ import kotlinx.serialization.encodeToString
  *  * all other values are considered invalid (a warning will be logged and the currently evaluated targeting rule will be skipped).
  *
  * Number-based comparisons (=, &lt;, &gt;=, etc.)<br>
- *  * accept [Double] values (except for [Double.NaN]) and all other numeric values which can safely be converted to [Double]
+ *  * accept [Double] values and all other numeric values which can safely be converted to [Double]
  *  * accept [String] values containing a properly formatted, valid [Double]  value
  *  * all other values are considered invalid (a warning will be logged and the currently evaluated targeting rule will be skipped).
  *
  * Date time-based comparisons (BEFORE / AFTER)<br>
  *  * accept [com.soywiz.klock.DateTime] values, which are automatically converted to a second-based Unix timestamp
- *  * accept [Double] values (except for {@code Double.NaN}) representing a second-based Unix timestamp and all other numeric values which can safely be converted to {@link Double}
+ *  * accept [Double] values representing a second-based Unix timestamp and all other numeric values which can safely be converted to {@link Double}
  *  * accept [String] values containing a properly formatted, valid [Double]  value
  *  * all other values are considered invalid (a warning will be logged and the currently evaluated targeting rule will be skipped).
  *

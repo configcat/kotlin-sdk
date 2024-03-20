@@ -1,6 +1,6 @@
 package com.configcat
 
-import com.configcat.Client.SettingTypeHelp.toSettingTypeOrNull
+import com.configcat.Client.SettingTypeHelper.toSettingTypeOrNull
 import com.configcat.fetch.ConfigFetcher
 import com.configcat.fetch.RefreshResult
 import com.configcat.log.*
@@ -379,11 +379,13 @@ internal class Client private constructor(
                     return Pair(setting.key, validateSettingValueType(setting.value.settingValue, setting.value.type))
                 }
                 setting.value.targetingRules?.forEach { targetingRule ->
-                    if (targetingRule.servedValue?.variationId == variationId) {
-                        return Pair(
-                            setting.key,
-                            validateSettingValueType(targetingRule.servedValue.value, setting.value.type)
-                        )
+                    if (targetingRule.servedValue != null) {
+                        if (targetingRule.servedValue.variationId == variationId) {
+                            return Pair(
+                                setting.key,
+                                validateSettingValueType(targetingRule.servedValue.value, setting.value.type)
+                            )
+                        }
                     } else {
                         targetingRule.percentageOptions?.forEach { percentageOption ->
                             if (percentageOption.variationId == variationId) {
@@ -592,7 +594,7 @@ internal class Client private constructor(
 
     private fun validateSettingValueType(settingValue: SettingValue?, settingType: Int): Any {
         val settingTypeEnum = settingType.toSettingTypeOrNull()
-        require(settingValue != null) { "Setting value is missing." }
+        require(settingValue != null) { "Setting value is missing or invalid." }
         val result: Any?
         result = when (settingTypeEnum) {
             SettingType.BOOLEAN -> {
@@ -691,7 +693,7 @@ internal class Client private constructor(
             ) {
                 return true
             }
-            val splitSDKKey = sdkKey.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            val splitSDKKey = sdkKey.split("/").toTypedArray()
             // 22/22 rules
             return if (splitSDKKey.size == 2 && splitSDKKey[0].length == Constants.SDK_KEY_SECTION_LENGTH &&
                 splitSDKKey[1].length == Constants.SDK_KEY_SECTION_LENGTH
@@ -723,7 +725,7 @@ internal class Client private constructor(
         }
     }
 
-    internal object SettingTypeHelp {
+    internal object SettingTypeHelper {
         fun Int.toSettingTypeOrNull(): SettingType? = SettingType.values().firstOrNull { it.id == this }
     }
 }

@@ -1,6 +1,6 @@
 package com.configcat
 
-import com.configcat.Client.SettingTypeHelp.toSettingTypeOrNull
+import com.configcat.Client.SettingTypeHelper.toSettingTypeOrNull
 import com.configcat.ComparatorHelp.toComparatorOrNull
 import com.configcat.ComparatorHelp.toPrerequisiteComparatorOrNull
 import com.configcat.ComparatorHelp.toSegmentComparatorOrNull
@@ -86,7 +86,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         context: EvaluationContext
     ): EvaluationResult {
         var evaluationResult: EvaluationResult? = null
-        if (setting.targetingRules != null) {
+        if (!setting.targetingRules.isNullOrEmpty()) {
             evaluationResult = evaluateTargetingRules(setting, context, evaluateLogger)
         }
         if (evaluationResult == null && !setting.percentageOptions.isNullOrEmpty()) {
@@ -142,7 +142,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                 return EvaluationResult(rule.servedValue.value, rule.servedValue.variationId, rule, null)
             }
             if (rule.percentageOptions.isNullOrEmpty()) {
-                continue
+                throw IllegalStateException("Targeting rule THEN part is missing or invalid.")
             }
             evaluateLogger?.increaseIndentLevel()
             val evaluatePercentageOptions = evaluatePercentageOptions(
@@ -356,7 +356,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             prerequisiteFlagContext
         )
 
-        visitedKeys.remove(context.key)
+        visitedKeys.removeAt(visitedKeys.size -1)
 
         val prerequisiteComparator = prerequisiteFlagCondition.prerequisiteComparator.toPrerequisiteComparatorOrNull()
             ?: throw IllegalArgumentException("Prerequisite Flag comparison operator is invalid.")
@@ -595,7 +595,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             UserComparator.LTE_SEMVER -> userVersion <= comparisonVersion
             UserComparator.GT_SEMVER -> userVersion > comparisonVersion
             UserComparator.GTE_SEMVER -> userVersion >= comparisonVersion
-            else -> false
+            else -> throw IllegalStateException("Invalid comparator $userComparator.")
         }
     }
 
@@ -612,7 +612,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             UserComparator.LTE_NUM -> userNumber <= comparisonNumber
             UserComparator.GT_NUM -> userNumber > comparisonNumber
             UserComparator.GTE_NUM -> userNumber >= comparisonNumber
-            else -> false
+            else -> throw IllegalStateException("Invalid comparator $userComparator.")
         }
     }
 
@@ -649,7 +649,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         return when (userComparator) {
             UserComparator.DATE_BEFORE -> userDateDouble < comparisonDateDouble
             UserComparator.DATE_AFTER -> userDateDouble > comparisonDateDouble
-            else -> false
+            else -> throw IllegalStateException("Invalid comparator $userComparator.")
         }
     }
 
@@ -709,6 +709,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             val userValueHashed = getSaltedUserValueSlice(userValueSlice, configSalt, contextSalt)
             if (userValueHashed == comparisonHashValue) {
                 matchCondition = true
+                break
             }
         }
         if (userComparator == UserComparator.HASHED_NOT_STARTS_WITH || userComparator == UserComparator.HASHED_NOT_ENDS_WITH) {
@@ -756,7 +757,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     ): Boolean {
         val comparisonValues = ensureComparisonValue(condition.stringArrayValue)
         if (userContainsArray.isEmpty()) {
-            return false
+            return negateArrayContains
         }
         for (userContainsValue in userContainsArray) {
             val userContainsValueConverted = if (hashedArrayContains) {
@@ -790,7 +791,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     }
 
     private fun evaluatePercentageOptions(
-        percentageOptions: Array<PercentageOption>?,
+        percentageOptions: Array<PercentageOption>,
         percentageOptionAttribute: String?,
         context: EvaluationContext,
         parentTargetingRule: TargetingRule?,
@@ -833,10 +834,6 @@ internal class Evaluator(private val logger: InternalLogger) {
         val scale = numberRepresentation % 100
         evaluateLogger?.logPercentageOptionEvaluationHash(percentageOptionAttributeName, scale)
 
-        if (percentageOptions.isNullOrEmpty()) {
-            return null
-        }
-
         var bucket = 0.0
         for (i in percentageOptions.indices) {
             val rule = percentageOptions[i]
@@ -847,7 +844,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             }
         }
 
-        throw IllegalArgumentException("Sum of percentage option percentages are less than 100.")
+        throw IllegalArgumentException("Sum of percentage option percentages is less than 100.")
     }
 
     private fun getUserAttributeAsStringArray(

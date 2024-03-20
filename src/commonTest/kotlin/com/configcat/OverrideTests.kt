@@ -142,7 +142,7 @@ class OverrideTests {
                             ),
                             "percentageOverride" to Setting(
                                 1,
-                                "",
+                                null,
                                 arrayOf(
                                     PercentageOption(75, SettingValue(stringValue = "A"), "percentageAVariationID"),
                                     PercentageOption(25, SettingValue(stringValue = "B"), "percentageAVariationID")
