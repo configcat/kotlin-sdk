@@ -2,7 +2,7 @@ package com.configcat.evaluation.data
 
 import com.configcat.ConfigCatUser
 
-object SegmenTests : TestSet {
+object SegmentTests : TestSet {
     override val sdkKey = "configcat-sdk-1/PKDVCLf-Hq-h-kCzMp-L7Q/y_ZB7o-Xb0Swxth-ZlMSeA"
     override val baseUrl = null
     override val jsonOverride = """

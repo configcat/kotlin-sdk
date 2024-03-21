@@ -71,7 +71,7 @@ class EvaluationTests {
 
     @Test
     fun testSegment() = runTest {
-        testEvaluation(SegmenTests)
+        testEvaluation(SegmentTests)
     }
 
     @Test

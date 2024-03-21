@@ -587,7 +587,7 @@ internal class Client private constructor(
                 "The type of a setting must match the type of the specified default value. " +
                     "Setting's type was {" + settingType + "} but the default value's type was {" + defaultValue::class.toString() + "}. " +
                     "Please use a default value which corresponds to the setting type {" + settingType + "}." +
-                    "Learn more: https://configcat.com/docs/sdk-reference/dotnet/#setting-type-mapping"
+                    "Learn more: https://configcat.com/docs/sdk-reference/kotlin/#setting-type-mapping"
             )
         }
     }

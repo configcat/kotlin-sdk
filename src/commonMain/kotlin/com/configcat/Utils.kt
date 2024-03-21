@@ -66,10 +66,10 @@ internal object Constants {
     }
 }
 
-public fun parseConfigJson(jsonString: String): Pair<Config, String?> {
+public fun parseConfigJson(jsonString: String): Config {
     val config: Config = Constants.json.decodeFromString(jsonString)
     addConfigSaltAndSegmentsToSettings(config)
-    return Pair(config, null)
+    return config
 }
 
 public fun addConfigSaltAndSegmentsToSettings(config: Config) {
