@@ -1,6 +1,9 @@
 package com.configcat
 
+import com.configcat.Client.SettingTypeHelper.toSettingTypeOrNull
 import com.configcat.model.Config
+import com.configcat.model.SettingType
+import com.configcat.model.SettingValue
 import com.soywiz.klock.DateTime
 import kotlinx.serialization.ContextualSerializer
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -78,4 +81,41 @@ public fun addConfigSaltAndSegmentsToSettings(config: Config) {
         it.configSalt = configSalt
         it.segments = config.segments ?: arrayOf()
     }
+}
+
+public fun validateSettingValueType(settingValue: SettingValue?, settingType: Int): Any {
+    val settingTypeEnum = settingType.toSettingTypeOrNull()
+    require(settingValue != null) { "Setting value is missing or invalid." }
+    val result: Any?
+    result = when (settingTypeEnum) {
+        SettingType.BOOLEAN -> {
+            settingValue.booleanValue
+        }
+
+        SettingType.STRING -> {
+            settingValue.stringValue
+        }
+
+        SettingType.INT -> {
+            settingValue.integerValue
+        }
+
+        SettingType.DOUBLE -> {
+            settingValue.doubleValue
+        }
+
+        SettingType.JS_NUMBER -> {
+            settingValue.doubleValue
+        }
+
+        else -> {
+            throw IllegalArgumentException(
+                "Setting is of an unsupported type ($settingTypeEnum)."
+            )
+        }
+    }
+    require(result != null) {
+        "Setting value is not of the expected type ${settingTypeEnum.value}."
+    }
+    return result
 }

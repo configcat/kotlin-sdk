@@ -1,5 +1,6 @@
 package com.configcat.model
 
+import com.configcat.Client.SettingTypeHelper.toSettingTypeOrNull
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -20,26 +21,39 @@ public data class SettingValue(
     @SerialName("d")
     var doubleValue: Double? = null
 ) {
-    override fun equals(other: Any?): Boolean {
+    public fun equalsBasedOnSettingType(other: Any?, settingType: Int): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
         other as SettingValue
+        val settingTypeEnum = settingType.toSettingTypeOrNull()
+        return when (settingTypeEnum) {
+            SettingType.BOOLEAN -> {
+                booleanValue == other.booleanValue
+            }
 
-        if (booleanValue != null && booleanValue == other.booleanValue) return true
-        if (stringValue != null && stringValue == other.stringValue) return true
-        if (integerValue != null && integerValue == other.integerValue) return true
-        if (doubleValue != null && doubleValue == other.doubleValue) return true
+            SettingType.STRING -> {
+                stringValue == other.stringValue
+            }
 
-        return false
-    }
+            SettingType.INT -> {
+                integerValue == other.integerValue
+            }
 
-    override fun hashCode(): Int {
-        var result = booleanValue?.hashCode() ?: 0
-        result = 31 * result + (stringValue?.hashCode() ?: 0)
-        result = 31 * result + (integerValue ?: 0)
-        result = 31 * result + (doubleValue?.hashCode() ?: 0)
-        return result
+            SettingType.DOUBLE -> {
+                doubleValue == other.doubleValue
+            }
+
+            SettingType.JS_NUMBER -> {
+                doubleValue == other.doubleValue || integerValue == other.integerValue
+            }
+
+            else -> {
+                throw IllegalArgumentException(
+                    "Setting is of an unsupported type ($settingTypeEnum)."
+                )
+            }
+        }
     }
 
     override fun toString(): String {

@@ -6,7 +6,6 @@ import com.configcat.fetch.RefreshResult
 import com.configcat.log.*
 import com.configcat.model.Setting
 import com.configcat.model.SettingType
-import com.configcat.model.SettingValue
 import com.configcat.override.FlagOverrides
 import com.configcat.override.OverrideBehavior
 import com.soywiz.klock.DateTime
@@ -386,8 +385,8 @@ internal class Client private constructor(
                                 validateSettingValueType(targetingRule.servedValue.value, setting.value.type)
                             )
                         }
-                    } else {
-                        targetingRule.percentageOptions?.forEach { percentageOption ->
+                    } else if (!targetingRule.percentageOptions.isNullOrEmpty()) {
+                        targetingRule.percentageOptions.forEach { percentageOption ->
                             if (percentageOption.variationId == variationId) {
                                 return Pair(
                                     setting.key,
@@ -395,6 +394,8 @@ internal class Client private constructor(
                                 )
                             }
                         }
+                    } else {
+                        throw IllegalStateException("Targeting rule THEN part is missing or invalid.")
                     }
                 }
                 setting.value.percentageOptions?.forEach { percentageOption ->
@@ -590,43 +591,6 @@ internal class Client private constructor(
                     "Learn more: https://configcat.com/docs/sdk-reference/kotlin/#setting-type-mapping"
             )
         }
-    }
-
-    private fun validateSettingValueType(settingValue: SettingValue?, settingType: Int): Any {
-        val settingTypeEnum = settingType.toSettingTypeOrNull()
-        require(settingValue != null) { "Setting value is missing or invalid." }
-        val result: Any?
-        result = when (settingTypeEnum) {
-            SettingType.BOOLEAN -> {
-                settingValue.booleanValue
-            }
-
-            SettingType.STRING -> {
-                settingValue.stringValue
-            }
-
-            SettingType.INT -> {
-                settingValue.integerValue
-            }
-
-            SettingType.DOUBLE -> {
-                settingValue.doubleValue
-            }
-
-            SettingType.JS_NUMBER -> {
-                settingValue.doubleValue
-            }
-
-            else -> {
-                throw IllegalArgumentException(
-                    "Setting is of an unsupported type ($settingTypeEnum)."
-                )
-            }
-        }
-        require(result != null) {
-            "Setting value is not of the expected type ${settingTypeEnum.value}."
-        }
-        return result
     }
 
     private fun checkSettingsAvailable(settingResult: SettingResult, emptyResult: String): Boolean {

@@ -9,7 +9,7 @@ internal data class Entry(
     val config: Config,
     val eTag: String,
     val configJson: String,
-    val fetchTime: DateTime,
+    val fetchTime: DateTime
 ) {
     fun isEmpty(): Boolean = this === empty
 

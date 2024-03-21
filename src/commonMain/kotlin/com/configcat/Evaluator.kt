@@ -87,7 +87,7 @@ internal class Evaluator(private val logger: InternalLogger) {
     ): EvaluationResult {
         var evaluationResult: EvaluationResult? = null
         if (!setting.targetingRules.isNullOrEmpty()) {
-            evaluationResult = evaluateTargetingRules(setting, context, evaluateLogger)
+            evaluationResult = evaluateTargetingRules(setting.targetingRules, setting, context, evaluateLogger)
         }
         if (evaluationResult == null && !setting.percentageOptions.isNullOrEmpty()) {
             evaluationResult = evaluatePercentageOptions(
@@ -106,15 +106,13 @@ internal class Evaluator(private val logger: InternalLogger) {
 
     @Suppress("LoopWithTooManyJumpStatements", "CyclomaticComplexMethod")
     private fun evaluateTargetingRules(
+        targetingRules: Array<TargetingRule>,
         setting: Setting,
         context: EvaluationContext,
         evaluateLogger: EvaluateLogger?
     ): EvaluationResult? {
-        if (setting.targetingRules.isNullOrEmpty()) {
-            return null
-        }
         evaluateLogger?.logTargetingRules()
-        for (rule: TargetingRule in setting.targetingRules) {
+        for (rule: TargetingRule in targetingRules) {
             var evaluateConditionsResult: Boolean
             var error: String? = null
             try {
@@ -355,13 +353,15 @@ internal class Evaluator(private val logger: InternalLogger) {
             evaluateLogger,
             prerequisiteFlagContext
         )
+        visitedKeys.removeAt(visitedKeys.size - 1)
 
-        visitedKeys.removeAt(visitedKeys.size -1)
+        validateSettingValueType(evaluateResult.value, prerequisiteFlagSetting.type)
 
         val prerequisiteComparator = prerequisiteFlagCondition.prerequisiteComparator.toPrerequisiteComparatorOrNull()
             ?: throw IllegalArgumentException("Prerequisite Flag comparison operator is invalid.")
+
         val conditionValue: SettingValue? = prerequisiteFlagCondition.value
-        var result = conditionValue == evaluateResult.value
+        var result = evaluateResult.value.equalsBasedOnSettingType(conditionValue, prerequisiteFlagSetting.type)
 
         if (PrerequisiteComparator.NOT_EQUALS == prerequisiteComparator) {
             result = !result
@@ -682,7 +682,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         val userValueUTF8 = userValue.encodeToByteArray()
         var matchCondition = false
         for (comparisonValueHashedStartsEnds in withValuesSplit) {
-            val comparedTextLength = comparisonValueHashedStartsEnds.substringBeforeLast("_")
+            val comparedTextLength = ensureComparisonValue(comparisonValueHashedStartsEnds).substringBefore("_")
             require(comparedTextLength != comparisonValueHashedStartsEnds) {
                 "Comparison value is missing or invalid."
             }
@@ -695,7 +695,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             if (userValueUTF8.size < comparedTextLengthInt) {
                 continue
             }
-            val comparisonHashValue = comparisonValueHashedStartsEnds.substringAfterLast("_")
+            val comparisonHashValue = comparisonValueHashedStartsEnds.substringAfter("_")
             require(comparisonHashValue.isNotEmpty()) { "Comparison value is missing or invalid." }
             val userValueSlice =
                 if (userComparator == UserComparator.HASHED_STARTS_WITH ||
@@ -1016,8 +1016,8 @@ internal class Evaluator(private val logger: InternalLogger) {
             // toSting and toDouble hack needed in case of float. else the 0.12345 is converted to something like 0.1234500120130
             return doubleToString(userValue.toString().toDouble())
         }
-        if (userValue is Number) {
-            return doubleToString(userValue.toDouble())
+        if (userValue is Double) {
+            return doubleToString(userValue)
         }
 
         if (userValue is DateTime) {
