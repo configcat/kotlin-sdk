@@ -102,7 +102,7 @@ public interface ConfigCatClient {
      * Gets the value of a feature flag or setting as [Any] identified by the given [key].
      *
      * @param key          the identifier of the feature flag or setting.
-     * @param defaultValue in case of any failure, this value will be returned. Only the following types and [null] are allowed: [String], [Boolean], [Int] and [Double].
+     * @param defaultValue in case of any failure, this value will be returned.
      * @param user         the user object.
      */
     public suspend fun getAnyValue(key: String, defaultValue: Any?, user: ConfigCatUser?): Any?
@@ -111,7 +111,7 @@ public interface ConfigCatClient {
      * Gets the value and evaluation details of a feature flag or setting identified by the given [key].
      *
      * @param key          the identifier of the feature flag or setting.
-     * @param defaultValue in case of any failure, this value will be returned. Only the following types and [null] are allowed: [String], [Boolean], [Int] and [Double].
+     * @param defaultValue in case of any failure, this value will be returned.
      * @param user         the user object.
      */
     public suspend fun getAnyValueDetails(key: String, defaultValue: Any?, user: ConfigCatUser?): EvaluationDetails
@@ -216,14 +216,28 @@ public fun ConfigCatClient(
  * @param key          the identifier of the feature flag or setting.
  * @param defaultValue in case of any failure, this value will be returned.
  * @param user         the user object.
- * @param T            the type of the desired feature flag or setting. Only the following types are allowed: [String], [Boolean], [Int] and [Double].
+ * @param T            the type of the desired feature flag or setting. Only the following types are allowed: [String], [Boolean], [Int] and [Double] (both nullable and non-nullable).
  */
-public suspend inline fun <reified T : Any> ConfigCatClient.getValue(
+public suspend inline fun <reified T> ConfigCatClient.getValue(
     key: String,
     defaultValue: T,
     user: ConfigCatUser? = null
 ): T {
-    return this.getAnyValue(key, defaultValue, user) as? T ?: defaultValue
+    if (T::class != Boolean::class && T::class != String::class && T::class != Int::class && T::class != Double::class) {
+        throw IllegalArgumentException("Only the following types are supported: String, Boolean, Int, Double (both nullable and non-nullable).")
+    }
+
+    return getValueInternal(this, key, defaultValue, user) as T
+}
+
+@PublishedApi
+internal suspend fun getValueInternal(client: ConfigCatClient, key: String, defaultValue: Any?, user: ConfigCatUser?): Any? {
+    return if (client is Client) {
+        client.getValueImpl(key, defaultValue, user, allowAnyReturnType = false)
+    } else {
+        // for testing purposes
+        client.getAnyValue(key, defaultValue, user)
+    }
 }
 
 /**
@@ -232,26 +246,39 @@ public suspend inline fun <reified T : Any> ConfigCatClient.getValue(
  * @param key          the identifier of the feature flag or setting.
  * @param defaultValue in case of any failure, this value will be returned.
  * @param user         the user object.
- * @param T            the type of the desired feature flag or setting. Only the following types are allowed: [String], [Boolean], [Int] and [Double].
+ * @param T            the type of the desired feature flag or setting. Only the following types are allowed: [String], [Boolean], [Int] and [Double] (both nullable and non-nullable).
  */
-public suspend inline fun <reified T : Any> ConfigCatClient.getValueDetails(
+public suspend inline fun <reified T> ConfigCatClient.getValueDetails(
     key: String,
     defaultValue: T,
     user: ConfigCatUser? = null
 ): TypedEvaluationDetails<T> {
-    val details = this.getAnyValueDetails(key, defaultValue, user)
-    val value = details.value as? T
+    if (T::class != Boolean::class && T::class != String::class && T::class != Int::class && T::class != Double::class) {
+        throw IllegalArgumentException("Only the following types are supported: String, Boolean, Int, Double (both nullable and non-nullable).")
+    }
+
+    val details = getValueDetailsInternal(this, key, defaultValue, user)
     return TypedEvaluationDetails(
         details.key,
         details.variationId,
         user,
-        details.isDefaultValue || value == null,
+        details.isDefaultValue,
         details.error,
-        value ?: defaultValue,
+        details.value as T,
         details.fetchTimeUnixMilliseconds,
         details.matchedTargetingRule,
         details.matchedPercentageOption
     )
+}
+
+@PublishedApi
+internal suspend fun getValueDetailsInternal(client: ConfigCatClient, key: String, defaultValue: Any?, user: ConfigCatUser?): EvaluationDetails {
+    return if (client is Client) {
+        client.getValueDetailsImpl(key, defaultValue, user, allowAnyReturnType = false)
+    } else {
+        // for testing purposes
+        client.getAnyValueDetails(key, defaultValue, user)
+    }
 }
 
 internal class Client private constructor(
@@ -284,11 +311,11 @@ internal class Client private constructor(
         evaluator = Evaluator(logger)
     }
 
-    override suspend fun getAnyValue(key: String, defaultValue: Any?, user: ConfigCatUser?): Any? {
+    internal suspend fun getValueImpl(key: String, defaultValue: Any?, user: ConfigCatUser?, allowAnyReturnType: Boolean): Any? {
         if (key.isEmpty()) {
             throw IllegalArgumentException("'key' cannot be empty.")
         }
-        validateDefaultValueType(defaultValue)
+
         val settingResult = getSettings()
         val evalUser = user ?: defaultUser
         val checkSettingAvailable = checkSettingAvailable(settingResult, key, defaultValue)
@@ -299,7 +326,9 @@ internal class Client private constructor(
             return defaultValue
         }
         return try {
-            validateValueType(setting.type, defaultValue)
+            if (!allowAnyReturnType) {
+                validateValueType(setting.type, defaultValue)
+            }
             evaluate(setting, key, evalUser, settingResult.fetchTime, settingResult.settings).value
         } catch (exception: Exception) {
             val errorMessage = ConfigCatLogMessages.getSettingEvaluationErrorWithDefaultValue(
@@ -314,11 +343,15 @@ internal class Client private constructor(
         }
     }
 
-    override suspend fun getAnyValueDetails(key: String, defaultValue: Any?, user: ConfigCatUser?): EvaluationDetails {
+    override suspend fun getAnyValue(key: String, defaultValue: Any?, user: ConfigCatUser?): Any? {
+        return getValueImpl(key, defaultValue, user, allowAnyReturnType = true)
+    }
+
+    internal suspend fun getValueDetailsImpl(key: String, defaultValue: Any?, user: ConfigCatUser?, allowAnyReturnType: Boolean): EvaluationDetails {
         if (key.isEmpty()) {
             throw IllegalArgumentException("'key' cannot be empty.")
         }
-        validateDefaultValueType(defaultValue)
+
         val settingResult = getSettings()
         val evalUser = user ?: defaultUser
 
@@ -330,7 +363,9 @@ internal class Client private constructor(
             return details
         }
         return try {
-            validateValueType(setting.type, defaultValue)
+            if (!allowAnyReturnType) {
+                validateValueType(setting.type, defaultValue)
+            }
             evaluate(setting, key, evalUser, settingResult.fetchTime, settingResult.settings)
         } catch (exception: Exception) {
             val errorMessage = ConfigCatLogMessages.getSettingEvaluationErrorWithDefaultValue(
@@ -344,6 +379,10 @@ internal class Client private constructor(
             hooks.invokeOnFlagEvaluated(errorDetails)
             errorDetails
         }
+    }
+
+    override suspend fun getAnyValueDetails(key: String, defaultValue: Any?, user: ConfigCatUser?): EvaluationDetails {
+        return getValueDetailsImpl(key, defaultValue, user, allowAnyReturnType = true)
     }
 
     override suspend fun getAllValueDetails(user: ConfigCatUser?): Collection<EvaluationDetails> {
@@ -559,12 +598,6 @@ internal class Client private constructor(
         }
 
         return service?.getSettings() ?: SettingResult(mapOf(), Constants.distantPast)
-    }
-
-    private fun validateDefaultValueType(defaultValue: Any?) {
-        if (!(defaultValue is String? || defaultValue is Boolean? || defaultValue is Int? || defaultValue is Double?)) {
-            throw IllegalArgumentException("The setting type is not valid. Only String, Int, Double or Boolean types are supported.")
-        }
     }
 
     private fun validateValueType(settingTypeInt: Int, defaultValue: Any?) {
