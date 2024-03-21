@@ -40,12 +40,10 @@ class EvaluatorTrimTests {
         runComparatorValueTrimsTest("arraycontainsanyof", "no trim")
         runComparatorValueTrimsTest("arraynotcontainsanyof", "no trim")
         // the not trimmed comparator value case an exception in case of these comparator, default value expected
-        // the not trimmed comparator value case an exception in case of these comparator, default value expected
-        runComparatorValueTrimsTest("startwithanyofhashed", "default")
-        runComparatorValueTrimsTest("notstartwithanyofhashed", "default")
-        runComparatorValueTrimsTest("endswithanyofhashed", "default")
-        runComparatorValueTrimsTest("notendswithanyofhashed", "default")
-        // semver comparator values trimmed because of backward compatibility
+        runComparatorValueTrimsTest("startwithanyofhashed", "no trim")
+        runComparatorValueTrimsTest("notstartwithanyofhashed", "no trim")
+        runComparatorValueTrimsTest("endswithanyofhashed", "no trim")
+        runComparatorValueTrimsTest("notendswithanyofhashed", "no trim")
         // semver comparator values trimmed because of backward compatibility
         runComparatorValueTrimsTest("semverisoneof", "4 trim")
         runComparatorValueTrimsTest("semverisnotoneof", "5 trim")

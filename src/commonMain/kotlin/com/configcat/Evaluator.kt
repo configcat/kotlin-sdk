@@ -688,7 +688,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             }
             val comparedTextLengthInt: Int
             try {
-                comparedTextLengthInt = comparedTextLength.toInt()
+                comparedTextLengthInt = comparedTextLength.trim().toInt()
             } catch (e: NumberFormatException) {
                 throw IllegalArgumentException("Comparison value is missing or invalid.")
             }
