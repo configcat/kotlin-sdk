@@ -21,7 +21,7 @@ public data class SettingValue(
     @SerialName("d")
     var doubleValue: Double? = null
 ) {
-    public fun equalsBasedOnSettingType(other: Any?, settingType: Int): Boolean {
+    internal fun equalsBasedOnSettingType(other: Any?, settingType: Int): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
@@ -45,7 +45,7 @@ public data class SettingValue(
             }
 
             SettingType.JS_NUMBER -> {
-                doubleValue == other.doubleValue || integerValue == other.integerValue
+                (doubleValue ?: integerValue?.toDouble()) == (other.doubleValue ?: other.integerValue?.toDouble())
             }
 
             else -> {

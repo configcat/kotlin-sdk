@@ -14,7 +14,7 @@ import kotlinx.serialization.encodeToString
  *
  * Text-based comparisons (EQUALS, IS ONE OF, etc.)<br>
  *  * accept [String] values,
- *  * all other values are automatically converted to string (a warning will be logged but evaluation will continue as normal).
+ *  * all other values are automatically converted to [String] (a warning will be logged but evaluation will continue as normal).
  *
  * SemVer-based comparisons (IS ONE OF, &lt;, &gt;=, etc.)<br>
  *  * accept [String] values containing a properly formatted, valid semver value,

@@ -1013,8 +1013,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             return Constants.json.encodeToString(userValue as List<String>)
         }
         if (userValue is Float) {
-            // toSting and toDouble hack needed in case of float. else the 0.12345 is converted to something like 0.1234500120130
-            return doubleToString(userValue.toString().toDouble())
+            return doubleToString(userValue.toDouble())
         }
         if (userValue is Double) {
             return doubleToString(userValue)

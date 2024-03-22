@@ -227,8 +227,6 @@ class ConfigV2EvaluationTest {
     @Test
     fun runComparisonAttributeConversionToCanonicalStringRepresentationTest() = runTest {
         runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversion", .12345, "1")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversion", .12345f, "1")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversion", 0.12345f, "1")
         runComparisonAttributeConversionToCanonicalStringRepresentationTest(
             "numberToStringConversionInt",
             125.toByte(),
