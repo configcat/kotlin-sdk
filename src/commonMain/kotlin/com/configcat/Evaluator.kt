@@ -574,7 +574,12 @@ internal class Evaluator(private val logger: InternalLogger) {
             if (ensureComparisonValue(semVer).isEmpty()) {
                 continue
             }
-            matched = semVer.trim().toVersionOrNull() == userVersion || matched
+            val comparisonSemVer = semVer.trim().toVersionOrNull()
+            matched = if (comparisonSemVer == null) {
+                false
+            } else {
+                comparisonSemVer == userVersion || matched
+            }
         }
 
         return negate != matched
@@ -585,15 +590,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         userVersion: Version,
         userComparator: UserComparator
     ): Boolean {
-        val comparisonVersion =
-            @Suppress("SwallowedException")
-            try {
-                ensureComparisonValue(condition.stringValue).trim().toVersion()
-            } catch (e: VersionFormatException) {
-                // NOTE: Previous versions of the evaluation algorithm ignored invalid comparison values.
-                // We keep this behavior for backward compatibility.
-                return false
-            }
+        val comparisonVersion = ensureComparisonValue(condition.stringValue).trim().toVersionOrNull() ?: return false
         return when (userComparator) {
             UserComparator.LT_SEMVER -> userVersion < comparisonVersion
             UserComparator.LTE_SEMVER -> userVersion <= comparisonVersion

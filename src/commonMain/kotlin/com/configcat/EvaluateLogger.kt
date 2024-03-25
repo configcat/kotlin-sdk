@@ -311,8 +311,8 @@ internal object EvaluatorLogHelper {
             Evaluator.UserComparator.HASHED_EQUALS, Evaluator.UserComparator.HASHED_NOT_EQUALS ->
                 formatStringComparisonValue(
                     userCondition.stringValue,
-                true
-            )
+                    true
+                )
 
             else -> INVALID_VALUE
         }
