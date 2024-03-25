@@ -145,7 +145,8 @@ internal class EvaluateLogger {
         append("Segment evaluation result: User $segmentResultComparator.")
         newLine()
         append(
-            "Condition (${EvaluatorLogHelper.formatSegmentFlagCondition(segmentCondition, segment)}) evaluates to $result."
+            "Condition (${EvaluatorLogHelper.formatSegmentFlagCondition(segmentCondition, segment)}) evaluates" +
+                " to $result."
         )
         decreaseIndentLevel()
         newLine()
@@ -157,7 +158,8 @@ internal class EvaluateLogger {
         append("Segment evaluation result: $error.")
         newLine()
         append(
-            "Condition (${EvaluatorLogHelper.formatSegmentFlagCondition(segmentCondition, segment)}) failed to evaluate."
+            "Condition (${EvaluatorLogHelper.formatSegmentFlagCondition(segmentCondition, segment)}) failed to " +
+                "evaluate."
         )
         decreaseIndentLevel()
         newLine()
@@ -306,8 +308,9 @@ internal object EvaluatorLogHelper {
                 true
             )
 
-            Evaluator.UserComparator.HASHED_EQUALS, Evaluator.UserComparator.HASHED_NOT_EQUALS -> formatStringComparisonValue(
-                userCondition.stringValue,
+            Evaluator.UserComparator.HASHED_EQUALS, Evaluator.UserComparator.HASHED_NOT_EQUALS ->
+                formatStringComparisonValue(
+                    userCondition.stringValue,
                 true
             )
 

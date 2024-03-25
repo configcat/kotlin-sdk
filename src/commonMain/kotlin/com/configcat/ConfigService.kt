@@ -69,7 +69,8 @@ internal class ConfigService(
             }
 
             else -> {
-                val result = fetchIfOlder(Constants.distantPast, preferCached = initialized.value) // If we are initialized, we prefer the cached results
+                // If we are initialized, we prefer the cached results
+                val result = fetchIfOlder(Constants.distantPast, preferCached = initialized.value)
                 if (result.first.isEmpty()) {
                     SettingResult.empty
                 } else {

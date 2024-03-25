@@ -14,6 +14,7 @@ import com.soywiz.krypto.sha256
 import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
+import io.github.z4kn4fein.semver.toVersionOrNull
 import io.ktor.http.*
 import io.ktor.utils.io.charsets.*
 import kotlinx.serialization.decodeFromString
@@ -49,7 +50,7 @@ internal object ComparatorHelp {
 
 private const val USER_OBJECT_IS_MISSING = "cannot evaluate, User Object is missing"
 
-@Suppress("LargeClass")
+@Suppress("LargeClass", "TooManyFunctions")
 internal class Evaluator(private val logger: InternalLogger) {
 
     fun evaluate(
@@ -140,7 +141,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                 return EvaluationResult(rule.servedValue.value, rule.servedValue.variationId, rule, null)
             }
             if (rule.percentageOptions.isNullOrEmpty()) {
-                throw IllegalStateException("Targeting rule THEN part is missing or invalid.")
+                error("Targeting rule THEN part is missing or invalid.")
             }
             evaluateLogger?.increaseIndentLevel()
             val evaluatePercentageOptions = evaluatePercentageOptions(
@@ -323,13 +324,18 @@ internal class Evaluator(private val logger: InternalLogger) {
 
         val settingType = prerequisiteFlagSetting.type.toSettingTypeOrNull()
         require(
-            settingType == SettingType.JS_NUMBER && (prerequisiteFlagCondition.value?.doubleValue != null || prerequisiteFlagCondition.value?.integerValue != null) ||
+            settingType == SettingType.JS_NUMBER &&
+                (
+                    prerequisiteFlagCondition.value?.doubleValue != null ||
+                        prerequisiteFlagCondition.value?.integerValue != null
+                    ) ||
                 settingType == SettingType.BOOLEAN && prerequisiteFlagCondition.value?.booleanValue != null ||
                 settingType == SettingType.STRING && prerequisiteFlagCondition.value?.stringValue != null ||
                 settingType == SettingType.INT && prerequisiteFlagCondition.value?.integerValue != null ||
                 settingType == SettingType.DOUBLE && prerequisiteFlagCondition.value?.doubleValue != null
         ) {
-            "Type mismatch between comparison value '${prerequisiteFlagCondition.value}' and prerequisite flag '$prerequisiteFlagKey'."
+            "Type mismatch between comparison value '${prerequisiteFlagCondition.value}' and prerequisite flag " +
+                "'$prerequisiteFlagKey'."
         }
 
         val visitedKeys: ArrayList<String> = context.visitedKeys ?: ArrayList()
@@ -337,7 +343,9 @@ internal class Evaluator(private val logger: InternalLogger) {
         if (visitedKeys.contains(prerequisiteFlagKey)) {
             val dependencyCycle: String =
                 EvaluatorLogHelper.formatCircularDependencyList(visitedKeys, prerequisiteFlagKey)
-            throw IllegalArgumentException("Circular dependency detected between the following depending flags: $dependencyCycle.")
+            throw IllegalArgumentException(
+                "Circular dependency detected between the following depending flags: $dependencyCycle."
+            )
         }
         evaluateLogger?.logPrerequisiteFlagEvaluationStart(prerequisiteFlagKey)
 
@@ -521,9 +529,11 @@ internal class Evaluator(private val logger: InternalLogger) {
             UserComparator.HASHED_ARRAY_CONTAINS,
             UserComparator.HASHED_ARRAY_NOT_CONTAINS -> {
                 val negateArrayContains =
-                    UserComparator.HASHED_ARRAY_NOT_CONTAINS == comparator || UserComparator.TEXT_ARRAY_NOT_CONTAINS == comparator
+                    UserComparator.HASHED_ARRAY_NOT_CONTAINS == comparator ||
+                        UserComparator.TEXT_ARRAY_NOT_CONTAINS == comparator
                 val hashedArrayContains =
-                    UserComparator.HASHED_ARRAY_CONTAINS == comparator || UserComparator.HASHED_ARRAY_NOT_CONTAINS == comparator
+                    UserComparator.HASHED_ARRAY_CONTAINS == comparator ||
+                        UserComparator.HASHED_ARRAY_NOT_CONTAINS == comparator
                 val userArrayValue = getUserAttributeAsStringArray(condition, context, comparisonAttribute, userValue)
                 return processHashedArrayContainsCompare(
                     condition,
@@ -564,13 +574,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             if (ensureComparisonValue(semVer).isEmpty()) {
                 continue
             }
-            matched = try {
-                semVer.trim().toVersion() == userVersion || matched
-            } catch (exception: VersionFormatException) {
-                // Previous versions of the evaluation algorithm ignored invalid comparison values.
-                // We keep this behavior for backward compatibility.
-                return false
-            }
+            matched = semVer.trim().toVersionOrNull() == userVersion || matched
         }
 
         return negate != matched
@@ -595,7 +599,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             UserComparator.LTE_SEMVER -> userVersion <= comparisonVersion
             UserComparator.GT_SEMVER -> userVersion > comparisonVersion
             UserComparator.GTE_SEMVER -> userVersion >= comparisonVersion
-            else -> throw IllegalStateException("Invalid comparator $userComparator.")
+            else -> error("Invalid comparator $userComparator.")
         }
     }
 
@@ -612,7 +616,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             UserComparator.LTE_NUM -> userNumber <= comparisonNumber
             UserComparator.GT_NUM -> userNumber > comparisonNumber
             UserComparator.GTE_NUM -> userNumber >= comparisonNumber
-            else -> throw IllegalStateException("Invalid comparator $userComparator.")
+            else -> error("Invalid comparator $userComparator.")
         }
     }
 
@@ -649,7 +653,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         return when (userComparator) {
             UserComparator.DATE_BEFORE -> userDateDouble < comparisonDateDouble
             UserComparator.DATE_AFTER -> userDateDouble > comparisonDateDouble
-            else -> throw IllegalStateException("Invalid comparator $userComparator.")
+            else -> error("Invalid comparator $userComparator.")
         }
     }
 
@@ -681,6 +685,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         val withValuesSplit = ensureComparisonValue(condition.stringArrayValue)
         val userValueUTF8 = userValue.encodeToByteArray()
         var matchCondition = false
+        @Suppress("LoopWithTooManyJumpStatements")
         for (comparisonValueHashedStartsEnds in withValuesSplit) {
             val comparedTextLength = ensureComparisonValue(comparisonValueHashedStartsEnds).substringBefore("_")
             require(comparedTextLength != comparisonValueHashedStartsEnds) {
@@ -712,7 +717,9 @@ internal class Evaluator(private val logger: InternalLogger) {
                 break
             }
         }
-        if (userComparator == UserComparator.HASHED_NOT_STARTS_WITH || userComparator == UserComparator.HASHED_NOT_ENDS_WITH) {
+        if (userComparator == UserComparator.HASHED_NOT_STARTS_WITH ||
+            userComparator == UserComparator.HASHED_NOT_ENDS_WITH
+        ) {
             // negate the match in case of NOT ANY OF
             matchCondition = !matchCondition
         }
@@ -853,6 +860,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         comparisonAttribute: String,
         userAttribute: Any
     ): Array<String> {
+        @Suppress("SwallowedException")
         try {
             if (userAttribute is Array<*> && userAttribute.all { it is String }) {
                 return userAttribute as Array<String>
@@ -1131,8 +1139,8 @@ internal class Evaluator(private val logger: InternalLogger) {
  * Convert [Double] to [String] based on the following format rules.
  *
  * To get similar result between different SDKs the Double value format is modified.
- * Between 1e-6 and 1e21 we don't use scientific-notation. Over these limits scientific-notation used but the ExponentSeparator replaced with "e" and "e+".
- * "." used as decimal separator in all cases.
+ * Between 1e-6 and 1e21 we don't use scientific-notation. Over these limits scientific-notation used but the
+ * ExponentSeparator replaced with "e" and "e+". "." used as decimal separator in all cases.
  *
  * For [Double.NaN], [Double.POSITIVE_INFINITY] and [Double.NEGATIVE_INFINITY] simple String representation used.
  */

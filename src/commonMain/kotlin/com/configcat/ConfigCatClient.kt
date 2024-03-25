@@ -169,8 +169,8 @@ public interface ConfigCatClient {
 
     /**
      * Sets the default user.
-     * If no user specified in the following calls [getValue], [getAnyValue], [getAllValues], [getValueDetails], [getAnyValueDetails], [getAllValueDetails]
-     * the default user value will be used.
+     * If no user specified in the following calls [getValue], [getAnyValue], [getAllValues], [getValueDetails],
+     * [getAnyValueDetails], [getAllValueDetails] the default user value will be used.
      *
      * @param user The new default user.
      */
@@ -216,22 +216,33 @@ public fun ConfigCatClient(
  * @param key          the identifier of the feature flag or setting.
  * @param defaultValue in case of any failure, this value will be returned.
  * @param user         the user object.
- * @param T            the type of the desired feature flag or setting. Only the following types are allowed: [String], [Boolean], [Int] and [Double] (both nullable and non-nullable).
+ * @param T            the type of the desired feature flag or setting. Only the following types are allowed: [String],
+ * [Boolean], [Int] and [Double] (both nullable and non-nullable).
  */
 public suspend inline fun <reified T> ConfigCatClient.getValue(
     key: String,
     defaultValue: T,
     user: ConfigCatUser? = null
 ): T {
-    if (T::class != Boolean::class && T::class != String::class && T::class != Int::class && T::class != Double::class) {
-        throw IllegalArgumentException("Only the following types are supported: String, Boolean, Int, Double (both nullable and non-nullable).")
+    require(
+        T::class == Boolean::class ||
+            T::class == String::class ||
+            T::class == Int::class ||
+            T::class == Double::class
+    ) {
+        "Only the following types are supported: String, Boolean, Int, Double (both nullable and non-nullable)."
     }
 
     return getValueInternal(this, key, defaultValue, user) as T
 }
 
 @PublishedApi
-internal suspend fun getValueInternal(client: ConfigCatClient, key: String, defaultValue: Any?, user: ConfigCatUser?): Any? {
+internal suspend fun getValueInternal(
+    client: ConfigCatClient,
+    key: String,
+    defaultValue: Any?,
+    user: ConfigCatUser?
+): Any? {
     return if (client is Client) {
         client.getValueImpl(key, defaultValue, user, allowAnyReturnType = false)
     } else {
@@ -246,15 +257,21 @@ internal suspend fun getValueInternal(client: ConfigCatClient, key: String, defa
  * @param key          the identifier of the feature flag or setting.
  * @param defaultValue in case of any failure, this value will be returned.
  * @param user         the user object.
- * @param T            the type of the desired feature flag or setting. Only the following types are allowed: [String], [Boolean], [Int] and [Double] (both nullable and non-nullable).
+ * @param T            the type of the desired feature flag or setting. Only the following types are allowed: [String],
+ * [Boolean], [Int] and [Double] (both nullable and non-nullable).
  */
 public suspend inline fun <reified T> ConfigCatClient.getValueDetails(
     key: String,
     defaultValue: T,
     user: ConfigCatUser? = null
 ): TypedEvaluationDetails<T> {
-    if (T::class != Boolean::class && T::class != String::class && T::class != Int::class && T::class != Double::class) {
-        throw IllegalArgumentException("Only the following types are supported: String, Boolean, Int, Double (both nullable and non-nullable).")
+    require(
+        T::class == Boolean::class ||
+            T::class == String::class ||
+            T::class == Int::class ||
+            T::class == Double::class
+    ) {
+        "Only the following types are supported: String, Boolean, Int, Double (both nullable and non-nullable)."
     }
 
     val details = getValueDetailsInternal(this, key, defaultValue, user)
@@ -272,7 +289,12 @@ public suspend inline fun <reified T> ConfigCatClient.getValueDetails(
 }
 
 @PublishedApi
-internal suspend fun getValueDetailsInternal(client: ConfigCatClient, key: String, defaultValue: Any?, user: ConfigCatUser?): EvaluationDetails {
+internal suspend fun getValueDetailsInternal(
+    client: ConfigCatClient,
+    key: String,
+    defaultValue: Any?,
+    user: ConfigCatUser?
+): EvaluationDetails {
     return if (client is Client) {
         client.getValueDetailsImpl(key, defaultValue, user, allowAnyReturnType = false)
     } else {
@@ -311,10 +333,13 @@ internal class Client private constructor(
         evaluator = Evaluator(logger)
     }
 
-    internal suspend fun getValueImpl(key: String, defaultValue: Any?, user: ConfigCatUser?, allowAnyReturnType: Boolean): Any? {
-        if (key.isEmpty()) {
-            throw IllegalArgumentException("'key' cannot be empty.")
-        }
+    internal suspend fun getValueImpl(
+        key: String,
+        defaultValue: Any?,
+        user: ConfigCatUser?,
+        allowAnyReturnType: Boolean
+    ): Any? {
+        require(key.isNotEmpty()) { "'key' cannot be empty." }
 
         val settingResult = getSettings()
         val evalUser = user ?: defaultUser
@@ -347,10 +372,13 @@ internal class Client private constructor(
         return getValueImpl(key, defaultValue, user, allowAnyReturnType = true)
     }
 
-    internal suspend fun getValueDetailsImpl(key: String, defaultValue: Any?, user: ConfigCatUser?, allowAnyReturnType: Boolean): EvaluationDetails {
-        if (key.isEmpty()) {
-            throw IllegalArgumentException("'key' cannot be empty.")
-        }
+    internal suspend fun getValueDetailsImpl(
+        key: String,
+        defaultValue: Any?,
+        user: ConfigCatUser?,
+        allowAnyReturnType: Boolean
+    ): EvaluationDetails {
+        require(key.isNotEmpty()) { "'key' cannot be empty." }
 
         val settingResult = getSettings()
         val evalUser = user ?: defaultUser
@@ -403,9 +431,8 @@ internal class Client private constructor(
     }
 
     override suspend fun getKeyAndValue(variationId: String): Pair<String, Any>? {
-        if (variationId.isEmpty()) {
-            throw IllegalArgumentException("'variationId' cannot be empty.")
-        }
+        require(variationId.isNotEmpty()) { "'variationId' cannot be empty." }
+
         try {
             val settingResult = getSettings()
             if (!checkSettingsAvailable(settingResult, "null")) {
@@ -434,7 +461,7 @@ internal class Client private constructor(
                             }
                         }
                     } else {
-                        throw IllegalStateException("Targeting rule THEN part is missing or invalid.")
+                        error("Targeting rule THEN part is missing or invalid.")
                     }
                 }
                 setting.value.percentageOptions?.forEach { percentageOption ->
@@ -602,7 +629,9 @@ internal class Client private constructor(
 
     private fun validateValueType(settingTypeInt: Int, defaultValue: Any?) {
         val settingType = settingTypeInt.toSettingTypeOrNull()
-            ?: throw IllegalArgumentException("The setting type is not valid. Only String, Int, Double or Boolean types are supported.")
+            ?: throw IllegalArgumentException(
+                "The setting type is not valid. Only String, Int, Double or Boolean types are supported."
+            )
         if (defaultValue == null) {
             return
         }
@@ -613,15 +642,18 @@ internal class Client private constructor(
                     defaultValue is Int && (settingType == SettingType.INT || settingType == SettingType.JS_NUMBER)
                     ) ||
                 (
-                    defaultValue is Double && (settingType == SettingType.DOUBLE || settingType == SettingType.JS_NUMBER)
+                    defaultValue is Double && (
+                        settingType == SettingType.DOUBLE || settingType == SettingType.JS_NUMBER
+                        )
                     )
             )
         ) {
             throw IllegalArgumentException(
                 "The type of a setting must match the type of the specified default value. " +
-                    "Setting's type was {" + settingType + "} but the default value's type was {" + defaultValue::class.toString() + "}. " +
-                    "Please use a default value which corresponds to the setting type {" + settingType + "}." +
-                    "Learn more: https://configcat.com/docs/sdk-reference/kotlin/#setting-type-mapping"
+                    "Setting's type was {" + settingType + "} but the default value's type was {" +
+                    defaultValue::class.toString() + "}. Please use a default value which corresponds to the setting " +
+                    "type {" + settingType + "}. Learn more: " +
+                    "https://configcat.com/docs/sdk-reference/kotlin/#setting-type-mapping"
             )
         }
     }

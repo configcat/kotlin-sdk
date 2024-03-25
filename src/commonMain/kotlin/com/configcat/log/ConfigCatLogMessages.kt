@@ -46,7 +46,9 @@ internal object ConfigCatLogMessages {
      * Log message for Fetch Failed Due To Unexpected error. The log eventId is 1103.
      */
     const val FETCH_FAILED_DUE_TO_UNEXPECTED_ERROR =
-        "Unexpected error occurred while trying to fetch config JSON. It is most likely due to a local network issue. Please make sure your application can reach the ConfigCat CDN servers (or your proxy server) over HTTP."
+        "Unexpected error occurred while trying to fetch config JSON. It is most likely due to a local network " +
+            "issue. Please make sure your application can reach the ConfigCat CDN servers (or your proxy server) " +
+            "over HTTP."
 
     /**
      * Log message for Fetch Failed Due To Invalid Sdk Key error. The log eventId is 1100.
@@ -133,7 +135,8 @@ internal object ConfigCatLogMessages {
         defaultParamName: String,
         defaultParamValue: Any
     ): String {
-        return "Error occurred in the `$methodName` method while evaluating setting '$key'. Returning the `$defaultParamName` parameter that you specified in your application: '$defaultParamValue'."
+        return "Error occurred in the `$methodName` method while evaluating setting '$key'. Returning the " +
+            "`$defaultParamName` parameter that you specified in your application: '$defaultParamValue'."
     }
 
     /**
@@ -207,8 +210,8 @@ internal object ConfigCatLogMessages {
      * @return The formatted warn message.
      */
     fun getUserAttributeMissing(key: String, userCondition: UserCondition, attributeName: String): String {
-        return "Cannot evaluate condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting '$key' " +
-            "(the User.$attributeName attribute is missing). You should set the User.$attributeName " +
+        return "Cannot evaluate condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting " +
+            "'$key' (the User.$attributeName attribute is missing). You should set the User.$attributeName " +
             "attribute in order to make targeting work properly. " +
             "Read more: https://configcat.com/docs/advanced/user-object/"
     }
@@ -241,9 +244,9 @@ internal object ConfigCatLogMessages {
         reason: String,
         attributeName: String
     ): String {
-        return "Cannot evaluate condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting '$key' " +
-            "($reason). Please check the User.$attributeName attribute and make sure that its value corresponds " +
-            "to the comparison operator."
+        return "Cannot evaluate condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting " +
+            "'$key' ($reason). Please check the User.$attributeName attribute and make sure that its value " +
+            "corresponds to the comparison operator."
     }
 
     /**
@@ -261,7 +264,10 @@ internal object ConfigCatLogMessages {
         attributeName: String,
         attributeValue: String
     ): String {
-        return "Evaluation of condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting '$key' may not produce the expected result (the User.$attributeName attribute is not a string value, thus it was automatically converted to the string value '$attributeValue'). Please make sure that using a non-string value was intended."
+        return "Evaluation of condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting " +
+            "'$key' may not produce the expected result (the User.$attributeName attribute is not a string value, " +
+            "thus it was automatically converted to the string value '$attributeValue'). Please make sure that using " +
+            "a non-string value was intended."
     }
 
     /**
