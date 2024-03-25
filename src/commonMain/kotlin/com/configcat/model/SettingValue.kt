@@ -57,14 +57,18 @@ public data class SettingValue(
     }
 
     override fun toString(): String {
-        return if (booleanValue != null) {
-            booleanValue.toString()
-        } else if (integerValue != null) {
-            integerValue.toString()
-        } else if (doubleValue != null) {
-            doubleValue.toString()
-        } else {
-            stringValue.toString()
+        return when {
+            booleanValue != null -> {
+                booleanValue.toString()
+            }
+            integerValue != null -> {
+                integerValue.toString()
+            }
+            doubleValue != null -> {
+                doubleValue.toString()
+            } else -> {
+                stringValue.toString()
+            }
         }
     }
 }
