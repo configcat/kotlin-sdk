@@ -238,17 +238,13 @@ public suspend inline fun <reified T> ConfigCatClient.getValue(
 
 @PublishedApi
 internal suspend fun getValueInternal(
-    client: ConfigCatClient,
+    configCatClient: ConfigCatClient,
     key: String,
     defaultValue: Any?,
     user: ConfigCatUser?
 ): Any? {
-    return if (client is Client) {
-        client.getValueImpl(key, defaultValue, user, allowAnyReturnType = false)
-    } else {
-        // for testing purposes
-        client.getAnyValue(key, defaultValue, user)
-    }
+    val client = configCatClient as? Client
+    return client?.getValueImpl(key, defaultValue, user, allowAnyReturnType = false) ?: configCatClient.getAnyValue(key, defaultValue, user)
 }
 
 /**
@@ -290,17 +286,13 @@ public suspend inline fun <reified T> ConfigCatClient.getValueDetails(
 
 @PublishedApi
 internal suspend fun getValueDetailsInternal(
-    client: ConfigCatClient,
+    configCatClient: ConfigCatClient,
     key: String,
     defaultValue: Any?,
     user: ConfigCatUser?
 ): EvaluationDetails {
-    return if (client is Client) {
-        client.getValueDetailsImpl(key, defaultValue, user, allowAnyReturnType = false)
-    } else {
-        // for testing purposes
-        client.getAnyValueDetails(key, defaultValue, user)
-    }
+    val client = configCatClient as? Client
+    return client?.getValueDetailsImpl(key, defaultValue, user, allowAnyReturnType = false) ?: configCatClient.getAnyValueDetails(key, defaultValue, user)
 }
 
 internal class Client private constructor(
