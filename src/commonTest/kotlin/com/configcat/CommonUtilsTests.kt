@@ -9,7 +9,7 @@ class CommonUtilsTests {
     @Test
     fun testValidateSettingValueType() = runTest {
         val settingValue = SettingValue(true, "stringValue", 1, 3.14)
-        //test valid types -1, 0, 1, 2, 3
+        // test valid types -1, 0, 1, 2, 3
         var result: Any = validateSettingValueType(settingValue, -1)
         assertEquals(3.14, result)
         result = validateSettingValueType(settingValue, 0)
@@ -29,7 +29,7 @@ class CommonUtilsTests {
         )
         assertEquals("Setting value is not of the expected type String.", invalidSettingResultException.message)
 
-        //test invalid type - 99
+        // test invalid type - 99
         val invalidTypeException = assertFailsWith(
             exceptionClass = IllegalArgumentException::class,
             block = { validateSettingValueType(settingValue, 99) }
@@ -48,14 +48,16 @@ class CommonUtilsTests {
     fun testAddConfigSaltAndSegmentsToSettings() = runTest {
         var config = Config(
             Preferences("", 0, "test-salt"),
-            mapOf("test-setting" to Setting(
-                1,
-                "",
-                null,
-                null,
-                SettingValue(stringValue = "noRule"),
-                "myVariationId"
-            ),),
+            mapOf(
+                "test-setting" to Setting(
+                    1,
+                    "",
+                    null,
+                    null,
+                    SettingValue(stringValue = "noRule"),
+                    "myVariationId"
+                )
+            ),
             arrayOf(Segment("test-segment", null))
         )
         addConfigSaltAndSegmentsToSettings(config)
