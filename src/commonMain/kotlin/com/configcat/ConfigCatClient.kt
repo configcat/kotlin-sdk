@@ -244,7 +244,8 @@ internal suspend fun getValueInternal(
     user: ConfigCatUser?
 ): Any? {
     val client = configCatClient as? Client
-    return client?.getValueImpl(key, defaultValue, user, allowAnyReturnType = false) ?: configCatClient.getAnyValue(key, defaultValue, user)
+    return client?.getValueImpl(key, defaultValue, user, allowAnyReturnType = false)
+        ?: configCatClient.getAnyValue(key, defaultValue, user)
 }
 
 /**
@@ -292,7 +293,8 @@ internal suspend fun getValueDetailsInternal(
     user: ConfigCatUser?
 ): EvaluationDetails {
     val client = configCatClient as? Client
-    return client?.getValueDetailsImpl(key, defaultValue, user, allowAnyReturnType = false) ?: configCatClient.getAnyValueDetails(key, defaultValue, user)
+    return client?.getValueDetailsImpl(key, defaultValue, user, allowAnyReturnType = false)
+        ?: configCatClient.getAnyValueDetails(key, defaultValue, user)
 }
 
 internal class Client private constructor(
