@@ -435,7 +435,8 @@ internal class Client private constructor(
             val settings = settingResult.settings
             for (setting in settings) {
                 if (setting.value.variationId == variationId) {
-                    return Pair(setting.key, Utils.validateSettingValueType(setting.value.settingValue, setting.value.type))
+                    return Pair(setting.key,
+                        Utils.validateSettingValueType(setting.value.settingValue, setting.value.type))
                 }
                 setting.value.targetingRules?.forEach { targetingRule ->
                     if (targetingRule.servedValue != null) {
@@ -460,7 +461,8 @@ internal class Client private constructor(
                 }
                 setting.value.percentageOptions?.forEach { percentageOption ->
                     if (percentageOption.variationId == variationId) {
-                        return Pair(setting.key, Utils.validateSettingValueType(percentageOption.value, setting.value.type))
+                        return Pair(setting.key,
+                            Utils.validateSettingValueType(percentageOption.value, setting.value.type))
                     }
                 }
             }
