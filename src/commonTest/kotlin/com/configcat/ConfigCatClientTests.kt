@@ -1168,11 +1168,11 @@ class ConfigCatClientTests {
         assertEquals(2.1, client.getValueDetails("fakeKeyDouble", 1.1, null).value)
 
         // getValue allows null.
-        val value1 = client.getValueDetails<Boolean?>("wrongKey", null, null)
+        val value1 = client.getValueDetails<Boolean?>("wrongKey", null, null).value
         assertNull(value1)
 
         // getAnyValue allows null.
-        val value2 = client.getAnyValueDetails("wrongKey", null, null)
+        val value2 = client.getAnyValueDetails("wrongKey", null, null).value
         assertNull(value2)
 
         // getAnyValue allows any default value.
