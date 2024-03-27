@@ -139,7 +139,7 @@ internal class ConfigFetcher constructor(
 
     private fun deserializeConfig(jsonString: String): Pair<Config, String?> {
         return try {
-            Pair(Utils.parseConfigJson(jsonString), null)
+            Pair(Helpers.parseConfigJson(jsonString), null)
         } catch (e: Exception) {
             logger.error(1105, ConfigCatLogMessages.FETCH_RECEIVED_200_WITH_INVALID_BODY_ERROR, e)
             Pair(Config.empty, e.message)

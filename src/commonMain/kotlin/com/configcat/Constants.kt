@@ -69,7 +69,7 @@ internal object Constants {
     }
 }
 
-internal object Utils {
+internal object Helpers {
     fun parseConfigJson(jsonString: String): Config {
         val config: Config = Constants.json.decodeFromString(jsonString)
         addConfigSaltAndSegmentsToSettings(config)

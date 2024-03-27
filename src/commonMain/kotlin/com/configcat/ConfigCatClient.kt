@@ -437,7 +437,7 @@ internal class Client private constructor(
                 if (setting.value.variationId == variationId) {
                     return Pair(
                         setting.key,
-                        Utils.validateSettingValueType(setting.value.settingValue, setting.value.type)
+                        Helpers.validateSettingValueType(setting.value.settingValue, setting.value.type)
                     )
                 }
                 setting.value.targetingRules?.forEach { targetingRule ->
@@ -445,7 +445,7 @@ internal class Client private constructor(
                         if (targetingRule.servedValue.variationId == variationId) {
                             return Pair(
                                 setting.key,
-                                Utils.validateSettingValueType(targetingRule.servedValue.value, setting.value.type)
+                                Helpers.validateSettingValueType(targetingRule.servedValue.value, setting.value.type)
                             )
                         }
                     } else if (!targetingRule.percentageOptions.isNullOrEmpty()) {
@@ -453,7 +453,7 @@ internal class Client private constructor(
                             if (percentageOption.variationId == variationId) {
                                 return Pair(
                                     setting.key,
-                                    Utils.validateSettingValueType(percentageOption.value, setting.value.type)
+                                    Helpers.validateSettingValueType(percentageOption.value, setting.value.type)
                                 )
                             }
                         }
@@ -465,7 +465,7 @@ internal class Client private constructor(
                     if (percentageOption.variationId == variationId) {
                         return Pair(
                             setting.key,
-                            Utils.validateSettingValueType(percentageOption.value, setting.value.type)
+                            Helpers.validateSettingValueType(percentageOption.value, setting.value.type)
                         )
                     }
                 }
@@ -593,7 +593,7 @@ internal class Client private constructor(
             evaluateLogger
         )
         val details = EvaluationDetails(
-            key, variationId, user, false, null, Utils.validateSettingValueType(value, setting.type),
+            key, variationId, user, false, null, Helpers.validateSettingValueType(value, setting.type),
             fetchTime.unixMillisLong, targetingRule, percentageRule
         )
         hooks.invokeOnFlagEvaluated(details)

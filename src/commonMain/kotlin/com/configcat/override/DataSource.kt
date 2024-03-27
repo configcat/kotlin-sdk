@@ -1,6 +1,6 @@
 package com.configcat.override
 
-import com.configcat.Utils
+import com.configcat.Helpers
 import com.configcat.model.Config
 import com.configcat.model.Setting
 
@@ -69,7 +69,7 @@ internal class MapOverrideDataSource constructor(private val map: Map<String, Se
 
 internal class ConfigOverrideDataSource constructor(private val config: Config) : OverrideDataSource {
     override fun getOverrides(): Map<String, Setting> {
-        Utils.addConfigSaltAndSegmentsToSettings(config)
+        Helpers.addConfigSaltAndSegmentsToSettings(config)
         return config.settings ?: emptyMap()
     }
 }
