@@ -1214,7 +1214,16 @@ class ConfigCatClientTests {
 
     @Test
     fun testFlagKeyAndVariationIdValidation() = runTest {
-        val client = ConfigCatClient(Data.SDK_KEY)
+        val mockEngine = MockEngine {
+            respond(
+                content = testGetValueTypes,
+                status = HttpStatusCode.OK
+            )
+        }
+
+        val client = ConfigCatClient(Data.SDK_KEY) {
+            httpEngine = mockEngine
+        }
 
         val exceptionGetValue = assertFailsWith(
             exceptionClass = IllegalArgumentException::class,
