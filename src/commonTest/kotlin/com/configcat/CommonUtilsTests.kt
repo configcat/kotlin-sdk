@@ -1,9 +1,11 @@
 package com.configcat
 
 import com.configcat.model.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.*
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class CommonUtilsTests {
 
     @Test
@@ -46,7 +48,7 @@ class CommonUtilsTests {
 
     @Test
     fun testAddConfigSaltAndSegmentsToSettings() = runTest {
-        var config = Config(
+        val config = Config(
             Preferences("", 0, "test-salt"),
             mapOf(
                 "test-setting" to Setting(

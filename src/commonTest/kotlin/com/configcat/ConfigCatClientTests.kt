@@ -1100,8 +1100,19 @@ class ConfigCatClientTests {
         assertEquals(1, client.getValue("fakeKeyInt", 0, null))
         // Double
         assertEquals(2.1, client.getValue("fakeKeyDouble", 1.1, null))
-        // getAnyValue allows null as default value
-        assertEquals(2.1, client.getAnyValue("fakeKeyDouble", null, null))
+
+        // getValue allows null.
+        val value1 = client.getValue<Boolean?>("wrongKey", null, null)
+        assertNull(value1)
+
+        // getAnyValue allows null.
+        val value2 = client.getAnyValue("wrongKey", null, null)
+        assertNull(value2)
+
+        // getAnyValue allows any default value.
+        val defaultValue = ConfigCatUser("testId")
+        val value3 = client.getAnyValue("wrongKey", defaultValue, null)
+        assertEquals(defaultValue, value3)
     }
 
     @Test
@@ -1133,19 +1144,95 @@ class ConfigCatClientTests {
             block = { client.getValue("fakeKeyString", ConfigCatUser("testId")) }
         )
         assertEquals("Only the following types are supported: String, Boolean, Int, Double (both nullable and non-nullable).", exception.message)
+    }
+
+    @Test
+    fun testGetValueDetailsValidTypes() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = testGetValueTypes,
+                status = HttpStatusCode.OK
+            )
+        }
+
+        val client = ConfigCatClient(Data.SDK_KEY) {
+            httpEngine = mockEngine
+        }
+        // String
+        assertEquals("fakeValueString", client.getValueDetails("fakeKeyString", "default", null).value)
+        // Boolean
+        assertEquals(true, client.getValueDetails("fakeKeyBoolean", false, null).value)
+        // Int
+        assertEquals(1, client.getValueDetails("fakeKeyInt", 0, null).value)
+        // Double
+        assertEquals(2.1, client.getValueDetails("fakeKeyDouble", 1.1, null).value)
 
         // getValue allows null.
-        val value1 = client.getValue<Boolean?>("wrongKey", null, null)
+        val value1 = client.getValueDetails<Boolean?>("wrongKey", null, null)
         assertNull(value1)
 
         // getAnyValue allows null.
-        val value2 = client.getAnyValue("wrongKey", null, null)
+        val value2 = client.getAnyValueDetails("wrongKey", null, null)
         assertNull(value2)
 
         // getAnyValue allows any default value.
         val defaultValue = ConfigCatUser("testId")
-        val value3 = client.getAnyValue("wrongKey", defaultValue, null)
+        val value3 = client.getAnyValueDetails("wrongKey", defaultValue, null).value
         assertEquals(defaultValue, value3)
+    }
+
+    @Test
+    fun testGetValueDetailsInvalidTypes() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = testGetValueTypes,
+                status = HttpStatusCode.OK
+            )
+        }
+
+        val client = ConfigCatClient(Data.SDK_KEY) {
+            httpEngine = mockEngine
+        }
+
+        // In case of JS the float is converted to an accepted type, in this case skip this test
+        if (!(PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE)) {
+            // Float
+            val floatException = assertFailsWith(
+                exceptionClass = IllegalArgumentException::class,
+                block = { client.getValueDetails("fakeKeyString", 3.14f) }
+            )
+            assertEquals("Only the following types are supported: String, Boolean, Int, Double (both nullable and non-nullable).", floatException.message)
+        }
+
+        // Object
+        val exception = assertFailsWith(
+            exceptionClass = IllegalArgumentException::class,
+            block = { client.getValueDetails("fakeKeyString", ConfigCatUser("testId")) }
+        )
+        assertEquals("Only the following types are supported: String, Boolean, Int, Double (both nullable and non-nullable).", exception.message)
+    }
+
+    @Test
+    fun testFlagKeyAndVariationIdValidation() = runTest {
+        val client = ConfigCatClient(Data.SDK_KEY)
+
+        val exceptionGetValue = assertFailsWith(
+            exceptionClass = IllegalArgumentException::class,
+            block = { client.getValue("", "default", null) }
+        )
+        assertEquals("'key' cannot be empty.", exceptionGetValue.message)
+
+        val exceptionGetValueDetails = assertFailsWith(
+            exceptionClass = IllegalArgumentException::class,
+            block = { client.getValueDetails("", "default", null) }
+        )
+        assertEquals("'key' cannot be empty.", exceptionGetValueDetails.message)
+
+        val exceptionGetKeyAndValue = assertFailsWith(
+            exceptionClass = IllegalArgumentException::class,
+            block = { client.getKeyAndValue("") }
+        )
+        assertEquals("'variationId' cannot be empty.", exceptionGetKeyAndValue.message)
     }
 
     private val testGetValueTypes = """
