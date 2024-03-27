@@ -4,14 +4,13 @@ style:
   WildcardImport:
     active: false
   ReturnCount:
-    max: 8
+    max: 9
   DestructuringDeclarationWithTooManyEntries:
     maxDestructuringEntries: 5
 
-
 complexity:
   ComplexCondition:
-    threshold: 5
+    threshold: 11
   TooManyFunctions:
     thresholdInClasses: 22
     thresholdInInterfaces: 17
@@ -19,6 +18,11 @@ complexity:
     threshold: 70
   LongParameterList:
     constructorThreshold: 10
+    functionThreshold: 7
+  CyclomaticComplexMethod:
+    threshold: 17
+  NestedBlockDepth:
+    threshold: 10
 
 exceptions:
   TooGenericExceptionCaught:

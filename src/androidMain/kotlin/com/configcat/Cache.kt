@@ -14,7 +14,8 @@ public class SharedPreferencesCache(context: Context) : ConfigCache {
     private val sharedPreferences: SharedPreferences
 
     init {
-        sharedPreferences = context.applicationContext.getSharedPreferences("configcat_preferences", Context.MODE_PRIVATE)
+        sharedPreferences =
+            context.applicationContext.getSharedPreferences("configcat_preferences", Context.MODE_PRIVATE)
     }
 
     override suspend fun read(key: String): String? = sharedPreferences.getString(key, null)

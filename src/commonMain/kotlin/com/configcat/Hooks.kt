@@ -1,5 +1,6 @@
 package com.configcat
 
+import com.configcat.model.Setting
 import kotlinx.atomicfu.locks.ReentrantLock
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
@@ -64,10 +65,10 @@ public class Hooks {
         }
     }
 
-    internal fun invokeOnConfigChanged(settings: Map<String, Setting>) {
+    internal fun invokeOnConfigChanged(settings: Map<String, Setting>?) {
         lock.withLock {
             for (method in onConfigChanged) {
-                method(settings)
+                method(settings ?: mapOf())
             }
         }
     }

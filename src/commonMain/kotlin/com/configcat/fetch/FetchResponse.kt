@@ -1,6 +1,6 @@
 package com.configcat.fetch
 
-import com.configcat.Entry
+import com.configcat.model.Entry
 
 internal enum class FetchStatus {
     FETCHED,

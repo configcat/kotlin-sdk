@@ -1,5 +1,6 @@
 package com.configcat
 
+import com.configcat.model.*
 import com.configcat.override.OverrideBehavior
 import com.configcat.override.OverrideDataSource
 import io.ktor.client.engine.mock.*
@@ -20,9 +21,9 @@ class OverrideTests {
     @Test
     fun testLocalOnly() = runTest {
         val mockEngine = MockEngine {
-            respond(content = Data.formatJsonBody(false), status = HttpStatusCode.OK)
+            respond(content = Data.formatJsonBodyWithBoolean(false), status = HttpStatusCode.OK)
         }
-        val client = ConfigCatClient("local") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             flagOverrides = {
                 behavior = OverrideBehavior.LOCAL_ONLY
@@ -49,9 +50,9 @@ class OverrideTests {
     @Test
     fun testLocalOverRemote() = runTest {
         val mockEngine = MockEngine {
-            respond(content = Data.formatJsonBody(false), status = HttpStatusCode.OK)
+            respond(content = Data.formatJsonBodyWithBoolean(false), status = HttpStatusCode.OK)
         }
-        val client = ConfigCatClient("local") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             flagOverrides = {
                 behavior = OverrideBehavior.LOCAL_OVER_REMOTE
@@ -72,9 +73,9 @@ class OverrideTests {
     @Test
     fun testRemoteOverLocal() = runTest {
         val mockEngine = MockEngine {
-            respond(content = Data.formatJsonBody(false), status = HttpStatusCode.OK)
+            respond(content = Data.formatJsonBodyWithBoolean(false), status = HttpStatusCode.OK)
         }
-        val client = ConfigCatClient("local") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             flagOverrides = {
                 behavior = OverrideBehavior.REMOTE_OVER_LOCAL
@@ -95,35 +96,61 @@ class OverrideTests {
     @Test
     fun testSettingOverride() = runTest {
         val mockEngine = MockEngine {
-            respond(content = Data.formatJsonBody(false), status = HttpStatusCode.OK)
+            respond(content = Data.formatJsonBodyWithBoolean(false), status = HttpStatusCode.OK)
         }
+
         val user = ConfigCatUser("test@test1.com")
 
-        val client = ConfigCatClient("local") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             flagOverrides = {
                 behavior = OverrideBehavior.LOCAL_ONLY
-                dataSource = OverrideDataSource.settings(
-                    mapOf(
-                        "noRuleOverride" to Setting("noRule", 1, emptyList(), emptyList(), "myVariationId"),
-                        "ruleOverride" to Setting(
-                            "noMatch",
-                            1,
-                            emptyList(),
-                            listOf(
-                                RolloutRule("ruleMatch", "Identifier", 2, "@test1", "ruleVariationId")
+                dataSource = OverrideDataSource.config(
+                    config = Config(
+                        preferences = Preferences(baseUrl = "test", salt = "test-salt"),
+                        settings = mapOf(
+                            "noRuleOverride" to Setting(
+                                1,
+                                "",
+                                null,
+                                null,
+                                SettingValue(stringValue = "noRule"),
+                                "myVariationId"
                             ),
-                            "myVariationId"
-                        ),
-                        "percentageOverride" to Setting(
-                            "noMatch",
-                            1,
-                            listOf(
-                                PercentageRule("A", 75.0, "percentageAVariationID"),
-                                PercentageRule("B", 25.0, "percentageAVariationID")
+                            "ruleOverride" to Setting(
+                                1,
+                                "",
+                                null,
+                                arrayOf(
+                                    TargetingRule(
+                                        conditions = arrayOf(
+                                            Condition(
+                                                UserCondition("Identifier", 2, stringArrayValue = arrayOf("@test1")),
+                                                null,
+                                                null
+                                            )
+                                        ),
+                                        null,
+                                        ServedValue(
+                                            SettingValue(stringValue = "ruleMatch"),
+                                            "ruleVariationId"
+                                        )
+                                    )
+                                ),
+                                SettingValue(stringValue = "noMatch"),
+                                "myVariationId"
                             ),
-                            emptyList(),
-                            "myVariationId"
+                            "percentageOverride" to Setting(
+                                1,
+                                null,
+                                arrayOf(
+                                    PercentageOption(75, SettingValue(stringValue = "A"), "percentageAVariationID"),
+                                    PercentageOption(25, SettingValue(stringValue = "B"), "percentageAVariationID")
+                                ),
+                                emptyArray(),
+                                SettingValue(stringValue = "noMatch"),
+                                "myVariationId"
+                            )
                         )
                     )
                 )

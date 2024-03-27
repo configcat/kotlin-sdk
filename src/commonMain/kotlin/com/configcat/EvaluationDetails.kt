@@ -1,5 +1,8 @@
 package com.configcat
 
+import com.configcat.model.PercentageOption
+import com.configcat.model.TargetingRule
+
 /**
  * Additional information about flag evaluation.
  */
@@ -10,8 +13,8 @@ public open class EvaluationDetailsBase internal constructor(
     public val isDefaultValue: Boolean,
     public val error: String?,
     public val fetchTimeUnixMilliseconds: Long,
-    public val matchedEvaluationRule: RolloutRule?,
-    public val matchedEvaluationPercentageRule: PercentageRule?
+    public val matchedTargetingRule: TargetingRule?,
+    public val matchedPercentageOption: PercentageOption?
 )
 
 /**
@@ -25,8 +28,8 @@ public class TypedEvaluationDetails<T> public constructor(
     error: String?,
     public val value: T,
     fetchTimeUnixMilliseconds: Long,
-    matchedEvaluationRule: RolloutRule?,
-    matchedEvaluationPercentageRule: PercentageRule?
+    matchedTargetingRule: TargetingRule?,
+    matchedPercentageOption: PercentageOption?
 ) : EvaluationDetailsBase(
     key,
     variationId,
@@ -34,8 +37,8 @@ public class TypedEvaluationDetails<T> public constructor(
     isDefaultValue,
     error,
     fetchTimeUnixMilliseconds,
-    matchedEvaluationRule,
-    matchedEvaluationPercentageRule
+    matchedTargetingRule,
+    matchedPercentageOption
 )
 
 /**
@@ -47,10 +50,10 @@ public class EvaluationDetails internal constructor(
     user: ConfigCatUser?,
     isDefaultValue: Boolean,
     error: String?,
-    public val value: Any,
+    public val value: Any?,
     fetchTimeUnixMilliseconds: Long,
-    matchedEvaluationRule: RolloutRule?,
-    matchedEvaluationPercentageRule: PercentageRule?
+    matchedTargetingRule: TargetingRule?,
+    matchedPercentageOption: PercentageOption?
 ) : EvaluationDetailsBase(
     key,
     variationId,
@@ -58,11 +61,11 @@ public class EvaluationDetails internal constructor(
     isDefaultValue,
     error,
     fetchTimeUnixMilliseconds,
-    matchedEvaluationRule,
-    matchedEvaluationPercentageRule
+    matchedTargetingRule,
+    matchedPercentageOption
 ) {
     internal companion object {
-        internal fun makeError(key: String, defaultValue: Any, error: String, user: ConfigCatUser?):
+        internal fun makeError(key: String, defaultValue: Any?, error: String, user: ConfigCatUser?):
             EvaluationDetails = EvaluationDetails(
             key, "", user, true, error,
             defaultValue, Constants.distantPast.unixMillisLong, null, null

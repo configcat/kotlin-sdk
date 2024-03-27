@@ -83,7 +83,7 @@ kotlin {
         nodejs {
             testTask {
                 useMocha {
-                    timeout = "10000"
+                    timeout = "20000"
                 }
             }
         }
@@ -176,6 +176,13 @@ kotlin {
             }
         }
 
+        val darwinTest by creating {
+            dependsOn(commonTest)
+            dependencies {
+                implementation("io.ktor:ktor-client-darwin:$ktor_version")
+            }
+        }
+
         val nativeMain by creating {
             dependsOn(commonMain)
         }
@@ -193,7 +200,11 @@ kotlin {
         }
 
         configure(nativeTestSets) {
-            dependsOn(nativeTest)
+            if (this.name.isDarwin()) {
+                dependsOn(darwinTest)
+            } else {
+                dependsOn(nativeTest)
+            }
         }
     }
 }

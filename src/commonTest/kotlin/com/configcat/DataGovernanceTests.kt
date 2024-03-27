@@ -160,7 +160,7 @@ class DataGovernanceTests {
 
     companion object {
         fun formatBody(url: String, redirect: Int): String {
-            return """{ "p": { "u": "$url", "r": $redirect }, "f": {} }"""
+            return """{ "p": { "u": "$url", "r": $redirect, "s": "test-salt" }, "f": {}, "s":[] }"""
         }
 
         const val customCdnUrl = "https://custom-cdn.configcat.com"
