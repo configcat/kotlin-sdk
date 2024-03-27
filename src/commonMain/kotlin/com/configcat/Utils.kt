@@ -69,53 +69,55 @@ internal object Constants {
     }
 }
 
-public fun parseConfigJson(jsonString: String): Config {
-    val config: Config = Constants.json.decodeFromString(jsonString)
-    addConfigSaltAndSegmentsToSettings(config)
-    return config
-}
-
-public fun addConfigSaltAndSegmentsToSettings(config: Config) {
-    val configSalt = config.preferences?.salt
-    config.settings?.values?.forEach {
-        it.configSalt = configSalt
-        it.segments = config.segments ?: arrayOf()
+internal object Utils {
+    fun parseConfigJson(jsonString: String): Config {
+        val config: Config = Constants.json.decodeFromString(jsonString)
+        addConfigSaltAndSegmentsToSettings(config)
+        return config
     }
-}
 
-public fun validateSettingValueType(settingValue: SettingValue?, settingType: Int): Any {
-    val settingTypeEnum = settingType.toSettingTypeOrNull()
-    require(settingValue != null) { "Setting value is missing or invalid." }
-    val result: Any?
-    result = when (settingTypeEnum) {
-        SettingType.BOOLEAN -> {
-            settingValue.booleanValue
-        }
-
-        SettingType.STRING -> {
-            settingValue.stringValue
-        }
-
-        SettingType.INT -> {
-            settingValue.integerValue
-        }
-
-        SettingType.DOUBLE -> {
-            settingValue.doubleValue
-        }
-
-        SettingType.JS_NUMBER -> {
-            settingValue.doubleValue
-        }
-
-        else -> {
-            throw IllegalArgumentException(
-                "Setting is of an unsupported type ($settingTypeEnum)."
-            )
+    fun addConfigSaltAndSegmentsToSettings(config: Config) {
+        val configSalt = config.preferences?.salt
+        config.settings?.values?.forEach {
+            it.configSalt = configSalt
+            it.segments = config.segments ?: arrayOf()
         }
     }
-    require(result != null) {
-        "Setting value is not of the expected type ${settingTypeEnum.value}."
+
+    fun validateSettingValueType(settingValue: SettingValue?, settingType: Int): Any {
+        val settingTypeEnum = settingType.toSettingTypeOrNull()
+        require(settingValue != null) { "Setting value is missing or invalid." }
+        val result: Any?
+        result = when (settingTypeEnum) {
+            SettingType.BOOLEAN -> {
+                settingValue.booleanValue
+            }
+
+            SettingType.STRING -> {
+                settingValue.stringValue
+            }
+
+            SettingType.INT -> {
+                settingValue.integerValue
+            }
+
+            SettingType.DOUBLE -> {
+                settingValue.doubleValue
+            }
+
+            SettingType.JS_NUMBER -> {
+                settingValue.doubleValue
+            }
+
+            else -> {
+                throw IllegalArgumentException(
+                    "Setting is of an unsupported type ($settingTypeEnum)."
+                )
+            }
+        }
+        require(result != null) {
+            "Setting value is not of the expected type ${settingTypeEnum.value}."
+        }
+        return result
     }
-    return result
 }

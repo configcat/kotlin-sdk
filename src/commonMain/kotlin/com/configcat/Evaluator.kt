@@ -363,7 +363,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         )
         visitedKeys.removeAt(visitedKeys.size - 1)
 
-        validateSettingValueType(evaluateResult.value, prerequisiteFlagSetting.type)
+        Utils.validateSettingValueType(evaluateResult.value, prerequisiteFlagSetting.type)
 
         val prerequisiteComparator = prerequisiteFlagCondition.prerequisiteComparator.toPrerequisiteComparatorOrNull()
             ?: throw IllegalArgumentException("Prerequisite Flag comparison operator is invalid.")

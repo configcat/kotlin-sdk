@@ -2,7 +2,7 @@ package com.configcat.model
 
 import com.configcat.Constants
 import com.configcat.DateTimeUtils
-import com.configcat.parseConfigJson
+import com.configcat.Utils
 import com.soywiz.klock.DateTime
 
 internal data class Entry(
@@ -31,7 +31,7 @@ internal data class Entry(
             val configJson = cacheValue.substring(eTagIndex + 1)
             require(configJson.isNotEmpty()) { "Empty config jsom value." }
             return try {
-                val config: Config = parseConfigJson(configJson)
+                val config: Config = Utils.parseConfigJson(configJson)
                 Entry(config, eTag, configJson, DateTime(fetchTimeUnixMillis))
             } catch (e: Exception) {
                 throw IllegalArgumentException("Invalid config JSON content: $configJson", e)
