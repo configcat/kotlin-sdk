@@ -50,9 +50,10 @@ class VariationIdTests {
 
         val allValueDetails = client.getAllValueDetails()
 
-        assertEquals(2, allValueDetails.size)
+        assertEquals(3, allValueDetails.size)
         assertEquals("fakeId1", allValueDetails.elementAt(0).variationId)
         assertEquals("fakeId2", allValueDetails.elementAt(1).variationId)
+        assertEquals("fakeId3", allValueDetails.elementAt(2).variationId)
     }
 
     @Test
@@ -88,6 +89,22 @@ class VariationIdTests {
         val kv3 = client.getKeyAndValue("rolloutId1")
         assertEquals("key1", kv3?.first)
         assertTrue(kv3?.second as? Boolean ?: false)
+
+        val kv4 = client.getKeyAndValue("targetPercentageId2")
+        assertEquals("key3", kv4?.first)
+        assertFalse(kv4?.second as? Boolean ?: true)
+    }
+
+    @Test
+    fun testGetKeyAndValueIncorrectTargetingRule() = runTest {
+        val mockEngine = MockEngine {
+            respond(content = variationIdIncorrectTargetingRuleBody, status = HttpStatusCode.OK)
+        }
+        val client = ConfigCatClient(Data.SDK_KEY) {
+            httpEngine = mockEngine
+        }
+
+        assertNull(client.getKeyAndValue("targetPercentageId2"))
     }
 
     @Test
@@ -103,8 +120,42 @@ class VariationIdTests {
     }
 
     companion object {
+        const val variationIdIncorrectTargetingRuleBody = """
+{
+   "p":{
+      "u":"https://cdn-global.configcat.com",
+      "r":"0",
+      "s":"PJUt0np9JA4ukMciF3BVAVRJiwIjTOiX\u002BE8B1HQohck="
+   },
+   "f":{
+      "incorrect":{
+         "t":0,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":2,
+                        "l":[
+                           "@configcat.com"
+                        ]
+                     }
+                  }
+               ]
+            }
+         ],
+         "v":{
+            "b":false
+         },
+         "i":"incorrectId"
+      }
+   }
+}
+        """
+
         const val variationIdBody = """
-                   {
+{
    "p":{
       "u":"https://cdn-global.configcat.com",
       "r":"0",
@@ -180,6 +231,44 @@ class VariationIdTests {
             "b":false
          },
          "i":"fakeId2"
+      },
+      "key3":{
+         "t":0,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":2,
+                        "l":[
+                           "@configcat.com"
+                        ]
+                     }
+                  }
+               ],
+               "p":[
+                  {
+                     "p":50,
+                     "v":{
+                        "b":true
+                     },
+                     "i":"targetPercentageId1"
+                  },
+                  {
+                     "p":50,
+                     "v":{
+                        "b":false
+                     },
+                     "i":"targetPercentageId2"
+                  }
+               ]
+            }
+         ],
+         "v":{
+            "b":false
+         },
+         "i":"fakeId3"
       }
    }
 }
