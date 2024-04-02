@@ -4,6 +4,8 @@ import com.configcat.fetch.ConfigFetcher
 import com.configcat.fetch.RefreshResult
 import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
+import com.configcat.model.Entry
+import com.configcat.model.Setting
 import com.soywiz.klock.DateTime
 import com.soywiz.krypto.sha1
 import io.ktor.util.*
@@ -22,7 +24,7 @@ internal data class SettingResult(val settings: Map<String, Setting>, val fetchT
     }
 }
 
-internal class ConfigService constructor(
+internal class ConfigService(
     private val options: ConfigCatOptions,
     private val configFetcher: ConfigFetcher,
     private val logger: InternalLogger,
@@ -62,16 +64,17 @@ internal class ConfigService constructor(
                 if (result.first.isEmpty()) {
                     SettingResult.empty
                 } else {
-                    SettingResult(result.first.config.settings, result.first.fetchTime)
+                    SettingResult(result.first.config.settings ?: emptyMap(), result.first.fetchTime)
                 }
             }
 
             else -> {
-                val result = fetchIfOlder(Constants.distantPast, preferCached = initialized.value) // If we are initialized, we prefer the cached results
+                // If we are initialized, we prefer the cached results
+                val result = fetchIfOlder(Constants.distantPast, preferCached = initialized.value)
                 if (result.first.isEmpty()) {
                     SettingResult.empty
                 } else {
-                    SettingResult(result.first.config.settings, result.first.fetchTime)
+                    SettingResult(result.first.config.settings ?: emptyMap(), result.first.fetchTime)
                 }
             }
         }
