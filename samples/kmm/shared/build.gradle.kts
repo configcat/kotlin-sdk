@@ -25,7 +25,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("com.configcat:configcat-kotlin-client:2.0.0")
+                implementation("com.configcat:configcat-kotlin-client:3.0.0")
             }
         }
         val commonTest by getting {
