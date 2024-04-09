@@ -50,8 +50,9 @@ internal class ConfigFetcher constructor(
             ) {
                 return response
             }
-            if (isUrlCustom && preferences.redirect != RedirectMode.FORCE_REDIRECT.ordinal)
+            if (isUrlCustom && preferences.redirect != RedirectMode.FORCE_REDIRECT.ordinal) {
                 return response
+            }
 
             baseUrl.update { preferences.baseUrl }
 
