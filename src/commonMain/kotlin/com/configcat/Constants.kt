@@ -20,7 +20,7 @@ internal interface Closeable {
 }
 
 internal object Constants {
-    const val version: String = "3.0.0"
+    const val version: String = "3.0.1"
     const val configFileName: String = "config_v6.json"
     const val serializationFormatVersion: String = "v2"
     const val globalCdnUrl = "https://cdn-global.configcat.com"

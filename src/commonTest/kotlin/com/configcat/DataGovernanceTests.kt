@@ -138,6 +138,10 @@ class DataGovernanceTests {
 
         assertEquals(1, mockEngine.requestHistory.size)
         assertTrue(mockEngine.requestHistory[0].url.toString().startsWith(customCdnUrl))
+
+        fetcher.fetch("")
+        assertEquals(2, mockEngine.requestHistory.size)
+        assertTrue(mockEngine.requestHistory[1].url.toString().startsWith(customCdnUrl))
     }
 
     @Test
