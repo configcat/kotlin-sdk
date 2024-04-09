@@ -31,11 +31,7 @@ internal class ConfigFetcher constructor(
     )
 
     suspend fun fetch(eTag: String): FetchResponse {
-        val currentUrl = baseUrl.value
-        val response = fetchHTTPWithPreferenceHandling(currentUrl, eTag)
-        val newUrl = response.entry.config.preferences?.baseUrl ?: currentUrl
-        baseUrl.update { newUrl }
-        return response
+        return fetchHTTPWithPreferenceHandling(eTag)
     }
 
     override fun close() {
@@ -43,20 +39,22 @@ internal class ConfigFetcher constructor(
         httpClient.close()
     }
 
-    private suspend fun fetchHTTPWithPreferenceHandling(baseUrl: String, eTag: String): FetchResponse {
-        var currentBaseUrl = baseUrl
+    private suspend fun fetchHTTPWithPreferenceHandling(eTag: String): FetchResponse {
         repeat(3) {
-            val response = fetchHTTP(currentBaseUrl, eTag)
+            val response = fetchHTTP(baseUrl.value, eTag)
             val preferences = response.entry.config.preferences
             if (!response.isFetched ||
                 response.entry.isEmpty() ||
                 preferences == null ||
-                preferences.baseUrl == currentBaseUrl
+                preferences.baseUrl == baseUrl.value
             ) {
                 return response
             }
-            if (isUrlCustom && preferences.redirect != RedirectMode.FORCE_REDIRECT.ordinal) return response
-            currentBaseUrl = preferences.baseUrl
+            if (isUrlCustom && preferences.redirect != RedirectMode.FORCE_REDIRECT.ordinal)
+                return response
+
+            baseUrl.update { preferences.baseUrl }
+
             if (preferences.redirect == RedirectMode.NO_REDIRECT.ordinal) {
                 return response
             } else if (preferences.redirect == RedirectMode.SHOULD_REDIRECT.ordinal) {
