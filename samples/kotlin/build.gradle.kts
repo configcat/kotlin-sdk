@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.configcat:configcat-kotlin-client:2.0.0")
+    implementation("com.configcat:configcat-kotlin-client:3.0.0")
 }
 
 tasks.withType<KotlinCompile> {

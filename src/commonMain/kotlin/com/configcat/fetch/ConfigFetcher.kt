@@ -1,18 +1,18 @@
 package com.configcat.fetch
 
 import com.configcat.*
-import com.configcat.Closeable
-import com.configcat.Constants
 import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
+import com.configcat.model.Config
+import com.configcat.model.Entry
 import com.soywiz.klock.DateTime
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import kotlinx.atomicfu.*
-import kotlinx.serialization.decodeFromString
+import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.update
 
 internal class ConfigFetcher constructor(
     private val options: ConfigCatOptions,
@@ -20,7 +20,7 @@ internal class ConfigFetcher constructor(
 ) : Closeable {
     private val httpClient = createClient()
     private val closed = atomic(false)
-    private val isUrlCustom = !options.baseUrl.isNullOrEmpty()
+    private val isUrlCustom = options.isBaseURLCustom()
     private val baseUrl = atomic(
         options.baseUrl?.let { it.ifEmpty { null } }
             ?: if (options.dataGovernance == DataGovernance.GLOBAL) {
@@ -31,11 +31,7 @@ internal class ConfigFetcher constructor(
     )
 
     suspend fun fetch(eTag: String): FetchResponse {
-        val currentUrl = baseUrl.value
-        val response = fetchHTTPWithPreferenceHandling(currentUrl, eTag)
-        val newUrl = response.entry.config.preferences?.baseUrl ?: currentUrl
-        baseUrl.update { newUrl }
-        return response
+        return fetchHTTPWithPreferenceHandling(eTag)
     }
 
     override fun close() {
@@ -43,20 +39,23 @@ internal class ConfigFetcher constructor(
         httpClient.close()
     }
 
-    private suspend fun fetchHTTPWithPreferenceHandling(baseUrl: String, eTag: String): FetchResponse {
-        var currentBaseUrl = baseUrl
+    private suspend fun fetchHTTPWithPreferenceHandling(eTag: String): FetchResponse {
         repeat(3) {
-            val response = fetchHTTP(currentBaseUrl, eTag)
+            val response = fetchHTTP(baseUrl.value, eTag)
             val preferences = response.entry.config.preferences
             if (!response.isFetched ||
                 response.entry.isEmpty() ||
                 preferences == null ||
-                preferences.baseUrl == currentBaseUrl
+                preferences.baseUrl == baseUrl.value
             ) {
                 return response
             }
-            if (isUrlCustom && preferences.redirect != RedirectMode.FORCE_REDIRECT.ordinal) return response
-            currentBaseUrl = preferences.baseUrl
+            if (isUrlCustom && preferences.redirect != RedirectMode.FORCE_REDIRECT.ordinal) {
+                return response
+            }
+
+            baseUrl.update { preferences.baseUrl }
+
             if (preferences.redirect == RedirectMode.NO_REDIRECT.ordinal) {
                 return response
             } else if (preferences.redirect == RedirectMode.SHOULD_REDIRECT.ordinal) {
@@ -71,20 +70,23 @@ internal class ConfigFetcher constructor(
     private suspend fun fetchHTTP(baseUrl: String, eTag: String): FetchResponse {
         val url = "$baseUrl/configuration-files/${options.sdkKey}/${Constants.configFileName}"
         try {
+            val httpRequestBuilder =
+                httpRequestBuilder("ConfigCat-Kotlin/${options.pollingMode.identifier}-${Constants.version}", eTag)
             val response = httpClient.get(url) {
-                headers {
-                    append(
-                        "X-ConfigCat-UserAgent",
-                        "ConfigCat-Kotlin/${options.pollingMode.identifier}-${Constants.version}"
-                    )
-                    if (eTag.isNotEmpty()) append(HttpHeaders.IfNoneMatch, eTag)
+                httpRequestBuilder.headers.entries().forEach {
+                    headers.appendAll(it.key, it.value)
+                }
+                url {
+                    httpRequestBuilder.url.parameters.entries().forEach {
+                        parameters.appendAll(it.key, it.value)
+                    }
                 }
             }
             if (response.status.value in 200..299) {
                 logger.debug("Fetch was successful: new config fetched.")
                 val body = response.bodyAsText()
                 val newETag = response.etag()
-                val (config, err) = parseConfigJson(body)
+                val (config, err) = deserializeConfig(body)
                 if (err != null) {
                     return FetchResponse.failure(err, true)
                 }
@@ -134,12 +136,26 @@ internal class ConfigFetcher constructor(
         }
     }
 
-    private fun parseConfigJson(jsonString: String): Pair<Config, String?> {
+    private fun deserializeConfig(jsonString: String): Pair<Config, String?> {
         return try {
-            Pair(Constants.json.decodeFromString(jsonString), null)
+            Pair(Helpers.parseConfigJson(jsonString), null)
         } catch (e: Exception) {
             logger.error(1105, ConfigCatLogMessages.FETCH_RECEIVED_200_WITH_INVALID_BODY_ERROR, e)
             Pair(Config.empty, e.message)
         }
     }
+}
+
+internal expect fun httpRequestBuilder(configCatUserAgent: String, eTag: String): HttpRequestBuilder
+
+internal fun commonHttpRequestBuilder(configCatUserAgent: String, eTag: String): HttpRequestBuilder {
+    val httpRequestBuilder = HttpRequestBuilder()
+    httpRequestBuilder.headers {
+        append(
+            "X-ConfigCat-UserAgent",
+            configCatUserAgent
+        )
+        if (eTag.isNotEmpty()) append(HttpHeaders.IfNoneMatch, eTag)
+    }
+    return httpRequestBuilder
 }

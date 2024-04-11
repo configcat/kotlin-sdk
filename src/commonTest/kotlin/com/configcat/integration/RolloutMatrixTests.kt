@@ -2,8 +2,8 @@ package com.configcat.integration
 
 import com.configcat.ConfigCatClient
 import com.configcat.ConfigCatUser
-import com.configcat.getValueDetails
 import com.configcat.integration.matrix.*
+import com.configcat.log.LogLevel
 import com.configcat.manualPoll
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
@@ -50,6 +50,36 @@ class RolloutMatrixTests {
         runMatrixTest(VariationIdMatrix, false)
     }
 
+    @Test
+    fun testAndOrMatrix() = runTest {
+        runMatrixTest(AndOrMatrix, true)
+    }
+
+    @Test
+    fun testComparatorsV6Matrix() = runTest {
+        runMatrixTest(ComparatorsV6Matrix, true)
+    }
+
+    @Test
+    fun testPrerequisiteFlagMatrix() = runTest {
+        runMatrixTest(PrerequisiteFlagMatrix, true)
+    }
+
+    @Test
+    fun testSegmentMatrix() = runTest {
+        runMatrixTest(SegmentMatrix, true)
+    }
+
+    @Test
+    fun testSegmentsOldMatrix() = runTest {
+        runMatrixTest(SegmentsOldMatrix, true)
+    }
+
+    @Test
+    fun testUnicodeMatrix() = runTest {
+        runMatrixTest(UnicodeMatrix, true)
+    }
+
     private suspend fun runMatrixTest(matrix: DataMatrix, isValueKind: Boolean) {
         val mockEngine = MockEngine {
             respond(content = matrix.remoteJson, status = HttpStatusCode.OK)
@@ -57,6 +87,7 @@ class RolloutMatrixTests {
         val client = ConfigCatClient(matrix.sdkKey) {
             pollingMode = manualPoll()
             httpEngine = mockEngine
+            logLevel = LogLevel.ERROR
         }
         client.forceRefresh()
 
@@ -91,7 +122,7 @@ class RolloutMatrixTests {
 
             for ((j, settingKey) in settingKeys.withIndex()) {
                 if (isValueKind) {
-                    val value = client.getAnyValue(settingKey, "", user)
+                    val value = client.getAnyValue(settingKey, null, user)
                     val boolVal = value as? Boolean
                     if (boolVal != null) {
                         val expected = testObjects[j + 4].lowercase().toBooleanStrictOrNull()
@@ -122,7 +153,7 @@ class RolloutMatrixTests {
                         errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: $expected, Result: $value")
                     }
                 } else {
-                    val variationId = client.getValueDetails(settingKey, "", user).variationId
+                    val variationId = client.getAnyValueDetails(settingKey, null, user).variationId
                     if (variationId != testObjects[j + 4]) {
                         errors.add("Identifier: ${testObjects[0]}, Key: $settingKey. UV: ${testObjects[3]} Expected: ${testObjects[j + 4]}, Result: $variationId")
                     }

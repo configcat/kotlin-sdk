@@ -16,28 +16,22 @@ class VariationIdTests {
     @Test
     fun testGetVariationId() = runTest {
         val mockEngine = MockEngine {
-            respond(
-                content = variationIdBody,
-                status = HttpStatusCode.OK
-            )
+            respond(content = variationIdBody, status = HttpStatusCode.OK)
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
-        val variationId = client.getValueDetails("key1", "defaultValue").variationId
+        val variationId = client.getValueDetails("key1", false).variationId
         assertEquals("fakeId1", variationId)
     }
 
     @Test
     fun testGetVariationIdNotFound() = runTest {
         val mockEngine = MockEngine {
-            respond(
-                content = variationIdBody,
-                status = HttpStatusCode.OK
-            )
+            respond(content = variationIdBody, status = HttpStatusCode.OK)
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -48,31 +42,26 @@ class VariationIdTests {
     @Test
     fun testGetAllVariationIds() = runTest {
         val mockEngine = MockEngine {
-            respond(
-                content = variationIdBody,
-                status = HttpStatusCode.OK
-            )
+            respond(content = variationIdBody, status = HttpStatusCode.OK)
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
         val allValueDetails = client.getAllValueDetails()
 
-        assertEquals(2, allValueDetails.size)
+        assertEquals(3, allValueDetails.size)
         assertEquals("fakeId1", allValueDetails.elementAt(0).variationId)
         assertEquals("fakeId2", allValueDetails.elementAt(1).variationId)
+        assertEquals("fakeId3", allValueDetails.elementAt(2).variationId)
     }
 
     @Test
     fun testGetAllVariationIdsEmpty() = runTest {
         val mockEngine = MockEngine {
-            respond(
-                content = "{}",
-                status = HttpStatusCode.OK
-            )
+            respond(content = "{}", status = HttpStatusCode.OK)
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -83,12 +72,9 @@ class VariationIdTests {
     @Test
     fun testGetKeyAndValue() = runTest {
         val mockEngine = MockEngine {
-            respond(
-                content = variationIdBody,
-                status = HttpStatusCode.OK
-            )
+            respond(content = variationIdBody, status = HttpStatusCode.OK)
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -103,17 +89,30 @@ class VariationIdTests {
         val kv3 = client.getKeyAndValue("rolloutId1")
         assertEquals("key1", kv3?.first)
         assertTrue(kv3?.second as? Boolean ?: false)
+
+        val kv4 = client.getKeyAndValue("targetPercentageId2")
+        assertEquals("key3", kv4?.first)
+        assertFalse(kv4?.second as? Boolean ?: true)
+    }
+
+    @Test
+    fun testGetKeyAndValueIncorrectTargetingRule() = runTest {
+        val mockEngine = MockEngine {
+            respond(content = variationIdIncorrectTargetingRuleBody, status = HttpStatusCode.OK)
+        }
+        val client = ConfigCatClient(Data.SDK_KEY) {
+            httpEngine = mockEngine
+        }
+
+        assertNull(client.getKeyAndValue("targetPercentageId2"))
     }
 
     @Test
     fun testGetKeyAndValueNotFound() = runTest {
         val mockEngine = MockEngine {
-            respond(
-                content = "{}",
-                status = HttpStatusCode.OK
-            )
+            respond(content = "{}", status = HttpStatusCode.OK)
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -121,47 +120,158 @@ class VariationIdTests {
     }
 
     companion object {
+        const val variationIdIncorrectTargetingRuleBody = """
+{
+   "p":{
+      "u":"https://cdn-global.configcat.com",
+      "r":"0",
+      "s":"PJUt0np9JA4ukMciF3BVAVRJiwIjTOiX\u002BE8B1HQohck="
+   },
+   "f":{
+      "incorrect":{
+         "t":0,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":2,
+                        "l":[
+                           "@configcat.com"
+                        ]
+                     }
+                  }
+               ]
+            }
+         ],
+         "v":{
+            "b":false
+         },
+         "i":"incorrectId"
+      }
+   }
+}
+        """
+
         const val variationIdBody = """
-                   {"f":{
-                       "key1":{
-                           "v":true,
-                           "i":"fakeId1",
-                           "p":[
-                               {
-                                   "v":true,
-                                   "p":50,
-                                   "i":"percentageId1"
-                               },
-                               {
-                                   "v":false,
-                                   "p":50,
-                                   "i":"percentageId2"
-                               }
-                           ],
-                           "r":[
-                               {
-                                   "a":"Email",
-                                   "t":2,
-                                   "c":"@configcat.com",
-                                   "v":true,
-                                   "i":"rolloutId1"
-                               },
-                               {
-                                   "a":"Email",
-                                   "t":2,
-                                   "c":"@test.com",
-                                   "v":false,
-                                   "i":"rolloutId2"
-                               }
-                           ]
-                       },
-                       "key2":{
-                           "v":false,
-                           "i":"fakeId2",
-                           "p":[],
-                           "r":[]
-                       }
-                   }}
+{
+   "p":{
+      "u":"https://cdn-global.configcat.com",
+      "r":"0",
+      "s":"PJUt0np9JA4ukMciF3BVAVRJiwIjTOiX\u002BE8B1HQohck="
+   },
+   "f":{
+      "key1":{
+         "t":0,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":2,
+                        "l":[
+                           "@configcat.com"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "b":true
+                  },
+                  "i":"rolloutId1"
+               }
+            },
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":2,
+                        "l":[
+                           "@test.com"
+                        ]
+                     }
+                  }
+               ],
+               "s":{
+                  "v":{
+                     "b":false
+                  },
+                  "i":"rolloutId2"
+               }
+            }
+         ],
+         "p":[
+            {
+               "p":50,
+               "v":{
+                  "b":true
+               },
+               "i":"percentageId1"
+            },
+            {
+               "p":50,
+               "v":{
+                  "b":false
+               },
+               "i":"percentageId2"
+            }
+         ],
+         "v":{
+            "b":true
+         },
+         "i":"fakeId1"
+      },
+      "key2":{
+         "t":0,
+         "v":{
+            "b":false
+         },
+         "i":"fakeId2"
+      },
+      "key3":{
+         "t":0,
+         "r":[
+            {
+               "c":[
+                  {
+                     "u":{
+                        "a":"Email",
+                        "c":2,
+                        "l":[
+                           "@configcat.com"
+                        ]
+                     }
+                  }
+               ],
+               "p":[
+                  {
+                     "p":50,
+                     "v":{
+                        "b":true
+                     },
+                     "i":"targetPercentageId1"
+                  },
+                  {
+                     "p":50,
+                     "v":{
+                        "b":false
+                     },
+                     "i":"targetPercentageId2"
+                  }
+               ]
+            }
+         ],
+         "v":{
+            "b":false
+         },
+         "i":"fakeId3"
+      }
+   }
+}
                    """
     }
 }

@@ -138,6 +138,10 @@ class DataGovernanceTests {
 
         assertEquals(1, mockEngine.requestHistory.size)
         assertTrue(mockEngine.requestHistory[0].url.toString().startsWith(customCdnUrl))
+
+        fetcher.fetch("")
+        assertEquals(2, mockEngine.requestHistory.size)
+        assertTrue(mockEngine.requestHistory[1].url.toString().startsWith(customCdnUrl))
     }
 
     @Test
@@ -160,7 +164,7 @@ class DataGovernanceTests {
 
     companion object {
         fun formatBody(url: String, redirect: Int): String {
-            return """{ "p": { "u": "$url", "r": $redirect }, "f": {} }"""
+            return """{ "p": { "u": "$url", "r": $redirect, "s": "test-salt" }, "f": {}, "s":[] }"""
         }
 
         const val customCdnUrl = "https://custom-cdn.configcat.com"

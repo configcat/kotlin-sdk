@@ -1,5 +1,8 @@
 package com.configcat.log
 
+import com.configcat.EvaluatorLogHelper
+import com.configcat.model.UserCondition
+
 @Suppress("TooManyFunctions")
 internal object ConfigCatLogMessages {
     /**
@@ -42,7 +45,10 @@ internal object ConfigCatLogMessages {
     /**
      * Log message for Fetch Failed Due To Unexpected error. The log eventId is 1103.
      */
-    const val FETCH_FAILED_DUE_TO_UNEXPECTED_ERROR = "Unexpected error occurred while trying to fetch config JSON."
+    const val FETCH_FAILED_DUE_TO_UNEXPECTED_ERROR =
+        "Unexpected error occurred while trying to fetch config JSON. It is most likely due to a local network " +
+            "issue. Please make sure your application can reach the ConfigCat CDN servers (or your proxy server) " +
+            "over HTTP."
 
     /**
      * Log message for Fetch Failed Due To Invalid Sdk Key error. The log eventId is 1100.
@@ -97,10 +103,40 @@ internal object ConfigCatLogMessages {
     ): String {
         return "Failed to evaluate setting '$key' (the key was not found in config JSON). " +
             "Returning the `$defaultParamName` parameter that you specified in your " +
-            "application: '$defaultParamValue'" + ". Available keys: [" + availableKeysSet.joinToString(
+            "application: '$defaultParamValue'. Available keys: [" + availableKeysSet.joinToString(
             ", ",
             transform = { availableKey -> "'$availableKey'" }
         ) + "]."
+    }
+
+    /**
+     * Log message for Setting Evaluation errors when the method returns with empty value. The log eventId is 1002.
+     *
+     * @param methodName  The method name where the error is logged.
+     * @param emptyResult The empty result.
+     * @return The formatted error message.
+     */
+    fun getSettingEvaluationErrorWithEmptyValue(methodName: String, emptyResult: String): String {
+        return "Error occurred in the `$methodName` method. Returning $emptyResult."
+    }
+
+    /**
+     * Log message for Setting Evaluation errors when the method returns with default value. The log eventId is 1002.
+     *
+     * @param methodName        The method name where the error is logged.
+     * @param key               The feature flag key.
+     * @param defaultParamName  The default parameter name.
+     * @param defaultParamValue The default parameter value.
+     * @return The formatted error message.
+     */
+    fun getSettingEvaluationErrorWithDefaultValue(
+        methodName: String,
+        key: String,
+        defaultParamName: String,
+        defaultParamValue: Any
+    ): String {
+        return "Error occurred in the `$methodName` method while evaluating setting '$key'. Returning the " +
+            "`$defaultParamName` parameter that you specified in your application: '$defaultParamValue'."
     }
 
     /**
@@ -127,9 +163,8 @@ internal object ConfigCatLogMessages {
         readTimeoutMillis: Long,
         writeTimeoutMillis: Long
     ): String {
-        return "Request timed out while trying to fetch config JSON. " +
-            "Timeout values: [connect: " + connectTimeoutMillis + "ms, " +
-            "read: " + readTimeoutMillis + "ms, write: " + writeTimeoutMillis + "ms]"
+        return "Request timed out while trying to fetch config JSON. Timeout values: [connect: " +
+            "${connectTimeoutMillis}ms, read: ${readTimeoutMillis}ms, write: ${writeTimeoutMillis}ms]"
     }
 
     /**
@@ -155,15 +190,84 @@ internal object ConfigCatLogMessages {
     }
 
     /**
-     * Log message for Targeting Is Not Possible warning. The log eventId 3001.
+     * Log message for User Object is missing warning. The log eventId 3001.
      *
      * @param key The feature flag setting key.
      * @return The formatted warn message.
      */
-    fun getTargetingIsNotPossible(key: String): String {
+    fun getUserObjectMissing(key: String): String {
         return "Cannot evaluate targeting rules and % options for setting '$key' (User Object is missing). " +
-            "You should pass a User Object to the evaluation methods like `getValue()`/`getValueAsync()` " +
+            "You should pass a User Object to the evaluation methods like `getValue()` " +
             "in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/"
+    }
+
+    /**
+     * Log message for User Attribute is missing warning. The log eventId 3003.
+     *
+     * @param key The feature flag setting key.
+     * @param userCondition The user condition where the attribute is checked.
+     * @param attributeName The user attribute name.
+     * @return The formatted warn message.
+     */
+    fun getUserAttributeMissing(key: String, userCondition: UserCondition, attributeName: String): String {
+        return "Cannot evaluate condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting " +
+            "'$key' (the User.$attributeName attribute is missing). You should set the User.$attributeName " +
+            "attribute in order to make targeting work properly. " +
+            "Read more: https://configcat.com/docs/advanced/user-object/"
+    }
+
+    /**
+     * Log message for User Attribute is missing warning. The log eventId 3003.
+     *
+     * @param key The feature flag setting key.
+     * @param attributeName The user attribute name.
+     * @return The formatted warn message.
+     */
+    fun getUserAttributeMissing(key: String, attributeName: String): String {
+        return "Cannot evaluate % options for setting '$key' (the User.$attributeName attribute is missing). " +
+            "You should set the User.$attributeName attribute in order to make targeting work properly. " +
+            "Read more: https://configcat.com/docs/advanced/user-object/"
+    }
+
+    /**
+     * Log message for User Attribute is invalid warning. The log eventId 3004.
+     *
+     * @param key The feature flag setting key.
+     * @param userCondition The user condition where the attribute is checked.
+     * @param reason Why the attribute is invalid.
+     * @param attributeName The user attribute name.
+     * @return The formatted warn message.
+     */
+    fun getUserAttributeInvalid(
+        key: String,
+        userCondition: UserCondition,
+        reason: String,
+        attributeName: String
+    ): String {
+        return "Cannot evaluate condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting " +
+            "'$key' ($reason). Please check the User.$attributeName attribute and make sure that its value " +
+            "corresponds to the comparison operator."
+    }
+
+    /**
+     * Log message for User Attribute value is automatically converted warning. The log eventId 3005.
+     *
+     * @param key            The feature flag setting key.
+     * @param userCondition  The condition where the circularity is detected.
+     * @param attributeName  The user attribute name.
+     * @param attributeValue The user attribute value.
+     * @return The formatted warn message.
+     */
+    fun getUserObjectAttributeIsAutoConverted(
+        key: String,
+        userCondition: UserCondition,
+        attributeName: String,
+        attributeValue: String
+    ): String {
+        return "Evaluation of condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting " +
+            "'$key' may not produce the expected result (the User.$attributeName attribute is not a string value, " +
+            "thus it was automatically converted to the string value '$attributeValue'). Please make sure that using " +
+            "a non-string value was intended."
     }
 
     /**
@@ -183,7 +287,7 @@ internal object ConfigCatLogMessages {
      * @return The formatted warn message.
      */
     fun getAutoPollMaxInitWaitTimeReached(maxInitWaitTimeSeconds: Long): String {
-        return "`maxInitWaitTimeSeconds` for the very first fetch reached (" + maxInitWaitTimeSeconds + "s)." +
+        return "`maxInitWaitTimeSeconds` for the very first fetch reached (${maxInitWaitTimeSeconds}s)." +
             " Returning cached config."
     }
 

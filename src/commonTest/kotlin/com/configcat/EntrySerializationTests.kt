@@ -1,5 +1,7 @@
 package com.configcat
 
+import com.configcat.model.Config
+import com.configcat.model.Entry
 import com.soywiz.klock.DateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -15,7 +17,7 @@ class EntrySerializationTests {
 
     @Test
     fun testSerialize() = runTest {
-        val json: String = Data.formatJsonBody("test")
+        val json: String = Data.formatJsonBodyWithString("test")
         val config: Config = Constants.json.decodeFromString(json)
         val fetchTimeNow = DateTime.now()
         val entry = Entry(config, "fakeTag", json, fetchTimeNow)
@@ -29,7 +31,7 @@ class EntrySerializationTests {
     @Test
     fun testPayloadSerializationPlatformIndependent() {
         val payloadTestConfigJson =
-            "{\"p\":{\"u\":\"https://cdn-global.configcat.com\",\"r\":0},\"f\":{\"testKey\":{\"v\":\"testValue\",\"t\":1,\"p\":[],\"r\":[]}}}"
+            "{\"p\":{\"u\":\"https://cdn-global.configcat.com\",\"r\":0,\"s\":\"test-slat\"},\"f\":{\"testKey\":{\"v\":{\"s\":\"testValue\"},\"t\":1,\"p\":[],\"r\":[], \"a\":\"\"}}, \"s\":[] }"
         val config: Config = Constants.json.decodeFromString(payloadTestConfigJson)
 
         val entry = Entry(config, "test-etag", payloadTestConfigJson, DateTime(1686756435844L))
@@ -40,7 +42,7 @@ class EntrySerializationTests {
 
     @Test
     fun testDeserialize() = runTest {
-        val json: String = Data.formatJsonBody("test")
+        val json: String = Data.formatJsonBodyWithString("test")
         val dateTimeNow = DateTime.now()
         val dateTimeNowUnixSeconds: Long = dateTimeNow.unixMillis.toLong()
 
@@ -51,7 +53,7 @@ class EntrySerializationTests {
         assertEquals(dateTimeNow, entry.fetchTime)
         assertEquals("fakeTag", entry.eTag)
         assertEquals(json, entry.configJson)
-        assertEquals(1, entry.config.settings.size)
+        assertEquals(1, entry.config.settings?.size)
     }
 
     @Test

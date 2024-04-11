@@ -1,10 +1,14 @@
 package com.configcat
 
+import com.configcat.evaluation.EvaluationTestLogger
+import com.configcat.evaluation.LogEvent
+import com.configcat.log.LogLevel
 import com.configcat.override.OverrideBehavior
 import com.soywiz.klock.DateTime
 import com.soywiz.krypto.sha1
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
+import io.ktor.util.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -25,11 +29,11 @@ class ConfigCatClientTests {
     fun testGetValue() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Data.formatJsonBody(true),
+                content = Data.formatJsonBodyWithBoolean(true),
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
         val op1 = async { client.getValue("fakeKey", false) }
@@ -47,11 +51,11 @@ class ConfigCatClientTests {
     fun testGetIntValue() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Data.formatJsonBody(10),
+                content = Data.formatJsonBodyWithInt(10),
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -67,7 +71,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadGateway
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -79,16 +83,39 @@ class ConfigCatClientTests {
     fun testGetValueTypeMismatch() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Data.formatJsonBody("fake"),
+                content = Data.formatJsonBodyWithString("fake"),
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+
+        val evaluationTestLogger = EvaluationTestLogger()
+
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
+            logLevel = LogLevel.ERROR
+            logger = evaluationTestLogger
+            configCache = SingleValueCache("")
         }
 
-        assertEquals(0, client.getValue("fakeKey", 0))
-        assertEquals(1, mockEngine.requestHistory.size)
+        val result = client.getValue("fakeKey", 0)
+        assertEquals(0, result)
+
+        val errorLogs = mutableListOf<LogEvent>()
+
+        val logsList = evaluationTestLogger.getLogList()
+        for (i in logsList.indices) {
+            val log = logsList[i]
+            if (log.logLevel == LogLevel.ERROR) {
+                errorLogs.add(log)
+            }
+        }
+        assertEquals(1, errorLogs.size, "Error size not matching")
+        val errorMessage: String = errorLogs[0].logMessage
+        assertContains(errorMessage, "[1002]")
+        assertContains(errorMessage, "Error occurred in the `getAnyValue` method while evaluating setting 'fakeKey'. Returning the `defaultValue` parameter that you specified in your application: '0'.")
+        // we don't check the full exception message because the Integer class can be different in other platforms. We only check the first part of the message
+        assertContains(errorMessage, "The type of a setting must match the type of the specified default value. Setting's type was {STRING} but the default value's type was ")
+        evaluationTestLogger.resetLogList()
     }
 
     @Test
@@ -99,7 +126,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -115,7 +142,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadRequest
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -127,11 +154,11 @@ class ConfigCatClientTests {
     fun testGetStringValue() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Data.formatJsonBody("test"),
+                content = Data.formatJsonBodyWithString("test"),
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -147,7 +174,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadGateway
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -159,11 +186,11 @@ class ConfigCatClientTests {
     fun testGetDoubleValue() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Data.formatJsonBody(3.14),
+                content = Data.formatJsonBodyWithDouble(3.14),
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -179,7 +206,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadGateway
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -191,11 +218,11 @@ class ConfigCatClientTests {
     fun testGetBoolValue() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Data.formatJsonBody(true),
+                content = Data.formatJsonBodyWithBoolean(true),
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -211,7 +238,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadGateway
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -220,28 +247,12 @@ class ConfigCatClientTests {
     }
 
     @Test
-    fun testGetValueInvalidType() = runTest {
-        val mockEngine = MockEngine {
-            respond(
-                content = Data.formatJsonBody(true),
-                status = HttpStatusCode.OK
-            )
-        }
-        val client = ConfigCatClient("test") {
-            httpEngine = mockEngine
-        }
-
-        assertEquals("55".toFloat(), client.getValue("fakeKey", "55".toFloat()))
-        assertEquals(1, mockEngine.requestHistory.size)
-    }
-
-    @Test
     fun testRequestTimeout() = runTest {
         val mockEngine = MockEngine {
             delay(3000)
-            respond(content = Data.formatJsonBody(true), status = HttpStatusCode.OK)
+            respond(content = Data.formatJsonBodyWithBoolean(true), status = HttpStatusCode.OK)
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             requestTimeout = 1.seconds
         }
@@ -261,10 +272,12 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadRequest
             )
         }
-        val sdkKey = "test"
-        val cacheKey: String = "${sdkKey}_${Constants.configFileName}_${Constants.serializationFormatVersion}".encodeToByteArray().sha1().hex
+        val sdkKey = Data.SDK_KEY
+        val cacheKey: String =
+            "${sdkKey}_${Constants.configFileName}_${Constants.serializationFormatVersion}".encodeToByteArray()
+                .sha1().hex
         val cache = InMemoryCache()
-        cache.write(cacheKey, Data.formatCacheEntry(true))
+        cache.write(cacheKey, Data.formatCacheEntry("test"))
         val client = ConfigCatClient(sdkKey) {
             httpEngine = mockEngine
             configCache = cache
@@ -273,7 +286,7 @@ class ConfigCatClientTests {
             }
         }
 
-        assertEquals(true, client.getValue("fakeKey", false))
+        assertEquals("test", client.getValue("fakeKey", ""))
 
         TestUtils.awaitUntil {
             mockEngine.requestHistory.size == 1
@@ -288,10 +301,12 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.NotFound
             )
         }
-        val sdkKey = "test"
-        val cacheKey: String = "${sdkKey}_${Constants.configFileName}_${Constants.serializationFormatVersion}".encodeToByteArray().sha1().hex
+        val sdkKey = Data.SDK_KEY
+        val cacheKey: String =
+            "${sdkKey}_${Constants.configFileName}_${Constants.serializationFormatVersion}".encodeToByteArray()
+                .sha1().hex
         val cache = InMemoryCache()
-        cache.write(cacheKey, Data.formatCacheEntry(true))
+        cache.write(cacheKey, Data.formatCacheEntry("test"))
         val client = ConfigCatClient(sdkKey) {
             httpEngine = mockEngine
             configCache = cache
@@ -299,8 +314,11 @@ class ConfigCatClientTests {
 
         val result = client.forceRefresh()
         assertFalse(result.isSuccess)
-        assertEquals("Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. Received response: 404 Not Found", result.error)
-        assertEquals(true, client.getValue("fakeKey", false))
+        assertEquals(
+            "Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. Received response: 404 Not Found",
+            result.error
+        )
+        assertEquals("test", client.getValue("fakeKey", ""))
         assertTrue(mockEngine.requestHistory.size == 1 || mockEngine.requestHistory.size == 2)
     }
 
@@ -308,20 +326,23 @@ class ConfigCatClientTests {
     fun testGetLatestOnFail() = runTest {
         val mockEngine = MockEngine.create {
             this.addHandler {
-                respond(content = Data.formatJsonBody("test1"), status = HttpStatusCode.OK)
+                respond(content = Data.formatJsonBodyWithString("test1"), status = HttpStatusCode.OK)
             }
             this.addHandler {
                 respond(content = "", status = HttpStatusCode.Forbidden)
             }
         } as MockEngine
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
         assertEquals("test1", client.getValue("fakeKey", ""))
         val result = client.forceRefresh()
         assertFalse(result.isSuccess)
-        assertEquals("Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. Received response: 403 Forbidden", result.error)
+        assertEquals(
+            "Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. Received response: 403 Forbidden",
+            result.error
+        )
         assertEquals("test1", client.getValue("fakeKey", ""))
         assertEquals(2, mockEngine.requestHistory.size)
     }
@@ -330,13 +351,13 @@ class ConfigCatClientTests {
     fun testForceRefreshLazy() = runTest {
         val mockEngine = MockEngine.create {
             this.addHandler {
-                respond(content = Data.formatJsonBody("test1"), status = HttpStatusCode.OK)
+                respond(content = Data.formatJsonBodyWithString("test1"), status = HttpStatusCode.OK)
             }
             this.addHandler {
-                respond(content = Data.formatJsonBody("test2"), status = HttpStatusCode.OK)
+                respond(content = Data.formatJsonBodyWithString("test2"), status = HttpStatusCode.OK)
             }
         } as MockEngine
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = lazyLoad()
         }
@@ -352,13 +373,13 @@ class ConfigCatClientTests {
     fun testForceRefreshAuto() = runTest {
         val mockEngine = MockEngine.create {
             this.addHandler {
-                respond(content = Data.formatJsonBody("test1"), status = HttpStatusCode.OK)
+                respond(content = Data.formatJsonBodyWithString("test1"), status = HttpStatusCode.OK)
             }
             this.addHandler {
-                respond(content = Data.formatJsonBody("test2"), status = HttpStatusCode.OK)
+                respond(content = Data.formatJsonBodyWithString("test2"), status = HttpStatusCode.OK)
             }
         } as MockEngine
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = autoPoll()
         }
@@ -378,7 +399,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadRequest
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -394,13 +415,16 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.NotFound
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
         val result = client.forceRefresh()
         assertFalse(result.isSuccess)
-        assertEquals("Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. Received response: 404 Not Found", result.error)
+        assertEquals(
+            "Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. Received response: 404 Not Found",
+            result.error
+        )
         assertEquals(false, client.getValue("fakeKey", false))
         assertTrue(mockEngine.requestHistory.size == 1 || mockEngine.requestHistory.size == 2)
     }
@@ -413,7 +437,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadRequest
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = lazyLoad()
         }
@@ -430,14 +454,17 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.NotFound
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = lazyLoad()
         }
 
         val result = client.forceRefresh()
         assertFalse(result.isSuccess)
-        assertEquals("Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. Received response: 404 Not Found", result.error)
+        assertEquals(
+            "Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. Received response: 404 Not Found",
+            result.error
+        )
         assertEquals(false, client.getValue("fakeKey", false))
         assertEquals(2, mockEngine.requestHistory.size)
     }
@@ -446,11 +473,11 @@ class ConfigCatClientTests {
     fun testGetAllKeys() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = testMultipleBody,
+                content = Data.MULTIPLE_BODY,
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -462,11 +489,11 @@ class ConfigCatClientTests {
     fun testGetAllValues() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = testMultipleBody,
+                content = Data.MULTIPLE_BODY,
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -480,11 +507,11 @@ class ConfigCatClientTests {
     fun testGetAllValueDetails() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = testMultipleBody,
+                content = Data.MULTIPLE_BODY,
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -498,60 +525,84 @@ class ConfigCatClientTests {
     fun testAutoPollUserAgent() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Data.formatJsonBody(true),
+                content = Data.formatJsonBodyWithBoolean(true),
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = autoPoll()
         }
 
         client.getValue("fakeKey", false)
-        assertEquals(
-            "ConfigCat-Kotlin/a-${Constants.version}",
-            mockEngine.requestHistory.last().headers["X-ConfigCat-UserAgent"]
-        )
+        // For Js we check the query params
+        if (PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE) {
+            assertEquals(
+                "ConfigCat-Kotlin/a-${Constants.version}",
+                mockEngine.requestHistory.last().url.parameters["sdk"]
+            )
+        } else {
+            assertEquals(
+                "ConfigCat-Kotlin/a-${Constants.version}",
+                mockEngine.requestHistory.last().headers["X-ConfigCat-UserAgent"]
+            )
+        }
     }
 
     @Test
     fun testLazyUserAgent() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Data.formatJsonBody(true),
+                content = Data.formatJsonBodyWithBoolean(true),
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = lazyLoad()
         }
 
         client.getValue("fakeKey", false)
-        assertEquals(
-            "ConfigCat-Kotlin/l-${Constants.version}",
-            mockEngine.requestHistory.last().headers["X-ConfigCat-UserAgent"]
-        )
+        // For Js we check the query params
+        if (PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE) {
+            assertEquals(
+                "ConfigCat-Kotlin/l-${Constants.version}",
+                mockEngine.requestHistory.last().url.parameters["sdk"]
+            )
+        } else {
+            assertEquals(
+                "ConfigCat-Kotlin/l-${Constants.version}",
+                mockEngine.requestHistory.last().headers["X-ConfigCat-UserAgent"]
+            )
+        }
     }
 
     @Test
     fun testManualPollUserAgent() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Data.formatJsonBody(true),
+                content = Data.formatJsonBodyWithBoolean(true),
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = manualPoll()
         }
 
         client.forceRefresh()
-        assertEquals(
-            "ConfigCat-Kotlin/m-${Constants.version}",
-            mockEngine.requestHistory.last().headers["X-ConfigCat-UserAgent"]
-        )
+        // For Js we check the query params
+        if (PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE) {
+            assertEquals(
+                "ConfigCat-Kotlin/m-${Constants.version}",
+                mockEngine.requestHistory.last().url.parameters["sdk"]
+            )
+        } else {
+            assertEquals(
+                "ConfigCat-Kotlin/m-${Constants.version}",
+                mockEngine.requestHistory.last().headers["X-ConfigCat-UserAgent"]
+            )
+        }
     }
 
     @Test
@@ -562,7 +613,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.BadRequest
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
         }
 
@@ -570,18 +621,21 @@ class ConfigCatClientTests {
 
         assertEquals("", details.value)
         assertTrue(details.isDefaultValue)
-        assertEquals("Config JSON is not present when evaluating setting 'fakeKey'. Returning the `defaultValue` parameter that you specified in your application: ''.", details.error)
+        assertEquals(
+            "Config JSON is not present when evaluating setting 'fakeKey'. Returning the `defaultValue` parameter that you specified in your application: ''.",
+            details.error
+        )
     }
 
     @Test
     fun testOnlineOffline() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Data.formatJsonBody(true),
+                content = Data.formatJsonBodyWithBoolean(true),
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = autoPoll { pollingInterval = 2.seconds }
         }
@@ -611,11 +665,11 @@ class ConfigCatClientTests {
     fun testInitOffline() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Data.formatJsonBody(true),
+                content = Data.formatJsonBodyWithBoolean(true),
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = autoPoll { pollingInterval = 2.seconds }
             offline = true
@@ -639,12 +693,12 @@ class ConfigCatClientTests {
     fun testInitOfflineCallsReady() = runTest {
         val mockEngine = MockEngine {
             respond(
-                content = Data.formatJsonBody(true),
+                content = Data.formatJsonBodyWithBoolean(true),
                 status = HttpStatusCode.OK
             )
         }
         var ready = false
-        ConfigCatClient("test") {
+        ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = autoPoll { pollingInterval = 2.seconds }
             offline = true
@@ -665,7 +719,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = manualPoll()
         }
@@ -696,7 +750,7 @@ class ConfigCatClientTests {
                 status = HttpStatusCode.OK
             )
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = manualPoll()
         }
@@ -719,7 +773,7 @@ class ConfigCatClientTests {
     fun testHooks() = runTest {
         val mockEngine = MockEngine.create {
             this.addHandler {
-                respond(content = Data.formatJsonBody("test"), status = HttpStatusCode.OK)
+                respond(content = Data.formatJsonBodyWithString("test"), status = HttpStatusCode.OK)
             }
             this.addHandler {
                 respond(content = "", status = HttpStatusCode.NotFound)
@@ -729,7 +783,7 @@ class ConfigCatClientTests {
         var changed = false
         var ready = false
 
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = manualPoll()
             hooks.addOnConfigChanged { changed = true }
@@ -740,7 +794,10 @@ class ConfigCatClientTests {
         client.forceRefresh()
         client.forceRefresh()
 
-        assertEquals("Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. Received response: 404 Not Found", error)
+        assertEquals(
+            "Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. Received response: 404 Not Found",
+            error
+        )
         assertTrue(changed)
         assertTrue(ready)
     }
@@ -749,7 +806,7 @@ class ConfigCatClientTests {
     fun testHooksSub() = runTest {
         val mockEngine = MockEngine.create {
             this.addHandler {
-                respond(content = Data.formatJsonBody("test"), status = HttpStatusCode.OK)
+                respond(content = Data.formatJsonBodyWithString("test"), status = HttpStatusCode.OK)
             }
             this.addHandler {
                 respond(content = "", status = HttpStatusCode.NotFound)
@@ -758,7 +815,7 @@ class ConfigCatClientTests {
         var error = ""
         var changed = false
 
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = manualPoll()
         }
@@ -769,7 +826,10 @@ class ConfigCatClientTests {
         client.forceRefresh()
         client.forceRefresh()
 
-        assertEquals("Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. Received response: 404 Not Found", error)
+        assertEquals(
+            "Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey. Received response: 404 Not Found",
+            error
+        )
         assertTrue(changed)
     }
 
@@ -777,14 +837,14 @@ class ConfigCatClientTests {
     fun testFail400() = runTest {
         val mockEngine = MockEngine.create {
             this.addHandler {
-                respond(content = Data.formatJsonBody("test"), status = HttpStatusCode.OK)
+                respond(content = Data.formatJsonBodyWithString("test"), status = HttpStatusCode.OK)
             }
             this.addHandler {
                 respond(content = "", status = HttpStatusCode.BadRequest)
             }
         }
 
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = manualPoll()
         }
@@ -802,7 +862,7 @@ class ConfigCatClientTests {
         }
         var called = false
 
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = manualPoll()
             hooks.addOnFlagEvaluated { details ->
@@ -810,7 +870,10 @@ class ConfigCatClientTests {
                 assertTrue(details.isDefaultValue)
                 assertEquals("", details.value)
                 assertEquals("ID", details.user?.identifier)
-                assertEquals("Config JSON is not present when evaluating setting 'fakeKey'. Returning the `defaultValue` parameter that you specified in your application: ''.", details.error)
+                assertEquals(
+                    "Config JSON is not present when evaluating setting 'fakeKey'. Returning the `defaultValue` parameter that you specified in your application: ''.",
+                    details.error
+                )
             }
         }
 
@@ -825,7 +888,7 @@ class ConfigCatClientTests {
         val mockEngine = MockEngine {
             respond(content = Data.formatConfigWithRules(), status = HttpStatusCode.OK)
         }
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = manualPoll()
         }
@@ -838,11 +901,14 @@ class ConfigCatClientTests {
         assertEquals("key", details.key)
         assertEquals("fakeId1", details.variationId)
         assertNull(details.error)
-        assertEquals("Identifier", details.matchedEvaluationRule?.comparisonAttribute)
-        assertEquals(2, details.matchedEvaluationRule?.comparator)
-        assertEquals("@test1.com", details.matchedEvaluationRule?.comparisonValue)
-        assertNull(details.matchedEvaluationPercentageRule)
         assertEquals("test@test1.com", details.user?.identifier)
+        assertEquals(1, details.matchedTargetingRule?.conditions?.size)
+        val condition = details.matchedTargetingRule?.conditions?.get(0)
+
+        assertEquals("Identifier", condition?.userCondition?.comparisonAttribute)
+        assertEquals(2, condition?.userCondition?.comparator)
+        assertEquals("@test1.com", condition?.userCondition?.stringArrayValue?.get(0))
+        assertNull(details.matchedPercentageOption)
     }
 
     @Test
@@ -851,7 +917,7 @@ class ConfigCatClientTests {
             respond(content = Data.formatConfigWithRules(), status = HttpStatusCode.OK)
         }
         var called = false
-        val client = ConfigCatClient("test") {
+        val client = ConfigCatClient(Data.SDK_KEY) {
             httpEngine = mockEngine
             pollingMode = manualPoll()
             hooks.addOnFlagEvaluated { details ->
@@ -860,11 +926,15 @@ class ConfigCatClientTests {
                 assertEquals("key", details.key)
                 assertEquals("fakeId1", details.variationId)
                 assertNull(details.error)
-                assertEquals("Identifier", details.matchedEvaluationRule?.comparisonAttribute)
-                assertEquals(2, details.matchedEvaluationRule?.comparator)
-                assertEquals("@test1.com", details.matchedEvaluationRule?.comparisonValue)
-                assertNull(details.matchedEvaluationPercentageRule)
                 assertEquals("test@test1.com", details.user?.identifier)
+                assertEquals(1, details.matchedTargetingRule?.conditions?.size)
+                val condition = details.matchedTargetingRule?.conditions?.get(0)
+
+                assertEquals("Identifier", condition?.userCondition?.comparisonAttribute)
+                assertEquals(2, condition?.userCondition?.comparator)
+                assertEquals("@test1.com", condition?.userCondition?.stringArrayValue?.get(0))
+                assertNull(details.matchedPercentageOption)
+
                 called = true
             }
         }
@@ -876,45 +946,432 @@ class ConfigCatClientTests {
 
     @Test
     fun testSingleton() {
-        var client1 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
-        val client2 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        var client1 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        val client2 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         assertSame(client1, client2)
 
         ConfigCatClient.closeAll()
 
-        client1 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        client1 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         assertNotSame(client1, client2)
     }
 
     @Test
     fun testRemoveTheClosingInstanceOnly() {
-        var client1 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        val client1 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         client1.close()
 
-        val client2 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        val client2 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         assertNotSame(client1, client2)
 
         client1.close()
 
-        val client3 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        val client3 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         assertSame(client2, client3)
     }
 
     @Test
     fun testClose() {
-        val client1 = ConfigCatClient("test") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        val client1 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
         assertFalse(client1.isClosed())
         client1.close()
         assertTrue(client1.isClosed())
     }
 
-    companion object {
-        const val testMultipleBody =
-            """{ "f": { "key1": { "v": true, "i": "fakeId1" }, "key2": { "v": false, "i": "fakeId2" } } }"""
+    @Test
+    fun testSDKKeyIsNotEmpty() {
+        val exception = assertFailsWith(IllegalArgumentException::class, block = {
+            ConfigCatClient("")
+        })
+        assertEquals("SDK Key cannot be empty.", exception.message)
     }
+
+    @Test
+    fun testSDKKeyIsValid() {
+        val mockEngine = MockEngine {
+            respond(
+                content = Data.formatJsonBodyWithBoolean(true),
+                status = HttpStatusCode.OK
+            )
+        }
+        // TEST VALID KEYS
+        var client = ConfigCatClient("sdk-key-90123456789012/1234567890123456789012") {
+            httpEngine = mockEngine
+        }
+        assertNotNull(client)
+        client = ConfigCatClient("configcat-sdk-1/sdk-key-90123456789012/1234567890123456789012") {
+            httpEngine = mockEngine
+        }
+        assertNotNull(client)
+        client = ConfigCatClient("configcat-proxy/sdk-key-90123456789012") {
+            baseUrl = "https://my-configcat-proxy"
+            httpEngine = mockEngine
+        }
+        assertNotNull(client)
+
+        ConfigCatClient.closeAll()
+
+        // TEST INVALID KEYS
+        val wrongSDKKeys: List<String> = listOf(
+            "sdk-key-90123456789012",
+            "sdk-key-9012345678901/1234567890123456789012",
+            "sdk-key-90123456789012/123456789012345678901",
+            "sdk-key-90123456789012/12345678901234567890123",
+            "sdk-key-901234567890123/1234567890123456789012",
+            "configcat-sdk-1/sdk-key-90123456789012",
+            "configcat-sdk-1/sdk-key-9012345678901/1234567890123456789012",
+            "configcat-sdk-1/sdk-key-90123456789012/123456789012345678901",
+            "configcat-sdk-1/sdk-key-90123456789012/12345678901234567890123",
+            "configcat-sdk-1/sdk-key-901234567890123/1234567890123456789012",
+            "configcat-sdk-2/sdk-key-90123456789012/1234567890123456789012",
+            "configcat-proxy/",
+            "configcat-proxy/sdk-key-90123456789012"
+        )
+        wrongSDKKeys.forEach {
+            val exception = assertFailsWith(IllegalArgumentException::class, block = {
+                ConfigCatClient(it)
+            })
+            assertEquals("SDK Key '$it' is invalid.", exception.message)
+        }
+
+        val exception = assertFailsWith(IllegalArgumentException::class, block = {
+            ConfigCatClient("configcat-proxy/") { baseUrl = "https://my-configcat-proxy" }
+        })
+        assertEquals("SDK Key 'configcat-proxy/' is invalid.", exception.message)
+
+        // TEST OverrideBehaviour.localOnly skip sdkKey validation
+        client =
+            ConfigCatClient("sdk-key-90123456789012") {
+                flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY }
+            }
+
+        assertNotNull(client)
+
+        ConfigCatClient.closeAll()
+    }
+
+    @Test
+    fun testSpecialCharactersWorks() = runTest {
+        // override content with configcat-sdk-1/PKDVCLf-Hq-h-kCzMp-L7Q/u28_1qNyZ0Wz-ldYHIU7-g
+        val mockEngine = MockEngine {
+            respond(
+                content = specialCharacterContent,
+                status = HttpStatusCode.OK
+            )
+        }
+
+        val client = ConfigCatClient("configcat-sdk-1/PKDVCLf-Hq-h-kCzMp-L7Q/u28_1qNyZ0Wz-ldYHIU7-g") {
+            httpEngine = mockEngine
+        }
+        // äöüÄÖÜçéèñışğâ¢™✓😀
+        val specialCharacters = "äöüÄÖÜçéèñışğâ¢™✓\uD83D\uDE00"
+
+        val user = ConfigCatUser(specialCharacters)
+
+        assertEquals(specialCharacters, client.getValue("specialCharacters", "NOT_CAT", user))
+
+        assertEquals(specialCharacters, client.getValue("specialCharactersHashed", "NOT_CAT", user))
+
+        ConfigCatClient.closeAll()
+    }
+
+    @Test
+    fun testGetValueValidTypes() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = testGetValueTypes,
+                status = HttpStatusCode.OK
+            )
+        }
+
+        val client = ConfigCatClient(Data.SDK_KEY) {
+            httpEngine = mockEngine
+        }
+        // String
+        assertEquals("fakeValueString", client.getValue("fakeKeyString", "default", null))
+        // Boolean
+        assertEquals(true, client.getValue("fakeKeyBoolean", false, null))
+        // Int
+        assertEquals(1, client.getValue("fakeKeyInt", 0, null))
+        // Double
+        assertEquals(2.1, client.getValue("fakeKeyDouble", 1.1, null))
+
+        // getValue allows null.
+        val value1 = client.getValue<Boolean?>("wrongKey", null, null)
+        assertNull(value1)
+
+        // getAnyValue allows null.
+        val value2 = client.getAnyValue("wrongKey", null, null)
+        assertNull(value2)
+
+        // getAnyValue allows any default value.
+        val defaultValue = ConfigCatUser("testId")
+        val value3 = client.getAnyValue("wrongKey", defaultValue, null)
+        assertEquals(defaultValue, value3)
+    }
+
+    @Test
+    fun testGetValueInvalidTypes() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = testGetValueTypes,
+                status = HttpStatusCode.OK
+            )
+        }
+
+        val client = ConfigCatClient(Data.SDK_KEY) {
+            httpEngine = mockEngine
+        }
+
+        // In case of JS the float is converted to an accepted type, in this case skip this test
+        if (!(PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE)) {
+            // Float
+            val floatException = assertFailsWith(
+                exceptionClass = IllegalArgumentException::class,
+                block = { client.getValue("fakeKeyString", 3.14f) }
+            )
+            assertEquals("Only the following types are supported: String, Boolean, Int, Double (both nullable and non-nullable).", floatException.message)
+        }
+
+        // Object
+        val exception = assertFailsWith(
+            exceptionClass = IllegalArgumentException::class,
+            block = { client.getValue("fakeKeyString", ConfigCatUser("testId")) }
+        )
+        assertEquals("Only the following types are supported: String, Boolean, Int, Double (both nullable and non-nullable).", exception.message)
+    }
+
+    @Test
+    fun testGetValueDetailsValidTypes() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = testGetValueTypes,
+                status = HttpStatusCode.OK
+            )
+        }
+
+        val client = ConfigCatClient(Data.SDK_KEY) {
+            httpEngine = mockEngine
+        }
+        // String
+        assertEquals("fakeValueString", client.getValueDetails("fakeKeyString", "default", null).value)
+        // Boolean
+        assertEquals(true, client.getValueDetails("fakeKeyBoolean", false, null).value)
+        // Int
+        assertEquals(1, client.getValueDetails("fakeKeyInt", 0, null).value)
+        // Double
+        assertEquals(2.1, client.getValueDetails("fakeKeyDouble", 1.1, null).value)
+
+        // getValue allows null.
+        val value1 = client.getValueDetails<Boolean?>("wrongKey", null, null).value
+        assertNull(value1)
+
+        // getAnyValue allows null.
+        val value2 = client.getAnyValueDetails("wrongKey", null, null).value
+        assertNull(value2)
+
+        // getAnyValue allows any default value.
+        val defaultValue = ConfigCatUser("testId")
+        val value3 = client.getAnyValueDetails("wrongKey", defaultValue, null).value
+        assertEquals(defaultValue, value3)
+    }
+
+    @Test
+    fun testGetValueDetailsInvalidTypes() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = testGetValueTypes,
+                status = HttpStatusCode.OK
+            )
+        }
+
+        val client = ConfigCatClient(Data.SDK_KEY) {
+            httpEngine = mockEngine
+        }
+
+        // In case of JS the float is converted to an accepted type, in this case skip this test
+        if (!(PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE)) {
+            // Float
+            val floatException = assertFailsWith(
+                exceptionClass = IllegalArgumentException::class,
+                block = { client.getValueDetails("fakeKeyString", 3.14f) }
+            )
+            assertEquals("Only the following types are supported: String, Boolean, Int, Double (both nullable and non-nullable).", floatException.message)
+        }
+
+        // Object
+        val exception = assertFailsWith(
+            exceptionClass = IllegalArgumentException::class,
+            block = { client.getValueDetails("fakeKeyString", ConfigCatUser("testId")) }
+        )
+        assertEquals("Only the following types are supported: String, Boolean, Int, Double (both nullable and non-nullable).", exception.message)
+    }
+
+    @Test
+    fun testFlagKeyAndVariationIdValidation() = runTest {
+        val mockEngine = MockEngine {
+            respond(
+                content = testGetValueTypes,
+                status = HttpStatusCode.OK
+            )
+        }
+
+        val client = ConfigCatClient(Data.SDK_KEY) {
+            httpEngine = mockEngine
+        }
+
+        val exceptionGetValue = assertFailsWith(
+            exceptionClass = IllegalArgumentException::class,
+            block = { client.getValue("", "default", null) }
+        )
+        assertEquals("'key' cannot be empty.", exceptionGetValue.message)
+
+        val exceptionGetValueDetails = assertFailsWith(
+            exceptionClass = IllegalArgumentException::class,
+            block = { client.getValueDetails("", "default", null) }
+        )
+        assertEquals("'key' cannot be empty.", exceptionGetValueDetails.message)
+
+        val exceptionGetKeyAndValue = assertFailsWith(
+            exceptionClass = IllegalArgumentException::class,
+            block = { client.getKeyAndValue("") }
+        )
+        assertEquals("'variationId' cannot be empty.", exceptionGetKeyAndValue.message)
+    }
+
+    private val testGetValueTypes = """
+        {
+           "p":{
+              "s":"test-salt",
+              "u":"test"
+           },
+           "f":{
+              "fakeKeyString":{
+                 "t":1,
+                 "v":{
+                    "s":"fakeValueString"
+                 },
+                 "s":0,
+                 "p":[
+                    
+                 ],
+                 "r":[
+                    
+                 ]
+              },
+              "fakeKeyInt":{
+                 "t":2,
+                 "v":{
+                    "i":1
+                 },
+                 "s":0,
+                 "p":[
+                    
+                 ],
+                 "r":[
+                    
+                 ]
+              },
+              "fakeKeyDouble":{
+                 "t":3,
+                 "v":{
+                    "d":2.1
+                 },
+                 "s":0,
+                 "p":[
+                    
+                 ],
+                 "r":[
+                    
+                 ]
+              },
+              "fakeKeyBoolean":{
+                 "t":0,
+                 "v":{
+                    "b":true
+                 },
+                 "s":0,
+                 "p":[
+                    
+                 ],
+                 "r":[
+                    
+                 ]
+              }
+           }
+        }
+    """.trimIndent()
+
+    private val specialCharacterContent = """
+        {
+           "p":{
+              "u":"https://cdn-global.configcat.com",
+              "r":0,
+              "s":"ABWpFwDcdChe8DCLRnfe1qcRzFaRWqFKifbGCBnkHTU="
+           },
+           "f":{
+              "specialCharacters":{
+                 "t":1,
+                 "r":[
+                    {
+                       "c":[
+                          {
+                             "u":{
+                                "a":"Identifier",
+                                "c":30,
+                                "l":[
+                                   "äöüÄÖÜçéèñışğâ¢™✓😀"
+                                ]
+                             }
+                          }
+                       ],
+                       "s":{
+                          "v":{
+                             "s":"äöüÄÖÜçéèñışğâ¢™✓😀"
+                          },
+                          "i":"1238ed4f"
+                       }
+                    }
+                 ],
+                 "v":{
+                    "s":"NOT_CAT"
+                 },
+                 "i":"6a20318f"
+              },
+              "specialCharactersHashed":{
+                 "t":1,
+                 "r":[
+                    {
+                       "c":[
+                          {
+                             "u":{
+                                "a":"Identifier",
+                                "c":22,
+                                "l":[
+                                   "40_4e37b40f1a89cf05c99a9451f6baa1d149a79c5f9a9a3793a6782c8eed9f605d"
+                                ]
+                             }
+                          }
+                       ],
+                       "s":{
+                          "v":{
+                             "s":"äöüÄÖÜçéèñışğâ¢™✓😀"
+                          },
+                          "i":"bb95d969"
+                       }
+                    }
+                 ],
+                 "v":{
+                    "s":"NOT_CAT"
+                 },
+                 "i":"33f810a1"
+              }
+           }
+        }
+    """
 }
