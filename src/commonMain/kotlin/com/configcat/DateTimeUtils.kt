@@ -1,6 +1,7 @@
 package com.configcat
 
-import com.soywiz.klock.DateTime
+import korlibs.time.DateTime
+
 
 internal object DateTimeUtils {
     fun isValidDate(fetchTime: String): Boolean {
@@ -10,7 +11,7 @@ internal object DateTimeUtils {
 
     fun Double.toDateTimeUTCString(): String {
         val dateInMillisecond: Long = this.toLong() * 1000
-        val dateTime = DateTime.fromUnix(dateInMillisecond)
+        val dateTime = DateTime.fromUnixMillis(dateInMillisecond)
         return dateTime.toString("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     }
 }

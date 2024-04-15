@@ -4,11 +4,12 @@ import com.configcat.evaluation.EvaluationTestLogger
 import com.configcat.evaluation.LogEvent
 import com.configcat.log.LogLevel
 import com.configcat.override.OverrideBehavior
-import com.soywiz.klock.DateTime
-import com.soywiz.krypto.sha1
+
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import io.ktor.util.*
+import korlibs.crypto.sha1
+import korlibs.time.DateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

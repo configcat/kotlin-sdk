@@ -1,7 +1,8 @@
 package com.configcat.log
 
 import com.configcat.Hooks
-import com.soywiz.klock.DateTime
+import korlibs.time.DateTime
+
 
 internal class InternalLogger(private val logger: Logger, private val level: LogLevel, private val hooks: Hooks) {
     fun error(eventId: Int, message: String) {

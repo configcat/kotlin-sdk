@@ -5,12 +5,12 @@ import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.configcat.model.Config
 import com.configcat.model.Entry
-import com.soywiz.klock.DateTime
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import korlibs.time.DateTime
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
 

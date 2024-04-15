@@ -1,8 +1,9 @@
 package com.configcat
 
-import com.soywiz.klock.DateTime
+
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
+import korlibs.time.DateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest

@@ -2,14 +2,13 @@ package com.configcat.userattribute
 
 import com.configcat.ConfigCatClient
 import com.configcat.ConfigCatUser
-import com.configcat.getValue
 import com.configcat.log.LogLevel
 import com.configcat.manualPoll
 import com.configcat.userattribute.data.*
-import com.soywiz.klock.DateTime
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import io.ktor.util.date.*
+import korlibs.time.DateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test

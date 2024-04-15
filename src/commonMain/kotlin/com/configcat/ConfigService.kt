@@ -6,9 +6,10 @@ import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.configcat.model.Entry
 import com.configcat.model.Setting
-import com.soywiz.klock.DateTime
-import com.soywiz.krypto.sha1
+
 import io.ktor.util.*
+import korlibs.crypto.sha1
+import korlibs.time.DateTime
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock

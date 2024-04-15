@@ -3,7 +3,7 @@ package com.configcat.model
 import com.configcat.Constants
 import com.configcat.DateTimeUtils
 import com.configcat.Helpers
-import com.soywiz.klock.DateTime
+import korlibs.time.DateTime
 
 internal data class Entry(
     val config: Config,

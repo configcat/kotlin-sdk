@@ -14,16 +14,16 @@ buildscript {
 apply(plugin = "kotlinx-atomicfu")
 
 plugins {
-    kotlin("multiplatform") version "1.8.22"
-    kotlin("plugin.serialization") version "1.8.22"
+    kotlin("multiplatform") version "1.9.23"
+    kotlin("plugin.serialization") version "1.9.23"
     id("com.android.library")
     id("maven-publish")
     id("signing")
-    id("org.jetbrains.dokka") version "1.7.20"
+    id("org.jetbrains.dokka") version "1.9.20"
     id("org.sonarqube") version "3.5.0.2730"
-    id("org.jetbrains.kotlinx.kover") version "0.6.1"
-    id("io.gitlab.arturbosch.detekt") version "1.22.0"
-    id("org.jlleitschuh.gradle.ktlint") version "11.3.1"
+    id("org.jetbrains.kotlinx.kover") version "0.7.6"
+    id("io.gitlab.arturbosch.detekt") version "1.23.6"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
 }
 
 val atomicfu_version: String by project
@@ -43,23 +43,23 @@ val host: Host = getHostType()
 version = "$version${if (is_snapshot) "-SNAPSHOT" else ""}"
 
 kotlin {
-    fun addNativeTarget(preset: KotlinTargetPreset<*>, desiredHost: Host) {
-        val target = targetFromPreset(preset)
-        nativeMainSets.add(target.compilations.getByName("main").kotlinSourceSets.first())
-        nativeTestSets.add(target.compilations.getByName("test").kotlinSourceSets.first())
-        if (host != desiredHost) {
-            target.compilations.configureEach {
-                compileKotlinTask.enabled = false
-            }
-        }
-    }
-
-    fun addNativeTarget2(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget, desiredHost: Host) {
-        if (host == desiredHost) {
-            nativeMainSets.add(target.compilations.getByName("main").kotlinSourceSets.first())
-            nativeTestSets.add(target.compilations.getByName("test").kotlinSourceSets.first())
-        }
-    }
+//    fun addNativeTarget(preset: KotlinTargetPreset<*>, desiredHost: Host) {
+//        val target = targetFromPreset(preset)
+//        nativeMainSets.add(target.compilations.getByName("main").kotlinSourceSets.first())
+//        nativeTestSets.add(target.compilations.getByName("test").kotlinSourceSets.first())
+//        if (host != desiredHost) {
+//            target.compilations.configureEach {
+//                compileKotlinTask.enabled = false
+//            }
+//        }
+//    }
+//
+//    fun addNativeTarget2(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget, desiredHost: Host) {
+//        if (host == desiredHost) {
+//            nativeMainSets.add(target.compilations.getByName("main").kotlinSourceSets.first())
+//            nativeTestSets.add(target.compilations.getByName("test").kotlinSourceSets.first())
+//        }
+//    }
 
     explicitApi()
 
@@ -98,38 +98,68 @@ kotlin {
         }
     }
 
+    macosX64()
+    macosArm64()
+
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+
+    // ERROR whit the korlibs dependencies
+//    watchosArm32()
+    watchosArm64()
+    watchosX64()
+    watchosSimulatorArm64()
+
+    tvosArm64()
+    tvosX64()
+    tvosSimulatorArm64()
+
+    mingwX64()
+
+    linuxX64()
+    linuxArm64()
+//    linuxArm32Hfp() // this is deprecated?
+
+    // why? check androidTarget?
+//    androidNativeArm32()
+//    androidNativeArm64()
+//    androidNativeX86()
+//    androidNativeX64()
+
+    applyDefaultHierarchyTemplate()
     // Windows
     //addNativeTarget(presets["mingwX64"], Host.WINDOWS)
-    addNativeTarget2(mingwX64(), Host.WINDOWS)
-
-
-    // Linux
-    //addNativeTarget(presets["linuxX64"], Host.LINUX)
-    addNativeTarget2(linuxX64(), Host.LINUX)
-
-    // MacOS
-//    addNativeTarget(presets["macosX64"], Host.MAC_OS)
-//    addNativeTarget(presets["macosArm64"], Host.MAC_OS)
-    addNativeTarget2(macosX64(), Host.MAC_OS)
-    addNativeTarget2(macosArm64(), Host.MAC_OS)
-
-    // iOS
-//    addNativeTarget(presets["iosArm64"], Host.MAC_OS)
-//    addNativeTarget(presets["iosX64"], Host.MAC_OS)
-//    addNativeTarget(presets["iosSimulatorArm64"], Host.MAC_OS)
-    addNativeTarget2(iosArm64(), Host.MAC_OS)
-    addNativeTarget2(iosX64(), Host.MAC_OS)
-    addNativeTarget2(iosSimulatorArm64(), Host.MAC_OS)
-
-    // watchOS
-    addNativeTarget2(watchosArm32(), Host.MAC_OS)
-    addNativeTarget2(watchosArm64(), Host.MAC_OS)
-    addNativeTarget2(watchosSimulatorArm64(), Host.MAC_OS)
-
-    // tvOS
-    addNativeTarget2(tvosArm64(), Host.MAC_OS)
-    addNativeTarget2(tvosX64(), Host.MAC_OS)
-    addNativeTarget2(tvosSimulatorArm64(), Host.MAC_OS)
+//    addNativeTarget2(mingwX64(), Host.WINDOWS)
+//
+//
+//    // Linux
+//    //addNativeTarget(presets["linuxX64"], Host.LINUX)
+//    addNativeTarget2(linuxX64(), Host.LINUX)
+//
+//    // MacOS
+////    addNativeTarget(presets["macosX64"], Host.MAC_OS)
+////    addNativeTarget(presets["macosArm64"], Host.MAC_OS)
+//    addNativeTarget2(macosX64(), Host.MAC_OS)
+//    addNativeTarget2(macosArm64(), Host.MAC_OS)
+//
+//    // iOS
+////    addNativeTarget(presets["iosArm64"], Host.MAC_OS)
+////    addNativeTarget(presets["iosX64"], Host.MAC_OS)
+////    addNativeTarget(presets["iosSimulatorArm64"], Host.MAC_OS)
+//    addNativeTarget2(iosArm64(), Host.MAC_OS)
+//    addNativeTarget2(iosX64(), Host.MAC_OS)
+//    addNativeTarget2(iosSimulatorArm64(), Host.MAC_OS)
+//
+//    // watchOS
+//    addNativeTarget2(watchosArm32(), Host.MAC_OS)
+//    addNativeTarget2(watchosArm64(), Host.MAC_OS)
+//    addNativeTarget2(watchosSimulatorArm64(), Host.MAC_OS)
+//
+//    // tvOS
+//    addNativeTarget2(tvosArm64(), Host.MAC_OS)
+//    addNativeTarget2(tvosX64(), Host.MAC_OS)
+//    addNativeTarget2(tvosSimulatorArm64(), Host.MAC_OS)
 
     sourceSets {
         val commonMain by getting {
@@ -199,11 +229,11 @@ kotlin {
             }
         }
 
-        val nativeMain by creating {
+        val nativeMain by getting {
             dependsOn(commonMain)
         }
 
-        val nativeTest by creating {
+        val nativeTest by getting {
             dependsOn(commonTest)
         }
 

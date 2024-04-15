@@ -20,7 +20,10 @@ public class SharedPreferencesCache(context: Context) : ConfigCache {
 
     override suspend fun read(key: String): String? = sharedPreferences.getString(key, null)
 
-    override suspend fun write(key: String, value: String) {
+    override suspend fun write(
+        key: String,
+        value: String,
+    ) {
         sharedPreferences.edit().putString(key, value).apply()
     }
 }

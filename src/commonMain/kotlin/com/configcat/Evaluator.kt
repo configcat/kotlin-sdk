@@ -7,16 +7,18 @@ import com.configcat.ComparatorHelp.toSegmentComparatorOrNull
 import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.configcat.model.*
-import com.soywiz.klock.DateTime
-import com.soywiz.klock.DateTimeTz
-import com.soywiz.krypto.sha1
-import com.soywiz.krypto.sha256
+
+
 import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
 import io.github.z4kn4fein.semver.toVersionOrNull
 import io.ktor.http.*
 import io.ktor.utils.io.charsets.*
+import korlibs.crypto.sha1
+import korlibs.crypto.sha256
+import korlibs.time.DateTime
+import korlibs.time.DateTimeTz
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlin.math.absoluteValue

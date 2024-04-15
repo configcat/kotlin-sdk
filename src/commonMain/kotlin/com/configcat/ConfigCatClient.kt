@@ -8,8 +8,8 @@ import com.configcat.model.Setting
 import com.configcat.model.SettingType
 import com.configcat.override.FlagOverrides
 import com.configcat.override.OverrideBehavior
-import com.soywiz.klock.DateTime
 import io.ktor.client.engine.*
+import korlibs.time.DateTime
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock

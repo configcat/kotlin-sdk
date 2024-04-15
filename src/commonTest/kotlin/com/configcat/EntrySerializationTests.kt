@@ -2,7 +2,8 @@ package com.configcat
 
 import com.configcat.model.Config
 import com.configcat.model.Entry
-import com.soywiz.klock.DateTime
+import korlibs.time.DateTime
+
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.decodeFromString

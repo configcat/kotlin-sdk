@@ -5,10 +5,11 @@ import com.configcat.evaluation.LogEvent
 import com.configcat.log.LogLevel
 import com.configcat.override.OverrideBehavior
 import com.configcat.override.OverrideDataSource
-import com.soywiz.klock.DateTime
+
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import io.ktor.util.*
+import korlibs.time.DateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
