@@ -4,12 +4,12 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import java.net.URL
 
 buildscript {
-    val kotlin_version by extra("1.9.23")
-    val atomicfu_version: String by project
+    val kotlinVersion by extra("1.9.23")
+    val atomicfuVersion: String by project
     dependencies {
-        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:$atomicfu_version")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
-        classpath("org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:$kotlin_version")
+        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:$atomicfuVersion")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+        classpath("org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:$kotlinVersion")
     }
 }
 
@@ -28,21 +28,21 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
 }
 
-val atomicfu_version: String by project
-val ktor_version: String by project
-val kotlinx_serialization_version: String by project
-val kotlinx_coroutines_version: String by project
-val klock_version: String by project
-val krypto_version: String by project
-val semver_version: String by project
+val atomicfuVersion: String by project
+val ktorVersion: String by project
+val kotlinxSerializationVersion: String by project
+val kotlinxCoroutinesVersion: String by project
+val klockVersion: String by project
+val kryptoVersion: String by project
+val semverVersion: String by project
 
-val build_number: String get() = System.getenv("BUILD_NUMBER") ?: ""
-val is_snapshot: Boolean get() = System.getProperty("snapshot") != null
+val buildNumber: String get() = System.getenv("BUILD_NUMBER") ?: ""
+val isSnapshot: Boolean get() = System.getProperty("snapshot") != null
 val nativeMainSets: MutableList<KotlinSourceSet> = mutableListOf()
 val nativeTestSets: MutableList<KotlinSourceSet> = mutableListOf()
 val host: Host = getHostType()
 
-version = "$version${if (is_snapshot) "-SNAPSHOT" else ""}"
+version = "$version${if (isSnapshot) "-SNAPSHOT" else ""}"
 
 kotlin {
     explicitApi()
@@ -82,32 +82,6 @@ kotlin {
         }
     }
 
-//    wasmJs {
-//        browser {
-//            testTask {
-//                useKarma {
-//                    useChromeHeadless()
-//                }
-//            }
-//            commonWebpackConfig {
-//                cssSupport {
-//                    enabled.set(true)
-//                }
-//            }
-//        }
-//        nodejs {
-//            testTask {
-//                useMocha {
-//                    timeout = "20000"
-//                }
-//            }
-//        }
-//    }
-//
-//    wasmWasi {
-//        nodejs()
-//    }
-
     macosX64()
     macosArm64()
 
@@ -141,63 +115,51 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation("io.ktor:ktor-client-core:$ktor_version")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinx_serialization_version")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version")
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version")
-            implementation("com.soywiz.korlibs.klock:klock:$klock_version")
-            implementation("com.soywiz.korlibs.krypto:krypto:$krypto_version")
-            implementation("io.github.z4kn4fein:semver:$semver_version")
+            implementation("io.ktor:ktor-client-core:$ktorVersion")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinxSerializationVersion")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
+            implementation("com.soywiz.korlibs.klock:klock:$klockVersion")
+            implementation("com.soywiz.korlibs.krypto:krypto:$kryptoVersion")
+            implementation("io.github.z4kn4fein:semver:$semverVersion")
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
-            implementation("io.ktor:ktor-client-mock:$ktor_version")
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinx_coroutines_version")
+            implementation("io.ktor:ktor-client-mock:$ktorVersion")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinxCoroutinesVersion")
         }
 
         jvmMain.dependencies {
-            implementation("io.ktor:ktor-client-okhttp:$ktor_version")
+            implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
         }
 
         jvmTest.dependencies {}
 
         jsMain.dependencies {
-            implementation("io.ktor:ktor-client-js:$ktor_version")
-            implementation("io.ktor:ktor-client-core-js:$ktor_version")
+            implementation("io.ktor:ktor-client-js:$ktorVersion")
+            implementation("io.ktor:ktor-client-core-js:$ktorVersion")
         }
         jsTest.dependencies {
         }
 
-//        jsMain by getting {
-//            dependsOn(commonMain)
-//            dependencies {
-//                implementation("io.ktor:ktor-client-js:$ktor_version")
-//                implementation("io.ktor:ktor-client-core-js:$ktor_version")
-//            }
-//        }
-//
-//        val jsTest by getting {
-//            dependsOn(commonTest)
-//        }
-
         androidMain.dependencies {
-            implementation("io.ktor:ktor-client-okhttp:$ktor_version")
-            implementation("org.jetbrains.kotlinx:atomicfu:$atomicfu_version")
+            implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+            implementation("org.jetbrains.kotlinx:atomicfu:$atomicfuVersion")
         }
 
-//        val darwinMain by creating {
-//            dependsOn(commonMain)
-//            dependencies {
-//                implementation("io.ktor:ktor-client-darwin:$ktor_version")
-//            }
-//        }
-//
-//        val darwinTest by creating {
-//            dependsOn(commonTest)
-//            dependencies {
-//                implementation("io.ktor:ktor-client-darwin:$ktor_version")
-//            }
-//        }
+        val darwinMain by creating {
+            dependsOn(commonMain.get())
+            dependencies {
+                implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+            }
+        }
+
+        val darwinTest by creating {
+            dependsOn(commonTest.get())
+            dependencies {
+                implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+            }
+        }
 
         nativeMain.dependencies { }
 
@@ -210,21 +172,21 @@ kotlin {
 //            dependsOn(commonTest)
 //        }
 
-//        configure(nativeMainSets) {
-//            if (this.name.isDarwin()) {
-//                dependsOn(darwinMain)
-//            } else {
-//                dependsOn(nativeMain)
-//            }
-//        }
+        configure(nativeMainSets) {
+            if (this.name.isDarwin()) {
+                dependsOn(darwinMain)
+            } else {
+                dependsOn(nativeMain.get())
+            }
+        }
 //
-//        configure(nativeTestSets) {
-//            if (this.name.isDarwin()) {
-//                dependsOn(darwinTest)
-//            } else {
-//                dependsOn(nativeTest)
-//            }
-//        }
+        configure(nativeTestSets) {
+            if (this.name.isDarwin()) {
+                dependsOn(darwinTest)
+            } else {
+                dependsOn(nativeTest.get())
+            }
+        }
     }
 }
 
@@ -242,14 +204,14 @@ tasks.getByName<DokkaTask>("dokkaHtml") {
     outputDirectory.set(file(buildDir.resolve("dokka")))
 
     dokkaSourceSets {
-//        named("darwinMain") {
-//            platform.set(org.jetbrains.dokka.Platform.native)
-//            sourceLink {
-//                localDirectory.set(file("src/darwinMain/kotlin"))
-//                remoteUrl.set(URL("https://github.com/configcat/kotlin-sdk/blob/main/src/darwinMain/kotlin"))
-//                remoteLineSuffix.set("#L")
-//            }
-//        }
+        named("darwinMain") {
+            platform.set(org.jetbrains.dokka.Platform.native)
+            sourceLink {
+                localDirectory.set(file("src/darwinMain/kotlin"))
+                remoteUrl.set(URL("https://github.com/configcat/kotlin-sdk/blob/main/src/darwinMain/kotlin"))
+                remoteLineSuffix.set("#L")
+            }
+        }
 
         named("commonMain") {
             sourceLink {
@@ -312,7 +274,7 @@ sonarqube {
     properties {
         property("sonar.projectKey", "configcat_kotlin-sdk")
         property("sonar.projectName", "kotlin-sdk")
-        property("sonar.projectVersion", "$version-$build_number")
+        property("sonar.projectVersion", "$version-$buildNumber")
         property("sonar.organization", "configcat")
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.sources", "src/commonMain/kotlin/com/configcat")
@@ -327,7 +289,7 @@ publishing {
         maven {
             val releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2")
             val snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots")
-            url = if (is_snapshot) snapshotsRepoUrl else releasesRepoUrl
+            url = if (isSnapshot) snapshotsRepoUrl else releasesRepoUrl
             credentials {
                 username = System.getenv("SONATYPE_USERNAME")
                 password = System.getenv("SONATYPE_PASSWORD")
