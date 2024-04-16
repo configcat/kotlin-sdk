@@ -25,7 +25,7 @@ public data class AutoPollConfiguration(
     /**
      * The maximum waiting time between initialization and the first config acquisition.
      */
-    public var maxInitWaitTime: Duration = 5.seconds
+    public var maxInitWaitTime: Duration = 5.seconds,
 )
 
 /**
@@ -35,20 +35,18 @@ public data class LazyLoadConfiguration(
     /**
      * The interval of how long the cache will store its value before fetching the latest from the network again.
      */
-    public var cacheRefreshInterval: Duration = 60.seconds
+    public var cacheRefreshInterval: Duration = 60.seconds,
 )
 
 /**
  * Creates an auto polling configuration.
  */
-public fun autoPoll(block: AutoPollConfiguration.() -> Unit = {}): PollingMode =
-    AutoPollMode(AutoPollConfiguration().apply(block))
+public fun autoPoll(block: AutoPollConfiguration.() -> Unit = {}): PollingMode = AutoPollMode(AutoPollConfiguration().apply(block))
 
 /**
  * Creates a lazy load polling configuration.
  */
-public fun lazyLoad(block: LazyLoadConfiguration.() -> Unit = {}): PollingMode =
-    LazyLoadMode(LazyLoadConfiguration().apply(block))
+public fun lazyLoad(block: LazyLoadConfiguration.() -> Unit = {}): PollingMode = LazyLoadMode(LazyLoadConfiguration().apply(block))
 
 /**
  * Creates a manual polling configuration.

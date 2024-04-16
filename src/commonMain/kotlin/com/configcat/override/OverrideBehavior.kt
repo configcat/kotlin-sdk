@@ -22,5 +22,5 @@ public enum class OverrideBehavior {
      * plus all feature flags & settings that are loaded from local-override sources. If a feature flag or a setting is
      * defined both in the fetched and the local-override source then the fetched version will take precedence.
      */
-    REMOTE_OVER_LOCAL
+    REMOTE_OVER_LOCAL,
 }

@@ -5,9 +5,9 @@ import com.configcat.evaluation.LogEvent
 import com.configcat.log.LogLevel
 import com.configcat.override.OverrideBehavior
 import com.configcat.override.OverrideDataSource
-import io.ktor.client.engine.mock.*
-import io.ktor.http.*
-import io.ktor.util.*
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -16,75 +16,78 @@ import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class JSConfigV2EvaluationTest {
-
     // This is the same test cases as the ConfigV2EvaluationTest with different expected results.
     // The JS format the double differently, then the other platforms
     @Test
-    fun prerequisiteFlagTypeMismatchTest() = runTest {
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", true, "Dog")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", false, "Cat")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", "1", "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", 1, "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", 1.0, "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", "private", "Dog")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", "Private", "Cat")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", true, "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", 1, "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", 1.0, "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", 2, "Dog")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", 1, "Cat")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", "2", "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", true, "")
-        // in js the Double converted to Int and vice versa 2.0 == 2 and 2 results Dog
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", 2.0, "Dog")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", 0.1, "Dog")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", 0.11, "Cat")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", "0.1", "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", true, "")
-        // in js the Double converted to Int and vice versa 1 == 1.0 and 1.0 results Dog
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", 1, "Cat")
-    }
+    fun prerequisiteFlagTypeMismatchTest() =
+        runTest {
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", true, "Dog")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", false, "Cat")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", "1", "")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", 1, "")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", 1.0, "")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", "private", "Dog")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", "Private", "Cat")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", true, "")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", 1, "")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", 1.0, "")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", 2, "Dog")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", 1, "Cat")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", "2", "")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", true, "")
+            // in js the Double converted to Int and vice versa 2.0 == 2 and 2 results Dog
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", 2.0, "Dog")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", 0.1, "Dog")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", 0.11, "Cat")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", "0.1", "")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", true, "")
+            // in js the Double converted to Int and vice versa 1 == 1.0 and 1.0 results Dog
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", 1, "Cat")
+        }
 
     private suspend fun runPrerequisiteFlagTypeMismatchTest(
         key: String,
         prerequisiteFlagKey: String,
         prerequisiteFlagValue: Any,
-        expectedValue: String?
+        expectedValue: String?,
     ) {
         val evaluationTestLogger = EvaluationTestLogger()
 
-        val mockEngine = MockEngine {
-            respond(content = prerequisiteFlagMismatchRemoteJson, status = HttpStatusCode.OK)
-        }
+        val mockEngine =
+            MockEngine {
+                respond(content = prerequisiteFlagMismatchRemoteJson, status = HttpStatusCode.OK)
+            }
         val flagOverrideMap = mutableMapOf<String, Any>()
         flagOverrideMap[prerequisiteFlagKey] = prerequisiteFlagValue
 
-        val client = ConfigCatClient("configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/JoGwdqJZQ0K2xDy7LnbyOg") {
-            pollingMode = manualPoll()
-            configCache = SingleValueCache("")
-            httpEngine = mockEngine
-            logLevel = LogLevel.ERROR
-            logger = evaluationTestLogger
-            flagOverrides = {
-                behavior = OverrideBehavior.LOCAL_OVER_REMOTE
-                dataSource = OverrideDataSource.map(
-                    flagOverrideMap
-                )
+        val client =
+            ConfigCatClient("configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/JoGwdqJZQ0K2xDy7LnbyOg") {
+                pollingMode = manualPoll()
+                configCache = SingleValueCache("")
+                httpEngine = mockEngine
+                logLevel = LogLevel.ERROR
+                logger = evaluationTestLogger
+                flagOverrides = {
+                    behavior = OverrideBehavior.LOCAL_OVER_REMOTE
+                    dataSource =
+                        OverrideDataSource.map(
+                            flagOverrideMap,
+                        )
+                }
             }
-        }
         client.forceRefresh()
 
         val value = client.getValue(key, "", null)
-        var errorLogs = mutableListOf<LogEvent>()
+        val errorLogs = mutableListOf<LogEvent>()
         assertEquals(
             expectedValue,
             value,
-            "Flag key: $key PrerequisiteFlagKey: $prerequisiteFlagKey PrerequisiteFlagValue: $prerequisiteFlagValue"
+            "Flag key: $key PrerequisiteFlagKey: $prerequisiteFlagKey PrerequisiteFlagValue: $prerequisiteFlagValue",
         )
         if (expectedValue.isNullOrEmpty()) {
             val logsList = evaluationTestLogger.getLogList()
             for (i in logsList.indices) {
-                var log = logsList[i]
+                val log = logsList[i]
                 if (log.logLevel == LogLevel.ERROR) {
                     errorLogs.add(log)
                 }
@@ -105,7 +108,8 @@ class JSConfigV2EvaluationTest {
         ConfigCatClient.closeAll()
     }
 
-    private val prerequisiteFlagMismatchRemoteJson = """
+    private val prerequisiteFlagMismatchRemoteJson =
+        """
         {
            "p":{
               "u":"https://cdn-global.configcat.com",
@@ -626,5 +630,5 @@ class JSConfigV2EvaluationTest {
               }
            }
         }
-    """.trimIndent()
+        """.trimIndent()
 }

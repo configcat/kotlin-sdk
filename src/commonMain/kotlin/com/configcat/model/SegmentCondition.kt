@@ -17,7 +17,7 @@ public data class SegmentCondition(
      * The operator which defines the expected result of the evaluation of the segment.
      */
     @SerialName(value = "c")
-    val segmentComparator: Int = -1
+    val segmentComparator: Int = -1,
 ) {
     // No implementation
 }

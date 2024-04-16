@@ -68,7 +68,7 @@ internal object ConfigCatLogMessages {
     fun getConfigJsonIsNotPresentedWithDefaultValue(
         key: String,
         defaultParamName: String,
-        defaultParamValue: Any?
+        defaultParamValue: Any?,
     ): String {
         return "Config JSON is not present when evaluating setting '$key'. " +
             "Returning the `$defaultParamName` parameter that you specified in your " +
@@ -99,14 +99,15 @@ internal object ConfigCatLogMessages {
         key: String,
         defaultParamName: String,
         defaultParamValue: Any?,
-        availableKeysSet: Set<String?>
+        availableKeysSet: Set<String?>,
     ): String {
         return "Failed to evaluate setting '$key' (the key was not found in config JSON). " +
             "Returning the `$defaultParamName` parameter that you specified in your " +
-            "application: '$defaultParamValue'. Available keys: [" + availableKeysSet.joinToString(
-            ", ",
-            transform = { availableKey -> "'$availableKey'" }
-        ) + "]."
+            "application: '$defaultParamValue'. Available keys: [" +
+            availableKeysSet.joinToString(
+                ", ",
+                transform = { availableKey -> "'$availableKey'" },
+            ) + "]."
     }
 
     /**
@@ -116,7 +117,10 @@ internal object ConfigCatLogMessages {
      * @param emptyResult The empty result.
      * @return The formatted error message.
      */
-    fun getSettingEvaluationErrorWithEmptyValue(methodName: String, emptyResult: String): String {
+    fun getSettingEvaluationErrorWithEmptyValue(
+        methodName: String,
+        emptyResult: String,
+    ): String {
         return "Error occurred in the `$methodName` method. Returning $emptyResult."
     }
 
@@ -133,7 +137,7 @@ internal object ConfigCatLogMessages {
         methodName: String,
         key: String,
         defaultParamName: String,
-        defaultParamValue: Any
+        defaultParamValue: Any,
     ): String {
         return "Error occurred in the `$methodName` method while evaluating setting '$key'. Returning the " +
             "`$defaultParamName` parameter that you specified in your application: '$defaultParamValue'."
@@ -146,7 +150,10 @@ internal object ConfigCatLogMessages {
      * @param responseMessage The http response message.
      * @return The formatted error message.
      */
-    fun getFetchFailedDueToUnexpectedHttpResponse(responseCode: Int, responseMessage: String): String {
+    fun getFetchFailedDueToUnexpectedHttpResponse(
+        responseCode: Int,
+        responseMessage: String,
+    ): String {
         return "Unexpected HTTP response was received while trying to fetch config JSON: $responseCode $responseMessage"
     }
 
@@ -161,7 +168,7 @@ internal object ConfigCatLogMessages {
     fun getFetchFailedDueToRequestTimeout(
         connectTimeoutMillis: Long,
         readTimeoutMillis: Long,
-        writeTimeoutMillis: Long
+        writeTimeoutMillis: Long,
     ): String {
         return "Request timed out while trying to fetch config JSON. Timeout values: [connect: " +
             "${connectTimeoutMillis}ms, read: ${readTimeoutMillis}ms, write: ${writeTimeoutMillis}ms]"
@@ -209,7 +216,11 @@ internal object ConfigCatLogMessages {
      * @param attributeName The user attribute name.
      * @return The formatted warn message.
      */
-    fun getUserAttributeMissing(key: String, userCondition: UserCondition, attributeName: String): String {
+    fun getUserAttributeMissing(
+        key: String,
+        userCondition: UserCondition,
+        attributeName: String,
+    ): String {
         return "Cannot evaluate condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting " +
             "'$key' (the User.$attributeName attribute is missing). You should set the User.$attributeName " +
             "attribute in order to make targeting work properly. " +
@@ -223,7 +234,10 @@ internal object ConfigCatLogMessages {
      * @param attributeName The user attribute name.
      * @return The formatted warn message.
      */
-    fun getUserAttributeMissing(key: String, attributeName: String): String {
+    fun getUserAttributeMissing(
+        key: String,
+        attributeName: String,
+    ): String {
         return "Cannot evaluate % options for setting '$key' (the User.$attributeName attribute is missing). " +
             "You should set the User.$attributeName attribute in order to make targeting work properly. " +
             "Read more: https://configcat.com/docs/advanced/user-object/"
@@ -242,7 +256,7 @@ internal object ConfigCatLogMessages {
         key: String,
         userCondition: UserCondition,
         reason: String,
-        attributeName: String
+        attributeName: String,
     ): String {
         return "Cannot evaluate condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting " +
             "'$key' ($reason). Please check the User.$attributeName attribute and make sure that its value " +
@@ -262,7 +276,7 @@ internal object ConfigCatLogMessages {
         key: String,
         userCondition: UserCondition,
         attributeName: String,
-        attributeValue: String
+        attributeValue: String,
     ): String {
         return "Evaluation of condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting " +
             "'$key' may not produce the expected result (the User.$attributeName attribute is not a string value, " +

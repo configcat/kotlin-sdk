@@ -13,5 +13,5 @@ public data class Condition(
     @SerialName(value = "s")
     override val segmentCondition: SegmentCondition? = null,
     @SerialName(value = "p")
-    override val prerequisiteFlagCondition: PrerequisiteFlagCondition? = null
+    override val prerequisiteFlagCondition: PrerequisiteFlagCondition? = null,
 ) : ConditionAccessor

@@ -22,7 +22,7 @@ public data class PercentageOption(
      * The variation ID of the percentage option.
      */
     @SerialName(value = "i")
-    val variationId: String? = null
+    val variationId: String? = null,
 ) {
     // No implementation
 }

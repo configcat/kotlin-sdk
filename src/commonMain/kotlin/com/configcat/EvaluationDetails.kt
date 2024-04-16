@@ -14,7 +14,7 @@ public open class EvaluationDetailsBase internal constructor(
     public val error: String?,
     public val fetchTimeUnixMilliseconds: Long,
     public val matchedTargetingRule: TargetingRule?,
-    public val matchedPercentageOption: PercentageOption?
+    public val matchedPercentageOption: PercentageOption?,
 )
 
 /**
@@ -29,17 +29,17 @@ public class TypedEvaluationDetails<T> public constructor(
     public val value: T,
     fetchTimeUnixMilliseconds: Long,
     matchedTargetingRule: TargetingRule?,
-    matchedPercentageOption: PercentageOption?
+    matchedPercentageOption: PercentageOption?,
 ) : EvaluationDetailsBase(
-    key,
-    variationId,
-    user,
-    isDefaultValue,
-    error,
-    fetchTimeUnixMilliseconds,
-    matchedTargetingRule,
-    matchedPercentageOption
-)
+        key,
+        variationId,
+        user,
+        isDefaultValue,
+        error,
+        fetchTimeUnixMilliseconds,
+        matchedTargetingRule,
+        matchedPercentageOption,
+    )
 
 /**
  * Additional information about flag evaluation.
@@ -53,22 +53,27 @@ public class EvaluationDetails internal constructor(
     public val value: Any?,
     fetchTimeUnixMilliseconds: Long,
     matchedTargetingRule: TargetingRule?,
-    matchedPercentageOption: PercentageOption?
+    matchedPercentageOption: PercentageOption?,
 ) : EvaluationDetailsBase(
-    key,
-    variationId,
-    user,
-    isDefaultValue,
-    error,
-    fetchTimeUnixMilliseconds,
-    matchedTargetingRule,
-    matchedPercentageOption
-) {
+        key,
+        variationId,
+        user,
+        isDefaultValue,
+        error,
+        fetchTimeUnixMilliseconds,
+        matchedTargetingRule,
+        matchedPercentageOption,
+    ) {
     internal companion object {
-        internal fun makeError(key: String, defaultValue: Any?, error: String, user: ConfigCatUser?):
-            EvaluationDetails = EvaluationDetails(
-            key, "", user, true, error,
-            defaultValue, Constants.distantPast.unixMillisLong, null, null
-        )
+        internal fun makeError(
+            key: String,
+            defaultValue: Any?,
+            error: String,
+            user: ConfigCatUser?,
+        ): EvaluationDetails =
+            EvaluationDetails(
+                key, "", user, true, error,
+                defaultValue, Constants.distantPast.unixMillisLong, null, null,
+            )
     }
 }

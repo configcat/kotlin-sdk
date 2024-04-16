@@ -10,5 +10,5 @@ public enum class SettingType(public val id: Int, public val value: String) {
     DOUBLE(3, "Double"),
 
     // This is only used by the client, never presented to the user
-    JS_NUMBER(-1, "JsNumber")
+    JS_NUMBER(-1, "JsNumber"),
 }

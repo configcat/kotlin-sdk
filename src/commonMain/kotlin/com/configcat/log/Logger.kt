@@ -14,7 +14,10 @@ public interface Logger {
     /**
      * Log a [message] with [throwable] at level [LogLevel.ERROR].
      */
-    public fun error(message: String, throwable: Throwable)
+    public fun error(
+        message: String,
+        throwable: Throwable,
+    )
 
     /**
      * Log a [message] at level [LogLevel.WARNING].

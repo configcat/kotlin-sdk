@@ -2,7 +2,6 @@ package com.configcat
 
 import korlibs.time.DateTime
 
-
 internal object DateTimeUtils {
     fun isValidDate(fetchTime: String): Boolean {
         fetchTime.toLongOrNull() ?: return false

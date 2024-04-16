@@ -1,34 +1,45 @@
 package com.configcat.fetch
 
-import com.configcat.*
+import com.configcat.Closeable
+import com.configcat.ConfigCatOptions
+import com.configcat.Constants
+import com.configcat.DataGovernance
+import com.configcat.Helpers
 import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.configcat.model.Config
 import com.configcat.model.Entry
-import io.ktor.client.*
-import io.ktor.client.plugins.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
+import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.get
+import io.ktor.client.request.headers
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.etag
 import korlibs.time.DateTime
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
 
 internal class ConfigFetcher constructor(
     private val options: ConfigCatOptions,
-    private val logger: InternalLogger
+    private val logger: InternalLogger,
 ) : Closeable {
     private val httpClient = createClient()
     private val closed = atomic(false)
     private val isUrlCustom = options.isBaseURLCustom()
-    private val baseUrl = atomic(
-        options.baseUrl?.let { it.ifEmpty { null } }
-            ?: if (options.dataGovernance == DataGovernance.GLOBAL) {
-                Constants.globalCdnUrl
-            } else {
-                Constants.euCdnUrl
-            }
-    )
+    private val baseUrl =
+        atomic(
+            options.baseUrl?.let { it.ifEmpty { null } }
+                ?: if (options.dataGovernance == DataGovernance.GLOBAL) {
+                    Constants.GLOBAL_CDN_URL
+                } else {
+                    Constants.EU_CDN_URL
+                },
+        )
 
     suspend fun fetch(eTag: String): FetchResponse {
         return fetchHTTPWithPreferenceHandling(eTag)
@@ -67,21 +78,25 @@ internal class ConfigFetcher constructor(
         return FetchResponse.failure(message, true)
     }
 
-    private suspend fun fetchHTTP(baseUrl: String, eTag: String): FetchResponse {
-        val url = "$baseUrl/configuration-files/${options.sdkKey}/${Constants.configFileName}"
+    private suspend fun fetchHTTP(
+        baseUrl: String,
+        eTag: String,
+    ): FetchResponse {
+        val url = "$baseUrl/configuration-files/${options.sdkKey}/${Constants.CONFIG_FILE_NAME}"
         try {
             val httpRequestBuilder =
-                httpRequestBuilder("ConfigCat-Kotlin/${options.pollingMode.identifier}-${Constants.version}", eTag)
-            val response = httpClient.get(url) {
-                httpRequestBuilder.headers.entries().forEach {
-                    headers.appendAll(it.key, it.value)
-                }
-                url {
-                    httpRequestBuilder.url.parameters.entries().forEach {
-                        parameters.appendAll(it.key, it.value)
+                httpRequestBuilder("ConfigCat-Kotlin/${options.pollingMode.identifier}-${Constants.VERSION}", eTag)
+            val response =
+                httpClient.get(url) {
+                    httpRequestBuilder.headers.entries().forEach {
+                        headers.appendAll(it.key, it.value)
+                    }
+                    url {
+                        httpRequestBuilder.url.parameters.entries().forEach {
+                            parameters.appendAll(it.key, it.value)
+                        }
                     }
                 }
-            }
             if (response.status.value in 200..299) {
                 logger.debug("Fetch was successful: new config fetched.")
                 val body = response.bodyAsText()
@@ -96,24 +111,27 @@ internal class ConfigFetcher constructor(
                 logger.debug("Fetch was successful: config not modified.")
                 return FetchResponse.notModified()
             } else if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.Forbidden) {
-                val message = ConfigCatLogMessages.FETCH_FAILED_DUE_TO_INVALID_SDK_KEY_ERROR +
-                    " Received response: ${response.status}"
+                val message =
+                    ConfigCatLogMessages.FETCH_FAILED_DUE_TO_INVALID_SDK_KEY_ERROR +
+                        " Received response: ${response.status}"
                 logger.error(1100, message)
                 return FetchResponse.failure(message, false)
             } else {
-                val message = ConfigCatLogMessages.getFetchFailedDueToUnexpectedHttpResponse(
-                    response.status.value,
-                    response.bodyAsText()
-                )
+                val message =
+                    ConfigCatLogMessages.getFetchFailedDueToUnexpectedHttpResponse(
+                        response.status.value,
+                        response.bodyAsText(),
+                    )
                 logger.error(1101, message)
                 return FetchResponse.failure(message, true)
             }
         } catch (_: HttpRequestTimeoutException) {
-            val message = ConfigCatLogMessages.getFetchFailedDueToRequestTimeout(
-                options.requestTimeout.inWholeMilliseconds,
-                options.requestTimeout.inWholeMilliseconds,
-                options.requestTimeout.inWholeMilliseconds
-            )
+            val message =
+                ConfigCatLogMessages.getFetchFailedDueToRequestTimeout(
+                    options.requestTimeout.inWholeMilliseconds,
+                    options.requestTimeout.inWholeMilliseconds,
+                    options.requestTimeout.inWholeMilliseconds,
+                )
             logger.error(1102, message)
             return FetchResponse.failure(message, true)
         } catch (e: Exception) {
@@ -146,14 +164,20 @@ internal class ConfigFetcher constructor(
     }
 }
 
-internal expect fun httpRequestBuilder(configCatUserAgent: String, eTag: String): HttpRequestBuilder
+internal expect fun httpRequestBuilder(
+    configCatUserAgent: String,
+    eTag: String,
+): HttpRequestBuilder
 
-internal fun commonHttpRequestBuilder(configCatUserAgent: String, eTag: String): HttpRequestBuilder {
+internal fun commonHttpRequestBuilder(
+    configCatUserAgent: String,
+    eTag: String,
+): HttpRequestBuilder {
     val httpRequestBuilder = HttpRequestBuilder()
     httpRequestBuilder.headers {
         append(
             "X-ConfigCat-UserAgent",
-            configCatUserAgent
+            configCatUserAgent,
         )
         if (eTag.isNotEmpty()) append(HttpHeaders.IfNoneMatch, eTag)
     }

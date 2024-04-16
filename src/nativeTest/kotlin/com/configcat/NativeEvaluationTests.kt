@@ -3,11 +3,12 @@ package com.configcat
 import com.configcat.data.NativeComparatorsTests
 import com.configcat.data.NativeEpochDateValidationTests
 import com.configcat.evaluation.EvaluationTestLogger
-import com.configcat.evaluation.data.*
+import com.configcat.evaluation.data.TestSet
 import com.configcat.log.LogLevel
-import io.ktor.client.engine.mock.*
-import io.ktor.http.*
-import io.ktor.util.*
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -18,18 +19,19 @@ import kotlin.test.fail
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class NativeEvaluationTests {
+    @Test
+    fun testComparators() =
+        runTest {
+            // The test contains formatted double value, which is different in case of JS module
+            testEvaluation(NativeComparatorsTests)
+        }
 
     @Test
-    fun testComparators() = runTest {
-        // The test contains formatted double value, which is different in case of JS module
-        testEvaluation(NativeComparatorsTests)
-    }
-
-    @Test
-    fun testEpochDateValidation() = runTest {
-        // The test contains formatted double value, which is different in case of JS module
-        testEvaluation(NativeEpochDateValidationTests)
-    }
+    fun testEpochDateValidation() =
+        runTest {
+            // The test contains formatted double value, which is different in case of JS module
+            testEvaluation(NativeEpochDateValidationTests)
+        }
 
     private suspend fun testEvaluation(testSet: TestSet) {
         var sdkKey = testSet.sdkKey
@@ -37,22 +39,24 @@ class NativeEvaluationTests {
             sdkKey = TEST_SDK_KEY
         }
 
-        val mockEngine = MockEngine {
-            respond(
-                content = testSet.jsonOverride,
-                status = HttpStatusCode.OK,
-                headersOf(Pair("ETag", listOf("fakeETag")))
-            )
-        }
+        val mockEngine =
+            MockEngine {
+                respond(
+                    content = testSet.jsonOverride,
+                    status = HttpStatusCode.OK,
+                    headersOf(Pair("ETag", listOf("fakeETag"))),
+                )
+            }
 
         val evaluationTestLogger = EvaluationTestLogger()
-        val client = ConfigCatClient(sdkKey) {
-            pollingMode = manualPoll()
-            baseUrl = testSet.baseUrl
-            httpEngine = mockEngine
-            logger = evaluationTestLogger
-            logLevel = LogLevel.INFO
-        }
+        val client =
+            ConfigCatClient(sdkKey) {
+                pollingMode = manualPoll()
+                baseUrl = testSet.baseUrl
+                httpEngine = mockEngine
+                logger = evaluationTestLogger
+                logLevel = LogLevel.INFO
+            }
         client.forceRefresh()
 
         val tests = testSet.tests

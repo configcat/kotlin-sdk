@@ -23,7 +23,7 @@ public data class PrerequisiteFlagCondition(
      * The value that the evaluated value of the prerequisite flag is compared to.
      */
     @SerialName(value = "v")
-    val value: SettingValue? = null
+    val value: SettingValue? = null,
 ) {
     // No implementation
 }

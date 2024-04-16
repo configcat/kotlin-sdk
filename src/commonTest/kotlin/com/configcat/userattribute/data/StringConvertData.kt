@@ -4,7 +4,8 @@ object StringConvertData : ConvertData {
     override val sdkKey = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/OfQqcTjfFUGBwMKqtyEOrQ"
     override val flagKey = "boolTextEqualsNumber"
     override val defaultValue = false
-    override val remoteJson = """
+    override val remoteJson =
+        """
         {
            "p":{
               "u":"https://cdn-global.configcat.com",
@@ -1408,5 +1409,5 @@ object StringConvertData : ConvertData {
               }
            }
         }
-    """.trimIndent()
+        """.trimIndent()
 }

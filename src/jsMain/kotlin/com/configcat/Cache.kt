@@ -4,10 +4,11 @@ import kotlinx.browser.localStorage
 import org.w3c.dom.get
 import org.w3c.dom.set
 
-internal actual fun defaultCache(): ConfigCache = when {
-    isBrowser() -> LocalStorageCache()
-    else -> EmptyConfigCache()
-}
+internal actual fun defaultCache(): ConfigCache =
+    when {
+        isBrowser() -> LocalStorageCache()
+        else -> EmptyConfigCache()
+    }
 
 /**
  * [ConfigCache] implementation that uses [localStorage] as persistent storage.
@@ -15,7 +16,10 @@ internal actual fun defaultCache(): ConfigCache = when {
 public class LocalStorageCache : ConfigCache {
     override suspend fun read(key: String): String? = localStorage[key]
 
-    override suspend fun write(key: String, value: String) {
+    override suspend fun write(
+        key: String,
+        value: String,
+    ) {
         localStorage[key] = value
     }
 }
