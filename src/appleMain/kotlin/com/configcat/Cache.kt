@@ -15,7 +15,10 @@ public class UserDefaultsCache : ConfigCache {
 
     override suspend fun read(key: String): String? = userDefaults.stringForKey("$prefix-$key")
 
-    override suspend fun write(key: String, value: String) {
+    override suspend fun write(
+        key: String,
+        value: String,
+    ) {
         userDefaults.setObject(value, "$prefix-$key")
     }
 }

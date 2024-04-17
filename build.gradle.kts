@@ -38,9 +38,6 @@ val semverVersion: String by project
 
 val buildNumber: String get() = System.getenv("BUILD_NUMBER") ?: ""
 val isSnapshot: Boolean get() = System.getProperty("snapshot") != null
-val nativeMainSets: MutableList<KotlinSourceSet> = mutableListOf()
-val nativeTestSets: MutableList<KotlinSourceSet> = mutableListOf()
-val host: Host = getHostType()
 
 version = "$version${if (isSnapshot) "-SNAPSHOT" else ""}"
 
@@ -89,8 +86,6 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
 
-    // ERROR whit the korlibs dependencies
-//    watchosArm32()
     watchosArm64()
     watchosX64()
     watchosSimulatorArm64()
@@ -103,13 +98,6 @@ kotlin {
 
     linuxX64()
     linuxArm64()
-//    linuxArm32Hfp() // this is deprecated?
-
-    // why? check androidTarget?
-//    androidNativeArm32()
-//    androidNativeArm64()
-//    androidNativeX86()
-//    androidNativeX64()
 
     applyDefaultHierarchyTemplate()
 
@@ -119,6 +107,8 @@ kotlin {
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinxSerializationVersion")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
+            // TODO replace with kotlinx-datetime
+            //   implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
             implementation("com.soywiz.korlibs.klock:klock:$klockVersion")
             implementation("com.soywiz.korlibs.krypto:krypto:$kryptoVersion")
             implementation("io.github.z4kn4fein:semver:$semverVersion")
@@ -133,59 +123,23 @@ kotlin {
             implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
         }
 
-        jvmTest.dependencies {}
-
         jsMain.dependencies {
             implementation("io.ktor:ktor-client-js:$ktorVersion")
             implementation("io.ktor:ktor-client-core-js:$ktorVersion")
         }
-        jsTest.dependencies {
-        }
 
         androidMain.dependencies {
+            implementation("io.ktor:ktor-client-android:$ktorVersion")
             implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
             implementation("org.jetbrains.kotlinx:atomicfu:$atomicfuVersion")
         }
 
-        val darwinMain by creating {
-            dependsOn(commonMain.get())
-            dependencies {
-                implementation("io.ktor:ktor-client-darwin:$ktorVersion")
-            }
+        appleMain.dependencies {
+            implementation("io.ktor:ktor-client-darwin:$ktorVersion")
         }
 
-        val darwinTest by creating {
-            dependsOn(commonTest.get())
-            dependencies {
-                implementation("io.ktor:ktor-client-darwin:$ktorVersion")
-            }
-        }
-
-        nativeMain.dependencies { }
-
-        nativeTest.dependencies { }
-//        val nativeMain by getting {
-//            dependsOn(commonMain)
-//        }
-//
-//        val nativeTest by getting {
-//            dependsOn(commonTest)
-//        }
-
-        configure(nativeMainSets) {
-            if (this.name.isDarwin()) {
-                dependsOn(darwinMain)
-            } else {
-                dependsOn(nativeMain.get())
-            }
-        }
-//
-        configure(nativeTestSets) {
-            if (this.name.isDarwin()) {
-                dependsOn(darwinTest)
-            } else {
-                dependsOn(nativeTest.get())
-            }
+        appleTest.dependencies {
+            implementation("io.ktor:ktor-client-darwin:$ktorVersion")
         }
     }
 }
@@ -204,11 +158,11 @@ tasks.getByName<DokkaTask>("dokkaHtml") {
     outputDirectory.set(file(buildDir.resolve("dokka")))
 
     dokkaSourceSets {
-        named("darwinMain") {
+        named("appleMain") {
             platform.set(org.jetbrains.dokka.Platform.native)
             sourceLink {
-                localDirectory.set(file("src/darwinMain/kotlin"))
-                remoteUrl.set(URL("https://github.com/configcat/kotlin-sdk/blob/main/src/darwinMain/kotlin"))
+                localDirectory.set(file("src/appleMain/kotlin"))
+                remoteUrl.set(URL("https://github.com/configcat/kotlin-sdk/blob/main/src/appleMain/kotlin"))
                 remoteLineSuffix.set("#L")
             }
         }
@@ -328,14 +282,6 @@ publishing {
             }
         }
     }
-
-    tasks.withType(AbstractPublishToMaven::class).configureEach {
-        onlyIf { isPublicationAllowed(publication.name) }
-    }
-
-    tasks.withType(GenerateModuleMetadata::class).configureEach {
-        onlyIf { isPublicationAllowed(publication.get().name) }
-    }
 }
 
 signing {
@@ -347,27 +293,6 @@ signing {
     }
 }
 
-fun isPublicationAllowed(name: String): Boolean =
-    when {
-        name.startsWith("mingw") -> host == Host.WINDOWS
-        name.isDarwin() -> host == Host.MAC_OS
-        else -> host == Host.LINUX
-    }
-
-fun getHostType(): Host {
-    val hostOs = System.getProperty("os.name")
-    return when {
-        hostOs.startsWith("Windows") -> Host.WINDOWS
-        hostOs.startsWith("Mac") -> Host.MAC_OS
-        hostOs == "Linux" -> Host.LINUX
-        else -> throw Error("Invalid host.")
-    }
+tasks.withType<AbstractPublishToMaven>().configureEach {
+    dependsOn(tasks.withType<Sign>())
 }
-
-enum class Host { WINDOWS, MAC_OS, LINUX }
-
-fun String.isDarwin(): Boolean =
-    this.startsWith("macos") ||
-        this.startsWith("ios") ||
-        this.startsWith("watchos") ||
-        this.startsWith("tvos")
