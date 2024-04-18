@@ -107,8 +107,6 @@ kotlin {
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinxSerializationVersion")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
-            // TODO replace with kotlinx-datetime
-            //   implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
             implementation("com.soywiz.korlibs.klock:klock:$klockVersion")
             implementation("com.soywiz.korlibs.krypto:krypto:$kryptoVersion")
             implementation("io.github.z4kn4fein:semver:$semverVersion")
