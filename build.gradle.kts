@@ -142,10 +142,15 @@ kotlin {
         val nativeRestMain by creating {
             dependsOn(commonMain.get())
         }
+        val nativeRestTest by creating {
+            dependsOn(commonTest.get())
+        }
 
         mingwMain.get().dependsOn(nativeRestMain)
+        mingwTest.get().dependsOn(nativeRestTest)
 
         linuxMain.get().dependsOn(nativeRestMain)
+        linuxTest.get().dependsOn(nativeRestTest)
     }
 }
 
