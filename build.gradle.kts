@@ -131,12 +131,18 @@ kotlin {
             implementation("org.jetbrains.kotlinx:atomicfu:$atomicfuVersion")
         }
 
-        appleMain.dependencies {
-            implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+        val appleMain by getting {
+            dependsOn(commonMain.get())
+            dependencies {
+                implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+            }
         }
 
-        appleTest.dependencies {
-            implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+        val appleTest by getting {
+            dependsOn(commonTest.get())
+            dependencies {
+                implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+            }
         }
     }
 }
