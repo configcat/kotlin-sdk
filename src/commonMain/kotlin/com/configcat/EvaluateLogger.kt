@@ -305,7 +305,6 @@ internal object EvaluatorLogHelper {
                         userCondition.stringArrayValue,
                         false,
                     )
-
                 Evaluator.UserComparator.LT_SEMVER,
                 Evaluator.UserComparator.LTE_SEMVER,
                 Evaluator.UserComparator.GT_SEMVER,
@@ -317,7 +316,6 @@ internal object EvaluatorLogHelper {
                         userCondition.stringValue,
                         false,
                     )
-
                 Evaluator.UserComparator.EQ_NUM,
                 Evaluator.UserComparator.NOT_EQ_NUM,
                 Evaluator.UserComparator.LT_NUM,
@@ -329,7 +327,6 @@ internal object EvaluatorLogHelper {
                         userCondition.doubleValue,
                         false,
                     )
-
                 Evaluator.UserComparator.ONE_OF_SENS,
                 Evaluator.UserComparator.NOT_ONE_OF_SENS,
                 Evaluator.UserComparator.HASHED_STARTS_WITH,
@@ -343,19 +340,16 @@ internal object EvaluatorLogHelper {
                         userCondition.stringArrayValue,
                         true,
                     )
-
                 Evaluator.UserComparator.DATE_BEFORE, Evaluator.UserComparator.DATE_AFTER ->
                     formatDoubleComparisonValue(
                         userCondition.doubleValue,
                         true,
                     )
-
                 Evaluator.UserComparator.HASHED_EQUALS, Evaluator.UserComparator.HASHED_NOT_EQUALS ->
                     formatStringComparisonValue(
                         userCondition.stringValue,
                         true,
                     )
-
                 else -> INVALID_VALUE
             }
         return "User.${userCondition.comparisonAttribute} ${userComparator?.value} $comparisonValue"
