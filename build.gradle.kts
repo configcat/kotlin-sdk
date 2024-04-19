@@ -88,6 +88,7 @@ kotlin {
     watchosArm64()
     watchosX64()
     watchosSimulatorArm64()
+    watchosDeviceArm64()
 
     tvosArm64()
     tvosX64()
@@ -244,7 +245,7 @@ sonarqube {
         property("sonar.sources", "src/commonMain/kotlin/com/configcat")
         property("sonar.tests", "src/commonTest/kotlin/com/configcat")
         property("sonar.kotlin.detekt.reportPaths", buildDir.resolve("reports/detekt/detekt.xml"))
-        property("sonar.coverage.jacoco.xmlReportPaths", buildDir.resolve("reports/kover/xml/report.xml"))
+        property("sonar.coverage.jacoco.xmlReportPaths", buildDir.resolve("reports/kover/report.xml"))
     }
 }
 
