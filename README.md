@@ -20,13 +20,13 @@ ConfigCat is a <a href="https://configcat.com" target="_blank">hosted feature fl
 
 ### 1. Install the ConfigCat SDK
 ```kotlin
-val CONFIGCAT_VERSION: String by project
+val configcatVersion: String by project
 
 kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("com.configcat:configcat-kotlin-client:$CONFIGCAT_VERSION")
+                implementation("com.configcat:configcat-kotlin-client:$configcatVersion")
             }
         }
     }
