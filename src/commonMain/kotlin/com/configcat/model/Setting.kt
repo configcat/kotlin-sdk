@@ -40,9 +40,8 @@ public data class Setting(
      * The variation ID of the setting.
      */
     @SerialName(value = "i")
-    val variationId: String? = null
+    val variationId: String? = null,
 ) {
-
     var configSalt: String? = null
     internal var segments: Array<Segment> = arrayOf()
 

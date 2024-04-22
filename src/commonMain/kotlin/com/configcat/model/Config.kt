@@ -1,7 +1,7 @@
 package com.configcat.model
 
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * ConfigCat config.
@@ -22,7 +22,7 @@ public data class Config(
      * List of segments.
      */
     @SerialName("s")
-    var segments: Array<Segment>? = null
+    var segments: Array<Segment>? = null,
 ) {
     internal fun isEmpty(): Boolean = this == empty
 

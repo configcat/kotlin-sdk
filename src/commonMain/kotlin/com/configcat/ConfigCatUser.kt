@@ -31,7 +31,7 @@ import kotlinx.serialization.encodeToString
  *  will be skipped).
  *
  * Date time-based comparisons (BEFORE / AFTER)<br>
- *  * accept [com.soywiz.klock.DateTime] values, which are automatically converted to a second-based Unix timestamp
+ *  * accept [korlibs.time.DateTime] values, which are automatically converted to a second-based Unix timestamp
  *  * accept [Double] values representing a second-based Unix timestamp and all other numeric values which can safely
  *  be converted to {@link Double}
  *  * accept [String] values containing a properly formatted, valid [Double]  value
@@ -52,7 +52,7 @@ public class ConfigCatUser(
     public val identifier: String,
     email: String? = null,
     country: String? = null,
-    custom: Map<String, Any>? = null
+    custom: Map<String, Any>? = null,
 ) {
     private val attributes: Map<String, Any>
 

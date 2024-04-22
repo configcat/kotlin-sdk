@@ -4,7 +4,8 @@ object DateConvertData : ConvertData {
     override val sdkKey = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/OfQqcTjfFUGBwMKqtyEOrQ"
     override val flagKey = "boolTrueIn202304"
     override val defaultValue = true
-    override val remoteJson = """
+    override val remoteJson =
+        """
         {
            "p":{
               "u":"https://cdn-global.configcat.com",
@@ -1408,5 +1409,5 @@ object DateConvertData : ConvertData {
               }
            }
         }
-    """.trimIndent()
+        """.trimIndent()
 }

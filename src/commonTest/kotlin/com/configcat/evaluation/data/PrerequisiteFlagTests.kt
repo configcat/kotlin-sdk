@@ -5,7 +5,8 @@ import com.configcat.ConfigCatUser
 object PrerequisiteFlagTests : TestSet {
     override val sdkKey = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/ByMO9yZNn02kXcm72lnY1A"
     override val baseUrl = null
-    override val jsonOverride = """
+    override val jsonOverride =
+        """
         {
            "p":{
               "u":"https://cdn-global.configcat.com",
@@ -497,14 +498,15 @@ object PrerequisiteFlagTests : TestSet {
               }
            }
         }
-    """.trimIndent()
-    override val tests: Array<TestCase> = arrayOf(
-        TestCase(
-            key = "dependentFeatureWithUserCondition",
-            defaultValue = "default",
-            returnValue = "Chicken",
-            user = null,
-            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'dependentFeatureWithUserCondition' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
+        """.trimIndent()
+    override val tests: Array<TestCase> =
+        arrayOf(
+            TestCase(
+                key = "dependentFeatureWithUserCondition",
+                defaultValue = "default",
+                returnValue = "Chicken",
+                user = null,
+                expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'dependentFeatureWithUserCondition' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
 INFO [5000] Evaluating 'dependentFeatureWithUserCondition'
   Evaluating targeting rules and applying the first match if any:
   - IF User.Email IS ONE OF [<2 hashed values>] THEN 'Dog' => cannot evaluate, User Object is missing
@@ -518,14 +520,14 @@ INFO [5000] Evaluating 'dependentFeatureWithUserCondition'
     THEN % options => MATCH, applying rule
     Skipping % options because the User Object is missing.
     The current targeting rule is ignored and the evaluation continues with the next rule.
-  Returning 'Chicken'."""
-        ),
-        TestCase(
-            key = "dependentFeature",
-            defaultValue = "default",
-            returnValue = "Chicken",
-            user = null,
-            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'mainFeature' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
+  Returning 'Chicken'.""",
+            ),
+            TestCase(
+                key = "dependentFeature",
+                defaultValue = "default",
+                returnValue = "Chicken",
+                user = null,
+                expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'mainFeature' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
 INFO [5000] Evaluating 'dependentFeature'
   Evaluating targeting rules and applying the first match if any:
   - IF Flag 'mainFeature' EQUALS 'target'
@@ -542,14 +544,14 @@ INFO [5000] Evaluating 'dependentFeature'
       Condition (Flag 'mainFeature' EQUALS 'target') evaluates to false.
     )
     THEN % options => no match
-  Returning 'Chicken'."""
-        ),
-        TestCase(
-            key = "dependentFeatureWithUserCondition2",
-            defaultValue = "default",
-            returnValue = "Frog",
-            user = null,
-            expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'dependentFeatureWithUserCondition2' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
+  Returning 'Chicken'.""",
+            ),
+            TestCase(
+                key = "dependentFeatureWithUserCondition2",
+                defaultValue = "default",
+                returnValue = "Frog",
+                user = null,
+                expectedLog = """WARNING [3001] Cannot evaluate targeting rules and % options for setting 'dependentFeatureWithUserCondition2' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
 WARNING [3001] Cannot evaluate targeting rules and % options for setting 'mainFeature' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
 WARNING [3001] Cannot evaluate targeting rules and % options for setting 'mainFeature' (User Object is missing). You should pass a User Object to the evaluation methods like `getValue()` in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/
 INFO [5000] Evaluating 'dependentFeatureWithUserCondition2'
@@ -586,14 +588,14 @@ INFO [5000] Evaluating 'dependentFeatureWithUserCondition2'
       Condition (Flag 'mainFeature' EQUALS 'public') evaluates to true.
     )
     THEN 'Frog' => MATCH, applying rule
-  Returning 'Frog'."""
-        ),
-        TestCase(
-            key = "dependentFeature",
-            defaultValue = "default",
-            returnValue = "Horse",
-            user = ConfigCatUser("12345", "kate@configcat.com", "USA"),
-            expectedLog = """INFO [5000] Evaluating 'dependentFeature' for User '{"Identifier":"12345","Email":"kate@configcat.com","Country":"USA"}'
+  Returning 'Frog'.""",
+            ),
+            TestCase(
+                key = "dependentFeature",
+                defaultValue = "default",
+                returnValue = "Horse",
+                user = ConfigCatUser("12345", "kate@configcat.com", "USA"),
+                expectedLog = """INFO [5000] Evaluating 'dependentFeature' for User '{"Identifier":"12345","Email":"kate@configcat.com","Country":"USA"}'
   Evaluating targeting rules and applying the first match if any:
   - IF Flag 'mainFeature' EQUALS 'target'
     (
@@ -624,14 +626,14 @@ INFO [5000] Evaluating 'dependentFeatureWithUserCondition2'
     Evaluating % options based on the User.Identifier attribute:
     - Computing hash in the [0..99] range from User.Identifier => 78 (this value is sticky and consistent across all SDKs)
     - Hash value 78 selects % option 4 (25%), 'Horse'.
-  Returning 'Horse'."""
-        ),
-        TestCase(
-            key = "dependentFeatureMultipleLevels",
-            defaultValue = "default",
-            returnValue = "Dog",
-            user = null,
-            expectedLog = """INFO [5000] Evaluating 'dependentFeatureMultipleLevels'
+  Returning 'Horse'.""",
+            ),
+            TestCase(
+                key = "dependentFeatureMultipleLevels",
+                defaultValue = "default",
+                returnValue = "Dog",
+                user = null,
+                expectedLog = """INFO [5000] Evaluating 'dependentFeatureMultipleLevels'
   Evaluating targeting rules and applying the first match if any:
   - IF Flag 'intermediateFeature' EQUALS 'true'
     (
@@ -654,7 +656,7 @@ INFO [5000] Evaluating 'dependentFeatureWithUserCondition2'
       Condition (Flag 'intermediateFeature' EQUALS 'true') evaluates to true.
     )
     THEN 'Dog' => MATCH, applying rule
-  Returning 'Dog'."""
+  Returning 'Dog'.""",
+            ),
         )
-    )
 }

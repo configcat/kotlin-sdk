@@ -1,7 +1,8 @@
 package com.configcat
 
-import io.ktor.client.engine.mock.*
-import io.ktor.http.*
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -9,7 +10,6 @@ import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class EvaluatorTrimTests {
-
     private val testIdentifier = "12345"
     private val testVersion = "1.0.0"
     private val testNumber = "3"
@@ -20,52 +20,55 @@ class EvaluatorTrimTests {
     private val testDate = "1705253400"
 
     @Test
-    fun runComparatorValueTrimsTest() = runTest {
-        runComparatorValueTrimsTest("isoneof", "no trim")
-        runComparatorValueTrimsTest("isnotoneof", "no trim")
-        runComparatorValueTrimsTest("containsanyof", "no trim")
-        runComparatorValueTrimsTest("notcontainsanyof", "no trim")
-        runComparatorValueTrimsTest("isoneofhashed", "no trim")
-        runComparatorValueTrimsTest("isnotoneofhashed", "no trim")
-        runComparatorValueTrimsTest("equalshashed", "no trim")
-        runComparatorValueTrimsTest("notequalshashed", "no trim")
-        runComparatorValueTrimsTest("arraycontainsanyofhashed", "no trim")
-        runComparatorValueTrimsTest("arraynotcontainsanyofhashed", "no trim")
-        runComparatorValueTrimsTest("equals", "no trim")
-        runComparatorValueTrimsTest("notequals", "no trim")
-        runComparatorValueTrimsTest("startwithanyof", "no trim")
-        runComparatorValueTrimsTest("notstartwithanyof", "no trim")
-        runComparatorValueTrimsTest("endswithanyof", "no trim")
-        runComparatorValueTrimsTest("notendswithanyof", "no trim")
-        runComparatorValueTrimsTest("arraycontainsanyof", "no trim")
-        runComparatorValueTrimsTest("arraynotcontainsanyof", "no trim")
-        // the not trimmed comparator value case an exception in case of these comparator, default value expected
-        runComparatorValueTrimsTest("startwithanyofhashed", "no trim")
-        runComparatorValueTrimsTest("notstartwithanyofhashed", "no trim")
-        runComparatorValueTrimsTest("endswithanyofhashed", "no trim")
-        runComparatorValueTrimsTest("notendswithanyofhashed", "no trim")
-        // semver comparator values trimmed because of backward compatibility
-        runComparatorValueTrimsTest("semverisoneof", "4 trim")
-        runComparatorValueTrimsTest("semverisnotoneof", "5 trim")
-        runComparatorValueTrimsTest("semverless", "6 trim")
-        runComparatorValueTrimsTest("semverlessequals", "7 trim")
-        runComparatorValueTrimsTest("semvergreater", "8 trim")
-        runComparatorValueTrimsTest("semvergreaterequals", "9 trim")
-    }
+    fun runComparatorValueTrimsTest() =
+        runTest {
+            runComparatorValueTrimsTest("isoneof", "no trim")
+            runComparatorValueTrimsTest("isnotoneof", "no trim")
+            runComparatorValueTrimsTest("containsanyof", "no trim")
+            runComparatorValueTrimsTest("notcontainsanyof", "no trim")
+            runComparatorValueTrimsTest("isoneofhashed", "no trim")
+            runComparatorValueTrimsTest("isnotoneofhashed", "no trim")
+            runComparatorValueTrimsTest("equalshashed", "no trim")
+            runComparatorValueTrimsTest("notequalshashed", "no trim")
+            runComparatorValueTrimsTest("arraycontainsanyofhashed", "no trim")
+            runComparatorValueTrimsTest("arraynotcontainsanyofhashed", "no trim")
+            runComparatorValueTrimsTest("equals", "no trim")
+            runComparatorValueTrimsTest("notequals", "no trim")
+            runComparatorValueTrimsTest("startwithanyof", "no trim")
+            runComparatorValueTrimsTest("notstartwithanyof", "no trim")
+            runComparatorValueTrimsTest("endswithanyof", "no trim")
+            runComparatorValueTrimsTest("notendswithanyof", "no trim")
+            runComparatorValueTrimsTest("arraycontainsanyof", "no trim")
+            runComparatorValueTrimsTest("arraynotcontainsanyof", "no trim")
+            // the not trimmed comparator value case an exception in case of these comparator, default value expected
+            runComparatorValueTrimsTest("startwithanyofhashed", "no trim")
+            runComparatorValueTrimsTest("notstartwithanyofhashed", "no trim")
+            runComparatorValueTrimsTest("endswithanyofhashed", "no trim")
+            runComparatorValueTrimsTest("notendswithanyofhashed", "no trim")
+            // semver comparator values trimmed because of backward compatibility
+            runComparatorValueTrimsTest("semverisoneof", "4 trim")
+            runComparatorValueTrimsTest("semverisnotoneof", "5 trim")
+            runComparatorValueTrimsTest("semverless", "6 trim")
+            runComparatorValueTrimsTest("semverlessequals", "7 trim")
+            runComparatorValueTrimsTest("semvergreater", "8 trim")
+            runComparatorValueTrimsTest("semvergreaterequals", "9 trim")
+        }
 
     private suspend fun runComparatorValueTrimsTest(
         key: String,
-        expectedValue: String
+        expectedValue: String,
     ) {
-        val mockEngine = MockEngine {
-            respond(
-                content = comparatorTestContent,
-                status = HttpStatusCode.OK
-            )
-        }
-        val client = ConfigCatClient(Data.SDK_KEY) {
-            httpEngine = mockEngine
-        }
+        val mockEngine =
+            MockEngine {
+                respond(
+                    content = comparatorTestContent,
+                    status = HttpStatusCode.OK,
+                )
+            }
+        val client =
+            ConfigCatClient(Data.SDK_KEY) {
+                httpEngine = mockEngine
+            }
         val user: ConfigCatUser = createTestUser(testIdentifier, testCountry, testVersion, testNumber, testDate)
 
         val result: String = client.getValue(key, "default", user)
@@ -76,71 +79,75 @@ class EvaluatorTrimTests {
     }
 
     @Test
-    fun runUserValueTrimsTest() = runTest {
-        runUserValueTrimsTest("isoneof", "no trim")
-        runUserValueTrimsTest("isnotoneof", "no trim")
-        runUserValueTrimsTest("isoneofhashed", "no trim")
-        runUserValueTrimsTest("isnotoneofhashed", "no trim")
-        runUserValueTrimsTest("equalshashed", "no trim")
-        runUserValueTrimsTest("notequalshashed", "no trim")
-        runUserValueTrimsTest("arraycontainsanyofhashed", "no trim")
-        runUserValueTrimsTest("arraynotcontainsanyofhashed", "no trim")
-        runUserValueTrimsTest("equals", "no trim")
-        runUserValueTrimsTest("notequals", "no trim")
-        runUserValueTrimsTest("startwithanyof", "no trim")
-        runUserValueTrimsTest("notstartwithanyof", "no trim")
-        runUserValueTrimsTest("endswithanyof", "no trim")
-        runUserValueTrimsTest("notendswithanyof", "no trim")
-        runUserValueTrimsTest("arraycontainsanyof", "no trim")
-        runUserValueTrimsTest("arraynotcontainsanyof", "no trim")
-        runUserValueTrimsTest("startwithanyofhashed", "no trim")
-        runUserValueTrimsTest("notstartwithanyofhashed", "no trim")
-        runUserValueTrimsTest("endswithanyofhashed", "no trim")
-        runUserValueTrimsTest("notendswithanyofhashed", "no trim")
-        // semver comparators user values trimmed because of backward compatibility
-        // semver comparators user values trimmed because of backward compatibility
-        runUserValueTrimsTest("semverisoneof", "4 trim")
-        runUserValueTrimsTest("semverisnotoneof", "5 trim")
-        runUserValueTrimsTest("semverless", "6 trim")
-        runUserValueTrimsTest("semverlessequals", "7 trim")
-        runUserValueTrimsTest("semvergreater", "8 trim")
-        runUserValueTrimsTest("semvergreaterequals", "9 trim")
-        // number and date comparators user values trimmed because of backward compatibility
-        // number and date comparators user values trimmed because of backward compatibility
-        runUserValueTrimsTest("numberequals", "10 trim")
-        runUserValueTrimsTest("numbernotequals", "11 trim")
-        runUserValueTrimsTest("numberless", "12 trim")
-        runUserValueTrimsTest("numberlessequals", "13 trim")
-        runUserValueTrimsTest("numbergreater", "14 trim")
-        runUserValueTrimsTest("numbergreaterequals", "15 trim")
-        runUserValueTrimsTest("datebefore", "18 trim")
-        runUserValueTrimsTest("dateafter", "19 trim")
-        // "contains any of" and "not contains any of" is a special case, the not trimmed user attribute checked against not trimmed comparator values.
-        // "contains any of" and "not contains any of" is a special case, the not trimmed user attribute checked against not trimmed comparator values.
-        runUserValueTrimsTest("containsanyof", "no trim")
-        runUserValueTrimsTest("notcontainsanyof", "no trim")
-    }
+    fun runUserValueTrimsTest() =
+        runTest {
+            runUserValueTrimsTest("isoneof", "no trim")
+            runUserValueTrimsTest("isnotoneof", "no trim")
+            runUserValueTrimsTest("isoneofhashed", "no trim")
+            runUserValueTrimsTest("isnotoneofhashed", "no trim")
+            runUserValueTrimsTest("equalshashed", "no trim")
+            runUserValueTrimsTest("notequalshashed", "no trim")
+            runUserValueTrimsTest("arraycontainsanyofhashed", "no trim")
+            runUserValueTrimsTest("arraynotcontainsanyofhashed", "no trim")
+            runUserValueTrimsTest("equals", "no trim")
+            runUserValueTrimsTest("notequals", "no trim")
+            runUserValueTrimsTest("startwithanyof", "no trim")
+            runUserValueTrimsTest("notstartwithanyof", "no trim")
+            runUserValueTrimsTest("endswithanyof", "no trim")
+            runUserValueTrimsTest("notendswithanyof", "no trim")
+            runUserValueTrimsTest("arraycontainsanyof", "no trim")
+            runUserValueTrimsTest("arraynotcontainsanyof", "no trim")
+            runUserValueTrimsTest("startwithanyofhashed", "no trim")
+            runUserValueTrimsTest("notstartwithanyofhashed", "no trim")
+            runUserValueTrimsTest("endswithanyofhashed", "no trim")
+            runUserValueTrimsTest("notendswithanyofhashed", "no trim")
+            // semver comparators user values trimmed because of backward compatibility
+            // semver comparators user values trimmed because of backward compatibility
+            runUserValueTrimsTest("semverisoneof", "4 trim")
+            runUserValueTrimsTest("semverisnotoneof", "5 trim")
+            runUserValueTrimsTest("semverless", "6 trim")
+            runUserValueTrimsTest("semverlessequals", "7 trim")
+            runUserValueTrimsTest("semvergreater", "8 trim")
+            runUserValueTrimsTest("semvergreaterequals", "9 trim")
+            // number and date comparators user values trimmed because of backward compatibility
+            // number and date comparators user values trimmed because of backward compatibility
+            runUserValueTrimsTest("numberequals", "10 trim")
+            runUserValueTrimsTest("numbernotequals", "11 trim")
+            runUserValueTrimsTest("numberless", "12 trim")
+            runUserValueTrimsTest("numberlessequals", "13 trim")
+            runUserValueTrimsTest("numbergreater", "14 trim")
+            runUserValueTrimsTest("numbergreaterequals", "15 trim")
+            runUserValueTrimsTest("datebefore", "18 trim")
+            runUserValueTrimsTest("dateafter", "19 trim")
+            // "contains any of" and "not contains any of" is a special case, the not trimmed user attribute checked against not trimmed comparator values.
+            // "contains any of" and "not contains any of" is a special case, the not trimmed user attribute checked against not trimmed comparator values.
+            runUserValueTrimsTest("containsanyof", "no trim")
+            runUserValueTrimsTest("notcontainsanyof", "no trim")
+        }
 
     private suspend fun runUserValueTrimsTest(
         key: String,
-        expectedValue: String
+        expectedValue: String,
     ) {
-        val mockEngine = MockEngine {
-            respond(
-                content = userTestContent,
-                status = HttpStatusCode.OK
+        val mockEngine =
+            MockEngine {
+                respond(
+                    content = userTestContent,
+                    status = HttpStatusCode.OK,
+                )
+            }
+        val client =
+            ConfigCatClient(Data.SDK_KEY) {
+                httpEngine = mockEngine
+            }
+        val user: ConfigCatUser =
+            createTestUser(
+                addWhiteSpaces(testIdentifier),
+                testCountryWithWhiteSpaces,
+                addWhiteSpaces(testVersion),
+                addWhiteSpaces(testNumber),
+                addWhiteSpaces(testDate),
             )
-        }
-        val client = ConfigCatClient(Data.SDK_KEY) {
-            httpEngine = mockEngine
-        }
-        val user: ConfigCatUser = createTestUser(
-            addWhiteSpaces(testIdentifier),
-            testCountryWithWhiteSpaces,
-            addWhiteSpaces(testVersion),
-            addWhiteSpaces(testNumber),
-            addWhiteSpaces(testDate)
-        )
 
         val result: String = client.getValue(key, "default", user)
 
@@ -154,7 +161,7 @@ class EvaluatorTrimTests {
         country: String,
         version: String,
         number: String,
-        date: String
+        date: String,
     ): ConfigCatUser {
         val customMap = mutableMapOf<String, Any>()
         customMap["Version"] = version

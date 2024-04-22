@@ -47,19 +47,20 @@ object ListTruncationTests : TestSet {
   }
 }
 """
-    override val tests: Array<TestCase> = arrayOf(
-        TestCase(
-            key = "booleanKey1",
-            defaultValue = false,
-            returnValue = true,
-            expectedLog = """INFO [5000] Evaluating 'booleanKey1' for User '{"Identifier":"12"}'
+    override val tests: Array<TestCase> =
+        arrayOf(
+            TestCase(
+                key = "booleanKey1",
+                defaultValue = false,
+                returnValue = true,
+                expectedLog = """INFO [5000] Evaluating 'booleanKey1' for User '{"Identifier":"12"}'
   Evaluating targeting rules and applying the first match if any:
   - IF User.Identifier CONTAINS ANY OF ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] => true
     AND User.Identifier CONTAINS ANY OF ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', ... <1 more value>] => true
     AND User.Identifier CONTAINS ANY OF ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', ... <2 more values>] => true
     THEN 'true' => MATCH, applying rule
   Returning 'true'.""",
-            user = ConfigCatUser("12")
+                user = ConfigCatUser("12"),
+            ),
         )
-    )
 }

@@ -12,5 +12,5 @@ public enum class DataGovernance {
     /**
      * Select this if your feature flags are published to all global CDN nodes.
      */
-    GLOBAL
+    GLOBAL,
 }

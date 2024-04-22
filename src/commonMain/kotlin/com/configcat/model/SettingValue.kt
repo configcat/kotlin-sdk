@@ -11,17 +11,17 @@ import kotlinx.serialization.Serializable
 public data class SettingValue(
     @SerialName("b")
     var booleanValue: Boolean? = null,
-
     @SerialName("s")
     var stringValue: String? = null,
-
     @SerialName("i")
     var integerValue: Int? = null,
-
     @SerialName("d")
-    var doubleValue: Double? = null
+    var doubleValue: Double? = null,
 ) {
-    internal fun equalsBasedOnSettingType(other: Any?, settingType: Int): Boolean {
+    internal fun equalsBasedOnSettingType(
+        other: Any?,
+        settingType: Int,
+    ): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
@@ -50,7 +50,7 @@ public data class SettingValue(
 
             else -> {
                 throw IllegalArgumentException(
-                    "Setting is of an unsupported type ($settingTypeEnum)."
+                    "Setting is of an unsupported type ($settingTypeEnum).",
                 )
             }
         }

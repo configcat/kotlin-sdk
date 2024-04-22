@@ -3,13 +3,18 @@ package com.configcat
 import com.configcat.Client.SettingTypeHelper.toSettingTypeOrNull
 import com.configcat.fetch.ConfigFetcher
 import com.configcat.fetch.RefreshResult
-import com.configcat.log.*
+import com.configcat.log.ConfigCatLogMessages
+import com.configcat.log.DefaultLogger
+import com.configcat.log.InternalLogger
+import com.configcat.log.LogLevel
+import com.configcat.log.Logger
 import com.configcat.model.Setting
 import com.configcat.model.SettingType
 import com.configcat.override.FlagOverrides
 import com.configcat.override.OverrideBehavior
-import com.soywiz.klock.DateTime
-import io.ktor.client.engine.*
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.ProxyConfig
+import korlibs.time.DateTime
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
@@ -89,6 +94,7 @@ public class ConfigCatOptions {
     public var hooks: Hooks = Hooks()
 
     internal var sdkKey: String? = null
+
     internal fun isBaseURLCustom(): Boolean {
         return !baseUrl.isNullOrEmpty()
     }
@@ -105,7 +111,11 @@ public interface ConfigCatClient {
      * @param defaultValue in case of any failure, this value will be returned.
      * @param user         the user object.
      */
-    public suspend fun getAnyValue(key: String, defaultValue: Any?, user: ConfigCatUser?): Any?
+    public suspend fun getAnyValue(
+        key: String,
+        defaultValue: Any?,
+        user: ConfigCatUser?,
+    ): Any?
 
     /**
      * Gets the value and evaluation details of a feature flag or setting identified by the given [key].
@@ -114,7 +124,11 @@ public interface ConfigCatClient {
      * @param defaultValue in case of any failure, this value will be returned.
      * @param user         the user object.
      */
-    public suspend fun getAnyValueDetails(key: String, defaultValue: Any?, user: ConfigCatUser?): EvaluationDetails
+    public suspend fun getAnyValueDetails(
+        key: String,
+        defaultValue: Any?,
+        user: ConfigCatUser?,
+    ): EvaluationDetails
 
     /**
      * Gets the values along with evaluation details of all feature flags and settings.
@@ -207,7 +221,7 @@ public interface ConfigCatClient {
  */
 public fun ConfigCatClient(
     sdkKey: String,
-    block: ConfigCatOptions.() -> Unit = {}
+    block: ConfigCatOptions.() -> Unit = {},
 ): ConfigCatClient = Client.get(sdkKey, block)
 
 /**
@@ -222,13 +236,13 @@ public fun ConfigCatClient(
 public suspend inline fun <reified T> ConfigCatClient.getValue(
     key: String,
     defaultValue: T,
-    user: ConfigCatUser? = null
+    user: ConfigCatUser? = null,
 ): T {
     require(
         T::class == Boolean::class ||
             T::class == String::class ||
             T::class == Int::class ||
-            T::class == Double::class
+            T::class == Double::class,
     ) {
         "Only the following types are supported: String, Boolean, Int, Double (both nullable and non-nullable)."
     }
@@ -241,7 +255,7 @@ internal suspend fun getValueInternal(
     configCatClient: ConfigCatClient,
     key: String,
     defaultValue: Any?,
-    user: ConfigCatUser?
+    user: ConfigCatUser?,
 ): Any? {
     val client = configCatClient as? Client
     return client?.getValueImpl(key, defaultValue, user, allowAnyReturnType = false)
@@ -260,13 +274,13 @@ internal suspend fun getValueInternal(
 public suspend inline fun <reified T> ConfigCatClient.getValueDetails(
     key: String,
     defaultValue: T,
-    user: ConfigCatUser? = null
+    user: ConfigCatUser? = null,
 ): TypedEvaluationDetails<T> {
     require(
         T::class == Boolean::class ||
             T::class == String::class ||
             T::class == Int::class ||
-            T::class == Double::class
+            T::class == Double::class,
     ) {
         "Only the following types are supported: String, Boolean, Int, Double (both nullable and non-nullable)."
     }
@@ -281,7 +295,7 @@ public suspend inline fun <reified T> ConfigCatClient.getValueDetails(
         details.value as T,
         details.fetchTimeUnixMilliseconds,
         details.matchedTargetingRule,
-        details.matchedPercentageOption
+        details.matchedPercentageOption,
     )
 }
 
@@ -290,7 +304,7 @@ internal suspend fun getValueDetailsInternal(
     configCatClient: ConfigCatClient,
     key: String,
     defaultValue: Any?,
-    user: ConfigCatUser?
+    user: ConfigCatUser?,
 ): EvaluationDetails {
     val client = configCatClient as? Client
     return client?.getValueDetailsImpl(key, defaultValue, user, allowAnyReturnType = false)
@@ -299,9 +313,8 @@ internal suspend fun getValueDetailsInternal(
 
 internal class Client private constructor(
     private val sdkKey: String,
-    options: ConfigCatOptions
+    options: ConfigCatOptions,
 ) : ConfigCatClient, Closeable {
-
     private val service: ConfigService?
     private val flagOverrides: FlagOverrides?
     private val evaluator: Evaluator
@@ -319,11 +332,12 @@ internal class Client private constructor(
         hooks = options.hooks
         defaultUser = options.defaultUser
         flagOverrides = options.flagOverrides?.let { FlagOverrides().apply(it) }
-        service = if (flagOverrides != null && flagOverrides.behavior == OverrideBehavior.LOCAL_ONLY) {
-            null
-        } else {
-            ConfigService(options, ConfigFetcher(options, logger), logger, options.hooks)
-        }
+        service =
+            if (flagOverrides != null && flagOverrides.behavior == OverrideBehavior.LOCAL_ONLY) {
+                null
+            } else {
+                ConfigService(options, ConfigFetcher(options, logger), logger, options.hooks)
+            }
         evaluator = Evaluator(logger)
     }
 
@@ -331,7 +345,7 @@ internal class Client private constructor(
         key: String,
         defaultValue: Any?,
         user: ConfigCatUser?,
-        allowAnyReturnType: Boolean
+        allowAnyReturnType: Boolean,
     ): Any? {
         require(key.isNotEmpty()) { "'key' cannot be empty." }
 
@@ -350,19 +364,24 @@ internal class Client private constructor(
             }
             evaluate(setting, key, evalUser, settingResult.fetchTime, settingResult.settings).value
         } catch (exception: Exception) {
-            val errorMessage = ConfigCatLogMessages.getSettingEvaluationErrorWithDefaultValue(
-                "getAnyValue",
-                key,
-                "defaultValue",
-                defaultValue ?: "null"
-            )
+            val errorMessage =
+                ConfigCatLogMessages.getSettingEvaluationErrorWithDefaultValue(
+                    "getAnyValue",
+                    key,
+                    "defaultValue",
+                    defaultValue ?: "null",
+                )
             logger.error(1002, errorMessage, exception)
             hooks.invokeOnFlagEvaluated(EvaluationDetails.makeError(key, defaultValue, errorMessage, evalUser))
             defaultValue
         }
     }
 
-    override suspend fun getAnyValue(key: String, defaultValue: Any?, user: ConfigCatUser?): Any? {
+    override suspend fun getAnyValue(
+        key: String,
+        defaultValue: Any?,
+        user: ConfigCatUser?,
+    ): Any? {
         return getValueImpl(key, defaultValue, user, allowAnyReturnType = true)
     }
 
@@ -370,7 +389,7 @@ internal class Client private constructor(
         key: String,
         defaultValue: Any?,
         user: ConfigCatUser?,
-        allowAnyReturnType: Boolean
+        allowAnyReturnType: Boolean,
     ): EvaluationDetails {
         require(key.isNotEmpty()) { "'key' cannot be empty." }
 
@@ -390,12 +409,13 @@ internal class Client private constructor(
             }
             evaluate(setting, key, evalUser, settingResult.fetchTime, settingResult.settings)
         } catch (exception: Exception) {
-            val errorMessage = ConfigCatLogMessages.getSettingEvaluationErrorWithDefaultValue(
-                "getAnyValueDetails",
-                key,
-                "defaultValue",
-                defaultValue ?: "null"
-            )
+            val errorMessage =
+                ConfigCatLogMessages.getSettingEvaluationErrorWithDefaultValue(
+                    "getAnyValueDetails",
+                    key,
+                    "defaultValue",
+                    defaultValue ?: "null",
+                )
             logger.error(1002, errorMessage, exception)
             val errorDetails = EvaluationDetails.makeError(key, defaultValue, exception.message ?: "", evalUser)
             hooks.invokeOnFlagEvaluated(errorDetails)
@@ -403,7 +423,11 @@ internal class Client private constructor(
         }
     }
 
-    override suspend fun getAnyValueDetails(key: String, defaultValue: Any?, user: ConfigCatUser?): EvaluationDetails {
+    override suspend fun getAnyValueDetails(
+        key: String,
+        defaultValue: Any?,
+        user: ConfigCatUser?,
+    ): EvaluationDetails {
         return getValueDetailsImpl(key, defaultValue, user, allowAnyReturnType = true)
     }
 
@@ -437,7 +461,7 @@ internal class Client private constructor(
                 if (setting.value.variationId == variationId) {
                     return Pair(
                         setting.key,
-                        Helpers.validateSettingValueType(setting.value.settingValue, setting.value.type)
+                        Helpers.validateSettingValueType(setting.value.settingValue, setting.value.type),
                     )
                 }
                 setting.value.targetingRules?.forEach { targetingRule ->
@@ -445,7 +469,7 @@ internal class Client private constructor(
                         if (targetingRule.servedValue.variationId == variationId) {
                             return Pair(
                                 setting.key,
-                                Helpers.validateSettingValueType(targetingRule.servedValue.value, setting.value.type)
+                                Helpers.validateSettingValueType(targetingRule.servedValue.value, setting.value.type),
                             )
                         }
                     } else if (!targetingRule.percentageOptions.isNullOrEmpty()) {
@@ -453,7 +477,7 @@ internal class Client private constructor(
                             if (percentageOption.variationId == variationId) {
                                 return Pair(
                                     setting.key,
-                                    Helpers.validateSettingValueType(percentageOption.value, setting.value.type)
+                                    Helpers.validateSettingValueType(percentageOption.value, setting.value.type),
                                 )
                             }
                         }
@@ -465,7 +489,7 @@ internal class Client private constructor(
                     if (percentageOption.variationId == variationId) {
                         return Pair(
                             setting.key,
-                            Helpers.validateSettingValueType(percentageOption.value, setting.value.type)
+                            Helpers.validateSettingValueType(percentageOption.value, setting.value.type),
                         )
                     }
                 }
@@ -505,16 +529,17 @@ internal class Client private constructor(
         }
     }
 
-    override suspend fun forceRefresh(): RefreshResult = service?.refresh() ?: RefreshResult(
-        false,
-        "The ConfigCat SDK is in local-only mode. Calling .forceRefresh() has no effect."
-    )
+    override suspend fun forceRefresh(): RefreshResult =
+        service?.refresh() ?: RefreshResult(
+            false,
+            "The ConfigCat SDK is in local-only mode. Calling .forceRefresh() has no effect.",
+        )
 
     override fun setOffline() {
         if (service == null || isClosed()) {
             this.logger.warning(
                 3201,
-                ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("setOffline")
+                ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("setOffline"),
             )
             return
         }
@@ -525,7 +550,7 @@ internal class Client private constructor(
         if (service == null || isClosed()) {
             this.logger.warning(
                 3201,
-                ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("setOnline")
+                ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("setOnline"),
             )
             return
         }
@@ -539,7 +564,7 @@ internal class Client private constructor(
         if (isClosed()) {
             this.logger.warning(
                 3201,
-                ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("setDefaultUser")
+                ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("setDefaultUser"),
             )
             return
         }
@@ -550,7 +575,7 @@ internal class Client private constructor(
         if (isClosed()) {
             this.logger.warning(
                 3201,
-                ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("clearDefaultUser")
+                ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("clearDefaultUser"),
             )
             return
         }
@@ -579,23 +604,25 @@ internal class Client private constructor(
         key: String,
         user: ConfigCatUser?,
         fetchTime: DateTime,
-        settings: Map<String, Setting>
+        settings: Map<String, Setting>,
     ): EvaluationDetails {
         var evaluateLogger: EvaluateLogger? = null
         if (logLevel == LogLevel.INFO) {
             evaluateLogger = EvaluateLogger()
         }
-        val (value, variationId, targetingRule, percentageRule) = evaluator.evaluate(
-            setting,
-            key,
-            user,
-            settings,
-            evaluateLogger
-        )
-        val details = EvaluationDetails(
-            key, variationId, user, false, null, Helpers.validateSettingValueType(value, setting.type),
-            fetchTime.unixMillisLong, targetingRule, percentageRule
-        )
+        val (value, variationId, targetingRule, percentageRule) =
+            evaluator.evaluate(
+                setting,
+                key,
+                user,
+                settings,
+                evaluateLogger,
+            )
+        val details =
+            EvaluationDetails(
+                key, variationId, user, false, null, Helpers.validateSettingValueType(value, setting.type),
+                fetchTime.unixMillisLong, targetingRule, percentageRule,
+            )
         hooks.invokeOnFlagEvaluated(details)
         return details
     }
@@ -603,10 +630,11 @@ internal class Client private constructor(
     private suspend fun getSettings(): SettingResult {
         if (flagOverrides != null) {
             return when (flagOverrides.behavior) {
-                OverrideBehavior.LOCAL_ONLY -> SettingResult(
-                    flagOverrides.dataSource.getOverrides(),
-                    Constants.distantPast
-                )
+                OverrideBehavior.LOCAL_ONLY ->
+                    SettingResult(
+                        flagOverrides.dataSource.getOverrides(),
+                        Constants.distantPast,
+                    )
 
                 OverrideBehavior.LOCAL_OVER_REMOTE -> {
                     val result = service?.getSettings()
@@ -627,23 +655,27 @@ internal class Client private constructor(
         return service?.getSettings() ?: SettingResult(mapOf(), Constants.distantPast)
     }
 
-    private fun validateValueType(settingTypeInt: Int, defaultValue: Any?) {
-        val settingType = settingTypeInt.toSettingTypeOrNull()
-            ?: throw IllegalArgumentException(
-                "The setting type is not valid. Only String, Int, Double or Boolean types are supported."
-            )
+    private fun validateValueType(
+        settingTypeInt: Int,
+        defaultValue: Any?,
+    ) {
+        val settingType =
+            settingTypeInt.toSettingTypeOrNull()
+                ?: throw IllegalArgumentException(
+                    "The setting type is not valid. Only String, Int, Double or Boolean types are supported.",
+                )
         if (defaultValue == null) {
             return
         }
         if (!(
-            (defaultValue is String && settingType == SettingType.STRING) ||
-                (defaultValue is Boolean && settingType == SettingType.BOOLEAN) ||
-                (
-                    defaultValue is Int && (settingType == SettingType.INT || settingType == SettingType.JS_NUMBER)
+                (defaultValue is String && settingType == SettingType.STRING) ||
+                    (defaultValue is Boolean && settingType == SettingType.BOOLEAN) ||
+                    (
+                        defaultValue is Int && (settingType == SettingType.INT || settingType == SettingType.JS_NUMBER)
                     ) ||
-                (
-                    defaultValue is Double && (
-                        settingType == SettingType.DOUBLE || settingType == SettingType.JS_NUMBER
+                    (
+                        defaultValue is Double && (
+                            settingType == SettingType.DOUBLE || settingType == SettingType.JS_NUMBER
                         )
                     )
             )
@@ -653,12 +685,15 @@ internal class Client private constructor(
                     "Setting's type was {" + settingType + "} but the default value's type was {" +
                     defaultValue::class.toString() + "}. Please use a default value which corresponds to the setting " +
                     "type {" + settingType + "}. Learn more: " +
-                    "https://configcat.com/docs/sdk-reference/kotlin/#setting-type-mapping"
+                    "https://configcat.com/docs/sdk-reference/kotlin/#setting-type-mapping",
             )
         }
     }
 
-    private fun checkSettingsAvailable(settingResult: SettingResult, emptyResult: String): Boolean {
+    private fun checkSettingsAvailable(
+        settingResult: SettingResult,
+        emptyResult: String,
+    ): Boolean {
         if (settingResult.isEmpty()) {
             this.logger.error(1000, ConfigCatLogMessages.getConfigJsonIsNotPresentedWithEmptyResult(emptyResult))
             return false
@@ -669,7 +704,7 @@ internal class Client private constructor(
     private fun <T> checkSettingAvailable(
         settingResult: SettingResult,
         key: String,
-        defaultValue: T
+        defaultValue: T,
     ): Pair<String, Setting?> {
         if (settingResult.isEmpty()) {
             val errorMessage =
@@ -679,12 +714,13 @@ internal class Client private constructor(
         }
         val setting = settingResult.settings[key]
         if (setting == null) {
-            val errorMessage = ConfigCatLogMessages.getSettingEvaluationFailedDueToMissingKey(
-                key,
-                "defaultValue",
-                defaultValue,
-                settingResult.settings.keys
-            )
+            val errorMessage =
+                ConfigCatLogMessages.getSettingEvaluationFailedDueToMissingKey(
+                    key,
+                    "defaultValue",
+                    defaultValue,
+                    settingResult.settings.keys,
+                )
             logger.error(1001, errorMessage)
             return Pair(errorMessage, null)
         }
@@ -695,7 +731,10 @@ internal class Client private constructor(
         private val instances = mutableMapOf<String, Client>()
         private val lock = reentrantLock()
 
-        fun get(sdkKey: String, block: ConfigCatOptions.() -> Unit = {}): Client {
+        fun get(
+            sdkKey: String,
+            block: ConfigCatOptions.() -> Unit = {},
+        ): Client {
             require(sdkKey.isNotEmpty()) { "SDK Key cannot be empty." }
             val options = ConfigCatOptions().apply(block)
             val flagOverrides = options.flagOverrides?.let { FlagOverrides().apply(it) }
@@ -715,7 +754,10 @@ internal class Client private constructor(
             }
         }
 
-        private fun isValidKey(sdkKey: String, isCustomBaseURL: Boolean): Boolean {
+        private fun isValidKey(
+            sdkKey: String,
+            isCustomBaseURL: Boolean,
+        ): Boolean {
             // configcat-proxy/ rules
             if (isCustomBaseURL && sdkKey.length > Constants.SDK_KEY_PROXY_PREFIX.length &&
                 sdkKey.startsWith(Constants.SDK_KEY_PROXY_PREFIX)

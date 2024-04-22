@@ -4,15 +4,18 @@ import com.configcat.Client.SettingTypeHelper.toSettingTypeOrNull
 import com.configcat.model.Config
 import com.configcat.model.SettingType
 import com.configcat.model.SettingValue
-import com.soywiz.klock.DateTime
+import korlibs.time.DateTime
 import kotlinx.serialization.ContextualSerializer
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonEncoder
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.modules.SerializersModule
 
 internal interface Closeable {
@@ -20,28 +23,31 @@ internal interface Closeable {
 }
 
 internal object Constants {
-    const val version: String = "3.0.1"
-    const val configFileName: String = "config_v6.json"
-    const val serializationFormatVersion: String = "v2"
-    const val globalCdnUrl = "https://cdn-global.configcat.com"
-    const val euCdnUrl = "https://cdn-eu.configcat.com"
+    const val VERSION: String = "3.1.0"
+    const val CONFIG_FILE_NAME: String = "config_v6.json"
+    const val SERIALIZATION_FORMAT_VERSION: String = "v2"
+    const val GLOBAL_CDN_URL = "https://cdn-global.configcat.com"
+    const val EU_CDN_URL = "https://cdn-eu.configcat.com"
     const val SDK_KEY_PROXY_PREFIX = "configcat-proxy/"
     const val SDK_KEY_PREFIX = "configcat-sdk-1"
     const val SDK_KEY_SECTION_LENGTH = 22
 
-    val distantPast = DateTime.fromUnix(0)
+    val distantPast = DateTime.fromUnixMillis(0)
     val distantFuture = DateTime.now().add(10_000, 0.0)
-    val json = Json {
-        ignoreUnknownKeys = true
-        serializersModule = SerializersModule {
-            contextual(Any::class, FlagValueSerializer)
+    val json =
+        Json {
+            ignoreUnknownKeys = true
+            serializersModule =
+                SerializersModule {
+                    contextual(Any::class, FlagValueSerializer)
+                }
         }
-    }
 
     internal object FlagValueSerializer : KSerializer<Any> {
         override fun deserialize(decoder: Decoder): Any {
-            val json = decoder as? JsonDecoder
-                ?: error("Only JsonDecoder is supported.")
+            val json =
+                decoder as? JsonDecoder
+                    ?: error("Only JsonDecoder is supported.")
             val element = json.decodeJsonElement()
             val primitive = element as? JsonPrimitive ?: error("Unable to decode $element")
             return when (primitive.content) {
@@ -50,16 +56,21 @@ internal object Constants {
             }
         }
 
-        override fun serialize(encoder: Encoder, value: Any) {
-            val json = encoder as? JsonEncoder
-                ?: error("Only JsonEncoder is supported.")
-            val element: JsonElement = when (value) {
-                is String -> JsonPrimitive(value)
-                is Number -> JsonPrimitive(value)
-                is Boolean -> JsonPrimitive(value)
-                is JsonElement -> value
-                else -> throw IllegalArgumentException("Unable to encode $value")
-            }
+        override fun serialize(
+            encoder: Encoder,
+            value: Any,
+        ) {
+            val json =
+                encoder as? JsonEncoder
+                    ?: error("Only JsonEncoder is supported.")
+            val element: JsonElement =
+                when (value) {
+                    is String -> JsonPrimitive(value)
+                    is Number -> JsonPrimitive(value)
+                    is Boolean -> JsonPrimitive(value)
+                    is JsonElement -> value
+                    else -> throw IllegalArgumentException("Unable to encode $value")
+                }
             json.encodeJsonElement(element)
         }
 
@@ -84,37 +95,41 @@ internal object Helpers {
         }
     }
 
-    fun validateSettingValueType(settingValue: SettingValue?, settingType: Int): Any {
+    fun validateSettingValueType(
+        settingValue: SettingValue?,
+        settingType: Int,
+    ): Any {
         val settingTypeEnum = settingType.toSettingTypeOrNull()
         require(settingValue != null) { "Setting value is missing or invalid." }
         val result: Any?
-        result = when (settingTypeEnum) {
-            SettingType.BOOLEAN -> {
-                settingValue.booleanValue
-            }
+        result =
+            when (settingTypeEnum) {
+                SettingType.BOOLEAN -> {
+                    settingValue.booleanValue
+                }
 
-            SettingType.STRING -> {
-                settingValue.stringValue
-            }
+                SettingType.STRING -> {
+                    settingValue.stringValue
+                }
 
-            SettingType.INT -> {
-                settingValue.integerValue
-            }
+                SettingType.INT -> {
+                    settingValue.integerValue
+                }
 
-            SettingType.DOUBLE -> {
-                settingValue.doubleValue
-            }
+                SettingType.DOUBLE -> {
+                    settingValue.doubleValue
+                }
 
-            SettingType.JS_NUMBER -> {
-                settingValue.doubleValue
-            }
+                SettingType.JS_NUMBER -> {
+                    settingValue.doubleValue
+                }
 
-            else -> {
-                throw IllegalArgumentException(
-                    "Setting is of an unsupported type ($settingTypeEnum)."
-                )
+                else -> {
+                    throw IllegalArgumentException(
+                        "Setting is of an unsupported type ($settingTypeEnum).",
+                    )
+                }
             }
-        }
         require(result != null) {
             "Setting value is not of the expected type ${settingTypeEnum.value}."
         }

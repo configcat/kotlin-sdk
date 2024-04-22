@@ -12,12 +12,19 @@ public interface ConfigCache {
     /**
      * Writes the given [value] to the cache by the given [key].
      */
-    public suspend fun write(key: String, value: String)
+    public suspend fun write(
+        key: String,
+        value: String,
+    )
 }
 
 internal class EmptyConfigCache : ConfigCache {
     override suspend fun read(key: String): String? = null
-    override suspend fun write(key: String, value: String) { /* do nothing */
+
+    override suspend fun write(
+        key: String,
+        value: String,
+    ) { // do nothing
     }
 }
 

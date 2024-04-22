@@ -17,7 +17,7 @@ public data class Segment(
      * The list of segment rule conditions (where there is a logical AND relation between the items).
      */
     @SerialName("r")
-    val segmentRules: Array<UserCondition>? = null
+    val segmentRules: Array<UserCondition>? = null,
 ) {
     internal val conditionAccessors: List<ConditionAccessor> =
         segmentRules?.let { condition -> condition.map { it } } ?: listOf()

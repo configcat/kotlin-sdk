@@ -1,30 +1,43 @@
 package com.configcat.log
 
 import com.configcat.Hooks
-import com.soywiz.klock.DateTime
+import korlibs.time.DateTime
 
 internal class InternalLogger(private val logger: Logger, private val level: LogLevel, private val hooks: Hooks) {
-    fun error(eventId: Int, message: String) {
+    fun error(
+        eventId: Int,
+        message: String,
+    ) {
         hooks.invokeOnError(message)
         if (shouldLog(LogLevel.ERROR)) {
             logger.error("[$eventId] $message")
         }
     }
 
-    fun error(eventId: Int, message: String, throwable: Throwable) {
+    fun error(
+        eventId: Int,
+        message: String,
+        throwable: Throwable,
+    ) {
         hooks.invokeOnError(message)
         if (shouldLog(LogLevel.ERROR)) {
             logger.error("[$eventId] $message ${throwable.message}")
         }
     }
 
-    fun warning(eventId: Int, message: String) {
+    fun warning(
+        eventId: Int,
+        message: String,
+    ) {
         if (shouldLog(LogLevel.WARNING)) {
             logger.warning("[$eventId] $message")
         }
     }
 
-    fun info(eventId: Int, message: String) {
+    fun info(
+        eventId: Int,
+        message: String,
+    ) {
         if (shouldLog(LogLevel.INFO)) {
             logger.info("[$eventId] $message")
         }
@@ -42,18 +55,22 @@ internal class InternalLogger(private val logger: Logger, private val level: Log
 }
 
 internal class DefaultLogger : Logger {
-    private val levelMap: HashMap<LogLevel, String> = hashMapOf(
-        LogLevel.ERROR to "ERROR",
-        LogLevel.WARNING to "WARNING",
-        LogLevel.INFO to "INFO",
-        LogLevel.DEBUG to "DEBUG"
-    )
+    private val levelMap: HashMap<LogLevel, String> =
+        hashMapOf(
+            LogLevel.ERROR to "ERROR",
+            LogLevel.WARNING to "WARNING",
+            LogLevel.INFO to "INFO",
+            LogLevel.DEBUG to "DEBUG",
+        )
 
     override fun error(message: String) {
         printMessage(enrichMessage(message, LogLevel.ERROR))
     }
 
-    override fun error(message: String, throwable: Throwable) {
+    override fun error(
+        message: String,
+        throwable: Throwable,
+    ) {
         printMessage(enrichMessage("$message $throwable", LogLevel.ERROR))
     }
 
@@ -73,7 +90,10 @@ internal class DefaultLogger : Logger {
         println(message)
     }
 
-    private fun enrichMessage(message: String, level: LogLevel): String {
+    private fun enrichMessage(
+        message: String,
+        level: LogLevel,
+    ): String {
         return "${DateTime.now().toString("yyyy-MM-dd HH:mm:ss z")} [${levelMap[level]}]: ConfigCat - $message"
     }
 }

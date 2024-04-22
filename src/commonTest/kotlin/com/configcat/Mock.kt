@@ -7,7 +7,10 @@ class InMemoryCache : ConfigCache {
         return store[key]
     }
 
-    override suspend fun write(key: String, value: String) {
+    override suspend fun write(
+        key: String,
+        value: String,
+    ) {
         store[key] = value
     }
 }
@@ -15,7 +18,10 @@ class InMemoryCache : ConfigCache {
 class SingleValueCache(private var value: String) : ConfigCache {
     override suspend fun read(key: String): String = value
 
-    override suspend fun write(key: String, value: String) {
+    override suspend fun write(
+        key: String,
+        value: String,
+    ) {
         this.value = value
     }
 }

@@ -34,7 +34,7 @@ public data class UserCondition(
      * The String Array value that the attribute is compared or {@code null} if the comparator use a different type.
      */
     @SerialName("l")
-    val stringArrayValue: Array<String>? = null
+    val stringArrayValue: Array<String>? = null,
 ) : ConditionAccessor {
     @Transient
     override val userCondition: UserCondition = this

@@ -5,10 +5,11 @@ import com.configcat.evaluation.LogEvent
 import com.configcat.log.LogLevel
 import com.configcat.override.OverrideBehavior
 import com.configcat.override.OverrideDataSource
-import com.soywiz.klock.DateTime
-import io.ktor.client.engine.mock.*
-import io.ktor.http.*
-import io.ktor.util.*
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.http.HttpStatusCode
+import io.ktor.util.PlatformUtils
+import korlibs.time.DateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -18,326 +19,331 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalCoroutinesApi::class)
 class ConfigV2EvaluationTest {
     @Test
-    fun circularDependencyTest() = runTest {
-        runCircularDependencyTest("key1", "'key1' -> 'key1'")
-        runCircularDependencyTest("key2", "'key2' -> 'key3' -> 'key2'")
-        runCircularDependencyTest("key4", "'key4' -> 'key3' -> 'key2' -> 'key3'")
-    }
-
-    @Test
-    fun ruleAndPercentageOptionTest() = runTest {
-        runRuleAndPercentageOptionTest(
-            "12345",
-            null,
-            null,
-            "Cat",
-            expectedTargetingRule = false,
-            expectedPercentageOption = false
-        )
-        runRuleAndPercentageOptionTest(
-            "12345",
-            "a@example.com",
-            null,
-            "Dog",
-            expectedTargetingRule = true,
-            expectedPercentageOption = false
-        )
-        runRuleAndPercentageOptionTest(
-            "12345",
-            "a@configcat.com",
-            null,
-            "Cat",
-            expectedTargetingRule = false,
-            expectedPercentageOption = false
-        )
-        runRuleAndPercentageOptionTest(
-            "12345",
-            "a@configcat.com",
-            "",
-            "Frog",
-            expectedTargetingRule = true,
-            expectedPercentageOption = true
-        )
-        runRuleAndPercentageOptionTest(
-            "12345",
-            "a@configcat.com",
-            "US",
-            "Fish",
-            expectedTargetingRule = true,
-            expectedPercentageOption = true
-        )
-        runRuleAndPercentageOptionTest(
-            "12345",
-            "b@configcat.com",
-            null,
-            "Cat",
-            expectedTargetingRule = false,
-            expectedPercentageOption = false
-        )
-        runRuleAndPercentageOptionTest(
-            "12345",
-            "b@configcat.com",
-            "",
-            "Falcon",
-            expectedTargetingRule = false,
-            expectedPercentageOption = true
-        )
-        runRuleAndPercentageOptionTest(
-            "12345",
-            "b@configcat.com",
-            "US",
-            "Spider",
-            expectedTargetingRule = false,
-            expectedPercentageOption = true
-        )
-    }
-
-    @Test
-    fun prerequisiteFlagTypeMismatchTest() = runTest {
-        if (PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE) {
-            return@runTest
+    fun circularDependencyTest() =
+        runTest {
+            runCircularDependencyTest("key1", "'key1' -> 'key1'")
+            runCircularDependencyTest("key2", "'key2' -> 'key3' -> 'key2'")
+            runCircularDependencyTest("key4", "'key4' -> 'key3' -> 'key2' -> 'key3'")
         }
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", true, "Dog")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", false, "Cat")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", "1", "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", 1, "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", 1.0, "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", "private", "Dog")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", "Private", "Cat")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", true, "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", 1, "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", 1.0, "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", 2, "Dog")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", 1, "Cat")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", "2", "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", true, "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", 2.0, "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", 0.1, "Dog")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", 0.11, "Cat")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", "0.1", "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", true, "")
-        runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", 1, "")
-    }
 
     @Test
-    fun prerequisiteFlagOverrideTest() = runTest {
-        runPrerequisiteFlagOverrideTest("stringDependsOnString", "1", "john@sensitivecompany.com", null, "Dog")
-
-        runPrerequisiteFlagOverrideTest(
-            "stringDependsOnString",
-            "1",
-            "john@sensitivecompany.com",
-            OverrideBehavior.REMOTE_OVER_LOCAL,
-            "Dog"
-        )
-        runPrerequisiteFlagOverrideTest(
-            "stringDependsOnString",
-            "1",
-            "john@sensitivecompany.com",
-            OverrideBehavior.LOCAL_OVER_REMOTE,
-            "Dog"
-        )
-        runPrerequisiteFlagOverrideTest(
-            "stringDependsOnString",
-            "1",
-            "john@sensitivecompany.com",
-            OverrideBehavior.LOCAL_ONLY,
-            ""
-        )
-        runPrerequisiteFlagOverrideTest("stringDependsOnString", "2", "john@notsensitivecompany.com", null, "Cat")
-        runPrerequisiteFlagOverrideTest(
-            "stringDependsOnString",
-            "2",
-            "john@notsensitivecompany.com",
-            OverrideBehavior.REMOTE_OVER_LOCAL,
-            "Cat"
-        )
-        runPrerequisiteFlagOverrideTest(
-            "stringDependsOnString",
-            "2",
-            "john@notsensitivecompany.com",
-            OverrideBehavior.LOCAL_OVER_REMOTE,
-            "Dog"
-        )
-        runPrerequisiteFlagOverrideTest(
-            "stringDependsOnString",
-            "2",
-            "john@notsensitivecompany.com",
-            OverrideBehavior.LOCAL_ONLY,
-            ""
-        )
-        runPrerequisiteFlagOverrideTest(
-            "stringDependsOnInt",
-            "1",
-            "john@sensitivecompany.com",
-            null,
-            "Dog"
-        )
-        runPrerequisiteFlagOverrideTest(
-            "stringDependsOnInt",
-            "1",
-            "john@sensitivecompany.com",
-            OverrideBehavior.REMOTE_OVER_LOCAL,
-            "Dog"
-        )
-        runPrerequisiteFlagOverrideTest(
-            "stringDependsOnInt",
-            "1",
-            "john@sensitivecompany.com",
-            OverrideBehavior.LOCAL_OVER_REMOTE,
-            "Falcon"
-        )
-        runPrerequisiteFlagOverrideTest(
-            "stringDependsOnInt",
-            "1",
-            "john@sensitivecompany.com",
-            OverrideBehavior.LOCAL_ONLY,
-            "Falcon"
-        )
-        runPrerequisiteFlagOverrideTest(
-            "stringDependsOnInt",
-            "1",
-            "john@notsensitivecompany.com",
-            null,
-            "Cat"
-        )
-        runPrerequisiteFlagOverrideTest(
-            "stringDependsOnInt",
-            "1",
-            "john@notsensitivecompany.com",
-            OverrideBehavior.REMOTE_OVER_LOCAL,
-            "Cat"
-        )
-        runPrerequisiteFlagOverrideTest(
-            "stringDependsOnInt",
-            "1",
-            "john@notsensitivecompany.com",
-            OverrideBehavior.LOCAL_OVER_REMOTE,
-            "Falcon"
-        )
-        runPrerequisiteFlagOverrideTest(
-            "stringDependsOnInt",
-            "1",
-            "john@notsensitivecompany.com",
-            OverrideBehavior.LOCAL_ONLY,
-            "Falcon"
-        )
-    }
-
-    @Test
-    fun runComparisonAttributeConversionToCanonicalStringRepresentationTest() = runTest {
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversion", .12345, "1")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-            "numberToStringConversionInt",
-            125.toByte(),
-            "4"
-        )
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-            "numberToStringConversionInt",
-            125.toShort(),
-            "4"
-        )
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionInt", 125, "4")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionInt", 125L, "4")
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-            "numberToStringConversionPositiveExp",
-            -1.23456789e96,
-            "2"
-        )
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-            "numberToStringConversionNegativeExp",
-            -12345.6789E-100,
-            "4"
-        )
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-            "numberToStringConversionNaN",
-            Double.NaN,
-            "3"
-        )
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-            "numberToStringConversionPositiveInf",
-            Double.POSITIVE_INFINITY,
-            "4"
-        )
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-            "numberToStringConversionNegativeInf",
-            Double.NEGATIVE_INFINITY,
-            "3"
-        )
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-            "numberToStringConversionPositiveExp",
-            -1.23456789e96,
-            "2"
-        )
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-            "numberToStringConversionNegativeExp",
-            -12345.6789E-100,
-            "4"
-        )
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-            "numberToStringConversionNaN",
-            Float.NaN,
-            "3"
-        )
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-            "numberToStringConversionPositiveInf",
-            Float.POSITIVE_INFINITY,
-            "4"
-        )
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-            "numberToStringConversionNegativeInf",
-            Float.NEGATIVE_INFINITY,
-            "3"
-        )
-        if (!PlatformUtils.IS_NATIVE) {
-            // Native number format converts the double value to scientific notation causes a fail in these test cases
-            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-                "dateToStringConversion",
-                "date:2023-03-31T23:59:59.999Z",
-                "3"
+    fun ruleAndPercentageOptionTest() =
+        runTest {
+            runRuleAndPercentageOptionTest(
+                "12345",
+                null,
+                null,
+                "Cat",
+                expectedTargetingRule = false,
+                expectedPercentageOption = false,
             )
-            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-                "dateToStringConversion",
-                1680307199.999,
-                "3"
+            runRuleAndPercentageOptionTest(
+                "12345",
+                "a@example.com",
+                null,
+                "Dog",
+                expectedTargetingRule = true,
+                expectedPercentageOption = false,
+            )
+            runRuleAndPercentageOptionTest(
+                "12345",
+                "a@configcat.com",
+                null,
+                "Cat",
+                expectedTargetingRule = false,
+                expectedPercentageOption = false,
+            )
+            runRuleAndPercentageOptionTest(
+                "12345",
+                "a@configcat.com",
+                "",
+                "Frog",
+                expectedTargetingRule = true,
+                expectedPercentageOption = true,
+            )
+            runRuleAndPercentageOptionTest(
+                "12345",
+                "a@configcat.com",
+                "US",
+                "Fish",
+                expectedTargetingRule = true,
+                expectedPercentageOption = true,
+            )
+            runRuleAndPercentageOptionTest(
+                "12345",
+                "b@configcat.com",
+                null,
+                "Cat",
+                expectedTargetingRule = false,
+                expectedPercentageOption = false,
+            )
+            runRuleAndPercentageOptionTest(
+                "12345",
+                "b@configcat.com",
+                "",
+                "Falcon",
+                expectedTargetingRule = false,
+                expectedPercentageOption = true,
+            )
+            runRuleAndPercentageOptionTest(
+                "12345",
+                "b@configcat.com",
+                "US",
+                "Spider",
+                expectedTargetingRule = false,
+                expectedPercentageOption = true,
             )
         }
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-            "dateToStringConversionNaN",
-            Double.NaN,
-            "3"
-        )
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-            "dateToStringConversionPositiveInf",
-            Double.POSITIVE_INFINITY,
-            "1"
-        )
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-            "dateToStringConversionNegativeInf",
-            Double.NEGATIVE_INFINITY,
-            "5"
-        )
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-            "stringArrayToStringConversion",
-            arrayOf("read", "Write", " eXecute "),
-            "4"
-        )
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-            "stringArrayToStringConversionEmpty",
-            arrayOfNulls<String>(0),
-            "5"
-        )
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-            "stringArrayToStringConversionSpecialChars",
-            arrayOf("+<>%\"'\\/\t\r\n"),
-            "3"
-        )
-        runComparisonAttributeConversionToCanonicalStringRepresentationTest(
-            "stringArrayToStringConversionUnicode",
-            arrayOf("äöüÄÖÜçéèñışğâ¢™✓\uD83D\uDE00"),
-            "2"
-        )
-    }
+
+    @Test
+    fun prerequisiteFlagTypeMismatchTest() =
+        runTest {
+            if (PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE) {
+                return@runTest
+            }
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", true, "Dog")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", false, "Cat")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", "1", "")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", 1, "")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", 1.0, "")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", "private", "Dog")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", "Private", "Cat")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", true, "")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", 1, "")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnString", "mainStringFlag", 1.0, "")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", 2, "Dog")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", 1, "Cat")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", "2", "")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", true, "")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnInt", "mainIntFlag", 2.0, "")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", 0.1, "Dog")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", 0.11, "Cat")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", "0.1", "")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", true, "")
+            runPrerequisiteFlagTypeMismatchTest("stringDependsOnDouble", "mainDoubleFlag", 1, "")
+        }
+
+    @Test
+    fun prerequisiteFlagOverrideTest() =
+        runTest {
+            runPrerequisiteFlagOverrideTest("stringDependsOnString", "1", "john@sensitivecompany.com", null, "Dog")
+
+            runPrerequisiteFlagOverrideTest(
+                "stringDependsOnString",
+                "1",
+                "john@sensitivecompany.com",
+                OverrideBehavior.REMOTE_OVER_LOCAL,
+                "Dog",
+            )
+            runPrerequisiteFlagOverrideTest(
+                "stringDependsOnString",
+                "1",
+                "john@sensitivecompany.com",
+                OverrideBehavior.LOCAL_OVER_REMOTE,
+                "Dog",
+            )
+            runPrerequisiteFlagOverrideTest(
+                "stringDependsOnString",
+                "1",
+                "john@sensitivecompany.com",
+                OverrideBehavior.LOCAL_ONLY,
+                "",
+            )
+            runPrerequisiteFlagOverrideTest("stringDependsOnString", "2", "john@notsensitivecompany.com", null, "Cat")
+            runPrerequisiteFlagOverrideTest(
+                "stringDependsOnString",
+                "2",
+                "john@notsensitivecompany.com",
+                OverrideBehavior.REMOTE_OVER_LOCAL,
+                "Cat",
+            )
+            runPrerequisiteFlagOverrideTest(
+                "stringDependsOnString",
+                "2",
+                "john@notsensitivecompany.com",
+                OverrideBehavior.LOCAL_OVER_REMOTE,
+                "Dog",
+            )
+            runPrerequisiteFlagOverrideTest(
+                "stringDependsOnString",
+                "2",
+                "john@notsensitivecompany.com",
+                OverrideBehavior.LOCAL_ONLY,
+                "",
+            )
+            runPrerequisiteFlagOverrideTest(
+                "stringDependsOnInt",
+                "1",
+                "john@sensitivecompany.com",
+                null,
+                "Dog",
+            )
+            runPrerequisiteFlagOverrideTest(
+                "stringDependsOnInt",
+                "1",
+                "john@sensitivecompany.com",
+                OverrideBehavior.REMOTE_OVER_LOCAL,
+                "Dog",
+            )
+            runPrerequisiteFlagOverrideTest(
+                "stringDependsOnInt",
+                "1",
+                "john@sensitivecompany.com",
+                OverrideBehavior.LOCAL_OVER_REMOTE,
+                "Falcon",
+            )
+            runPrerequisiteFlagOverrideTest(
+                "stringDependsOnInt",
+                "1",
+                "john@sensitivecompany.com",
+                OverrideBehavior.LOCAL_ONLY,
+                "Falcon",
+            )
+            runPrerequisiteFlagOverrideTest(
+                "stringDependsOnInt",
+                "1",
+                "john@notsensitivecompany.com",
+                null,
+                "Cat",
+            )
+            runPrerequisiteFlagOverrideTest(
+                "stringDependsOnInt",
+                "1",
+                "john@notsensitivecompany.com",
+                OverrideBehavior.REMOTE_OVER_LOCAL,
+                "Cat",
+            )
+            runPrerequisiteFlagOverrideTest(
+                "stringDependsOnInt",
+                "1",
+                "john@notsensitivecompany.com",
+                OverrideBehavior.LOCAL_OVER_REMOTE,
+                "Falcon",
+            )
+            runPrerequisiteFlagOverrideTest(
+                "stringDependsOnInt",
+                "1",
+                "john@notsensitivecompany.com",
+                OverrideBehavior.LOCAL_ONLY,
+                "Falcon",
+            )
+        }
+
+    @Test
+    fun runComparisonAttributeConversionToCanonicalStringRepresentationTest() =
+        runTest {
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversion", .12345, "1")
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "numberToStringConversionInt",
+                125.toByte(),
+                "4",
+            )
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "numberToStringConversionInt",
+                125.toShort(),
+                "4",
+            )
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionInt", 125, "4")
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest("numberToStringConversionInt", 125L, "4")
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "numberToStringConversionPositiveExp",
+                -1.23456789e96,
+                "2",
+            )
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "numberToStringConversionNegativeExp",
+                -12345.6789E-100,
+                "4",
+            )
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "numberToStringConversionNaN",
+                Double.NaN,
+                "3",
+            )
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "numberToStringConversionPositiveInf",
+                Double.POSITIVE_INFINITY,
+                "4",
+            )
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "numberToStringConversionNegativeInf",
+                Double.NEGATIVE_INFINITY,
+                "3",
+            )
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "numberToStringConversionPositiveExp",
+                -1.23456789e96,
+                "2",
+            )
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "numberToStringConversionNegativeExp",
+                -12345.6789E-100,
+                "4",
+            )
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "numberToStringConversionNaN",
+                Float.NaN,
+                "3",
+            )
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "numberToStringConversionPositiveInf",
+                Float.POSITIVE_INFINITY,
+                "4",
+            )
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "numberToStringConversionNegativeInf",
+                Float.NEGATIVE_INFINITY,
+                "3",
+            )
+            if (!PlatformUtils.IS_NATIVE) {
+                // Native number format converts the double value to scientific notation causes a fail in these test cases
+                runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                    "dateToStringConversion",
+                    "date:2023-03-31T23:59:59.999Z",
+                    "3",
+                )
+                runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                    "dateToStringConversion",
+                    1680307199.999,
+                    "3",
+                )
+            }
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "dateToStringConversionNaN",
+                Double.NaN,
+                "3",
+            )
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "dateToStringConversionPositiveInf",
+                Double.POSITIVE_INFINITY,
+                "1",
+            )
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "dateToStringConversionNegativeInf",
+                Double.NEGATIVE_INFINITY,
+                "5",
+            )
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "stringArrayToStringConversion",
+                arrayOf("read", "Write", " eXecute "),
+                "4",
+            )
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "stringArrayToStringConversionEmpty",
+                arrayOfNulls<String>(0),
+                "5",
+            )
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "stringArrayToStringConversionSpecialChars",
+                arrayOf("+<>%\"'\\/\t\r\n"),
+                "3",
+            )
+            runComparisonAttributeConversionToCanonicalStringRepresentationTest(
+                "stringArrayToStringConversionUnicode",
+                arrayOf("äöüÄÖÜçéèñışğâ¢™✓\uD83D\uDE00"),
+                "2",
+            )
+        }
 
     private suspend fun runRuleAndPercentageOptionTest(
         userId: String,
@@ -345,16 +351,18 @@ class ConfigV2EvaluationTest {
         percentageBaseCustom: String?,
         expectedValue: String?,
         expectedTargetingRule: Boolean?,
-        expectedPercentageOption: Boolean?
+        expectedPercentageOption: Boolean?,
     ) {
-        val mockEngine = MockEngine {
-            respond(content = ruleOrOptionRemoteJson, status = HttpStatusCode.OK)
-        }
-        val client = ConfigCatClient("configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/P4e3fAz_1ky2-Zg2e4cbkw") {
-            pollingMode = manualPoll()
-            httpEngine = mockEngine
-            logLevel = LogLevel.ERROR
-        }
+        val mockEngine =
+            MockEngine {
+                respond(content = ruleOrOptionRemoteJson, status = HttpStatusCode.OK)
+            }
+        val client =
+            ConfigCatClient("configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/P4e3fAz_1ky2-Zg2e4cbkw") {
+                pollingMode = manualPoll()
+                httpEngine = mockEngine
+                logLevel = LogLevel.ERROR
+            }
         client.forceRefresh()
 
         val customAttributes = mutableMapOf<String, Any>()
@@ -372,21 +380,26 @@ class ConfigV2EvaluationTest {
         ConfigCatClient.closeAll()
     }
 
-    private suspend fun runCircularDependencyTest(key: String, dependencyCycle: String) {
-        val mockEngine = MockEngine {
-            respond(content = circularDependencyTestRemoteJson, status = HttpStatusCode.OK)
-        }
-        val client = ConfigCatClient(Data.SDK_KEY) {
-            pollingMode = manualPoll()
-            httpEngine = mockEngine
-            logLevel = LogLevel.ERROR
-        }
+    private suspend fun runCircularDependencyTest(
+        key: String,
+        dependencyCycle: String,
+    ) {
+        val mockEngine =
+            MockEngine {
+                respond(content = circularDependencyTestRemoteJson, status = HttpStatusCode.OK)
+            }
+        val client =
+            ConfigCatClient(Data.SDK_KEY) {
+                pollingMode = manualPoll()
+                httpEngine = mockEngine
+                logLevel = LogLevel.ERROR
+            }
         client.forceRefresh()
 
         val valueDetails = client.getValueDetails(key, "", null)
         assertEquals(
             "Circular dependency detected between the following depending flags: $dependencyCycle.",
-            valueDetails.error
+            valueDetails.error,
         )
 
         ConfigCatClient.closeAll()
@@ -396,29 +409,32 @@ class ConfigV2EvaluationTest {
         key: String,
         prerequisiteFlagKey: String,
         prerequisiteFlagValue: Any,
-        expectedValue: String?
+        expectedValue: String?,
     ) {
         val evaluationTestLogger = EvaluationTestLogger()
 
-        val mockEngine = MockEngine {
-            respond(content = prerequisiteFlagMismatchRemoteJson, status = HttpStatusCode.OK)
-        }
+        val mockEngine =
+            MockEngine {
+                respond(content = prerequisiteFlagMismatchRemoteJson, status = HttpStatusCode.OK)
+            }
         val flagOverrideMap = mutableMapOf<String, Any>()
         flagOverrideMap[prerequisiteFlagKey] = prerequisiteFlagValue
 
-        val client = ConfigCatClient("configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/JoGwdqJZQ0K2xDy7LnbyOg") {
-            pollingMode = manualPoll()
-            configCache = SingleValueCache("")
-            httpEngine = mockEngine
-            logLevel = LogLevel.ERROR
-            logger = evaluationTestLogger
-            flagOverrides = {
-                behavior = OverrideBehavior.LOCAL_OVER_REMOTE
-                dataSource = OverrideDataSource.map(
-                    flagOverrideMap
-                )
+        val client =
+            ConfigCatClient("configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/JoGwdqJZQ0K2xDy7LnbyOg") {
+                pollingMode = manualPoll()
+                configCache = SingleValueCache("")
+                httpEngine = mockEngine
+                logLevel = LogLevel.ERROR
+                logger = evaluationTestLogger
+                flagOverrides = {
+                    behavior = OverrideBehavior.LOCAL_OVER_REMOTE
+                    dataSource =
+                        OverrideDataSource.map(
+                            flagOverrideMap,
+                        )
+                }
             }
-        }
         client.forceRefresh()
 
         val value = client.getValue(key, "", null)
@@ -426,7 +442,7 @@ class ConfigV2EvaluationTest {
         assertEquals(
             expectedValue,
             value,
-            "Flag key: $key PrerequisiteFlagKey: $prerequisiteFlagKey PrerequisiteFlagValue: $prerequisiteFlagValue"
+            "Flag key: $key PrerequisiteFlagKey: $prerequisiteFlagKey PrerequisiteFlagValue: $prerequisiteFlagValue",
         )
         if (expectedValue.isNullOrEmpty()) {
             val logsList = evaluationTestLogger.getLogList()
@@ -453,7 +469,7 @@ class ConfigV2EvaluationTest {
         userId: String?,
         email: String?,
         overrideBehaviour: OverrideBehavior?,
-        expectedValue: Any?
+        expectedValue: Any?,
     ) {
         var user: ConfigCatUser? = null
         if (userId != null) {
@@ -463,22 +479,25 @@ class ConfigV2EvaluationTest {
         overrideMap["mainStringFlag"] = "private"
         overrideMap["stringDependsOnInt"] = "Falcon"
 
-        val mockEngine = MockEngine {
-            respond(content = prerequisiteFlagMismatchRemoteJson, status = HttpStatusCode.OK)
-        }
+        val mockEngine =
+            MockEngine {
+                respond(content = prerequisiteFlagMismatchRemoteJson, status = HttpStatusCode.OK)
+            }
 
-        val client = ConfigCatClient("configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/JoGwdqJZQ0K2xDy7LnbyOg") {
-            pollingMode = manualPoll()
-            httpEngine = mockEngine
-            if (overrideBehaviour != null) {
-                flagOverrides = {
-                    behavior = overrideBehaviour
-                    dataSource = OverrideDataSource.map(
-                        overrideMap
-                    )
+        val client =
+            ConfigCatClient("configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/JoGwdqJZQ0K2xDy7LnbyOg") {
+                pollingMode = manualPoll()
+                httpEngine = mockEngine
+                if (overrideBehaviour != null) {
+                    flagOverrides = {
+                        behavior = overrideBehaviour
+                        dataSource =
+                            OverrideDataSource.map(
+                                overrideMap,
+                            )
+                    }
                 }
             }
-        }
         client.forceRefresh()
 
         val value = client.getValue(key, "", user)
@@ -491,22 +510,25 @@ class ConfigV2EvaluationTest {
     private suspend fun runComparisonAttributeConversionToCanonicalStringRepresentationTest(
         key: String,
         userAttribute: Any,
-        expectedValue: String
+        expectedValue: String,
     ) {
-        val mockEngine = MockEngine {
-            respond(
-                content = comparisionAttributeConversionRemoteJson,
-                status = HttpStatusCode.OK
-            )
-        }
-        val client = ConfigCatClient(Data.SDK_KEY) {
-            httpEngine = mockEngine
-        }
-        val userAttributeToMap: Any = if (userAttribute is String && userAttribute.startsWith("date:")) {
-            DateTime.fromString(userAttribute.substring(5))
-        } else {
-            userAttribute
-        }
+        val mockEngine =
+            MockEngine {
+                respond(
+                    content = comparisionAttributeConversionRemoteJson,
+                    status = HttpStatusCode.OK,
+                )
+            }
+        val client =
+            ConfigCatClient(Data.SDK_KEY) {
+                httpEngine = mockEngine
+            }
+        val userAttributeToMap: Any =
+            if (userAttribute is String && userAttribute.startsWith("date:")) {
+                DateTime.fromString(userAttribute.substring(5))
+            } else {
+                userAttribute
+            }
         val customMap = mutableMapOf<String, Any>()
         customMap["Custom1"] = userAttributeToMap
 
@@ -519,7 +541,8 @@ class ConfigV2EvaluationTest {
         ConfigCatClient.closeAll()
     }
 
-    private val circularDependencyTestRemoteJson = """
+    private val circularDependencyTestRemoteJson =
+        """
         {
           "p": {
             "u": "https://cdn-global.configcat.com",
@@ -601,9 +624,10 @@ class ConfigV2EvaluationTest {
             }
           }
         }
-    """.trimIndent()
+        """.trimIndent()
 
-    private val ruleOrOptionRemoteJson = """
+    private val ruleOrOptionRemoteJson =
+        """
         {
            "p":{
               "u":"https://cdn-global.configcat.com",
@@ -848,10 +872,11 @@ class ConfigV2EvaluationTest {
               }
            }
         }
-    """.trimIndent()
+        """.trimIndent()
 
     // Used for prerequisiteFlag Override as well
-    private val prerequisiteFlagMismatchRemoteJson = """
+    private val prerequisiteFlagMismatchRemoteJson =
+        """
         {
            "p":{
               "u":"https://cdn-global.configcat.com",
@@ -1372,7 +1397,7 @@ class ConfigV2EvaluationTest {
               }
            }
         }
-    """.trimIndent()
+        """.trimIndent()
 
     private val comparisionAttributeConversionRemoteJson = """
         {

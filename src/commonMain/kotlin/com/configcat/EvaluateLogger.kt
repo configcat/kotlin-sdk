@@ -4,7 +4,12 @@ import com.configcat.ComparatorHelp.toComparatorOrNull
 import com.configcat.ComparatorHelp.toPrerequisiteComparatorOrNull
 import com.configcat.ComparatorHelp.toSegmentComparatorOrNull
 import com.configcat.DateTimeUtils.toDateTimeUTCString
-import com.configcat.model.*
+import com.configcat.model.PrerequisiteFlagCondition
+import com.configcat.model.Segment
+import com.configcat.model.SegmentCondition
+import com.configcat.model.SettingValue
+import com.configcat.model.TargetingRule
+import com.configcat.model.UserCondition
 
 @Suppress("TooManyFunctions")
 internal class EvaluateLogger {
@@ -64,11 +69,14 @@ internal class EvaluateLogger {
         append("Evaluating % options based on the User.$percentageOptionsAttributeName attribute:")
     }
 
-    fun logPercentageOptionEvaluationHash(percentageOptionsAttributeName: String, hashValue: Int) {
+    fun logPercentageOptionEvaluationHash(
+        percentageOptionsAttributeName: String,
+        hashValue: Int,
+    ) {
         newLine()
         append(
             "- Computing hash in the [0..99] range from User.$percentageOptionsAttributeName => " +
-                "$hashValue (this value is sticky and consistent across all SDKs)"
+                "$hashValue (this value is sticky and consistent across all SDKs)",
         )
     }
 
@@ -91,7 +99,12 @@ internal class EvaluateLogger {
         decreaseIndentLevel()
     }
 
-    fun logTargetingRuleConsequence(targetingRule: TargetingRule?, error: String?, isMatch: Boolean, newLine: Boolean) {
+    fun logTargetingRuleConsequence(
+        targetingRule: TargetingRule?,
+        error: String?,
+        isMatch: Boolean,
+        newLine: Boolean,
+    ) {
         increaseIndentLevel()
         var valueFormat = "% options"
         if (targetingRule?.servedValue?.value != null) {
@@ -115,7 +128,12 @@ internal class EvaluateLogger {
         decreaseIndentLevel()
     }
 
-    fun logPercentageEvaluationReturnValue(hashValue: Int, i: Int, percentage: Int, settingValue: SettingValue?) {
+    fun logPercentageEvaluationReturnValue(
+        hashValue: Int,
+        i: Int,
+        percentage: Int,
+        settingValue: SettingValue?,
+    ) {
         val percentageOptionValue = settingValue?.toString() ?: EvaluatorLogHelper.INVALID_VALUE
         newLine()
         append("- Hash value $hashValue selects % option ${(i + 1)} ($percentage%), '$percentageOptionValue'.")
@@ -133,7 +151,7 @@ internal class EvaluateLogger {
         segmentCondition: SegmentCondition?,
         segment: Segment?,
         result: Boolean,
-        segmentResult: Boolean
+        segmentResult: Boolean,
     ) {
         newLine()
         val segmentResultComparator: String =
@@ -146,20 +164,24 @@ internal class EvaluateLogger {
         newLine()
         append(
             "Condition (${EvaluatorLogHelper.formatSegmentFlagCondition(segmentCondition, segment)}) evaluates" +
-                " to $result."
+                " to $result.",
         )
         decreaseIndentLevel()
         newLine()
         append(")")
     }
 
-    fun logSegmentEvaluationError(segmentCondition: SegmentCondition?, segment: Segment?, error: String?) {
+    fun logSegmentEvaluationError(
+        segmentCondition: SegmentCondition?,
+        segment: Segment?,
+        error: String?,
+    ) {
         newLine()
         append("Segment evaluation result: $error.")
         newLine()
         append(
             "Condition (${EvaluatorLogHelper.formatSegmentFlagCondition(segmentCondition, segment)}) failed to " +
-                "evaluate."
+                "evaluate.",
         )
         decreaseIndentLevel()
         newLine()
@@ -177,7 +199,7 @@ internal class EvaluateLogger {
     fun logPrerequisiteFlagEvaluationResult(
         prerequisiteFlagCondition: PrerequisiteFlagCondition?,
         prerequisiteFlagValue: SettingValue?,
-        result: Boolean
+        result: Boolean,
     ) {
         newLine()
         val prerequisiteFlagValueFormat = prerequisiteFlagValue?.toString() ?: EvaluatorLogHelper.INVALID_VALUE
@@ -185,7 +207,7 @@ internal class EvaluateLogger {
         newLine()
         append(
             "Condition (${EvaluatorLogHelper.formatPrerequisiteFlagCondition(prerequisiteFlagCondition!!)}) " +
-                "evaluates to $result."
+                "evaluates to $result.",
         )
         decreaseIndentLevel()
         newLine()
@@ -199,7 +221,11 @@ internal object EvaluatorLogHelper {
     private const val INVALID_NAME = "<invalid name>"
     private const val INVALID_REFERENCE = "<invalid reference>"
     private const val MAX_LIST_ELEMENT = 10
-    private fun formatStringListComparisonValue(comparisonValue: Array<String>?, isSensitive: Boolean): String {
+
+    private fun formatStringListComparisonValue(
+        comparisonValue: Array<String>?,
+        isSensitive: Boolean,
+    ): String {
         if (comparisonValue == null) {
             return INVALID_VALUE
         }
@@ -232,7 +258,10 @@ internal object EvaluatorLogHelper {
         return "[$formattedList]"
     }
 
-    private fun formatStringComparisonValue(comparisonValue: String?, isSensitive: Boolean): String {
+    private fun formatStringComparisonValue(
+        comparisonValue: String?,
+        isSensitive: Boolean,
+    ): String {
         return if (isSensitive) {
             "'$HASHED_VALUE'"
         } else {
@@ -240,7 +269,10 @@ internal object EvaluatorLogHelper {
         }
     }
 
-    private fun formatDoubleComparisonValue(comparisonValue: Double?, isDate: Boolean): String {
+    private fun formatDoubleComparisonValue(
+        comparisonValue: Double?,
+        isDate: Boolean,
+    ): String {
         if (comparisonValue == null) {
             return INVALID_VALUE
         }
@@ -254,68 +286,72 @@ internal object EvaluatorLogHelper {
 
     fun formatUserCondition(userCondition: UserCondition): String {
         val userComparator = userCondition.comparator.toComparatorOrNull()
-        val comparisonValue: String = when (userComparator) {
-            Evaluator.UserComparator.IS_ONE_OF,
-            Evaluator.UserComparator.IS_NOT_ONE_OF,
-            Evaluator.UserComparator.CONTAINS_ANY_OF,
-            Evaluator.UserComparator.NOT_CONTAINS_ANY_OF,
-            Evaluator.UserComparator.ONE_OF_SEMVER,
-            Evaluator.UserComparator.NOT_ONE_OF_SEMVER,
-            Evaluator.UserComparator.TEXT_STARTS_WITH,
-            Evaluator.UserComparator.TEXT_NOT_STARTS_WITH,
-            Evaluator.UserComparator.TEXT_ENDS_WITH,
-            Evaluator.UserComparator.TEXT_NOT_ENDS_WITH,
-            Evaluator.UserComparator.TEXT_ARRAY_CONTAINS,
-            Evaluator.UserComparator.TEXT_ARRAY_NOT_CONTAINS -> formatStringListComparisonValue(
-                userCondition.stringArrayValue,
-                false
-            )
-
-            Evaluator.UserComparator.LT_SEMVER,
-            Evaluator.UserComparator.LTE_SEMVER,
-            Evaluator.UserComparator.GT_SEMVER,
-            Evaluator.UserComparator.GTE_SEMVER,
-            Evaluator.UserComparator.TEXT_EQUALS,
-            Evaluator.UserComparator.TEXT_NOT_EQUALS -> formatStringComparisonValue(
-                userCondition.stringValue,
-                false
-            )
-
-            Evaluator.UserComparator.EQ_NUM,
-            Evaluator.UserComparator.NOT_EQ_NUM,
-            Evaluator.UserComparator.LT_NUM,
-            Evaluator.UserComparator.LTE_NUM,
-            Evaluator.UserComparator.GT_NUM,
-            Evaluator.UserComparator.GTE_NUM -> formatDoubleComparisonValue(
-                userCondition.doubleValue,
-                false
-            )
-
-            Evaluator.UserComparator.ONE_OF_SENS,
-            Evaluator.UserComparator.NOT_ONE_OF_SENS,
-            Evaluator.UserComparator.HASHED_STARTS_WITH,
-            Evaluator.UserComparator.HASHED_NOT_STARTS_WITH,
-            Evaluator.UserComparator.HASHED_ENDS_WITH,
-            Evaluator.UserComparator.HASHED_NOT_ENDS_WITH,
-            Evaluator.UserComparator.HASHED_ARRAY_CONTAINS,
-            Evaluator.UserComparator.HASHED_ARRAY_NOT_CONTAINS -> formatStringListComparisonValue(
-                userCondition.stringArrayValue,
-                true
-            )
-
-            Evaluator.UserComparator.DATE_BEFORE, Evaluator.UserComparator.DATE_AFTER -> formatDoubleComparisonValue(
-                userCondition.doubleValue,
-                true
-            )
-
-            Evaluator.UserComparator.HASHED_EQUALS, Evaluator.UserComparator.HASHED_NOT_EQUALS ->
-                formatStringComparisonValue(
-                    userCondition.stringValue,
-                    true
-                )
-
-            else -> INVALID_VALUE
-        }
+        val comparisonValue: String =
+            when (userComparator) {
+                Evaluator.UserComparator.IS_ONE_OF,
+                Evaluator.UserComparator.IS_NOT_ONE_OF,
+                Evaluator.UserComparator.CONTAINS_ANY_OF,
+                Evaluator.UserComparator.NOT_CONTAINS_ANY_OF,
+                Evaluator.UserComparator.ONE_OF_SEMVER,
+                Evaluator.UserComparator.NOT_ONE_OF_SEMVER,
+                Evaluator.UserComparator.TEXT_STARTS_WITH,
+                Evaluator.UserComparator.TEXT_NOT_STARTS_WITH,
+                Evaluator.UserComparator.TEXT_ENDS_WITH,
+                Evaluator.UserComparator.TEXT_NOT_ENDS_WITH,
+                Evaluator.UserComparator.TEXT_ARRAY_CONTAINS,
+                Evaluator.UserComparator.TEXT_ARRAY_NOT_CONTAINS,
+                ->
+                    formatStringListComparisonValue(
+                        userCondition.stringArrayValue,
+                        false,
+                    )
+                Evaluator.UserComparator.LT_SEMVER,
+                Evaluator.UserComparator.LTE_SEMVER,
+                Evaluator.UserComparator.GT_SEMVER,
+                Evaluator.UserComparator.GTE_SEMVER,
+                Evaluator.UserComparator.TEXT_EQUALS,
+                Evaluator.UserComparator.TEXT_NOT_EQUALS,
+                ->
+                    formatStringComparisonValue(
+                        userCondition.stringValue,
+                        false,
+                    )
+                Evaluator.UserComparator.EQ_NUM,
+                Evaluator.UserComparator.NOT_EQ_NUM,
+                Evaluator.UserComparator.LT_NUM,
+                Evaluator.UserComparator.LTE_NUM,
+                Evaluator.UserComparator.GT_NUM,
+                Evaluator.UserComparator.GTE_NUM,
+                ->
+                    formatDoubleComparisonValue(
+                        userCondition.doubleValue,
+                        false,
+                    )
+                Evaluator.UserComparator.ONE_OF_SENS,
+                Evaluator.UserComparator.NOT_ONE_OF_SENS,
+                Evaluator.UserComparator.HASHED_STARTS_WITH,
+                Evaluator.UserComparator.HASHED_NOT_STARTS_WITH,
+                Evaluator.UserComparator.HASHED_ENDS_WITH,
+                Evaluator.UserComparator.HASHED_NOT_ENDS_WITH,
+                Evaluator.UserComparator.HASHED_ARRAY_CONTAINS,
+                Evaluator.UserComparator.HASHED_ARRAY_NOT_CONTAINS,
+                ->
+                    formatStringListComparisonValue(
+                        userCondition.stringArrayValue,
+                        true,
+                    )
+                Evaluator.UserComparator.DATE_BEFORE, Evaluator.UserComparator.DATE_AFTER ->
+                    formatDoubleComparisonValue(
+                        userCondition.doubleValue,
+                        true,
+                    )
+                Evaluator.UserComparator.HASHED_EQUALS, Evaluator.UserComparator.HASHED_NOT_EQUALS ->
+                    formatStringComparisonValue(
+                        userCondition.stringValue,
+                        true,
+                    )
+                else -> INVALID_VALUE
+            }
         return "User.${userCondition.comparisonAttribute} ${userComparator?.value} $comparisonValue"
     }
 
@@ -325,7 +361,10 @@ internal object EvaluatorLogHelper {
             "'${prerequisiteFlagCondition.value ?: INVALID_VALUE}'"
     }
 
-    fun formatCircularDependencyList(visitedKeys: List<String?>, key: String?): String {
+    fun formatCircularDependencyList(
+        visitedKeys: List<String?>,
+        key: String?,
+    ): String {
         val builder = StringBuilder()
         visitedKeys.forEach { visitedKey: String? ->
             builder.append("'").append(visitedKey).append("' -> ")
@@ -334,12 +373,16 @@ internal object EvaluatorLogHelper {
         return builder.toString()
     }
 
-    fun formatSegmentFlagCondition(segmentCondition: SegmentCondition?, segment: Segment?): String {
-        val segmentName: String = if (segment != null) {
-            segment.name ?: INVALID_NAME
-        } else {
-            INVALID_REFERENCE
-        }
+    fun formatSegmentFlagCondition(
+        segmentCondition: SegmentCondition?,
+        segment: Segment?,
+    ): String {
+        val segmentName: String =
+            if (segment != null) {
+                segment.name ?: INVALID_NAME
+            } else {
+                INVALID_REFERENCE
+            }
         val prerequisiteComparator = segmentCondition?.segmentComparator?.toSegmentComparatorOrNull()
         return "User ${prerequisiteComparator?.value} '$segmentName'"
     }

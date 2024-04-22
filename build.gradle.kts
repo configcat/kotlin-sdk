@@ -1,59 +1,46 @@
 import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.dokka.gradle.DokkaTask
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.KotlinTargetPreset
 import java.net.URL
 
 buildscript {
-    val atomicfu_version: String by project
+    val kotlinVersion by extra("1.9.23")
+    val atomicfuVersion: String by project
     dependencies {
-        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:$atomicfu_version")
+        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:$atomicfuVersion")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+        classpath("org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:$kotlinVersion")
     }
 }
 
 apply(plugin = "kotlinx-atomicfu")
 
 plugins {
-    kotlin("multiplatform") version "1.7.10"
-    kotlin("plugin.serialization") version "1.7.10"
+    kotlin("multiplatform") version "1.9.23"
+    kotlin("plugin.serialization") version "1.9.23"
     id("com.android.library")
     id("maven-publish")
     id("signing")
-    id("org.jetbrains.dokka") version "1.7.20"
-    id("org.sonarqube") version "3.5.0.2730"
-    id("org.jetbrains.kotlinx.kover") version "0.6.1"
-    id("io.gitlab.arturbosch.detekt") version "1.22.0"
-    id("org.jlleitschuh.gradle.ktlint") version "11.3.1"
+    id("org.jetbrains.dokka") version "1.9.20"
+    id("org.sonarqube") version "5.0.0.4638"
+    id("org.jetbrains.kotlinx.kover") version "0.7.6"
+    id("io.gitlab.arturbosch.detekt") version "1.23.6"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
 }
 
-val atomicfu_version: String by project
-val ktor_version: String by project
-val kotlinx_serialization_version: String by project
-val kotlinx_coroutines_version: String by project
-val klock_version: String by project
-val krypto_version: String by project
-val semver_version: String by project
+val atomicfuVersion: String by project
+val ktorVersion: String by project
+val kotlinxSerializationVersion: String by project
+val kotlinxCoroutinesVersion: String by project
+val klockVersion: String by project
+val kryptoVersion: String by project
+val semverVersion: String by project
 
-val build_number: String get() = System.getenv("BUILD_NUMBER") ?: ""
-val is_snapshot: Boolean get() = System.getProperty("snapshot") != null
-val nativeMainSets: MutableList<KotlinSourceSet> = mutableListOf()
-val nativeTestSets: MutableList<KotlinSourceSet> = mutableListOf()
-val host: Host = getHostType()
+val buildNumber: String get() = System.getenv("BUILD_NUMBER") ?: ""
+val isSnapshot: Boolean get() = System.getProperty("snapshot") != null
 
-version = "$version${if (is_snapshot) "-SNAPSHOT" else ""}"
+version = "$version${if (isSnapshot) "-SNAPSHOT" else ""}"
 
 kotlin {
-    fun addNativeTarget(preset: KotlinTargetPreset<*>, desiredHost: Host) {
-        val target = targetFromPreset(preset)
-        nativeMainSets.add(target.compilations.getByName("main").kotlinSourceSets.first())
-        nativeTestSets.add(target.compilations.getByName("test").kotlinSourceSets.first())
-        if (host != desiredHost) {
-            target.compilations.configureEach {
-                compileKotlinTask.enabled = false
-            }
-        }
-    }
-
     explicitApi()
 
     jvm {
@@ -62,14 +49,14 @@ kotlin {
         }
     }
 
-    android {
+    androidTarget {
         compilations.all {
             kotlinOptions.jvmTarget = "1.8"
         }
         publishLibraryVariants("release")
     }
 
-    js(BOTH) {
+    js {
         browser {
             testTask {
                 useKarma {
@@ -77,7 +64,9 @@ kotlin {
                 }
             }
             commonWebpackConfig {
-                cssSupport.enabled = true
+                cssSupport {
+                    enabled.set(true)
+                }
             }
         }
         nodejs {
@@ -89,123 +78,80 @@ kotlin {
         }
     }
 
-    // Windows
-    addNativeTarget(presets["mingwX64"], Host.WINDOWS)
+    macosX64()
+    macosArm64()
 
-    // Linux
-    addNativeTarget(presets["linuxX64"], Host.LINUX)
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
 
-    // MacOS
-    addNativeTarget(presets["macosX64"], Host.MAC_OS)
-    addNativeTarget(presets["macosArm64"], Host.MAC_OS)
+    watchosArm64()
+    watchosX64()
+    watchosSimulatorArm64()
+    watchosDeviceArm64()
 
-    // iOS
-    addNativeTarget(presets["iosArm64"], Host.MAC_OS)
-    addNativeTarget(presets["iosArm32"], Host.MAC_OS)
-    addNativeTarget(presets["iosX64"], Host.MAC_OS)
-    addNativeTarget(presets["iosSimulatorArm64"], Host.MAC_OS)
+    tvosArm64()
+    tvosX64()
+    tvosSimulatorArm64()
 
-    // watchOS
-    addNativeTarget(presets["watchosArm32"], Host.MAC_OS)
-    addNativeTarget(presets["watchosArm64"], Host.MAC_OS)
-    addNativeTarget(presets["watchosSimulatorArm64"], Host.MAC_OS)
+    mingwX64()
 
-    // tvOS
-    addNativeTarget(presets["tvosArm64"], Host.MAC_OS)
-    addNativeTarget(presets["tvosX64"], Host.MAC_OS)
-    addNativeTarget(presets["tvosSimulatorArm64"], Host.MAC_OS)
+    linuxX64()
+    linuxArm64()
+
+    applyDefaultHierarchyTemplate()
 
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation("io.ktor:ktor-client-core:$ktor_version")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinx_serialization_version")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version")
-                implementation("com.soywiz.korlibs.klock:klock:$klock_version")
-                implementation("com.soywiz.korlibs.krypto:krypto:$krypto_version")
-                implementation("io.github.z4kn4fein:semver:$semver_version")
-            }
+        commonMain.dependencies {
+            implementation("io.ktor:ktor-client-core:$ktorVersion")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinxSerializationVersion")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
+            implementation("com.soywiz.korlibs.klock:klock:$klockVersion")
+            implementation("com.soywiz.korlibs.krypto:krypto:$kryptoVersion")
+            implementation("io.github.z4kn4fein:semver:$semverVersion")
         }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation("io.ktor:ktor-client-mock:$ktor_version")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinx_coroutines_version")
-            }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation("io.ktor:ktor-client-mock:$ktorVersion")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinxCoroutinesVersion")
         }
 
-        val jvmMain by getting {
-            dependsOn(commonMain)
-            dependencies {
-                implementation("io.ktor:ktor-client-okhttp:$ktor_version")
-            }
+        jvmMain.dependencies {
+            implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
         }
 
-        val jvmTest by getting {
-            dependsOn(commonTest)
+        jsMain.dependencies {
+            implementation("io.ktor:ktor-client-js:$ktorVersion")
+            implementation("io.ktor:ktor-client-core-js:$ktorVersion")
         }
 
-        val jsMain by getting {
-            dependsOn(commonMain)
-            dependencies {
-                implementation("io.ktor:ktor-client-js:$ktor_version")
-            }
+        androidMain.dependencies {
+            implementation("io.ktor:ktor-client-android:$ktorVersion")
+            implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+            implementation("org.jetbrains.kotlinx:atomicfu:$atomicfuVersion")
         }
 
-        val jsTest by getting {
-            dependsOn(commonTest)
+        appleMain.dependencies {
+            implementation("io.ktor:ktor-client-darwin:$ktorVersion")
         }
 
-        val androidMain by getting {
-            dependsOn(commonMain)
-            dependencies {
-                implementation("io.ktor:ktor-client-okhttp:$ktor_version")
-                implementation("org.jetbrains.kotlinx:atomicfu:$atomicfu_version")
-            }
+        appleTest.dependencies {
+            implementation("io.ktor:ktor-client-darwin:$ktorVersion")
         }
 
-        val androidTest by getting {
-            dependsOn(commonTest)
+        val nativeRestMain by creating {
+            dependsOn(commonMain.get())
+        }
+        val nativeRestTest by creating {
+            dependsOn(commonTest.get())
         }
 
-        val darwinMain by creating {
-            dependsOn(commonMain)
-            dependencies {
-                implementation("io.ktor:ktor-client-darwin:$ktor_version")
-            }
-        }
+        mingwMain.get().dependsOn(nativeRestMain)
+        mingwTest.get().dependsOn(nativeRestTest)
 
-        val darwinTest by creating {
-            dependsOn(commonTest)
-            dependencies {
-                implementation("io.ktor:ktor-client-darwin:$ktor_version")
-            }
-        }
-
-        val nativeMain by creating {
-            dependsOn(commonMain)
-        }
-
-        val nativeTest by creating {
-            dependsOn(commonTest)
-        }
-
-        configure(nativeMainSets) {
-            if (this.name.isDarwin()) {
-                dependsOn(darwinMain)
-            } else {
-                dependsOn(nativeMain)
-            }
-        }
-
-        configure(nativeTestSets) {
-            if (this.name.isDarwin()) {
-                dependsOn(darwinTest)
-            } else {
-                dependsOn(nativeTest)
-            }
-        }
+        linuxMain.get().dependsOn(nativeRestMain)
+        linuxTest.get().dependsOn(nativeRestTest)
     }
 }
 
@@ -223,11 +169,11 @@ tasks.getByName<DokkaTask>("dokkaHtml") {
     outputDirectory.set(file(buildDir.resolve("dokka")))
 
     dokkaSourceSets {
-        named("darwinMain") {
+        named("appleMain") {
             platform.set(org.jetbrains.dokka.Platform.native)
             sourceLink {
-                localDirectory.set(file("src/darwinMain/kotlin"))
-                remoteUrl.set(URL("https://github.com/configcat/kotlin-sdk/blob/main/src/darwinMain/kotlin"))
+                localDirectory.set(file("src/appleMain/kotlin"))
+                remoteUrl.set(URL("https://github.com/configcat/kotlin-sdk/blob/main/src/appleMain/kotlin"))
                 remoteLineSuffix.set("#L")
             }
         }
@@ -258,17 +204,24 @@ tasks.getByName<DokkaTask>("dokkaHtml") {
     }
 }
 
-val javadocJar = tasks.register<Jar>("javadocJar") {
-    archiveClassifier.set("javadoc")
-    dependsOn("dokkaHtml")
-    from(buildDir.resolve("dokka"))
-}
+val javadocJar =
+    tasks.register<Jar>("javadocJar") {
+        archiveClassifier.set("javadoc")
+        dependsOn("dokkaHtml")
+        from(buildDir.resolve("dokka"))
+    }
 
 detekt {
     config = files("$rootDir/detekt.yml")
     buildUponDefaultConfig = true
     parallel = true
     isIgnoreFailures = true
+}
+
+ktlint {
+    filter {
+        exclude { element -> element.file.path.contains("build.gradle.kts") }
+    }
 }
 
 tasks.withType<Detekt>().configureEach {
@@ -286,13 +239,13 @@ sonarqube {
     properties {
         property("sonar.projectKey", "configcat_kotlin-sdk")
         property("sonar.projectName", "kotlin-sdk")
-        property("sonar.projectVersion", "$version-$build_number")
+        property("sonar.projectVersion", "$version-$buildNumber")
         property("sonar.organization", "configcat")
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.sources", "src/commonMain/kotlin/com/configcat")
         property("sonar.tests", "src/commonTest/kotlin/com/configcat")
         property("sonar.kotlin.detekt.reportPaths", buildDir.resolve("reports/detekt/detekt.xml"))
-        property("sonar.coverage.jacoco.xmlReportPaths", buildDir.resolve("reports/kover/xml/report.xml"))
+        property("sonar.coverage.jacoco.xmlReportPaths", buildDir.resolve("reports/kover/report.xml"))
     }
 }
 
@@ -301,7 +254,7 @@ publishing {
         maven {
             val releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2")
             val snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots")
-            url = if (is_snapshot) snapshotsRepoUrl else releasesRepoUrl
+            url = if (isSnapshot) snapshotsRepoUrl else releasesRepoUrl
             credentials {
                 username = System.getenv("SONATYPE_USERNAME")
                 password = System.getenv("SONATYPE_PASSWORD")
@@ -314,7 +267,9 @@ publishing {
 
         pom {
             name.set("ConfigCat Kotlin SDK")
-            description.set("Kotlin Multiplatform SDK for ConfigCat, a feature flag, feature toggle, and configuration management service. That lets you launch new features and change your software configuration remotely without actually (re)deploying code. ConfigCat even helps you do controlled roll-outs like canary releases and blue-green deployments.")
+            description.set(
+                "Kotlin Multiplatform SDK for ConfigCat, a feature flag, feature toggle, and configuration management service. That lets you launch new features and change your software configuration remotely without actually (re)deploying code. ConfigCat even helps you do controlled roll-outs like canary releases and blue-green deployments.",
+            )
             url.set("https://github.com/configcat/kotlin-sdk")
             issueManagement {
                 system.set("GitHub Issues")
@@ -338,14 +293,6 @@ publishing {
             }
         }
     }
-
-    tasks.withType(AbstractPublishToMaven::class).configureEach {
-        onlyIf { isPublicationAllowed(publication.name) }
-    }
-
-    tasks.withType(GenerateModuleMetadata::class).configureEach {
-        onlyIf { isPublicationAllowed(publication.get().name) }
-    }
 }
 
 signing {
@@ -357,26 +304,6 @@ signing {
     }
 }
 
-fun isPublicationAllowed(name: String): Boolean =
-    when {
-        name.startsWith("mingw") -> host == Host.WINDOWS
-        name.isDarwin() -> host == Host.MAC_OS
-        else -> host == Host.LINUX
-    }
-
-fun getHostType(): Host {
-    val hostOs = System.getProperty("os.name")
-    return when {
-        hostOs.startsWith("Windows") -> Host.WINDOWS
-        hostOs.startsWith("Mac") -> Host.MAC_OS
-        hostOs == "Linux" -> Host.LINUX
-        else -> throw Error("Invalid host.")
-    }
+tasks.withType<AbstractPublishToMaven>().configureEach {
+    dependsOn(tasks.withType<Sign>())
 }
-
-enum class Host { WINDOWS, MAC_OS, LINUX }
-
-fun String.isDarwin(): Boolean = this.startsWith("macos") ||
-    this.startsWith("ios") ||
-    this.startsWith("watchos") ||
-    this.startsWith("tvos")

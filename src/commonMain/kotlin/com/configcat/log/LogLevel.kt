@@ -8,5 +8,5 @@ public enum class LogLevel {
     INFO,
     WARNING,
     ERROR,
-    OFF
+    OFF,
 }

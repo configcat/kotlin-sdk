@@ -4,11 +4,12 @@ import com.configcat.ConfigCatUser
 import com.configcat.evaluation.data.TestCase
 import com.configcat.evaluation.data.TestSet
 
-object NativeEpochDateValidationTests : TestSet {
+object NativeComparatorsTests : TestSet {
     override val sdkKey = "configcat-sdk-1/JcPbCGl_1E-K9M-fJOyKyQ/OfQqcTjfFUGBwMKqtyEOrQ"
     override val baseUrl = null
-    override val jsonOverride = """
-        {
+    override val jsonOverride =
+        """
+                {
            "p":{
               "u":"https://cdn-global.configcat.com",
               "r":0,
@@ -1385,20 +1386,77 @@ object NativeEpochDateValidationTests : TestSet {
               }
            }
         }
-    """.trimIndent()
-    override val tests: Array<TestCase> = arrayOf(
-        TestCase(
-            key = "boolTrueIn202304",
-            defaultValue = true,
-            returnValue = false,
-            user = ConfigCatUser("12345", custom = mapOf("Custom1" to "2023.04.10")),
-            expectedLog = """WARNING [3004] Cannot evaluate condition (User.Custom1 AFTER '1.6803072E9' (2023-04-01T00:00:00.000Z UTC)) for setting 'boolTrueIn202304' ('2023.04.10' is not a valid Unix timestamp (number of seconds elapsed since Unix epoch)). Please check the User.Custom1 attribute and make sure that its value corresponds to the comparison operator.
-INFO [5000] Evaluating 'boolTrueIn202304' for User '{"Identifier":"12345","Custom1":"2023.04.10"}'
+        """.trimIndent()
+    override val tests: Array<TestCase> =
+        arrayOf(
+            TestCase(
+                key = "allinone",
+                defaultValue = "",
+                returnValue = "default",
+                user =
+                    ConfigCatUser(
+                        "12345",
+                        "joe@example.com",
+                        "[\"USA\"]",
+                        custom = mapOf("Version" to "1.0.0", "Number" to "1.0", "Date" to "1693497500"),
+                    ),
+                expectedLog = """INFO [5000] Evaluating 'allinone' for User '{"Identifier":"12345","Email":"joe@example.com","Country":"[\"USA\"]","Version":"1.0.0","Number":"1.0","Date":"1693497500"}'
   Evaluating targeting rules and applying the first match if any:
-  - IF User.Custom1 AFTER '1.6803072E9' (2023-04-01T00:00:00.000Z UTC) => false, skipping the remaining AND conditions
-    THEN 'true' => cannot evaluate, the User.Custom1 attribute is invalid ('2023.04.10' is not a valid Unix timestamp (number of seconds elapsed since Unix epoch))
-    The current targeting rule is ignored and the evaluation continues with the next rule.
-  Returning 'false'."""
+  - IF User.Email EQUALS '<hashed value>' => true
+    AND User.Email NOT EQUALS '<hashed value>' => false, skipping the remaining AND conditions
+    THEN '1h' => no match
+  - IF User.Email EQUALS 'joe@example.com' => true
+    AND User.Email NOT EQUALS 'joe@example.com' => false, skipping the remaining AND conditions
+    THEN '1c' => no match
+  - IF User.Email IS ONE OF [<1 hashed value>] => true
+    AND User.Email IS NOT ONE OF [<1 hashed value>] => false, skipping the remaining AND conditions
+    THEN '2h' => no match
+  - IF User.Email IS ONE OF ['joe@example.com'] => true
+    AND User.Email IS NOT ONE OF ['joe@example.com'] => false, skipping the remaining AND conditions
+    THEN '2c' => no match
+  - IF User.Email STARTS WITH ANY OF [<1 hashed value>] => true
+    AND User.Email NOT STARTS WITH ANY OF [<1 hashed value>] => false, skipping the remaining AND conditions
+    THEN '3h' => no match
+  - IF User.Email STARTS WITH ANY OF ['joe@'] => true
+    AND User.Email NOT STARTS WITH ANY OF ['joe@'] => false, skipping the remaining AND conditions
+    THEN '3c' => no match
+  - IF User.Email ENDS WITH ANY OF [<1 hashed value>] => true
+    AND User.Email NOT ENDS WITH ANY OF [<1 hashed value>] => false, skipping the remaining AND conditions
+    THEN '4h' => no match
+  - IF User.Email ENDS WITH ANY OF ['@example.com'] => true
+    AND User.Email NOT ENDS WITH ANY OF ['@example.com'] => false, skipping the remaining AND conditions
+    THEN '4c' => no match
+  - IF User.Email CONTAINS ANY OF ['e@e'] => true
+    AND User.Email NOT CONTAINS ANY OF ['e@e'] => false, skipping the remaining AND conditions
+    THEN '5' => no match
+  - IF User.Version IS ONE OF ['1.0.0'] => true
+    AND User.Version IS NOT ONE OF ['1.0.0'] => false, skipping the remaining AND conditions
+    THEN '6' => no match
+  - IF User.Version < '1.0.1' => true
+    AND User.Version >= '1.0.1' => false, skipping the remaining AND conditions
+    THEN '7' => no match
+  - IF User.Version > '0.9.9' => true
+    AND User.Version <= '0.9.9' => false, skipping the remaining AND conditions
+    THEN '8' => no match
+  - IF User.Number = '1' => true
+    AND User.Number != '1' => false, skipping the remaining AND conditions
+    THEN '9' => no match
+  - IF User.Number < '1.1' => true
+    AND User.Number >= '1.1' => false, skipping the remaining AND conditions
+    THEN '10' => no match
+  - IF User.Number > '0.9' => true
+    AND User.Number <= '0.9' => false, skipping the remaining AND conditions
+    THEN '11' => no match
+  - IF User.Date BEFORE '1.6934976E9' (2023-08-31T16:00:00.000Z UTC) => true
+    AND User.Date AFTER '1.6934976E9' (2023-08-31T16:00:00.000Z UTC) => false, skipping the remaining AND conditions
+    THEN '12' => no match
+  - IF User.Country ARRAY CONTAINS ANY OF [<1 hashed value>] => true
+    AND User.Country ARRAY NOT CONTAINS ANY OF [<1 hashed value>] => false, skipping the remaining AND conditions
+    THEN '13h' => no match
+  - IF User.Country ARRAY CONTAINS ANY OF ['USA'] => true
+    AND User.Country ARRAY NOT CONTAINS ANY OF ['USA'] => false, skipping the remaining AND conditions
+    THEN '13c' => no match
+  Returning 'default'.""",
+            ),
         )
-    )
 }

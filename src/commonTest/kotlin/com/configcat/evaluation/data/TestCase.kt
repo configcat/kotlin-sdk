@@ -7,5 +7,5 @@ data class TestCase(
     val defaultValue: Any,
     val returnValue: Any,
     val expectedLog: String?,
-    val user: ConfigCatUser?
+    val user: ConfigCatUser?,
 )

@@ -3,7 +3,7 @@
 ## Preparation
 
 1. Run tests
-3. Increase the version in the `gradle.properties` and `src/commonMain/kotlin/com/configcat/Utils.kt` file.
+3. Increase the version in the `gradle.properties` and `src/commonMain/kotlin/com/configcat/Constants.kt` file.
 4. Commit & Push
 
 ## Publish

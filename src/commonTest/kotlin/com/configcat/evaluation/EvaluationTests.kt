@@ -2,12 +2,29 @@ package com.configcat.evaluation
 
 import com.configcat.ConfigCatClient
 import com.configcat.SingleValueCache
-import com.configcat.evaluation.data.*
+import com.configcat.evaluation.data.AndRulesTests
+import com.configcat.evaluation.data.ComparatorsTests
+import com.configcat.evaluation.data.EpochDateValidationTests
+import com.configcat.evaluation.data.ListTruncationTests
+import com.configcat.evaluation.data.NumberValidationTests
+import com.configcat.evaluation.data.OneTargetingRuleTests
+import com.configcat.evaluation.data.OptionsAfterTargetingRuleTests
+import com.configcat.evaluation.data.OptionsBasedOnCustomAttrTests
+import com.configcat.evaluation.data.OptionsBasedOnUserIdTests
+import com.configcat.evaluation.data.OptionsWithinTargetingRuleTests
+import com.configcat.evaluation.data.PrerequisiteFlagTests
+import com.configcat.evaluation.data.SegmentTests
+import com.configcat.evaluation.data.SemverValidationTests
+import com.configcat.evaluation.data.SimpleValueTests
+import com.configcat.evaluation.data.TestSet
+import com.configcat.evaluation.data.TwoTargetingRulesTests
 import com.configcat.log.LogLevel
 import com.configcat.manualPoll
-import io.ktor.client.engine.mock.*
-import io.ktor.http.*
-import io.ktor.util.*
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.ktor.util.PlatformUtils
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -15,89 +32,103 @@ import kotlin.test.fail
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class EvaluationTests {
-
     @Test
-    fun testSimpleValue() = runTest {
-        testEvaluation(SimpleValueTests)
-    }
-
-    @Test
-    fun testOneTargetRule() = runTest {
-        testEvaluation(OneTargetingRuleTests)
-    }
-
-    @Test
-    fun testTwoTargetingRules() = runTest {
-        testEvaluation(TwoTargetingRulesTests)
-    }
-
-    @Test
-    fun testAndRules() = runTest {
-        testEvaluation(AndRulesTests)
-    }
-
-    @Test
-    fun testComparators() = runTest {
-        // Native test run separately for this test
-        if (PlatformUtils.IS_NATIVE) {
-            return@runTest
+    fun testSimpleValue() =
+        runTest {
+            testEvaluation(SimpleValueTests)
         }
-        testEvaluation(ComparatorsTests)
-    }
 
     @Test
-    fun testSemverValidation() = runTest {
-        testEvaluation(SemverValidationTests)
-    }
-
-    @Test
-    fun testNumberValidation() = runTest {
-        testEvaluation(NumberValidationTests)
-    }
-
-    @Test
-    fun testEpochDateValidation() = runTest {
-        // Native test run separately for this test
-        if (PlatformUtils.IS_NATIVE) {
-            return@runTest
+    fun testOneTargetRule() =
+        runTest {
+            testEvaluation(OneTargetingRuleTests)
         }
-        testEvaluation(EpochDateValidationTests)
-    }
 
     @Test
-    fun testPrerequisiteFlag() = runTest {
-        testEvaluation(PrerequisiteFlagTests)
-    }
+    fun testTwoTargetingRules() =
+        runTest {
+            testEvaluation(TwoTargetingRulesTests)
+        }
 
     @Test
-    fun testSegment() = runTest {
-        testEvaluation(SegmentTests)
-    }
+    fun testAndRules() =
+        runTest {
+            testEvaluation(AndRulesTests)
+        }
 
     @Test
-    fun testOptionsAfterTargetingRule() = runTest {
-        testEvaluation(OptionsAfterTargetingRuleTests)
-    }
+    fun testComparators() =
+        runTest {
+            // Native test run separately for this test
+            if (PlatformUtils.IS_NATIVE) {
+                return@runTest
+            }
+            testEvaluation(ComparatorsTests)
+        }
 
     @Test
-    fun testOptionsBasedOnUserId() = runTest {
-        testEvaluation(OptionsBasedOnUserIdTests)
-    }
+    fun testSemverValidation() =
+        runTest {
+            testEvaluation(SemverValidationTests)
+        }
 
     @Test
-    fun testOptionsBasedOnCustomAttr() = runTest {
-        testEvaluation(OptionsBasedOnCustomAttrTests)
-    }
+    fun testNumberValidation() =
+        runTest {
+            testEvaluation(NumberValidationTests)
+        }
 
     @Test
-    fun testOptionsWithinTargetingRule() = runTest {
-        testEvaluation(OptionsWithinTargetingRuleTests)
-    }
+    fun testEpochDateValidation() =
+        runTest {
+            // Native test run separately for this test
+            if (PlatformUtils.IS_NATIVE) {
+                return@runTest
+            }
+            testEvaluation(EpochDateValidationTests)
+        }
 
     @Test
-    fun testListTruncation() = runTest {
-        testEvaluation(ListTruncationTests)
-    }
+    fun testPrerequisiteFlag() =
+        runTest {
+            testEvaluation(PrerequisiteFlagTests)
+        }
+
+    @Test
+    fun testSegment() =
+        runTest {
+            testEvaluation(SegmentTests)
+        }
+
+    @Test
+    fun testOptionsAfterTargetingRule() =
+        runTest {
+            testEvaluation(OptionsAfterTargetingRuleTests)
+        }
+
+    @Test
+    fun testOptionsBasedOnUserId() =
+        runTest {
+            testEvaluation(OptionsBasedOnUserIdTests)
+        }
+
+    @Test
+    fun testOptionsBasedOnCustomAttr() =
+        runTest {
+            testEvaluation(OptionsBasedOnCustomAttrTests)
+        }
+
+    @Test
+    fun testOptionsWithinTargetingRule() =
+        runTest {
+            testEvaluation(OptionsWithinTargetingRuleTests)
+        }
+
+    @Test
+    fun testListTruncation() =
+        runTest {
+            testEvaluation(ListTruncationTests)
+        }
 
     private suspend fun testEvaluation(testSet: TestSet) {
         var sdkKey = testSet.sdkKey
@@ -105,25 +136,27 @@ class EvaluationTests {
             sdkKey = TEST_SDK_KEY
         }
 
-        val mockEngine = MockEngine {
-            respond(
-                content = testSet.jsonOverride,
-                status = HttpStatusCode.OK,
-                headersOf(Pair("ETag", listOf("fakeETag")))
-            )
-        }
+        val mockEngine =
+            MockEngine {
+                respond(
+                    content = testSet.jsonOverride,
+                    status = HttpStatusCode.OK,
+                    headersOf(Pair("ETag", listOf("fakeETag"))),
+                )
+            }
 
         val evaluationTestLogger = EvaluationTestLogger()
-        val client = ConfigCatClient(sdkKey) {
-            pollingMode = manualPoll()
-            baseUrl = testSet.baseUrl
-            httpEngine = mockEngine
-            logger = evaluationTestLogger
-            logLevel = LogLevel.INFO
+        val client =
+            ConfigCatClient(sdkKey) {
+                pollingMode = manualPoll()
+                baseUrl = testSet.baseUrl
+                httpEngine = mockEngine
+                logger = evaluationTestLogger
+                logLevel = LogLevel.INFO
 
-            // add empty SingleValueCache to avoid JS extra cache logs
-            configCache = SingleValueCache("")
-        }
+                // add empty SingleValueCache to avoid JS extra cache logs
+                configCache = SingleValueCache("")
+            }
         client.forceRefresh()
 
         val tests = testSet.tests

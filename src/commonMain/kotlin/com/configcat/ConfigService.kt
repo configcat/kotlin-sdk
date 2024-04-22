@@ -6,15 +6,24 @@ import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.configcat.model.Entry
 import com.configcat.model.Setting
-import com.soywiz.klock.DateTime
-import com.soywiz.krypto.sha1
-import io.ktor.util.*
+import korlibs.crypto.sha1
+import korlibs.time.DateTime
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeoutOrNull
 
 internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: DateTime) {
     fun isEmpty(): Boolean = this === empty
@@ -28,7 +37,7 @@ internal class ConfigService(
     private val options: ConfigCatOptions,
     private val configFetcher: ConfigFetcher,
     private val logger: InternalLogger,
-    private val hooks: Hooks
+    private val hooks: Hooks,
 ) : Closeable {
     internal val cacheKey: String = getCacheKey()
     private val mutex = Mutex()
@@ -57,10 +66,11 @@ internal class ConfigService(
     suspend fun getSettings(): SettingResult {
         return when (mode) {
             is LazyLoadMode -> {
-                val result = fetchIfOlder(
-                    DateTime.now()
-                        .add(0, -mode.configuration.cacheRefreshInterval.inWholeMilliseconds.toDouble())
-                )
+                val result =
+                    fetchIfOlder(
+                        DateTime.now()
+                            .add(0, -mode.configuration.cacheRefreshInterval.inWholeMilliseconds.toDouble()),
+                    )
                 if (result.first.isEmpty()) {
                     SettingResult.empty
                 } else {
@@ -109,7 +119,10 @@ internal class ConfigService(
     }
 
     @Suppress("ComplexMethod")
-    private suspend fun fetchIfOlder(threshold: DateTime, preferCached: Boolean = false): Pair<Entry, String?> {
+    private suspend fun fetchIfOlder(
+        threshold: DateTime,
+        preferCached: Boolean = false,
+    ): Pair<Entry, String?> {
         mutex.withLock {
             // Sync up with the cache and use it when it's not expired.
             val fromCache = readCache()
@@ -132,29 +145,32 @@ internal class ConfigService(
                 // No fetch is running, initiate a new one.
                 fetching = true
                 val eTag = cachedEntry.eTag
-                fetchJob = coroutineScope.async {
-                    if (mode is AutoPollMode && !initialized.value) {
-                        // Waiting for the client initialization.
-                        // After the maxInitWaitTimeInSeconds timeout the client will be initialized and while
-                        // the config is not ready the default value will be returned.
-                        val result = withTimeoutOrNull(mode.configuration.maxInitWaitTime) {
-                            fetchConfig(eTag)
+                fetchJob =
+                    coroutineScope.async {
+                        if (mode is AutoPollMode && !initialized.value) {
+                            // Waiting for the client initialization.
+                            // After the maxInitWaitTimeInSeconds timeout the client will be initialized and while
+                            // the config is not ready the default value will be returned.
+                            val result =
+                                withTimeoutOrNull(mode.configuration.maxInitWaitTime) {
+                                    fetchConfig(eTag)
+                                }
+                            if (result != null) {
+                                return@async result
+                            }
+                            // We got a timeout
+                            val message =
+                                ConfigCatLogMessages.getAutoPollMaxInitWaitTimeReached(
+                                    mode.configuration.maxInitWaitTime.inWholeMilliseconds,
+                                )
+                            logger.warning(4200, message)
+                            setInitialized()
+                            return@async Pair(Entry.empty, message)
+                        } else {
+                            // The service is initialized, start fetch without timeout.
+                            return@async fetchConfig(eTag)
                         }
-                        if (result != null) {
-                            return@async result
-                        }
-                        // We got a timeout
-                        val message = ConfigCatLogMessages.getAutoPollMaxInitWaitTimeReached(
-                            mode.configuration.maxInitWaitTime.inWholeMilliseconds
-                        )
-                        logger.warning(4200, message)
-                        setInitialized()
-                        return@async Pair(Entry.empty, message)
-                    } else {
-                        // The service is initialized, start fetch without timeout.
-                        return@async fetchConfig(eTag)
                     }
-                }
             }
         }
         // Await the fetch routine.
@@ -190,15 +206,16 @@ internal class ConfigService(
 
     private fun startPoll(mode: AutoPollMode) {
         logger.debug("Start polling with ${mode.configuration.pollingInterval.inWholeMilliseconds}ms interval.")
-        pollingJob = coroutineScope.launch {
-            while (isActive) {
-                fetchIfOlder(
-                    DateTime.now()
-                        .add(0, -mode.configuration.pollingInterval.inWholeMilliseconds.toDouble())
-                )
-                delay(mode.configuration.pollingInterval)
+        pollingJob =
+            coroutineScope.launch {
+                while (isActive) {
+                    fetchIfOlder(
+                        DateTime.now()
+                            .add(0, -mode.configuration.pollingInterval.inWholeMilliseconds.toDouble()),
+                    )
+                    delay(mode.configuration.pollingInterval)
+                }
             }
-        }
     }
 
     private fun setInitialized() {
@@ -231,7 +248,7 @@ internal class ConfigService(
     }
 
     private fun getCacheKey() =
-        "${options.sdkKey}_${Constants.configFileName}_${Constants.serializationFormatVersion}".encodeToByteArray()
+        "${options.sdkKey}_${Constants.CONFIG_FILE_NAME}_${Constants.SERIALIZATION_FORMAT_VERSION}".encodeToByteArray()
             .sha1().hex
 
     override fun close() {

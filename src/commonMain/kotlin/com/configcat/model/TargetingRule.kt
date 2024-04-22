@@ -24,7 +24,7 @@ public data class TargetingRule(
      * THEN part.
      */
     @SerialName(value = "s")
-    val servedValue: ServedValue? = null
+    val servedValue: ServedValue? = null,
 ) {
     internal val conditionAccessors: List<ConditionAccessor> =
         conditions?.let { condition -> condition.map { it } } ?: listOf()
@@ -35,7 +35,7 @@ public data class ServedValue(
     @SerialName(value = "v")
     val value: SettingValue,
     @SerialName(value = "i")
-    val variationId: String? = null
+    val variationId: String? = null,
 ) {
     // No implementation
 }
