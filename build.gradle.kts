@@ -224,7 +224,7 @@ ktlint {
         )
     )
     filter {
-        exclude { element -> element.file.path.contains("build.gradle.kts") }
+        exclude { element -> element.file.path.contains("build.gradle.kts") || element.file.path.contains("Test") }
     }
 }
 

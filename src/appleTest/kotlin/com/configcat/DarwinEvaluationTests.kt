@@ -66,7 +66,10 @@ class DarwinEvaluationTests {
 
             val result: Any? = client.getAnyValue(settingKey, test.defaultValue, test.user)
             if (test.returnValue != result) {
-                errors.add("Return value mismatch for test: %s Test Key: $settingKey Expected: ${test.returnValue}, Result: $result \n")
+                errors.add(
+                    "Return value mismatch for test: %s Test Key: " +
+                        "$settingKey Expected: ${test.returnValue}, Result: $result \n",
+                )
             }
             val expectedLog = test.expectedLog
             val logResultBuilder = StringBuilder()
@@ -80,7 +83,9 @@ class DarwinEvaluationTests {
             }
             val logResult: String = logResultBuilder.toString()
             if (expectedLog != logResult) {
-                errors.add("Log mismatch for test: %s Test Key: $settingKey Expected:\n$expectedLog\nResult:\n$logResult\n")
+                errors.add(
+                    "Log mismatch for test: %s Test Key: $settingKey Expected:\n$expectedLog\nResult:\n$logResult\n",
+                )
             }
             evaluationTestLogger.resetLogList()
         }
