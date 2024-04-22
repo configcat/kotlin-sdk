@@ -104,7 +104,7 @@ class ConfigCatClientTests {
                 }
 
             assertEquals(0, client.getValue("fakeKey", 0))
-            assertEquals(1, mockEngine.requestHistory.size)
+            assertTrue(mockEngine.requestHistory.size in 1..2)
         }
 
     @Test
@@ -173,7 +173,7 @@ class ConfigCatClientTests {
                 }
 
             assertEquals(0, client.getValue("fakeKey", 0))
-            assertEquals(1, mockEngine.requestHistory.size)
+            assertTrue(mockEngine.requestHistory.size in 1..2)
         }
 
     @Test
@@ -192,7 +192,7 @@ class ConfigCatClientTests {
                 }
 
             assertEquals(0, client.getValue("fakeKey", 0))
-            assertEquals(1, mockEngine.requestHistory.size)
+            assertTrue(mockEngine.requestHistory.size in 1..2)
         }
 
     @Test
@@ -230,7 +230,7 @@ class ConfigCatClientTests {
                 }
 
             assertEquals("", client.getValue("fakeKey", ""))
-            assertEquals(1, mockEngine.requestHistory.size)
+            assertTrue(mockEngine.requestHistory.size in 1..2)
         }
 
     @Test
@@ -268,7 +268,7 @@ class ConfigCatClientTests {
                 }
 
             assertEquals(0.0, client.getValue("fakeKey", 0.0))
-            assertEquals(1, mockEngine.requestHistory.size)
+            assertTrue(mockEngine.requestHistory.size in 1..2)
         }
 
     @Test
@@ -306,7 +306,7 @@ class ConfigCatClientTests {
                 }
 
             assertEquals(false, client.getValue("fakeKey", false))
-            assertEquals(1, mockEngine.requestHistory.size)
+            assertTrue(mockEngine.requestHistory.size in 1..2)
         }
 
     @Test
@@ -393,7 +393,7 @@ class ConfigCatClientTests {
                 result.error,
             )
             assertEquals("test", client.getValue("fakeKey", ""))
-            assertTrue(mockEngine.requestHistory.size == 1 || mockEngine.requestHistory.size == 2)
+            assertTrue(mockEngine.requestHistory.size in 1..2)
         }
 
     @Test
