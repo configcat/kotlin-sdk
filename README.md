@@ -12,7 +12,7 @@ ConfigCat is a <a href="https://configcat.com" target="_blank">hosted feature fl
 ![Snapshot](https://img.shields.io/nexus/s/com.configcat/configcat-kotlin-client?label=snapshot&server=https%3A%2F%2Foss.sonatype.org)
 [![Quality Gate Status](https://img.shields.io/sonar/quality_gate/configcat_kotlin-sdk?logo=SonarCloud&server=https%3A%2F%2Fsonarcloud.io)](https://sonarcloud.io/project/overview?id=configcat_kotlin-sdk)
 [![SonarCloud Coverage](https://img.shields.io/sonar/coverage/configcat_kotlin-sdk?logo=SonarCloud&server=https%3A%2F%2Fsonarcloud.io)](https://sonarcloud.io/project/overview?id=configcat_kotlin-sdk)
-[![Kotlin](https://img.shields.io/badge/kotlin-1.7-blueviolet.svg?logo=kotlin)](http://kotlinlang.org)
+[![Kotlin](https://img.shields.io/badge/kotlin-1.9-blueviolet.svg?logo=kotlin)](http://kotlinlang.org)
 
 [API Documentation](https://configcat.github.io/kotlin-sdk/)
 
@@ -20,13 +20,13 @@ ConfigCat is a <a href="https://configcat.com" target="_blank">hosted feature fl
 
 ### 1. Install the ConfigCat SDK
 ```kotlin
-val configcat_version: String by project
+val CONFIGCAT_VERSION: String by project
 
 kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("com.configcat:configcat-kotlin-client:$configcat_version")
+                implementation("com.configcat:configcat-kotlin-client:$CONFIGCAT_VERSION")
             }
         }
     }
