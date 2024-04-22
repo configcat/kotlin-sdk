@@ -48,10 +48,10 @@ internal class ConfigService(
     private val initialized = atomic(false)
     private val offline = atomic(options.offline)
     private val mode = options.pollingMode
+    private val fetchJob: AtomicRef<Deferred<Pair<Entry, String?>>?> = atomic(null)
     private var pollingJob: Job? = null
     private var cachedEntry = Entry.empty
     private var cachedJsonString = ""
-    private var fetchJob: AtomicRef<Deferred<Pair<Entry, String?>>?> = atomic(null)
     private var fetching = false
 
     val isOffline: Boolean get() = offline.value
