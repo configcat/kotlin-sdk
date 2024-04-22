@@ -8,13 +8,11 @@ import com.configcat.override.OverrideDataSource
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class JSConfigV2EvaluationTest {
     // This is the same test cases as the ConfigV2EvaluationTest with different expected results.
     // The JS format the double differently, then the other platforms

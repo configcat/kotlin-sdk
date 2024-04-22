@@ -11,12 +11,10 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.fail
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class DarwinEvaluationTests {
     @Test
     fun testComparators() =
