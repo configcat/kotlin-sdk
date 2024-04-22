@@ -218,6 +218,11 @@ detekt {
 }
 
 ktlint {
+    additionalEditorconfig.set(
+        mapOf(
+            "max_line_length" to "120"
+        )
+    )
     filter {
         exclude { element -> element.file.path.contains("build.gradle.kts") }
     }

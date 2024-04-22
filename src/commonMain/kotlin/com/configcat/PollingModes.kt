@@ -41,12 +41,14 @@ public data class LazyLoadConfiguration(
 /**
  * Creates an auto polling configuration.
  */
-public fun autoPoll(block: AutoPollConfiguration.() -> Unit = {}): PollingMode = AutoPollMode(AutoPollConfiguration().apply(block))
+public fun autoPoll(block: AutoPollConfiguration.() -> Unit = {}): PollingMode =
+    AutoPollMode(AutoPollConfiguration().apply(block))
 
 /**
  * Creates a lazy load polling configuration.
  */
-public fun lazyLoad(block: LazyLoadConfiguration.() -> Unit = {}): PollingMode = LazyLoadMode(LazyLoadConfiguration().apply(block))
+public fun lazyLoad(block: LazyLoadConfiguration.() -> Unit = {}): PollingMode =
+    LazyLoadMode(LazyLoadConfiguration().apply(block))
 
 /**
  * Creates a manual polling configuration.

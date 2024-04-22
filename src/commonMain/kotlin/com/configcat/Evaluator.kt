@@ -44,12 +44,16 @@ internal data class EvaluationContext(
 )
 
 internal object ComparatorHelp {
-    fun Int.toComparatorOrNull(): Evaluator.UserComparator? = Evaluator.UserComparator.values().firstOrNull { it.id == this }
+    fun Int.toComparatorOrNull(): Evaluator.UserComparator? =
+        Evaluator.UserComparator.entries.firstOrNull { it.id == this }
 
     fun Int.toPrerequisiteComparatorOrNull(): Evaluator.PrerequisiteComparator? =
-        Evaluator.PrerequisiteComparator.values().firstOrNull { it.id == this }
+        Evaluator.PrerequisiteComparator.entries.firstOrNull { it.id == this }
 
-    fun Int.toSegmentComparatorOrNull(): Evaluator.SegmentComparator? = Evaluator.SegmentComparator.values().firstOrNull { it.id == this }
+    fun Int.toSegmentComparatorOrNull(): Evaluator.SegmentComparator? =
+        Evaluator.SegmentComparator.entries.firstOrNull {
+            it.id == this
+        }
 }
 
 private const val USER_OBJECT_IS_MISSING = "cannot evaluate, User Object is missing"
