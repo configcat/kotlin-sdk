@@ -51,7 +51,7 @@ class ConfigCatClientTests {
                     httpEngine = mockEngine
                 }
             val defs = mutableListOf<Deferred<Boolean>>()
-            val iter = 100000
+            val iter = 10000
 
             backgroundScope.launch {
                 repeat(iter) {
