@@ -10,9 +10,11 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.util.PlatformUtils
 import korlibs.crypto.sha1
 import korlibs.time.DateTime
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -48,12 +50,20 @@ class ConfigCatClientTests {
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
-            val op1 = async { client.getValue("fakeKey", false) }
-            val op2 = async { client.getValue("fakeKey", false) }
-            val op3 = async { client.getValue("fakeKey", false) }
-            val op4 = async { client.getValue("fakeKey", false) }
-            val op5 = async { client.getValue("fakeKey", false) }
-            val results = awaitAll(op1, op2, op3, op4, op5)
+            val defs = mutableListOf<Deferred<Boolean>>()
+            val iter = 100000
+
+            backgroundScope.launch {
+                repeat(iter) {
+                    defs.add(async { client.getValue("fakeKey", false) })
+                }
+            }
+
+            TestUtils.awaitUntil(5.seconds) {
+                defs.size == iter
+            }
+
+            val results = awaitAll(*defs.toTypedArray())
 
             assertTrue { results.all { it } }
             assertEquals(1, mockEngine.requestHistory.size)

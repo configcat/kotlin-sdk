@@ -53,7 +53,7 @@ public fun lazyLoad(block: LazyLoadConfiguration.() -> Unit = {}): PollingMode =
  */
 public fun manualPoll(): PollingMode = ManualPollMode()
 
-internal class AutoPollMode constructor(val configuration: AutoPollConfiguration) : PollingMode {
+internal class AutoPollMode(val configuration: AutoPollConfiguration) : PollingMode {
     override val identifier: String = "a"
 
     init {
@@ -62,7 +62,7 @@ internal class AutoPollMode constructor(val configuration: AutoPollConfiguration
     }
 }
 
-internal class LazyLoadMode constructor(val configuration: LazyLoadConfiguration) : PollingMode {
+internal class LazyLoadMode(val configuration: LazyLoadConfiguration) : PollingMode {
     override val identifier: String = "l"
 
     init {
