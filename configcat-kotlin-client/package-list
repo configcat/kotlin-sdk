@@ -12,6 +12,7 @@ $dokka.location:com.configcat.log/LogLevel.INFO///PointingToDeclaration/{"org.je
 $dokka.location:com.configcat.log/LogLevel.OFF///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat.log/-log-level/-o-f-f/index.html
 $dokka.location:com.configcat.log/LogLevel.WARNING///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat.log/-log-level/-w-a-r-n-i-n-g/index.html
 $dokka.location:com.configcat.log/LogLevel///PointingToDeclaration/configcat-kotlin-client/com.configcat.log/-log-level/index.html
+$dokka.location:com.configcat.log/LogLevel/entries/#/PointingToDeclaration/configcat-kotlin-client/com.configcat.log/-log-level/entries.html
 $dokka.location:com.configcat.log/LogLevel/valueOf/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat.log/-log-level/value-of.html
 $dokka.location:com.configcat.log/LogLevel/values/#/PointingToDeclaration/configcat-kotlin-client/com.configcat.log/-log-level/values.html
 $dokka.location:com.configcat.log/Logger///PointingToDeclaration/configcat-kotlin-client/com.configcat.log/-logger/index.html
@@ -74,6 +75,7 @@ $dokka.location:com.configcat.model/SettingType.INT///PointingToDeclaration/{"or
 $dokka.location:com.configcat.model/SettingType.JS_NUMBER///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat.model/-setting-type/-j-s_-n-u-m-b-e-r/index.html
 $dokka.location:com.configcat.model/SettingType.STRING///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat.model/-setting-type/-s-t-r-i-n-g/index.html
 $dokka.location:com.configcat.model/SettingType///PointingToDeclaration/configcat-kotlin-client/com.configcat.model/-setting-type/index.html
+$dokka.location:com.configcat.model/SettingType/entries/#/PointingToDeclaration/configcat-kotlin-client/com.configcat.model/-setting-type/entries.html
 $dokka.location:com.configcat.model/SettingType/id/#/PointingToDeclaration/configcat-kotlin-client/com.configcat.model/-setting-type/id.html
 $dokka.location:com.configcat.model/SettingType/value/#/PointingToDeclaration/configcat-kotlin-client/com.configcat.model/-setting-type/value.html
 $dokka.location:com.configcat.model/SettingType/valueOf/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat.model/-setting-type/value-of.html
@@ -109,6 +111,7 @@ $dokka.location:com.configcat.override/OverrideBehavior.LOCAL_ONLY///PointingToD
 $dokka.location:com.configcat.override/OverrideBehavior.LOCAL_OVER_REMOTE///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat.override/-override-behavior/-l-o-c-a-l_-o-v-e-r_-r-e-m-o-t-e/index.html
 $dokka.location:com.configcat.override/OverrideBehavior.REMOTE_OVER_LOCAL///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat.override/-override-behavior/-r-e-m-o-t-e_-o-v-e-r_-l-o-c-a-l/index.html
 $dokka.location:com.configcat.override/OverrideBehavior///PointingToDeclaration/configcat-kotlin-client/com.configcat.override/-override-behavior/index.html
+$dokka.location:com.configcat.override/OverrideBehavior/entries/#/PointingToDeclaration/configcat-kotlin-client/com.configcat.override/-override-behavior/entries.html
 $dokka.location:com.configcat.override/OverrideBehavior/valueOf/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat.override/-override-behavior/value-of.html
 $dokka.location:com.configcat.override/OverrideBehavior/values/#/PointingToDeclaration/configcat-kotlin-client/com.configcat.override/-override-behavior/values.html
 $dokka.location:com.configcat.override/OverrideDataSource.Companion///PointingToDeclaration/configcat-kotlin-client/com.configcat.override/-override-data-source/-companion/index.html
@@ -170,6 +173,7 @@ $dokka.location:com.configcat/ConfigCatUser/toString/#/PointingToDeclaration/co
 $dokka.location:com.configcat/DataGovernance.EU_ONLY///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat/-data-governance/-e-u_-o-n-l-y/index.html
 $dokka.location:com.configcat/DataGovernance.GLOBAL///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat/-data-governance/-g-l-o-b-a-l/index.html
 $dokka.location:com.configcat/DataGovernance///PointingToDeclaration/configcat-kotlin-client/com.configcat/-data-governance/index.html
+$dokka.location:com.configcat/DataGovernance/entries/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-data-governance/entries.html
 $dokka.location:com.configcat/DataGovernance/valueOf/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-data-governance/value-of.html
 $dokka.location:com.configcat/DataGovernance/values/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-data-governance/values.html
 $dokka.location:com.configcat/EvaluationDetails///PointingToDeclaration/configcat-kotlin-client/com.configcat/-evaluation-details/index.html

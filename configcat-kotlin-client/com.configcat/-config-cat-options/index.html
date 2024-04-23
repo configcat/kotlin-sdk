@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html class="no-js">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>ConfigCatOptions</title>
     <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
     <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
     <script>const storage = localStorage.getItem("dokka-dark-mode")
     if (storage == null) {
         const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -18,12 +19,13 @@
         }
     }
     </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
 <script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
 <link href="../../../styles/style.css" rel="Stylesheet">
-<link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
 <link href="../../../styles/main.css" rel="Stylesheet">
 <link href="../../../styles/prism.css" rel="Stylesheet">
 <link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
 <script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
 <script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
 <script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
@@ -32,246 +34,255 @@
 <script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
 </head>
 <body>
-<div class="navigation-wrapper" id="navigation-wrapper">
-    <div id="leftToggler"><span class="icon-toggler"></span></div>
-    <div class="library-name">
-            <a href="../../../index.html">
-                    <span>configcat-kotlin-client</span>
-            </a>
-    </div>
-    <div>
-3.0.1    </div>
-    <div class="pull-right d-flex">
+    <div class="root">
+<nav class="navigation" id="navigation-wrapper">
+    <div class="navigation--inner">
+        <div class="navigation-title">
+            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
+            <div class="library-name">
+                    <a class="library-name--link" href="../../../index.html">
+                            configcat-kotlin-client
+                    </a>
+            </div>
+            <div class="library-version">
+3.1.0            </div>
+        </div>
         <div class="filter-section" id="filter-section">
                 <button class="platform-tag platform-selector common-like" data-active="" data-filter=":dokkaHtml/commonMain">common</button>
         </div>
-        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
-        <div id="searchBar"></div>
     </div>
-</div>
-<div id="container">
-    <div id="leftColumn">
-        <div id="sideMenu"></div>
+    <div class="navigation-controls">
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
+        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
     </div>
-    <div id="main">
-<div class="main-content" id="content" pageIds="configcat-kotlin-client::com.configcat/ConfigCatOptions///PointingToDeclaration//788909594">
+</nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="configcat-kotlin-client::com.configcat/ConfigCatOptions///PointingToDeclaration//788909594">
   <div class="breadcrumbs"><a href="../../../index.html">configcat-kotlin-client</a><span class="delimiter">/</span><a href="../index.html">com.configcat</a><span class="delimiter">/</span><span class="current">ConfigCatOptions</span></div>
   <div class="cover ">
     <h1 class="cover"><span>Config</span><wbr></wbr><span>Cat</span><wbr></wbr><span><span>Options</span></span></h1>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">ConfigCatOptions</a><span class="clearfix"><span class="floating-right">(<a href="https://github.com/configcat/kotlin-sdk/blob/main/src/commonMain/kotlin/com/configcat/ConfigCatClient.kt#L19">source</a>)</span></span></div><p class="paragraph">Configuration options for <a href="../-config-cat-client/index.html">ConfigCatClient</a>.</p></div></div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">ConfigCatOptions</a><span class="clearfix"><span class="floating-right">(<a href="https://github.com/configcat/kotlin-sdk/blob/main/src/commonMain/kotlin/com/configcat/ConfigCatClient.kt#L27">source</a>)</span></span></div><p class="paragraph">Configuration options for <a href="../-config-cat-client/index.html">ConfigCatClient</a>.</p></div></div>
   </div>
   <div class="tabbedcontent">
-    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Constructors">Constructors</button><button class="section-tab" data-togglable="Properties">Properties</button></div>
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
     <div class="tabs-section-body">
-      <h2 class="tabbedcontent">Constructors</h2>
-      <div class="table" data-togglable="Constructors"><a data-name="726796566%2FConstructors%2F788909594" anchor-label="ConfigCatOptions" id="726796566%2FConstructors%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-        <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
-          <div class="main-subrow keyValue TabbedContent">
-            <div class=""><span class="inline-flex">
-                <div><a href="-config-cat-options.html"><span>Config</span><wbr></wbr><span>Cat</span><wbr></wbr><span><span>Options</span></span></a></div>
+      <div data-togglable="CONSTRUCTOR">
+        <h2 class="">Constructors</h2>
+        <div class="table"><a data-name="726796566%2FConstructors%2F788909594" anchor-label="ConfigCatOptions" id="726796566%2FConstructors%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-togglable="CONSTRUCTOR" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-config-cat-options.html"><span>Config</span><wbr></wbr><span>Cat</span><wbr></wbr><span><span>Options</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="726796566%2FConstructors%2F788909594"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="-config-cat-options.html"><span class="token function">ConfigCatOptions</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <h2 class="">Properties</h2>
-      <div class="table" data-togglable="Properties"><a data-name="-1366586308%2FProperties%2F788909594" anchor-label="baseUrl" id="-1366586308%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-        <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="base-url.html"><span>base</span><wbr></wbr><span><span>Url</span></span></a></div>
+      <div data-togglable="PROPERTY">
+        <h2 class="">Properties</h2>
+        <div class="table"><a data-name="-1366586308%2FProperties%2F788909594" anchor-label="baseUrl" id="-1366586308%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="base-url.html"><span>base</span><wbr></wbr><span><span>Url</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1366586308%2FProperties%2F788909594"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><a data-name="-1366586308%2FProperties%2F788909594" anchor-label="baseUrl" id="-1366586308%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="base-url.html">baseUrl</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null</div><div class="brief "><a data-name="-1366586308%2FProperties%2F788909594" anchor-label="baseUrl" id="-1366586308%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><p class="paragraph">The base ConfigCat CDN url.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="base-url.html">baseUrl</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div><div class="brief "><p class="paragraph">The base ConfigCat CDN url.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="-1215512710%2FProperties%2F788909594" anchor-label="configCache" id="-1215512710%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-        <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="config-cache.html"><span>config</span><wbr></wbr><span><span>Cache</span></span></a></div>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="config-cache.html"><span>config</span><wbr></wbr><span><span>Cache</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1215512710%2FProperties%2F788909594"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><a data-name="-1215512710%2FProperties%2F788909594" anchor-label="configCache" id="-1215512710%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="config-cache.html">configCache</a><span class="token operator">: </span><a href="../-config-cache/index.html">ConfigCache</a><span class="token operator">?</span></div><div class="brief "><a data-name="-1215512710%2FProperties%2F788909594" anchor-label="configCache" id="-1215512710%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><p class="paragraph">The cache implementation used to cache the downloaded configurations.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="config-cache.html">configCache</a><span class="token operator">: </span><a href="../-config-cache/index.html">ConfigCache</a><span class="token operator">?</span></div><div class="brief "><p class="paragraph">The cache implementation used to cache the downloaded configurations.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="1377210836%2FProperties%2F788909594" anchor-label="dataGovernance" id="1377210836%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-        <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="data-governance.html"><span>data</span><wbr></wbr><span><span>Governance</span></span></a></div>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="data-governance.html"><span>data</span><wbr></wbr><span><span>Governance</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1377210836%2FProperties%2F788909594"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><a data-name="1377210836%2FProperties%2F788909594" anchor-label="dataGovernance" id="1377210836%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="data-governance.html">dataGovernance</a><span class="token operator">: </span><a href="../-data-governance/index.html">DataGovernance</a></div><div class="brief "><a data-name="1377210836%2FProperties%2F788909594" anchor-label="dataGovernance" id="1377210836%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><p class="paragraph">Default: <a href="../-data-governance/-g-l-o-b-a-l/index.html">DataGovernance.GLOBAL</a>. Set this parameter to be in sync with the Data Governance preference on the <a href="https://app.configcat.com/organization/data-governance">Dashboard</a>. (Only Organization Admins have access)</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="data-governance.html">dataGovernance</a><span class="token operator">: </span><a href="../-data-governance/index.html">DataGovernance</a></div><div class="brief "><p class="paragraph">Default: <a href="../-data-governance/-g-l-o-b-a-l/index.html">DataGovernance.GLOBAL</a>. Set this parameter to be in sync with the Data Governance preference on the <a href="https://app.configcat.com/organization/data-governance">Dashboard</a>. (Only Organization Admins have access)</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="1046688942%2FProperties%2F788909594" anchor-label="defaultUser" id="1046688942%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-        <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="default-user.html"><span>default</span><wbr></wbr><span><span>User</span></span></a></div>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="default-user.html"><span>default</span><wbr></wbr><span><span>User</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1046688942%2FProperties%2F788909594"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><a data-name="1046688942%2FProperties%2F788909594" anchor-label="defaultUser" id="1046688942%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="default-user.html">defaultUser</a><span class="token operator">: </span><a href="../-config-cat-user/index.html">ConfigCatUser</a><span class="token operator">?</span><span class="token operator"> = </span>null</div><div class="brief "><a data-name="1046688942%2FProperties%2F788909594" anchor-label="defaultUser" id="1046688942%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><p class="paragraph">The default user, used as fallback when there's no user parameter is passed to the <a href="../get-value.html">ConfigCatClient.getValue</a> method.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="default-user.html">defaultUser</a><span class="token operator">: </span><a href="../-config-cat-user/index.html">ConfigCatUser</a><span class="token operator">?</span></div><div class="brief "><p class="paragraph">The default user, used as fallback when there's no user parameter is passed to the <a href="../get-value.html">ConfigCatClient.getValue</a> method.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="-539442721%2FProperties%2F788909594" anchor-label="flagOverrides" id="-539442721%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-        <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="flag-overrides.html"><span>flag</span><wbr></wbr><span><span>Overrides</span></span></a></div>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="flag-overrides.html"><span>flag</span><wbr></wbr><span><span>Overrides</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-539442721%2FProperties%2F788909594"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><a data-name="-539442721%2FProperties%2F788909594" anchor-label="flagOverrides" id="-539442721%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="flag-overrides.html">flagOverrides</a><span class="token operator">: </span><span class="token keyword"></span><a href="../../com.configcat.override/-flag-overrides/index.html">FlagOverrides</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a><span class="token operator">?</span><span class="token operator"> = </span>null</div><div class="brief "><a data-name="-539442721%2FProperties%2F788909594" anchor-label="flagOverrides" id="-539442721%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><p class="paragraph">Feature flag and setting overrides.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="flag-overrides.html">flagOverrides</a><span class="token operator">: </span><a href="../../com.configcat.override/-flag-overrides/index.html">FlagOverrides</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a><span class="token operator">?</span></div><div class="brief "><p class="paragraph">Feature flag and setting overrides.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="-613181206%2FProperties%2F788909594" anchor-label="hooks" id="-613181206%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-        <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="hooks.html"><span><span>hooks</span></span></a></div>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="hooks.html"><span><span>hooks</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-613181206%2FProperties%2F788909594"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><a data-name="-613181206%2FProperties%2F788909594" anchor-label="hooks" id="-613181206%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="hooks.html">hooks</a><span class="token operator">: </span><a href="../-hooks/index.html">Hooks</a></div><div class="brief "><a data-name="-613181206%2FProperties%2F788909594" anchor-label="hooks" id="-613181206%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><p class="paragraph">Hooks for events fired by <a href="../-config-cat-client/index.html">ConfigCatClient</a>.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="hooks.html">hooks</a><span class="token operator">: </span><a href="../-hooks/index.html">Hooks</a></div><div class="brief "><p class="paragraph">Hooks for events fired by <a href="../-config-cat-client/index.html">ConfigCatClient</a>.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="-1446028970%2FProperties%2F788909594" anchor-label="httpEngine" id="-1446028970%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-        <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="http-engine.html"><span>http</span><wbr></wbr><span><span>Engine</span></span></a></div>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="http-engine.html"><span>http</span><wbr></wbr><span><span>Engine</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1446028970%2FProperties%2F788909594"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><a data-name="-1446028970%2FProperties%2F788909594" anchor-label="httpEngine" id="-1446028970%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="http-engine.html">httpEngine</a><span class="token operator">: </span><span data-unresolved-link="io.ktor.client.engine/HttpClientEngine///PointingToDeclaration/">HttpClientEngine</span><span class="token operator">?</span><span class="token operator"> = </span>null</div><div class="brief "><a data-name="-1446028970%2FProperties%2F788909594" anchor-label="httpEngine" id="-1446028970%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><p class="paragraph">The underlying Ktor HTTP engine used to fetch the latest configuration.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="http-engine.html">httpEngine</a><span class="token operator">: </span><span data-unresolved-link="io.ktor.client.engine/HttpClientEngine///PointingToDeclaration/">HttpClientEngine</span><span class="token operator">?</span></div><div class="brief "><p class="paragraph">The underlying Ktor HTTP engine used to fetch the latest configuration.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="301051924%2FProperties%2F788909594" anchor-label="httpProxy" id="301051924%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-        <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="http-proxy.html"><span>http</span><wbr></wbr><span><span>Proxy</span></span></a></div>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="http-proxy.html"><span>http</span><wbr></wbr><span><span>Proxy</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="301051924%2FProperties%2F788909594"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><a data-name="301051924%2FProperties%2F788909594" anchor-label="httpProxy" id="301051924%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="http-proxy.html">httpProxy</a><span class="token operator">: </span><span data-unresolved-link="io.ktor.client.engine/ProxyConfig///PointingToDeclaration/">ProxyConfig</span><span class="token operator">?</span><span class="token operator"> = </span>null</div><div class="brief "><a data-name="301051924%2FProperties%2F788909594" anchor-label="httpProxy" id="301051924%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><p class="paragraph">Proxy configuration for the HTTP engine.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="http-proxy.html">httpProxy</a><span class="token operator">: </span><span data-unresolved-link="io.ktor.client.engine/ProxyConfig///PointingToDeclaration/">ProxyConfig</span><span class="token operator">?</span></div><div class="brief "><p class="paragraph">Proxy configuration for the HTTP engine.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="301092080%2FProperties%2F788909594" anchor-label="logger" id="301092080%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-        <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="logger.html"><span><span>logger</span></span></a></div>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="logger.html"><span><span>logger</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="301092080%2FProperties%2F788909594"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><a data-name="301092080%2FProperties%2F788909594" anchor-label="logger" id="301092080%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="logger.html">logger</a><span class="token operator">: </span><a href="../../com.configcat.log/-logger/index.html">Logger</a></div><div class="brief "><a data-name="301092080%2FProperties%2F788909594" anchor-label="logger" id="301092080%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><p class="paragraph">The internal logger implementation. The default logger writes the messages with <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.io/index.html">println</a>.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="logger.html">logger</a><span class="token operator">: </span><a href="../../com.configcat.log/-logger/index.html">Logger</a></div><div class="brief "><p class="paragraph">The internal logger implementation. The default logger writes the messages with <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.io/index.html">println</a>.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="-1952088800%2FProperties%2F788909594" anchor-label="logLevel" id="-1952088800%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-        <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="log-level.html"><span>log</span><wbr></wbr><span><span>Level</span></span></a></div>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="log-level.html"><span>log</span><wbr></wbr><span><span>Level</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1952088800%2FProperties%2F788909594"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><a data-name="-1952088800%2FProperties%2F788909594" anchor-label="logLevel" id="-1952088800%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="log-level.html">logLevel</a><span class="token operator">: </span><a href="../../com.configcat.log/-log-level/index.html">LogLevel</a></div><div class="brief "><a data-name="-1952088800%2FProperties%2F788909594" anchor-label="logLevel" id="-1952088800%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><p class="paragraph">Default: <a href="../../com.configcat.log/-log-level/-w-a-r-n-i-n-g/index.html">LogLevel.WARNING</a>. The internal log level.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="log-level.html">logLevel</a><span class="token operator">: </span><a href="../../com.configcat.log/-log-level/index.html">LogLevel</a></div><div class="brief "><p class="paragraph">Default: <a href="../../com.configcat.log/-log-level/-w-a-r-n-i-n-g/index.html">LogLevel.WARNING</a>. The internal log level.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="-132888873%2FProperties%2F788909594" anchor-label="offline" id="-132888873%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-        <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="offline.html"><span><span>offline</span></span></a></div>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="offline.html"><span><span>offline</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-132888873%2FProperties%2F788909594"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><a data-name="-132888873%2FProperties%2F788909594" anchor-label="offline" id="-132888873%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="offline.html">offline</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span></div><div class="brief "><a data-name="-132888873%2FProperties%2F788909594" anchor-label="offline" id="-132888873%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><p class="paragraph">Indicates whether the SDK should be initialized in offline mode or not.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="offline.html">offline</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Indicates whether the SDK should be initialized in offline mode or not.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="-327068780%2FProperties%2F788909594" anchor-label="pollingMode" id="-327068780%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-        <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="polling-mode.html"><span>polling</span><wbr></wbr><span><span>Mode</span></span></a></div>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="polling-mode.html"><span>polling</span><wbr></wbr><span><span>Mode</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-327068780%2FProperties%2F788909594"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><a data-name="-327068780%2FProperties%2F788909594" anchor-label="pollingMode" id="-327068780%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="polling-mode.html">pollingMode</a><span class="token operator">: </span><a href="../-polling-mode/index.html">PollingMode</a></div><div class="brief "><a data-name="-327068780%2FProperties%2F788909594" anchor-label="pollingMode" id="-327068780%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><p class="paragraph">The polling mode.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="polling-mode.html">pollingMode</a><span class="token operator">: </span><a href="../-polling-mode/index.html">PollingMode</a></div><div class="brief "><p class="paragraph">The polling mode.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 <a data-name="-1492305426%2FProperties%2F788909594" anchor-label="requestTimeout" id="-1492305426%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-        <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
-          <div class="main-subrow keyValue ">
-            <div class=""><span class="inline-flex">
-                <div><a href="request-timeout.html"><span>request</span><wbr></wbr><span><span>Timeout</span></span></a></div>
+          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="request-timeout.html"><span>request</span><wbr></wbr><span><span>Timeout</span></span></a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1492305426%2FProperties%2F788909594"></span>
-                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                </span></span></div>
-            <div>
-              <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><a data-name="-1492305426%2FProperties%2F788909594" anchor-label="requestTimeout" id="-1492305426%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="request-timeout.html">requestTimeout</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.time/-duration/index.html">Duration</a></div><div class="brief "><a data-name="-1492305426%2FProperties%2F788909594" anchor-label="requestTimeout" id="-1492305426%2FProperties%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a><p class="paragraph">Default: 30s. The maximum wait time for an HTTP response.</p></div></div></div>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="request-timeout.html">requestTimeout</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.time/-duration/index.html">Duration</a></div><div class="brief "><p class="paragraph">Default: 30s. The maximum wait time for an HTTP response.</p></div></div></div>
+                </div>
               </div>
             </div>
           </div>
@@ -285,7 +296,8 @@
                 class="pull-right"><span>Generated by </span><a
                 href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
       </div>
+            </div>
+        </div>
     </div>
-</div>
 </body>
 </html>
