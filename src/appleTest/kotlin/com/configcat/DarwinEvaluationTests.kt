@@ -11,12 +11,10 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.fail
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class DarwinEvaluationTests {
     @Test
     fun testComparators() =
@@ -68,7 +66,10 @@ class DarwinEvaluationTests {
 
             val result: Any? = client.getAnyValue(settingKey, test.defaultValue, test.user)
             if (test.returnValue != result) {
-                errors.add("Return value mismatch for test: %s Test Key: $settingKey Expected: ${test.returnValue}, Result: $result \n")
+                errors.add(
+                    "Return value mismatch for test: %s Test Key: " +
+                        "$settingKey Expected: ${test.returnValue}, Result: $result \n",
+                )
             }
             val expectedLog = test.expectedLog
             val logResultBuilder = StringBuilder()
@@ -82,7 +83,9 @@ class DarwinEvaluationTests {
             }
             val logResult: String = logResultBuilder.toString()
             if (expectedLog != logResult) {
-                errors.add("Log mismatch for test: %s Test Key: $settingKey Expected:\n$expectedLog\nResult:\n$logResult\n")
+                errors.add(
+                    "Log mismatch for test: %s Test Key: $settingKey Expected:\n$expectedLog\nResult:\n$logResult\n",
+                )
             }
             evaluationTestLogger.resetLogList()
         }

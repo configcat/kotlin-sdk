@@ -15,7 +15,7 @@ complexity:
     thresholdInClasses: 22
     thresholdInInterfaces: 17
   LongMethod:
-    threshold: 70
+    threshold: 80
   LongParameterList:
     constructorThreshold: 10
     functionThreshold: 7

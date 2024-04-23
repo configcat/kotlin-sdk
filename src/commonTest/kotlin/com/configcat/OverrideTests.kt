@@ -14,13 +14,11 @@ import com.configcat.override.OverrideDataSource
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class OverrideTests {
     @AfterTest
     fun tearDown() {
@@ -35,7 +33,7 @@ class OverrideTests {
                     respond(content = Data.formatJsonBodyWithBoolean(false), status = HttpStatusCode.OK)
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     flagOverrides = {
                         behavior = OverrideBehavior.LOCAL_ONLY
@@ -68,7 +66,7 @@ class OverrideTests {
                     respond(content = Data.formatJsonBodyWithBoolean(false), status = HttpStatusCode.OK)
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     flagOverrides = {
                         behavior = OverrideBehavior.LOCAL_OVER_REMOTE
@@ -95,7 +93,7 @@ class OverrideTests {
                     respond(content = Data.formatJsonBodyWithBoolean(false), status = HttpStatusCode.OK)
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     flagOverrides = {
                         behavior = OverrideBehavior.REMOTE_OVER_LOCAL
@@ -125,7 +123,7 @@ class OverrideTests {
             val user = ConfigCatUser("test@test1.com")
 
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     flagOverrides = {
                         behavior = OverrideBehavior.LOCAL_ONLY

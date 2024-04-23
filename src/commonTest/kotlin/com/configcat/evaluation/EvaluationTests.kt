@@ -25,12 +25,10 @@ import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.util.PlatformUtils
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.fail
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class EvaluationTests {
     @Test
     fun testSimpleValue() =

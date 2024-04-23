@@ -5,7 +5,6 @@ import com.configcat.model.Preferences
 import com.configcat.model.Segment
 import com.configcat.model.Setting
 import com.configcat.model.SettingValue
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -16,7 +15,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class CommonUtilsTests {
     @Test
     fun testValidateSettingValueType() =

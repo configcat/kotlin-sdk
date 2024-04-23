@@ -9,7 +9,6 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.fail
@@ -17,7 +16,6 @@ import kotlin.test.fail
 /**
  * Run the Evaluation test cases where double format used. This tests cases has a different expected value.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 class NativeEvaluationTests {
     @Test
     fun testComparators() =

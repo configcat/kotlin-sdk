@@ -10,13 +10,11 @@ import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.PlatformUtils
 import korlibs.time.DateTime
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class ConfigV2EvaluationTest {
     @Test
     fun circularDependencyTest() =
@@ -389,7 +387,7 @@ class ConfigV2EvaluationTest {
                 respond(content = circularDependencyTestRemoteJson, status = HttpStatusCode.OK)
             }
         val client =
-            ConfigCatClient(Data.SDK_KEY) {
+            ConfigCatClient(TestUtils.randomSdkKey()) {
                 pollingMode = manualPoll()
                 httpEngine = mockEngine
                 logLevel = LogLevel.ERROR
@@ -520,7 +518,7 @@ class ConfigV2EvaluationTest {
                 )
             }
         val client =
-            ConfigCatClient(Data.SDK_KEY) {
+            ConfigCatClient(TestUtils.randomSdkKey()) {
                 httpEngine = mockEngine
             }
         val userAttributeToMap: Any =

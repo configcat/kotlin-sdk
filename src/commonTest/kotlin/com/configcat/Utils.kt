@@ -20,6 +20,8 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 internal object TestUtils {
+    private val allowedSdkKeyChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
+
     suspend fun awaitUntil(
         timeout: Duration = 5.seconds,
         condTarget: suspend () -> Boolean,
@@ -42,11 +44,16 @@ internal object TestUtils {
             delay(timeout)
         }
     }
+
+    fun randomSdkKey(): String = "${randomString(22)}/${randomString(22)}"
+
+    private fun randomString(length: Int): String =
+        (1..length)
+            .map { allowedSdkKeyChars.random() }
+            .joinToString("")
 }
 
 internal object Data {
-    const val SDK_KEY = "configcat-sdk-1/TEST_KEY-0123456789012/1234567890123456789012"
-
     const val MULTIPLE_BODY =
         """{ "p": {"u": "https://cdn-global.configcat.com", "s": "test-salt" }, 
             "f": { "key1": { "t": 0, "v": { "b": true}, "i": "fakeId1", "p": [], "r": [], "a" : ""}, 

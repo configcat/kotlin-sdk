@@ -3,12 +3,10 @@ package com.configcat
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class EvaluatorTrimTests {
     private val testIdentifier = "12345"
     private val testVersion = "1.0.0"
@@ -66,7 +64,7 @@ class EvaluatorTrimTests {
                 )
             }
         val client =
-            ConfigCatClient(Data.SDK_KEY) {
+            ConfigCatClient(TestUtils.randomSdkKey()) {
                 httpEngine = mockEngine
             }
         val user: ConfigCatUser = createTestUser(testIdentifier, testCountry, testVersion, testNumber, testDate)
@@ -137,7 +135,7 @@ class EvaluatorTrimTests {
                 )
             }
         val client =
-            ConfigCatClient(Data.SDK_KEY) {
+            ConfigCatClient(TestUtils.randomSdkKey()) {
                 httpEngine = mockEngine
             }
         val user: ConfigCatUser =

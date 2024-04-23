@@ -797,6 +797,6 @@ internal class Client private constructor(
     }
 
     internal object SettingTypeHelper {
-        fun Int.toSettingTypeOrNull(): SettingType? = SettingType.values().firstOrNull { it.id == this }
+        fun Int.toSettingTypeOrNull(): SettingType? = SettingType.entries.firstOrNull { it.id == this }
     }
 }

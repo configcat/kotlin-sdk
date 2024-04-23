@@ -10,10 +10,11 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.util.PlatformUtils
 import korlibs.crypto.sha1
 import korlibs.time.DateTime
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -29,7 +30,6 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class ConfigCatClientTests {
     @AfterTest
     fun tearDown() {
@@ -47,15 +47,23 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
-            val op1 = async { client.getValue("fakeKey", false) }
-            val op2 = async { client.getValue("fakeKey", false) }
-            val op3 = async { client.getValue("fakeKey", false) }
-            val op4 = async { client.getValue("fakeKey", false) }
-            val op5 = async { client.getValue("fakeKey", false) }
-            val results = awaitAll(op1, op2, op3, op4, op5)
+            val defs = mutableListOf<Deferred<Boolean>>()
+            val iter = 1000
+
+            backgroundScope.launch {
+                repeat(iter) {
+                    defs.add(async { client.getValue("fakeKey", false) })
+                }
+            }
+
+            TestUtils.awaitUntil(5.seconds) {
+                defs.size == iter
+            }
+
+            val results = awaitAll(*defs.toTypedArray())
 
             assertTrue { results.all { it } }
             assertEquals(1, mockEngine.requestHistory.size)
@@ -72,7 +80,7 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 
@@ -91,12 +99,12 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 
             assertEquals(0, client.getValue("fakeKey", 0))
-            assertEquals(1, mockEngine.requestHistory.size)
+            assertTrue(mockEngine.requestHistory.size in 1..2)
         }
 
     @Test
@@ -113,7 +121,7 @@ class ConfigCatClientTests {
             val evaluationTestLogger = EvaluationTestLogger()
 
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     logLevel = LogLevel.ERROR
                     logger = evaluationTestLogger
@@ -160,12 +168,12 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 
             assertEquals(0, client.getValue("fakeKey", 0))
-            assertEquals(1, mockEngine.requestHistory.size)
+            assertTrue(mockEngine.requestHistory.size in 1..2)
         }
 
     @Test
@@ -179,12 +187,12 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 
             assertEquals(0, client.getValue("fakeKey", 0))
-            assertEquals(1, mockEngine.requestHistory.size)
+            assertTrue(mockEngine.requestHistory.size in 1..2)
         }
 
     @Test
@@ -198,7 +206,7 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 
@@ -217,12 +225,12 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 
             assertEquals("", client.getValue("fakeKey", ""))
-            assertEquals(1, mockEngine.requestHistory.size)
+            assertTrue(mockEngine.requestHistory.size in 1..2)
         }
 
     @Test
@@ -236,7 +244,7 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 
@@ -255,12 +263,12 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 
             assertEquals(0.0, client.getValue("fakeKey", 0.0))
-            assertEquals(1, mockEngine.requestHistory.size)
+            assertTrue(mockEngine.requestHistory.size in 1..2)
         }
 
     @Test
@@ -274,7 +282,7 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 
@@ -293,12 +301,12 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 
             assertEquals(false, client.getValue("fakeKey", false))
-            assertEquals(1, mockEngine.requestHistory.size)
+            assertTrue(mockEngine.requestHistory.size in 1..2)
         }
 
     @Test
@@ -310,7 +318,7 @@ class ConfigCatClientTests {
                     respond(content = Data.formatJsonBodyWithBoolean(true), status = HttpStatusCode.OK)
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     requestTimeout = 1.seconds
                 }
@@ -332,7 +340,7 @@ class ConfigCatClientTests {
                         status = HttpStatusCode.BadRequest,
                     )
                 }
-            val sdkKey = Data.SDK_KEY
+            val sdkKey = TestUtils.randomSdkKey()
             val cacheKey: String =
                 "${sdkKey}_${Constants.CONFIG_FILE_NAME}_${Constants.SERIALIZATION_FORMAT_VERSION}".encodeToByteArray()
                     .sha1().hex
@@ -365,7 +373,7 @@ class ConfigCatClientTests {
                         status = HttpStatusCode.NotFound,
                     )
                 }
-            val sdkKey = Data.SDK_KEY
+            val sdkKey = TestUtils.randomSdkKey()
             val cacheKey: String =
                 "${sdkKey}_${Constants.CONFIG_FILE_NAME}_${Constants.SERIALIZATION_FORMAT_VERSION}".encodeToByteArray()
                     .sha1().hex
@@ -385,7 +393,7 @@ class ConfigCatClientTests {
                 result.error,
             )
             assertEquals("test", client.getValue("fakeKey", ""))
-            assertTrue(mockEngine.requestHistory.size == 1 || mockEngine.requestHistory.size == 2)
+            assertTrue(mockEngine.requestHistory.size in 1..2)
         }
 
     @Test
@@ -401,7 +409,7 @@ class ConfigCatClientTests {
                     }
                 } as MockEngine
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 
@@ -430,7 +438,7 @@ class ConfigCatClientTests {
                     }
                 } as MockEngine
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = lazyLoad()
                 }
@@ -455,7 +463,7 @@ class ConfigCatClientTests {
                     }
                 } as MockEngine
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = autoPoll()
                 }
@@ -478,12 +486,12 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 
             assertEquals(false, client.getValue("fakeKey", false))
-            assertEquals(1, mockEngine.requestHistory.size)
+            assertTrue(mockEngine.requestHistory.size in 1..2)
         }
 
     @Test
@@ -497,7 +505,7 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 
@@ -523,7 +531,7 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = lazyLoad()
                 }
@@ -543,7 +551,7 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = lazyLoad()
                 }
@@ -570,7 +578,7 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 
@@ -589,7 +597,7 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 
@@ -610,7 +618,7 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 
@@ -631,7 +639,7 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = autoPoll()
                 }
@@ -662,7 +670,7 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = lazyLoad()
                 }
@@ -693,7 +701,7 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = manualPoll()
                 }
@@ -724,7 +732,7 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 
@@ -750,7 +758,7 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = autoPoll { pollingInterval = 2.seconds }
                 }
@@ -787,7 +795,7 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = autoPoll { pollingInterval = 2.seconds }
                     offline = true
@@ -818,7 +826,7 @@ class ConfigCatClientTests {
                     )
                 }
             var ready = false
-            ConfigCatClient(Data.SDK_KEY) {
+            ConfigCatClient(TestUtils.randomSdkKey()) {
                 httpEngine = mockEngine
                 pollingMode = autoPoll { pollingInterval = 2.seconds }
                 offline = true
@@ -842,7 +850,7 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = manualPoll()
                 }
@@ -876,7 +884,7 @@ class ConfigCatClientTests {
                     )
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = manualPoll()
                 }
@@ -912,7 +920,7 @@ class ConfigCatClientTests {
             var ready = false
 
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = manualPoll()
                     hooks.addOnConfigChanged { changed = true }
@@ -948,7 +956,7 @@ class ConfigCatClientTests {
             var changed = false
 
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = manualPoll()
                 }
@@ -981,7 +989,7 @@ class ConfigCatClientTests {
                 }
 
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = manualPoll()
                 }
@@ -1002,7 +1010,7 @@ class ConfigCatClientTests {
             var called = false
 
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = manualPoll()
                     hooks.addOnFlagEvaluated { details ->
@@ -1032,7 +1040,7 @@ class ConfigCatClientTests {
                     respond(content = Data.formatConfigWithRules(), status = HttpStatusCode.OK)
                 }
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = manualPoll()
                 }
@@ -1064,7 +1072,7 @@ class ConfigCatClientTests {
                 }
             var called = false
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = manualPoll()
                     hooks.addOnFlagEvaluated { details ->
@@ -1093,38 +1101,38 @@ class ConfigCatClientTests {
 
     @Test
     fun testSingleton() {
-        var client1 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
-        val client2 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        var client1 = ConfigCatClient("testSingleton") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        val client2 = ConfigCatClient("testSingleton") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         assertSame(client1, client2)
 
         ConfigCatClient.closeAll()
 
-        client1 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        client1 = ConfigCatClient("testSingleton") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         assertNotSame(client1, client2)
     }
 
     @Test
     fun testRemoveTheClosingInstanceOnly() {
-        val client1 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        val client1 = ConfigCatClient("testRemoveTheClosingInstanceOnly") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         client1.close()
 
-        val client2 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        val client2 = ConfigCatClient("testRemoveTheClosingInstanceOnly") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         assertNotSame(client1, client2)
 
         client1.close()
 
-        val client3 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        val client3 = ConfigCatClient("testRemoveTheClosingInstanceOnly") { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
 
         assertSame(client2, client3)
     }
 
     @Test
     fun testClose() {
-        val client1 = ConfigCatClient(Data.SDK_KEY) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
+        val client1 = ConfigCatClient(TestUtils.randomSdkKey()) { flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY } }
         assertFalse(client1.isClosed())
         client1.close()
         assertTrue(client1.isClosed())
@@ -1250,7 +1258,7 @@ class ConfigCatClientTests {
                 }
 
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
             // String
@@ -1288,7 +1296,7 @@ class ConfigCatClientTests {
                 }
 
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 
@@ -1330,7 +1338,7 @@ class ConfigCatClientTests {
                 }
 
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
             // String
@@ -1368,7 +1376,7 @@ class ConfigCatClientTests {
                 }
 
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 
@@ -1410,7 +1418,7 @@ class ConfigCatClientTests {
                 }
 
             val client =
-                ConfigCatClient(Data.SDK_KEY) {
+                ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                 }
 

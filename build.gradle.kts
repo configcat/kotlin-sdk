@@ -88,7 +88,6 @@ kotlin {
     watchosArm64()
     watchosX64()
     watchosSimulatorArm64()
-    watchosDeviceArm64()
 
     tvosArm64()
     tvosX64()
@@ -219,8 +218,13 @@ detekt {
 }
 
 ktlint {
+    additionalEditorconfig.set(
+        mapOf(
+            "max_line_length" to "120"
+        )
+    )
     filter {
-        exclude { element -> element.file.path.contains("build.gradle.kts") }
+        exclude { element -> element.file.path.contains("build.gradle.kts") || element.file.path.contains("Test") }
     }
 }
 

@@ -3,7 +3,6 @@ package com.configcat
 import com.configcat.model.Config
 import com.configcat.model.Entry
 import korlibs.time.DateTime
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -12,7 +11,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class EntrySerializationTests {
     @AfterTest
     fun tearDown() {

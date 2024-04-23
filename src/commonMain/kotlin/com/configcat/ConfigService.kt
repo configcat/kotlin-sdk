@@ -8,6 +8,7 @@ import com.configcat.model.Entry
 import com.configcat.model.Setting
 import korlibs.crypto.sha1
 import korlibs.time.DateTime
+import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
@@ -47,10 +48,10 @@ internal class ConfigService(
     private val initialized = atomic(false)
     private val offline = atomic(options.offline)
     private val mode = options.pollingMode
+    private val fetchJob: AtomicRef<Deferred<Pair<Entry, String?>>?> = atomic(null)
     private var pollingJob: Job? = null
     private var cachedEntry = Entry.empty
     private var cachedJsonString = ""
-    private var fetchJob: Deferred<Pair<Entry, String?>>? = null
     private var fetching = false
 
     val isOffline: Boolean get() = offline.value
@@ -140,12 +141,11 @@ internal class ConfigService(
                 return Pair(cachedEntry, null)
             }
 
-            val runningJob = fetchJob
-            if (runningJob == null || !fetching) {
+            if (fetchJob.value == null || !fetching) {
                 // No fetch is running, initiate a new one.
                 fetching = true
                 val eTag = cachedEntry.eTag
-                fetchJob =
+                fetchJob.value =
                     coroutineScope.async {
                         if (mode is AutoPollMode && !initialized.value) {
                             // Waiting for the client initialization.
@@ -174,7 +174,7 @@ internal class ConfigService(
             }
         }
         // Await the fetch routine.
-        val result = fetchJob?.await()
+        val result = fetchJob.value?.await()
 
         mutex.withLock {
             return result?.let { value ->
