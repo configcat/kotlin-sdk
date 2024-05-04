@@ -65,29 +65,28 @@ internal class ConfigService(
     }
 
     suspend fun getSettings(): SettingResult {
-        return when (mode) {
+        val result = when (mode) {
             is LazyLoadMode -> {
-                val result =
-                    fetchIfOlder(
-                        DateTime.now()
-                            .add(0, -mode.configuration.cacheRefreshInterval.inWholeMilliseconds.toDouble()),
-                    )
-                if (result.first.isEmpty()) {
-                    SettingResult.empty
-                } else {
-                    SettingResult(result.first.config.settings ?: emptyMap(), result.first.fetchTime)
-                }
+                fetchIfOlder(
+                    DateTime.now()
+                        .add(0, -mode.configuration.cacheRefreshInterval.inWholeMilliseconds.toDouble()),
+                )
             }
-
             else -> {
                 // If we are initialized, we prefer the cached results
-                val result = fetchIfOlder(Constants.distantPast, preferCached = initialized.value)
-                if (result.first.isEmpty()) {
-                    SettingResult.empty
+                val threshold = if (!initialized.value && mode is AutoPollMode) {
+                    DateTime.now()
+                        .add(0, -mode.configuration.pollingInterval.inWholeMilliseconds.toDouble())
                 } else {
-                    SettingResult(result.first.config.settings ?: emptyMap(), result.first.fetchTime)
+                    Constants.distantPast
                 }
+                fetchIfOlder(threshold, preferCached = initialized.value)
             }
+        }
+        return if (result.first.isEmpty()) {
+            SettingResult.empty
+        } else {
+            SettingResult(result.first.config.settings ?: emptyMap(), result.first.fetchTime)
         }
     }
 
