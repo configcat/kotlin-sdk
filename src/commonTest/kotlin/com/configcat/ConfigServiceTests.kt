@@ -313,6 +313,25 @@ class ConfigServiceTests {
         }
 
     @Test
+    fun testPollsWhenCacheExpired() =
+        runTest {
+            val mockEngine =
+                MockEngine.create {
+                    this.addHandler {
+                        respond(content = Data.formatJsonBodyWithString("test1"), status = HttpStatusCode.OK)
+                    }
+                } as MockEngine
+
+            val cache = SingleValueCache(Data.formatCacheEntryWithDate("test", DateTime.now().add(0, -5000.0)))
+            val service = Services.createConfigService(mockEngine, autoPoll { pollingInterval = 1.seconds }, cache)
+
+            val setting = service.getSettings().settings["fakeKey"]
+            assertEquals("test1", setting?.settingValue?.stringValue)
+
+            assertEquals(1, mockEngine.requestHistory.size)
+        }
+
+    @Test
     fun testAutoPollOnlineOffline() =
         runTest {
             val mockEngine =
