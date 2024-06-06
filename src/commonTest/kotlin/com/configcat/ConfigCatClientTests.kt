@@ -917,16 +917,20 @@ class ConfigCatClientTests {
                 }
             var error = ""
             var changed = false
-            var ready = false
+            var ready: ClientCacheState? = null
 
             val client =
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = manualPoll()
                     hooks.addOnConfigChanged { changed = true }
-                    hooks.addOnClientReady { ready = true }
+                    hooks.addOnClientReady { clientReadyState -> ready = clientReadyState }
                     hooks.addOnError { err -> error = err }
                 }
+
+            val waitForReadyAsync = client.waitForReadyAsync()
+
+            waitForReadyAsync.await()
 
             client.forceRefresh()
             client.forceRefresh()
@@ -937,7 +941,9 @@ class ConfigCatClientTests {
                 error,
             )
             assertTrue(changed)
-            assertTrue(ready)
+
+
+            assertEquals(ClientCacheState.NO_FLAG_DATA, ready)
         }
 
     @Test
@@ -973,6 +979,79 @@ class ConfigCatClientTests {
                 error,
             )
             assertTrue(changed)
+        }
+
+    @Test
+    fun testReadyHookManualPollWithCache() =
+        runTest {
+            val cache = SingleValueCache(Data.formatCacheEntry("test"))
+
+            var ready: ClientCacheState? = null
+
+            val client =
+                ConfigCatClient(TestUtils.randomSdkKey()) {
+                    pollingMode = manualPoll()
+                    configCache = cache
+                    hooks.addOnClientReady { clientReadyState -> ready = clientReadyState }
+                }
+
+            TestUtils.awaitUntil {
+                ready != null
+            }
+
+            assertEquals(ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY, ready)
+        }
+
+    @Test
+    fun testReadyHookLocalOnly() =
+        runTest {
+
+            var ready: ClientCacheState? = null
+
+            val client =
+                ConfigCatClient(TestUtils.randomSdkKey()) {
+                    flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY }
+                    pollingMode = manualPoll()
+                    hooks.addOnClientReady { clientReadyState -> ready = clientReadyState }
+                }
+
+            assertEquals(ClientCacheState.HAS_LOCAL_OVERRIDE_FLAG_DATA_ONLY, ready)
+        }
+
+    @Test
+    fun testHooksAutoPollSub() =
+        runTest {
+            val mockEngine =
+                MockEngine.create {
+                    this.addHandler {
+                        respond(content = Data.formatJsonBodyWithString("test"), status = HttpStatusCode.OK)
+                    }
+                    this.addHandler {
+                        respond(content = "", status = HttpStatusCode.InternalServerError)
+                    }
+                }
+            var error = ""
+            var changed = false
+            var ready: ClientCacheState? = null
+
+            val client =
+                ConfigCatClient(TestUtils.randomSdkKey()) {
+                    httpEngine = mockEngine
+                    pollingMode = autoPoll()
+                    hooks.addOnConfigChanged { changed = true }
+                    hooks.addOnClientReady { clientReadyState -> ready = clientReadyState }
+                    hooks.addOnError { err -> error = err }
+                }
+
+            client.forceRefresh()
+            client.forceRefresh()
+
+            assertEquals(
+                "Unexpected HTTP response was received while trying to fetch config JSON: 500 ",
+                error,
+            )
+            assertTrue(changed)
+            assertEquals(ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA, ready)
         }
 
     @Test
@@ -1442,6 +1521,27 @@ class ConfigCatClientTests {
                     block = { client.getKeyAndValue("") },
                 )
             assertEquals("'variationId' cannot be empty.", exceptionGetKeyAndValue.message)
+        }
+
+    @Test
+    fun testWaitForReady() =
+        runTest {
+            val mockEngine =
+                MockEngine.create {
+                    this.addHandler {
+                        respond(content = Data.formatJsonBodyWithString("test"), status = HttpStatusCode.OK)
+                    }
+                }
+
+            val client =
+                ConfigCatClient(TestUtils.randomSdkKey()) {
+                    httpEngine = mockEngine
+                    pollingMode = autoPoll()
+                }
+
+            val clientCacheState = client.waitForReadyAsync().await()
+
+            assertEquals(ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA, clientCacheState)
         }
 
     private val testGetValueTypes =

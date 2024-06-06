@@ -12,19 +12,9 @@ import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withTimeoutOrNull
 
 internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: DateTime) {
     fun isEmpty(): Boolean = this === empty
@@ -34,6 +24,7 @@ internal data class SettingResult(val settings: Map<String, Setting>, val fetchT
     }
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 internal class ConfigService(
     private val options: ConfigCatOptions,
     private val configFetcher: ConfigFetcher,
@@ -60,7 +51,22 @@ internal class ConfigService(
         if (mode is AutoPollMode && !options.offline) {
             startPoll(mode)
         } else {
-            setInitialized()
+            if (setInitialized()){
+                // Sync up with cache before reporting ready state
+                val completionReadCache = coroutineScope.async {
+                    return@async readCache()
+                }
+                completionReadCache.invokeOnCompletion {
+                    val completionReadCacheEntry: Entry = if (completionReadCache.isCancelled) {
+                        Entry.empty
+                    } else {
+                        completionReadCache.getCompleted()
+                    }
+                    hooks.invokeOnClientReady(determineCacheState(completionReadCacheEntry))
+                }
+            }
+
+
         }
     }
 
@@ -133,12 +139,15 @@ internal class ConfigService(
                 cachedEntry = fromCache
             }
             // Cache isn't expired
-            if (cachedEntry.fetchTime > threshold) {
-                setInitialized()
+            if (!cachedEntry.isExpired(threshold)) {
+                if (setInitialized()) {
+                    hooks.invokeOnClientReady(determineCacheState(cachedEntry))
+                }
                 return Pair(cachedEntry, null)
             }
             // If we are in offline mode or the caller prefers cached values, do not initiate fetch.
             if (offline.value || preferCached) {
+                cachedEntry = readCache()
                 return Pair(cachedEntry, null)
             }
 
@@ -165,7 +174,10 @@ internal class ConfigService(
                                     mode.configuration.maxInitWaitTime.inWholeMilliseconds,
                                 )
                             logger.warning(4200, message)
-                            setInitialized()
+                            if (setInitialized()) {
+                                hooks.invokeOnClientReady(determineCacheState(cachedEntry))
+                            }
+
                             return@async Pair(Entry.empty, message)
                         } else {
                             // The service is initialized, start fetch without timeout.
@@ -190,7 +202,6 @@ internal class ConfigService(
     private suspend fun fetchConfig(eTag: String): Pair<Entry, String?> {
         val response = configFetcher.fetch(eTag)
         mutex.withLock {
-            setInitialized()
             fetching = false
             if (response.isFetched) {
                 cachedEntry = response.entry
@@ -200,6 +211,9 @@ internal class ConfigService(
             } else if ((response.isNotModified || !response.isTransientError) && !cachedEntry.isEmpty()) {
                 cachedEntry = cachedEntry.copy(fetchTime = DateTime.now())
                 writeCache(cachedEntry)
+            }
+            if (setInitialized()){
+                hooks.invokeOnClientReady(determineCacheState(cachedEntry))
             }
             return Pair(cachedEntry, response.error)
         }
@@ -219,9 +233,8 @@ internal class ConfigService(
             }
     }
 
-    private fun setInitialized() {
-        if (!initialized.compareAndSet(expect = false, update = true)) return
-        hooks.invokeOnClientReady()
+    private fun setInitialized() : Boolean {
+        return initialized.compareAndSet(expect = false, update = true)
     }
 
     private suspend fun readCache(): Entry {
@@ -256,5 +269,27 @@ internal class ConfigService(
         if (!closed.compareAndSet(expect = false, update = true)) return
         configFetcher.close()
         coroutineScope.cancel()
+    }
+
+    private fun determineCacheState(cachedEntry: Entry): ClientCacheState {
+            if (cachedEntry.isEmpty()) {
+                return ClientCacheState.NO_FLAG_DATA
+            }
+            if (mode is ManualPollMode) {
+                return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY
+            } else if (mode is LazyLoadMode) {
+                if (cachedEntry.isExpired(DateTime.now()
+                        .add(0, -mode.configuration.cacheRefreshInterval.inWholeMilliseconds.toDouble()))) {
+                    return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY
+                }
+            } else if (mode is AutoPollMode) {
+                if (cachedEntry.isExpired(
+                        DateTime.now()
+                            .add(0, -mode.configuration.pollingInterval.inWholeMilliseconds.toDouble()),
+                    )) {
+                    return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY
+                }
+            }
+            return ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA
     }
 }

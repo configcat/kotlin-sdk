@@ -13,6 +13,10 @@ internal data class Entry(
 ) {
     fun isEmpty(): Boolean = this === empty
 
+    fun isExpired(threshold: DateTime): Boolean {
+        return fetchTime <= threshold
+    }
+
     companion object {
         val empty: Entry = Entry(Config.empty, "", "", Constants.distantPast)
 
