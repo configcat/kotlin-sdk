@@ -928,7 +928,7 @@ class ConfigCatClientTests {
                     hooks.addOnError { err -> error = err }
                 }
 
-            val waitForReadyAsync = client.waitForReadyAsync()
+            val waitForReadyAsync = client.waitForReady()
 
             waitForReadyAsync.await()
 
@@ -1539,7 +1539,7 @@ class ConfigCatClientTests {
                     pollingMode = autoPoll()
                 }
 
-            val clientCacheState = client.waitForReadyAsync().await()
+            val clientCacheState = client.waitForReady().await()
 
             assertEquals(ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA, clientCacheState)
         }

@@ -53,20 +53,11 @@ internal class ConfigService(
         } else {
             if (setInitialized()){
                 // Sync up with cache before reporting ready state
-                val completionReadCache = coroutineScope.async {
-                    return@async readCache()
-                }
-                completionReadCache.invokeOnCompletion {
-                    val completionReadCacheEntry: Entry = if (completionReadCache.isCancelled) {
-                        Entry.empty
-                    } else {
-                        completionReadCache.getCompleted()
-                    }
-                    hooks.invokeOnClientReady(determineCacheState(completionReadCacheEntry))
+                coroutineScope.async {
+                    val cacheRead = readCache()
+                    hooks.invokeOnClientReady(determineCacheState(cacheRead))
                 }
             }
-
-
         }
     }
 
@@ -207,6 +198,9 @@ internal class ConfigService(
                 cachedEntry = response.entry
                 writeCache(response.entry)
                 hooks.invokeOnConfigChanged(response.entry.config.settings)
+                if (setInitialized()){
+                    hooks.invokeOnClientReady(determineCacheState(response.entry))
+                }
                 return Pair(response.entry, null)
             } else if ((response.isNotModified || !response.isTransientError) && !cachedEntry.isEmpty()) {
                 cachedEntry = cachedEntry.copy(fetchTime = DateTime.now())

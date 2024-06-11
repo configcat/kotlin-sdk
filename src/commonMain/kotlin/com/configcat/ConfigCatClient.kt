@@ -207,7 +207,7 @@ public interface ConfigCatClient {
      *
      * @return the future which executes the wait for ready and return with the client state.
      */
-    public suspend fun waitForReadyAsync(): CompletableDeferred<ClientCacheState>
+    public suspend fun waitForReady(): CompletableDeferred<ClientCacheState>
 
 
     /**
@@ -600,7 +600,7 @@ internal class Client private constructor(
         return isClosed.value
     }
 
-    override suspend fun waitForReadyAsync(): CompletableDeferred<ClientCacheState> {
+    override suspend fun waitForReady(): CompletableDeferred<ClientCacheState> {
         val completableDeferred = CompletableDeferred<ClientCacheState>()
         hooks.addOnClientReady { clientCacheState -> completableDeferred.complete(clientCacheState) }
         return completableDeferred
