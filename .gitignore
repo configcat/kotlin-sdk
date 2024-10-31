@@ -26,6 +26,7 @@ hs_err_pid*
 .idea
 build
 .gradle
+.kotlin
 
 yarn.lock
 

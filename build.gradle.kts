@@ -3,7 +3,7 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import java.net.URL
 
 buildscript {
-    val kotlinVersion by extra("1.9.23")
+    val kotlinVersion by extra("2.0.21")
     val atomicfuVersion: String by project
     dependencies {
         classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:$atomicfuVersion")
@@ -15,8 +15,8 @@ buildscript {
 apply(plugin = "kotlinx-atomicfu")
 
 plugins {
-    kotlin("multiplatform") version "1.9.23"
-    kotlin("plugin.serialization") version "1.9.23"
+    kotlin("multiplatform") version "2.0.21"
+    kotlin("plugin.serialization") version "2.0.21"
     id("com.android.library")
     id("maven-publish")
     id("signing")
@@ -159,6 +159,7 @@ android {
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
+        //noinspection ExpiredTargetSdkVersion
         targetSdk = 31
         consumerProguardFiles("configcat-proguard-rules.pro")
     }
