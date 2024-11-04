@@ -5,13 +5,12 @@ plugins {
 
 android {
     namespace 'com.example.configcat_android'
-    compileSdk 34
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.example.configcat_android"
         minSdk 21
-        //noinspection EditedTargetSdkVersion
-        targetSdk 34
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -34,7 +33,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.configcat:configcat-kotlin-client:3.1.1'
+    implementation 'com.configcat:configcat-kotlin-client:3.0.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.5.1'
