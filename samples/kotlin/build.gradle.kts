@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.7.10"
+    kotlin("jvm") version "2.0.21"
     application
 }
 
@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.configcat:configcat-kotlin-client:3.0.0")
+    implementation("com.configcat:configcat-kotlin-client:4.0.0")
 }
 
 tasks.withType<KotlinCompile> {
