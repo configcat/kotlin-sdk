@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+
 plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
@@ -7,7 +10,7 @@ plugins {
 version = "1.0"
 
 kotlin {
-    android()
+    androidTarget()
     iosX64()
     iosArm64()
     iosSimulatorArm64()
@@ -21,25 +24,22 @@ kotlin {
             baseName = "shared"
         }
     }
-    
+
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation("com.configcat:configcat-kotlin-client:3.0.0")
-            }
+        commonMain.dependencies {
+                implementation("com.configcat:configcat-kotlin-client:4.0.0")
         }
-        val commonTest by getting {
-            dependencies {
+
+        commonTest.dependencies {
                 implementation(kotlin("test"))
-            }
         }
         val androidMain by getting
-        val androidTest by getting
+        val androidUnitTest by getting
         val iosX64Main by getting
         val iosArm64Main by getting
         val iosSimulatorArm64Main by getting
         val iosMain by creating {
-            dependsOn(commonMain)
+            dependsOn(commonMain.get())
             iosX64Main.dependsOn(this)
             iosArm64Main.dependsOn(this)
             iosSimulatorArm64Main.dependsOn(this)
@@ -48,7 +48,7 @@ kotlin {
         val iosArm64Test by getting
         val iosSimulatorArm64Test by getting
         val iosTest by creating {
-            dependsOn(commonTest)
+            dependsOn(commonTest.get())
             iosX64Test.dependsOn(this)
             iosArm64Test.dependsOn(this)
             iosSimulatorArm64Test.dependsOn(this)
@@ -57,10 +57,25 @@ kotlin {
 }
 
 android {
-    compileSdk = 32
+    namespace = "com.example.configcat_kmm"
+    compileSdk = 34
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
-        targetSdk = 32
+        //noinspection EditedTargetSdkVersion
+        targetSdk = 34
     }
+    java {
+        compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_1_8
+            targetCompatibility = JavaVersion.VERSION_1_8
+        }
+    }
+
+    kotlin{
+        compileOptions {
+            jvmToolchain(8)
+        }
+    }
+
 }
