@@ -1,20 +1,36 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id("com.android.application")
     kotlin("android")
 }
 
 android {
-    compileSdk = 32
+    namespace = "com.example.configcat_kmm.android"
+    compileSdk = 34
     defaultConfig {
         applicationId = "com.example.configcat_kmm.android"
         minSdk = 21
-        targetSdk = 32
+        //noinspection EditedTargetSdkVersion
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
     }
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
+        }
+    }
+    java {
+        compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_1_8
+            targetCompatibility = JavaVersion.VERSION_1_8
+        }
+    }
+
+    kotlin{
+        compileOptions {
+            jvmToolchain(8)
         }
     }
 }

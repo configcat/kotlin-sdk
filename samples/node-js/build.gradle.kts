@@ -1,5 +1,5 @@
 plugins {
-    kotlin("js") version "1.7.10"
+    kotlin("js") version "2.0.21"
 }
 
 group = "org.example"
@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.configcat:configcat-kotlin-client:3.0.0")
+    implementation("com.configcat:configcat-kotlin-client:4.0.0")
 }
 
 kotlin {
