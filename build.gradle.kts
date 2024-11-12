@@ -141,6 +141,9 @@ kotlin {
 
         val nativeRestMain by creating {
             dependsOn(commonMain.get())
+            dependencies {
+                implementation("io.ktor:ktor-client-cio:$ktorVersion")
+            }
         }
         val nativeRestTest by creating {
             dependsOn(commonTest.get())
