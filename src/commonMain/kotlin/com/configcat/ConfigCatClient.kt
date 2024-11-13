@@ -3,20 +3,24 @@ package com.configcat
 import com.configcat.Client.SettingTypeHelper.toSettingTypeOrNull
 import com.configcat.fetch.ConfigFetcher
 import com.configcat.fetch.RefreshResult
-import com.configcat.log.*
+import com.configcat.log.ConfigCatLogMessages
+import com.configcat.log.DefaultLogger
+import com.configcat.log.InternalLogger
+import com.configcat.log.LogLevel
+import com.configcat.log.Logger
 import com.configcat.model.Setting
 import com.configcat.model.SettingType
 import com.configcat.override.FlagOverrides
 import com.configcat.override.OverrideBehavior
-import io.ktor.client.engine.*
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.ProxyConfig
 import korlibs.time.DateTime
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CompletableDeferred
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-
 
 /**
  * Configuration options for [ConfigCatClient].
@@ -208,7 +212,6 @@ public interface ConfigCatClient {
      * @return the future which executes the wait for ready and return with the client state.
      */
     public suspend fun waitForReady(): CompletableDeferred<ClientCacheState>
-
 
     /**
      * Companion object of [ConfigCatClient].
@@ -747,15 +750,16 @@ internal class Client private constructor(
             sdkKey: String,
             block: ConfigCatOptions.() -> Unit = {},
         ): Client {
-
             val options = ConfigCatOptions().apply(block)
             val flagOverrides = options.flagOverrides?.let { FlagOverrides().apply(it) }
-            if(sdkKey.isEmpty()) {
+            if (sdkKey.isEmpty()) {
                 options.hooks.invokeOnClientReady(ClientCacheState.NO_FLAG_DATA)
                 throw IllegalArgumentException("SDK Key cannot be empty.")
             }
 
-            if (OverrideBehavior.LOCAL_ONLY != flagOverrides?.behavior && !isValidKey(sdkKey, options.isBaseURLCustom())) {
+            if (OverrideBehavior.LOCAL_ONLY != flagOverrides?.behavior &&
+                !isValidKey(sdkKey, options.isBaseURLCustom())
+            ) {
                 options.hooks.invokeOnClientReady(ClientCacheState.NO_FLAG_DATA)
                 throw IllegalArgumentException("SDK Key '$sdkKey' is invalid.")
             }

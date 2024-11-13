@@ -12,9 +12,20 @@ import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeoutOrNull
 
 internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: DateTime) {
     fun isEmpty(): Boolean = this === empty
@@ -51,7 +62,7 @@ internal class ConfigService(
         if (mode is AutoPollMode && !options.offline) {
             startPoll(mode)
         } else {
-            if (setInitialized()){
+            if (setInitialized()) {
                 // Sync up with cache before reporting ready state
                 coroutineScope.async {
                     val cacheRead = readCache()
@@ -198,7 +209,7 @@ internal class ConfigService(
                 cachedEntry = response.entry
                 writeCache(response.entry)
                 hooks.invokeOnConfigChanged(response.entry.config.settings)
-                if (setInitialized()){
+                if (setInitialized()) {
                     hooks.invokeOnClientReady(determineCacheState(response.entry))
                 }
                 return Pair(response.entry, null)
@@ -206,7 +217,7 @@ internal class ConfigService(
                 cachedEntry = cachedEntry.copy(fetchTime = DateTime.now())
                 writeCache(cachedEntry)
             }
-            if (setInitialized()){
+            if (setInitialized()) {
                 hooks.invokeOnClientReady(determineCacheState(cachedEntry))
             }
             return Pair(cachedEntry, response.error)
@@ -227,7 +238,7 @@ internal class ConfigService(
             }
     }
 
-    private fun setInitialized() : Boolean {
+    private fun setInitialized(): Boolean {
         return initialized.compareAndSet(expect = false, update = true)
     }
 
@@ -266,24 +277,28 @@ internal class ConfigService(
     }
 
     private fun determineCacheState(cachedEntry: Entry): ClientCacheState {
-            if (cachedEntry.isEmpty()) {
-                return ClientCacheState.NO_FLAG_DATA
-            }
-            if (mode is ManualPollMode) {
+        if (cachedEntry.isEmpty()) {
+            return ClientCacheState.NO_FLAG_DATA
+        }
+        if (mode is ManualPollMode) {
+            return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY
+        } else if (mode is LazyLoadMode) {
+            if (cachedEntry.isExpired(
+                    DateTime.now()
+                        .add(0, -mode.configuration.cacheRefreshInterval.inWholeMilliseconds.toDouble()),
+                )
+            ) {
                 return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY
-            } else if (mode is LazyLoadMode) {
-                if (cachedEntry.isExpired(DateTime.now()
-                        .add(0, -mode.configuration.cacheRefreshInterval.inWholeMilliseconds.toDouble()))) {
-                    return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY
-                }
-            } else if (mode is AutoPollMode) {
-                if (cachedEntry.isExpired(
-                        DateTime.now()
-                            .add(0, -mode.configuration.pollingInterval.inWholeMilliseconds.toDouble()),
-                    )) {
-                    return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY
-                }
             }
-            return ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA
+        } else if (mode is AutoPollMode) {
+            if (cachedEntry.isExpired(
+                    DateTime.now()
+                        .add(0, -mode.configuration.pollingInterval.inWholeMilliseconds.toDouble()),
+                )
+            ) {
+                return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY
+            }
+        }
+        return ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA
     }
 }

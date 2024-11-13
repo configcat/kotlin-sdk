@@ -10,8 +10,8 @@ import kotlinx.atomicfu.locks.withLock
  * Events fired by [ConfigCatClient].
  */
 public class Hooks {
-    private val isClientReady  = atomic(false)
-    private val clientCacheState  = atomic<ClientCacheState>(ClientCacheState.NO_FLAG_DATA)
+    private val isClientReady = atomic(false)
+    private val clientCacheState = atomic<ClientCacheState>(ClientCacheState.NO_FLAG_DATA)
     private val onClientReady: MutableList<(ClientCacheState) -> Unit> = mutableListOf()
     private val onConfigChanged: MutableList<(Map<String, Setting>) -> Unit> = mutableListOf()
     private val onFlagEvaluated: MutableList<(EvaluationDetails) -> Unit> = mutableListOf()
@@ -27,7 +27,7 @@ public class Hooks {
      */
     public fun addOnClientReady(handler: (ClientCacheState) -> Unit) {
         lock.withLock {
-            if(isClientReady.value) {
+            if (isClientReady.value) {
                 handler(clientCacheState.value)
             } else {
                 onClientReady.add(handler)
