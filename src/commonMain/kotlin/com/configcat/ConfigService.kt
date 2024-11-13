@@ -282,23 +282,27 @@ internal class ConfigService(
         if (cachedEntry.isEmpty()) {
             return ClientCacheState.NO_FLAG_DATA
         }
-        if (mode is ManualPollMode) {
-            return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY
-        } else if (mode is LazyLoadMode) {
-            if (cachedEntry.isExpired(
-                    DateTime.now()
-                        .add(0, -mode.configuration.cacheRefreshInterval.inWholeMilliseconds.toDouble()),
-                )
-            ) {
+        when (mode) {
+            is ManualPollMode -> {
                 return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY
             }
-        } else if (mode is AutoPollMode) {
-            if (cachedEntry.isExpired(
-                    DateTime.now()
-                        .add(0, -mode.configuration.pollingInterval.inWholeMilliseconds.toDouble()),
-                )
-            ) {
-                return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY
+            is LazyLoadMode -> {
+                if (cachedEntry.isExpired(
+                        DateTime.now()
+                            .add(0, -mode.configuration.cacheRefreshInterval.inWholeMilliseconds.toDouble()),
+                    )
+                ) {
+                    return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY
+                }
+            }
+            is AutoPollMode -> {
+                if (cachedEntry.isExpired(
+                        DateTime.now()
+                            .add(0, -mode.configuration.pollingInterval.inWholeMilliseconds.toDouble()),
+                    )
+                ) {
+                    return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY
+                }
             }
         }
         return ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA
