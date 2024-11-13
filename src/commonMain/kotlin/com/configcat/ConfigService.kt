@@ -48,6 +48,7 @@ internal class ConfigService(
     private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val closed = atomic(false)
     private val initialized = atomic(false)
+    private val cacheStateReported = atomic(false)
     private val offline = atomic(options.offline)
     private val mode = options.pollingMode
     private val fetchJob: AtomicRef<Deferred<Pair<Entry, String?>>?> = atomic(null)
@@ -62,12 +63,18 @@ internal class ConfigService(
         if (mode is AutoPollMode && !options.offline) {
             startPoll(mode)
         } else {
-            if (setInitialized()) {
-                // Sync up with cache before reporting ready state
-                coroutineScope.async {
-                    val cacheRead = readCache()
-                    hooks.invokeOnClientReady(determineCacheState(cacheRead))
+            setInitializedState()
+        }
+    }
+
+    private fun setInitializedState() {
+        initialized.value = true
+        coroutineScope.launch {
+            mutex.withLock {
+                if (cachedEntry.isEmpty()) {
+                    cachedEntry = readCache()
                 }
+                initializeAndReportCacheState(cachedEntry)
             }
         }
     }
@@ -142,9 +149,7 @@ internal class ConfigService(
             }
             // Cache isn't expired
             if (!cachedEntry.isExpired(threshold)) {
-                if (setInitialized()) {
-                    hooks.invokeOnClientReady(determineCacheState(cachedEntry))
-                }
+                initializeAndReportCacheState(cachedEntry)
                 return Pair(cachedEntry, null)
             }
             // If we are in offline mode or the caller prefers cached values, do not initiate fetch.
@@ -176,9 +181,7 @@ internal class ConfigService(
                                     mode.configuration.maxInitWaitTime.inWholeMilliseconds,
                                 )
                             logger.warning(4200, message)
-                            if (setInitialized()) {
-                                hooks.invokeOnClientReady(determineCacheState(cachedEntry))
-                            }
+                            initializeAndReportCacheState(cachedEntry)
 
                             return@async Pair(Entry.empty, message)
                         } else {
@@ -209,17 +212,13 @@ internal class ConfigService(
                 cachedEntry = response.entry
                 writeCache(response.entry)
                 hooks.invokeOnConfigChanged(response.entry.config.settings)
-                if (setInitialized()) {
-                    hooks.invokeOnClientReady(determineCacheState(response.entry))
-                }
+                initializeAndReportCacheState(response.entry)
                 return Pair(response.entry, null)
             } else if ((response.isNotModified || !response.isTransientError) && !cachedEntry.isEmpty()) {
                 cachedEntry = cachedEntry.copy(fetchTime = DateTime.now())
                 writeCache(cachedEntry)
             }
-            if (setInitialized()) {
-                hooks.invokeOnClientReady(determineCacheState(cachedEntry))
-            }
+            initializeAndReportCacheState(cachedEntry)
             return Pair(cachedEntry, response.error)
         }
     }
@@ -238,8 +237,11 @@ internal class ConfigService(
             }
     }
 
-    private fun setInitialized(): Boolean {
-        return initialized.compareAndSet(expect = false, update = true)
+    private fun initializeAndReportCacheState(entry: Entry) {
+        initialized.value = true
+        if (cacheStateReported.compareAndSet(expect = false, update = true)) {
+            hooks.invokeOnClientReady(determineCacheState(entry))
+        }
     }
 
     private suspend fun readCache(): Entry {
