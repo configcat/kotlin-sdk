@@ -54,7 +54,6 @@ internal class ConfigService(
     private val fetchJob: AtomicRef<Deferred<Pair<Entry, String?>>?> = atomic(null)
     private var pollingJob: Job? = null
     private var cachedEntry = Entry.empty
-    private var cachedJsonString = ""
     private var fetching = false
 
     val isOffline: Boolean get() = offline.value
@@ -247,8 +246,7 @@ internal class ConfigService(
     private suspend fun readCache(): Entry {
         return try {
             val cached = options.configCache?.read(cacheKey) ?: ""
-            if (cached.isEmpty() || cached == cachedJsonString) return Entry.empty
-            cachedJsonString = cached
+            if (cached.isEmpty() || cached == cachedEntry.cacheString) return Entry.empty
             Entry.fromString(cached)
         } catch (e: Exception) {
             logger.error(2200, ConfigCatLogMessages.CONFIG_SERVICE_CACHE_READ_ERROR, e)
@@ -259,9 +257,7 @@ internal class ConfigService(
     private suspend fun writeCache(entry: Entry) {
         options.configCache?.let { cache ->
             try {
-                val json = entry.serialize()
-                cachedJsonString = json
-                cache.write(cacheKey, json)
+                cache.write(cacheKey, entry.cacheString)
             } catch (e: Exception) {
                 logger.error(2201, ConfigCatLogMessages.CONFIG_SERVICE_CACHE_WRITE_ERROR, e)
             }

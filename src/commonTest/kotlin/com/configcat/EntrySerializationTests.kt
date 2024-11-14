@@ -25,10 +25,10 @@ class EntrySerializationTests {
             val fetchTimeNow = DateTime.now()
             val entry = Entry(config, "fakeTag", json, fetchTimeNow)
 
-            val serializedString = entry.serialize()
+
             val fetchTimeNowUnixSecond = fetchTimeNow.unixMillis.toLong()
             val expected = "$fetchTimeNowUnixSecond\nfakeTag\n$json"
-            assertEquals(expected, serializedString)
+            assertEquals(expected, entry.cacheString)
         }
 
     @Test
@@ -39,9 +39,8 @@ class EntrySerializationTests {
         val config: Config = Constants.json.decodeFromString(payloadTestConfigJson)
 
         val entry = Entry(config, "test-etag", payloadTestConfigJson, DateTime(1686756435844L))
-        val serializedString = entry.serialize()
 
-        assertEquals("1686756435844\ntest-etag\n$payloadTestConfigJson", serializedString)
+        assertEquals("1686756435844\ntest-etag\n$payloadTestConfigJson", entry.cacheString)
     }
 
     @Test

@@ -11,6 +11,13 @@ internal data class Entry(
     val configJson: String,
     val fetchTime: DateTime,
 ) {
+    var cacheString: String = ""
+        private set
+
+    init {
+        cacheString = serialize(fetchTime, eTag, configJson)
+    }
+
     fun isEmpty(): Boolean = this === empty
 
     fun isExpired(threshold: DateTime): Boolean {
@@ -43,7 +50,11 @@ internal data class Entry(
         }
     }
 
-    fun serialize(): String {
+    private fun serialize(
+        fetchTime: DateTime,
+        eTag: String,
+        configJson: String,
+    ): String {
         return "${fetchTime.unixMillis.toLong()}\n${eTag}\n$configJson"
     }
 }
