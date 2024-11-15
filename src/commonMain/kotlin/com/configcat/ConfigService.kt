@@ -15,7 +15,6 @@ import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
@@ -35,7 +34,6 @@ internal data class SettingResult(val settings: Map<String, Setting>, val fetchT
     }
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
 internal class ConfigService(
     private val options: ConfigCatOptions,
     private val configFetcher: ConfigFetcher,
