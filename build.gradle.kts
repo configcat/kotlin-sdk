@@ -122,7 +122,6 @@ kotlin {
 
         jsMain.dependencies {
             implementation("io.ktor:ktor-client-js:$ktorVersion")
-            implementation("io.ktor:ktor-client-core-js:$ktorVersion")
         }
 
         androidMain.dependencies {
