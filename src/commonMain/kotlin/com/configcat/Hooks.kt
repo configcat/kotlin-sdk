@@ -1,6 +1,7 @@
 package com.configcat
 
 import com.configcat.model.Setting
+import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.ReentrantLock
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
@@ -9,7 +10,9 @@ import kotlinx.atomicfu.locks.withLock
  * Events fired by [ConfigCatClient].
  */
 public class Hooks {
-    private val onClientReady: MutableList<() -> Unit> = mutableListOf()
+    private val isClientReady = atomic(false)
+    private val clientCacheState = atomic<ClientCacheState>(ClientCacheState.NO_FLAG_DATA)
+    private val onClientReady: MutableList<(ClientCacheState) -> Unit> = mutableListOf()
     private val onConfigChanged: MutableList<(Map<String, Setting>) -> Unit> = mutableListOf()
     private val onFlagEvaluated: MutableList<(EvaluationDetails) -> Unit> = mutableListOf()
     private val onError: MutableList<(String) -> Unit> = mutableListOf()
@@ -22,9 +25,13 @@ public class Hooks {
      * memory either from cache or from HTTP. If the config couldn't be loaded neither from cache nor
      * from HTTP the `onClientReady` event fires when the auto polling's `maxInitWaitTimeInSeconds` is reached.
      */
-    public fun addOnClientReady(handler: () -> Unit) {
+    public fun addOnClientReady(handler: (ClientCacheState) -> Unit) {
         lock.withLock {
-            onClientReady.add(handler)
+            if (isClientReady.value) {
+                handler(clientCacheState.value)
+            } else {
+                onClientReady.add(handler)
+            }
         }
     }
 
@@ -57,10 +64,12 @@ public class Hooks {
         }
     }
 
-    internal fun invokeOnClientReady() {
+    internal fun invokeOnClientReady(clientCacheState: ClientCacheState) {
         lock.withLock {
+            this.isClientReady.value = true
+            this.clientCacheState.value = clientCacheState
             for (method in onClientReady) {
-                method()
+                method(clientCacheState)
             }
         }
     }

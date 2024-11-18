@@ -46,12 +46,12 @@ internal class ConfigService(
     private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val closed = atomic(false)
     private val initialized = atomic(false)
+    private val cacheStateReported = atomic(false)
     private val offline = atomic(options.offline)
     private val mode = options.pollingMode
     private val fetchJob: AtomicRef<Deferred<Pair<Entry, String?>>?> = atomic(null)
     private var pollingJob: Job? = null
     private var cachedEntry = Entry.empty
-    private var cachedJsonString = ""
     private var fetching = false
 
     val isOffline: Boolean get() = offline.value
@@ -60,7 +60,19 @@ internal class ConfigService(
         if (mode is AutoPollMode && !options.offline) {
             startPoll(mode)
         } else {
-            setInitialized()
+            setInitializedState()
+        }
+    }
+
+    private fun setInitializedState() {
+        initialized.value = true
+        coroutineScope.launch {
+            mutex.withLock {
+                if (cachedEntry.isEmpty()) {
+                    cachedEntry = readCache()
+                }
+                initializeAndReportCacheState(cachedEntry)
+            }
         }
     }
 
@@ -133,12 +145,13 @@ internal class ConfigService(
                 cachedEntry = fromCache
             }
             // Cache isn't expired
-            if (cachedEntry.fetchTime > threshold) {
-                setInitialized()
+            if (!cachedEntry.isExpired(threshold)) {
+                initializeAndReportCacheState(cachedEntry)
                 return Pair(cachedEntry, null)
             }
             // If we are in offline mode or the caller prefers cached values, do not initiate fetch.
             if (offline.value || preferCached) {
+                cachedEntry = readCache()
                 return Pair(cachedEntry, null)
             }
 
@@ -165,7 +178,8 @@ internal class ConfigService(
                                     mode.configuration.maxInitWaitTime.inWholeMilliseconds,
                                 )
                             logger.warning(4200, message)
-                            setInitialized()
+                            initializeAndReportCacheState(cachedEntry)
+
                             return@async Pair(Entry.empty, message)
                         } else {
                             // The service is initialized, start fetch without timeout.
@@ -190,17 +204,18 @@ internal class ConfigService(
     private suspend fun fetchConfig(eTag: String): Pair<Entry, String?> {
         val response = configFetcher.fetch(eTag)
         mutex.withLock {
-            setInitialized()
             fetching = false
             if (response.isFetched) {
                 cachedEntry = response.entry
                 writeCache(response.entry)
                 hooks.invokeOnConfigChanged(response.entry.config.settings)
+                initializeAndReportCacheState(response.entry)
                 return Pair(response.entry, null)
             } else if ((response.isNotModified || !response.isTransientError) && !cachedEntry.isEmpty()) {
                 cachedEntry = cachedEntry.copy(fetchTime = DateTime.now())
                 writeCache(cachedEntry)
             }
+            initializeAndReportCacheState(cachedEntry)
             return Pair(cachedEntry, response.error)
         }
     }
@@ -219,16 +234,17 @@ internal class ConfigService(
             }
     }
 
-    private fun setInitialized() {
-        if (!initialized.compareAndSet(expect = false, update = true)) return
-        hooks.invokeOnClientReady()
+    private fun initializeAndReportCacheState(entry: Entry) {
+        initialized.value = true
+        if (cacheStateReported.compareAndSet(expect = false, update = true)) {
+            hooks.invokeOnClientReady(determineCacheState(entry))
+        }
     }
 
     private suspend fun readCache(): Entry {
         return try {
             val cached = options.configCache?.read(cacheKey) ?: ""
-            if (cached.isEmpty() || cached == cachedJsonString) return Entry.empty
-            cachedJsonString = cached
+            if (cached.isEmpty() || cached == cachedEntry.cacheString) return Entry.empty
             Entry.fromString(cached)
         } catch (e: Exception) {
             logger.error(2200, ConfigCatLogMessages.CONFIG_SERVICE_CACHE_READ_ERROR, e)
@@ -239,9 +255,7 @@ internal class ConfigService(
     private suspend fun writeCache(entry: Entry) {
         options.configCache?.let { cache ->
             try {
-                val json = entry.serialize()
-                cachedJsonString = json
-                cache.write(cacheKey, json)
+                cache.write(cacheKey, entry.cacheString)
             } catch (e: Exception) {
                 logger.error(2201, ConfigCatLogMessages.CONFIG_SERVICE_CACHE_WRITE_ERROR, e)
             }
@@ -256,5 +270,35 @@ internal class ConfigService(
         if (!closed.compareAndSet(expect = false, update = true)) return
         configFetcher.close()
         coroutineScope.cancel()
+    }
+
+    private fun determineCacheState(cachedEntry: Entry): ClientCacheState {
+        if (cachedEntry.isEmpty()) {
+            return ClientCacheState.NO_FLAG_DATA
+        }
+        when (mode) {
+            is ManualPollMode -> {
+                return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY
+            }
+            is LazyLoadMode -> {
+                if (cachedEntry.isExpired(
+                        DateTime.now()
+                            .add(0, -mode.configuration.cacheRefreshInterval.inWholeMilliseconds.toDouble()),
+                    )
+                ) {
+                    return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY
+                }
+            }
+            is AutoPollMode -> {
+                if (cachedEntry.isExpired(
+                        DateTime.now()
+                            .add(0, -mode.configuration.pollingInterval.inWholeMilliseconds.toDouble()),
+                    )
+                ) {
+                    return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY
+                }
+            }
+        }
+        return ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA
     }
 }

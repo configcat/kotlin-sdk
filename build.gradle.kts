@@ -122,12 +122,10 @@ kotlin {
 
         jsMain.dependencies {
             implementation("io.ktor:ktor-client-js:$ktorVersion")
-            implementation("io.ktor:ktor-client-core-js:$ktorVersion")
         }
 
         androidMain.dependencies {
             implementation("io.ktor:ktor-client-android:$ktorVersion")
-            implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
             implementation("org.jetbrains.kotlinx:atomicfu:$atomicfuVersion")
         }
 
@@ -144,6 +142,9 @@ kotlin {
         }
         val nativeRestTest by creating {
             dependsOn(commonTest.get())
+            dependencies {
+                implementation("io.ktor:ktor-client-cio:$ktorVersion")
+            }
         }
 
         mingwMain.get().dependsOn(nativeRestMain)

@@ -18,6 +18,7 @@ import korlibs.time.DateTime
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
+import kotlinx.coroutines.CompletableDeferred
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -206,6 +207,13 @@ public interface ConfigCatClient {
     public fun isClosed(): Boolean
 
     /**
+     * Awaits for SDK initialization.
+     *
+     * @return the future which executes the wait for ready and return with the client state.
+     */
+    public suspend fun waitForReady(): CompletableDeferred<ClientCacheState>
+
+    /**
      * Companion object of [ConfigCatClient].
      */
     public companion object {
@@ -334,6 +342,7 @@ internal class Client private constructor(
         flagOverrides = options.flagOverrides?.let { FlagOverrides().apply(it) }
         service =
             if (flagOverrides != null && flagOverrides.behavior == OverrideBehavior.LOCAL_ONLY) {
+                hooks.invokeOnClientReady(ClientCacheState.HAS_LOCAL_OVERRIDE_FLAG_DATA_ONLY)
                 null
             } else {
                 ConfigService(options, ConfigFetcher(options, logger), logger, options.hooks)
@@ -594,6 +603,12 @@ internal class Client private constructor(
         return isClosed.value
     }
 
+    override suspend fun waitForReady(): CompletableDeferred<ClientCacheState> {
+        val completableDeferred = CompletableDeferred<ClientCacheState>()
+        hooks.addOnClientReady { clientCacheState -> completableDeferred.complete(clientCacheState) }
+        return completableDeferred
+    }
+
     private fun closeResources() {
         service?.close()
         hooks.clear()
@@ -735,11 +750,18 @@ internal class Client private constructor(
             sdkKey: String,
             block: ConfigCatOptions.() -> Unit = {},
         ): Client {
-            require(sdkKey.isNotEmpty()) { "SDK Key cannot be empty." }
             val options = ConfigCatOptions().apply(block)
             val flagOverrides = options.flagOverrides?.let { FlagOverrides().apply(it) }
-            if (OverrideBehavior.LOCAL_ONLY != flagOverrides?.behavior) {
-                require(isValidKey(sdkKey, options.isBaseURLCustom())) { "SDK Key '$sdkKey' is invalid." }
+            if (sdkKey.isEmpty()) {
+                options.hooks.invokeOnClientReady(ClientCacheState.NO_FLAG_DATA)
+                throw IllegalArgumentException("SDK Key cannot be empty.")
+            }
+
+            if (OverrideBehavior.LOCAL_ONLY != flagOverrides?.behavior &&
+                !isValidKey(sdkKey, options.isBaseURLCustom())
+            ) {
+                options.hooks.invokeOnClientReady(ClientCacheState.NO_FLAG_DATA)
+                throw IllegalArgumentException("SDK Key '$sdkKey' is invalid.")
             }
 
             lock.withLock {
