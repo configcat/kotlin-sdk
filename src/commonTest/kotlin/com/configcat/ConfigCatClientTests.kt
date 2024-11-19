@@ -917,14 +917,16 @@ class ConfigCatClientTests {
                 }
             var error = ""
             var changed = false
-            var ready: ClientCacheState? = null
+            var ready = false
+            var readyWithClientState: ClientCacheState? = null
 
             val client =
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = manualPoll()
                     hooks.addOnConfigChanged { changed = true }
-                    hooks.addOnClientReady { clientReadyState -> ready = clientReadyState }
+                    hooks.addOnClientReady { clientReadyState -> readyWithClientState = clientReadyState }
+                    hooks.addOnClientReady { -> ready = true}
                     hooks.addOnError { err -> error = err }
                 }
 
@@ -942,8 +944,8 @@ class ConfigCatClientTests {
             )
             assertTrue(changed)
 
-
-            assertEquals(ClientCacheState.NO_FLAG_DATA, ready)
+            assertTrue(ready)
+            assertEquals(ClientCacheState.NO_FLAG_DATA, readyWithClientState)
         }
 
     @Test
