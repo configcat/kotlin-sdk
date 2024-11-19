@@ -26,7 +26,10 @@ public class Hooks {
      * memory either from cache or from HTTP. If the config couldn't be loaded neither from cache nor
      * from HTTP the `onClientReady` event fires when the auto polling's `maxInitWaitTimeInSeconds` is reached.
      */
-    @Deprecated(message = "Use the new addOnClientReady(handler: (ClientCacheState) -> Unit) method.", level = DeprecationLevel.WARNING)
+    @Deprecated(
+        message = "Use the new addOnClientReady(handler: (ClientCacheState) -> Unit) method.",
+        level = DeprecationLevel.WARNING,
+    )
     public fun addOnClientReady(handler: () -> Unit) {
         lock.withLock {
             onClientReady.add(handler)

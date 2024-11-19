@@ -825,17 +825,17 @@ class ConfigCatClientTests {
                         status = HttpStatusCode.OK,
                     )
                 }
-            var ready = false
+            var ready: ClientCacheState? = null
             ConfigCatClient(TestUtils.randomSdkKey()) {
                 httpEngine = mockEngine
                 pollingMode = autoPoll { pollingInterval = 2.seconds }
                 offline = true
-                hooks.addOnClientReady { ready = true }
+                hooks.addOnClientReady { clientCacheState-> ready = clientCacheState }
             }
 
             assertEquals(0, mockEngine.requestHistory.size)
             TestUtils.awaitUntil {
-                ready
+                ready != null
             }
         }
 
