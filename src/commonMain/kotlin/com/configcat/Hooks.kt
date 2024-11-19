@@ -11,12 +11,27 @@ import kotlinx.atomicfu.locks.withLock
  */
 public class Hooks {
     private val isClientReady = atomic(false)
-    private val clientCacheState = atomic<ClientCacheState>(ClientCacheState.NO_FLAG_DATA)
-    private val onClientReady: MutableList<(ClientCacheState) -> Unit> = mutableListOf()
+    private val clientCacheState = atomic(ClientCacheState.NO_FLAG_DATA)
+    private val onClientReady: MutableList<() -> Unit> = mutableListOf()
+    private val onClientReadyWithState: MutableList<(ClientCacheState) -> Unit> = mutableListOf()
     private val onConfigChanged: MutableList<(Map<String, Setting>) -> Unit> = mutableListOf()
     private val onFlagEvaluated: MutableList<(EvaluationDetails) -> Unit> = mutableListOf()
     private val onError: MutableList<(String) -> Unit> = mutableListOf()
     private val lock: ReentrantLock = reentrantLock()
+
+    /**
+     * This event is sent when the SDK reaches the ready state.
+     * If the SDK is configured with lazy load or manual polling it's considered ready right after instantiation.
+     * If it's using auto polling, the ready state is reached when the SDK has a valid config.json loaded into
+     * memory either from cache or from HTTP. If the config couldn't be loaded neither from cache nor
+     * from HTTP the `onClientReady` event fires when the auto polling's `maxInitWaitTimeInSeconds` is reached.
+     */
+    @Deprecated(message = "Use the new addOnClientReady(handler: (ClientCacheState) -> Unit) method.", level = DeprecationLevel.WARNING)
+    public fun addOnClientReady(handler: () -> Unit) {
+        lock.withLock {
+            onClientReady.add(handler)
+        }
+    }
 
     /**
      * This event is sent when the SDK reaches the ready state.
@@ -30,7 +45,7 @@ public class Hooks {
             if (isClientReady.value) {
                 handler(clientCacheState.value)
             } else {
-                onClientReady.add(handler)
+                onClientReadyWithState.add(handler)
             }
         }
     }
@@ -68,8 +83,11 @@ public class Hooks {
         lock.withLock {
             this.isClientReady.value = true
             this.clientCacheState.value = clientCacheState
-            for (method in onClientReady) {
+            for (method in onClientReadyWithState) {
                 method(clientCacheState)
+            }
+            for (method in onClientReady) {
+                method()
             }
         }
     }
@@ -101,6 +119,7 @@ public class Hooks {
     internal fun clear() {
         lock.withLock {
             onClientReady.clear()
+            onClientReadyWithState.clear()
             onConfigChanged.clear()
             onFlagEvaluated.clear()
             onError.clear()
