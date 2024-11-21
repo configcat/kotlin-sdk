@@ -130,6 +130,14 @@ $dokka.location:com.configcat/AutoPollConfiguration///PointingToDeclaration/con
 $dokka.location:com.configcat/AutoPollConfiguration/AutoPollConfiguration/#kotlin.time.Duration#kotlin.time.Duration/PointingToDeclaration/configcat-kotlin-client/com.configcat/-auto-poll-configuration/-auto-poll-configuration.html
 $dokka.location:com.configcat/AutoPollConfiguration/maxInitWaitTime/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-auto-poll-configuration/max-init-wait-time.html
 $dokka.location:com.configcat/AutoPollConfiguration/pollingInterval/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-auto-poll-configuration/polling-interval.html
+$dokka.location:com.configcat/ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat/-client-cache-state/-h-a-s_-c-a-c-h-e-d_-f-l-a-g_-d-a-t-a_-o-n-l-y/index.html
+$dokka.location:com.configcat/ClientCacheState.HAS_LOCAL_OVERRIDE_FLAG_DATA_ONLY///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat/-client-cache-state/-h-a-s_-l-o-c-a-l_-o-v-e-r-r-i-d-e_-f-l-a-g_-d-a-t-a_-o-n-l-y/index.html
+$dokka.location:com.configcat/ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat/-client-cache-state/-h-a-s_-u-p_-t-o_-d-a-t-e_-f-l-a-g_-d-a-t-a/index.html
+$dokka.location:com.configcat/ClientCacheState.NO_FLAG_DATA///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat/-client-cache-state/-n-o_-f-l-a-g_-d-a-t-a/index.html
+$dokka.location:com.configcat/ClientCacheState///PointingToDeclaration/configcat-kotlin-client/com.configcat/-client-cache-state/index.html
+$dokka.location:com.configcat/ClientCacheState/entries/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-client-cache-state/entries.html
+$dokka.location:com.configcat/ClientCacheState/valueOf/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-client-cache-state/value-of.html
+$dokka.location:com.configcat/ClientCacheState/values/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-client-cache-state/values.html
 $dokka.location:com.configcat/ConfigCache///PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cache/index.html
 $dokka.location:com.configcat/ConfigCache/read/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cache/read.html
 $dokka.location:com.configcat/ConfigCache/write/#kotlin.String#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cache/write.html
@@ -151,6 +159,7 @@ $dokka.location:com.configcat/ConfigCatClient/isOffline/#/PointingToDeclaration/
 $dokka.location:com.configcat/ConfigCatClient/setDefaultUser/#com.configcat.ConfigCatUser/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/set-default-user.html
 $dokka.location:com.configcat/ConfigCatClient/setOffline/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/set-offline.html
 $dokka.location:com.configcat/ConfigCatClient/setOnline/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/set-online.html
+$dokka.location:com.configcat/ConfigCatClient/waitForReady/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/wait-for-ready.html
 $dokka.location:com.configcat/ConfigCatOptions///PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-options/index.html
 $dokka.location:com.configcat/ConfigCatOptions/ConfigCatOptions/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-options/-config-cat-options.html
 $dokka.location:com.configcat/ConfigCatOptions/baseUrl/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-options/base-url.html
@@ -190,6 +199,7 @@ $dokka.location:com.configcat/EvaluationDetailsBase/variationId/#/PointingToDecl
 $dokka.location:com.configcat/Hooks///PointingToDeclaration/configcat-kotlin-client/com.configcat/-hooks/index.html
 $dokka.location:com.configcat/Hooks/Hooks/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-hooks/-hooks.html
 $dokka.location:com.configcat/Hooks/addOnClientReady/#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/configcat-kotlin-client/com.configcat/-hooks/add-on-client-ready.html
+$dokka.location:com.configcat/Hooks/addOnClientReady/#kotlin.Function1[com.configcat.ClientCacheState,kotlin.Unit]/PointingToDeclaration/configcat-kotlin-client/com.configcat/-hooks/add-on-client-ready.html
 $dokka.location:com.configcat/Hooks/addOnConfigChanged/#kotlin.Function1[kotlin.collections.Map[kotlin.String,com.configcat.model.Setting],kotlin.Unit]/PointingToDeclaration/configcat-kotlin-client/com.configcat/-hooks/add-on-config-changed.html
 $dokka.location:com.configcat/Hooks/addOnError/#kotlin.Function1[kotlin.String,kotlin.Unit]/PointingToDeclaration/configcat-kotlin-client/com.configcat/-hooks/add-on-error.html
 $dokka.location:com.configcat/Hooks/addOnFlagEvaluated/#kotlin.Function1[com.configcat.EvaluationDetails,kotlin.Unit]/PointingToDeclaration/configcat-kotlin-client/com.configcat/-hooks/add-on-flag-evaluated.html
