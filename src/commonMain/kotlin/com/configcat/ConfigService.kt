@@ -227,7 +227,7 @@ internal class ConfigService(
                 while (isActive) {
                     fetchIfOlder(
                         DateTime.now()
-                            .add(0, -mode.configuration.pollingInterval.inWholeMilliseconds.toDouble()),
+                            .add(0, -mode.configuration.pollingInterval.inWholeMilliseconds.toDouble() - 500),
                     )
                     delay(mode.configuration.pollingInterval)
                 }
