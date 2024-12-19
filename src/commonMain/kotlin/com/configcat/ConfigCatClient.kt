@@ -15,6 +15,7 @@ import com.configcat.override.OverrideBehavior
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.ProxyConfig
 import korlibs.time.DateTime
+import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
@@ -328,7 +329,7 @@ internal class Client private constructor(
     private val evaluator: Evaluator
     private val logLevel: LogLevel
     private val logger: InternalLogger
-    private var defaultUser: ConfigCatUser?
+    private val defaultUser: AtomicRef<ConfigCatUser?> = atomic(null)
     private val isClosed = atomic(false)
 
     override val hooks: Hooks
@@ -338,7 +339,7 @@ internal class Client private constructor(
         logger = InternalLogger(options.logger, options.logLevel, options.hooks)
         logLevel = options.logLevel
         hooks = options.hooks
-        defaultUser = options.defaultUser
+        defaultUser.value = options.defaultUser
         flagOverrides = options.flagOverrides?.let { FlagOverrides().apply(it) }
         service =
             if (flagOverrides != null && flagOverrides.behavior == OverrideBehavior.LOCAL_ONLY) {
@@ -359,7 +360,7 @@ internal class Client private constructor(
         require(key.isNotEmpty()) { "'key' cannot be empty." }
 
         val settingResult = getSettings()
-        val evalUser = user ?: defaultUser
+        val evalUser = user ?: defaultUser.value
         val checkSettingAvailable = checkSettingAvailable(settingResult, key, defaultValue)
         val setting = checkSettingAvailable.second
         if (setting == null) {
@@ -403,7 +404,7 @@ internal class Client private constructor(
         require(key.isNotEmpty()) { "'key' cannot be empty." }
 
         val settingResult = getSettings()
-        val evalUser = user ?: defaultUser
+        val evalUser = user ?: defaultUser.value
 
         val checkSettingAvailable = checkSettingAvailable(settingResult, key, defaultValue)
         val setting = checkSettingAvailable.second
@@ -447,7 +448,7 @@ internal class Client private constructor(
         }
         return try {
             settingResult.settings.map {
-                evaluate(it.value, it.key, user ?: defaultUser, settingResult.fetchTime, settingResult.settings)
+                evaluate(it.value, it.key, user ?: defaultUser.value, settingResult.fetchTime, settingResult.settings)
             }
         } catch (exception: Exception) {
             val errorMessage =
@@ -528,7 +529,7 @@ internal class Client private constructor(
         return try {
             return settingResult.settings.map {
                 val evaluated =
-                    evaluate(it.value, it.key, user ?: defaultUser, settingResult.fetchTime, settingResult.settings)
+                    evaluate(it.value, it.key, user ?: defaultUser.value, settingResult.fetchTime, settingResult.settings)
                 it.key to evaluated.value
             }.toMap()
         } catch (exception: Exception) {
@@ -577,7 +578,7 @@ internal class Client private constructor(
             )
             return
         }
-        defaultUser = user
+        defaultUser.value = user
     }
 
     override fun clearDefaultUser() {
@@ -588,7 +589,7 @@ internal class Client private constructor(
             )
             return
         }
-        defaultUser = null
+        defaultUser.value = null
     }
 
     override fun close() {
