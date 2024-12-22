@@ -15,7 +15,7 @@ class ConfigCatUserTests {
     }
 
     @Test
-    fun testTestToString() {
+    fun testToString() {
         val user = ConfigCatUser(identifier = "test", custom = mapOf(
             "a" to 1,
             "b" to 1.2,
