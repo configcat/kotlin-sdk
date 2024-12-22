@@ -1,12 +1,10 @@
 package com.configcat
 
-import kotlinx.serialization.*
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.contextual
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 
 /**
  * An object containing attributes to properly identify a given user for variation evaluation.
@@ -89,52 +87,11 @@ public class ConfigCatUser(
     }
 
     override fun toString(): String {
-        return Constants.json.encodeToString(AnySerializer.module.serializer(), attributes)
+        return Constants.json.encodeToString(toJsonElement(attributes))
     }
 
-    private object AnySerializer : KSerializer<Any> {
-        val module = SerializersModule {
-            contextual(Any::class, AnySerializer)
-        }
-
-        override fun deserialize(decoder: Decoder): Any {
-            if (decoder is JsonDecoder) {
-                return toPrimitive(decoder.decodeJsonElement()) ?: ""
-            } else {
-                throw NotImplementedError("Only JsonDecoder is supported")
-            }
-        }
-
-        override fun serialize(encoder: Encoder, value: Any) {
-            if (encoder is JsonEncoder) {
-                encoder.encodeJsonElement(toJsonElement(value))
-            } else {
-                throw NotImplementedError("Only JsonEncoder is supported")
-            }
-        }
-
-        @OptIn(ExperimentalSerializationApi::class)
-        override val descriptor: SerialDescriptor =
-            ContextualSerializer(Any::class, null, emptyArray()).descriptor
-
-        private fun toPrimitive(element: JsonElement): Any? = when (element) {
-            is JsonNull -> null
-            is JsonObject -> toPrimitiveMap(element)
-            is JsonArray -> element.map { toPrimitive(it) }
-            is JsonPrimitive -> {
-                if (element.isString) {
-                    element.contentOrNull
-                } else {
-                    element.booleanOrNull ?: element.longOrNull ?: element.doubleOrNull
-                }
-            }
-            else -> null
-        }
-
-        private fun toPrimitiveMap(json: JsonObject): Map<String, Any> =
-            json.map { (key, value) -> key to (toPrimitive(value) ?: "") }.toMap()
-
-        private fun toJsonElement(value: Any): JsonElement = when (value) {
+    private fun toJsonElement(value: Any): JsonElement =
+        when (value) {
             is JsonElement -> value
             is Number -> JsonPrimitive(value)
             is String -> JsonPrimitive(value)
@@ -142,8 +99,13 @@ public class ConfigCatUser(
             is Enum<*> -> JsonPrimitive(value.toString())
             is Array<*> -> JsonArray(value.map { toJsonElement(it ?: "") })
             is Iterable<*> -> JsonArray(value.map { toJsonElement(it ?: "") })
-            is Map<*, *> -> JsonObject(value.map { (key, value) -> key as String to toJsonElement(value ?: "") }.toMap())
+            is Map<*, *> ->
+                JsonObject(
+                    value.map {
+                            (key, value) ->
+                        key as String to toJsonElement(value ?: "")
+                    }.toMap(),
+                )
             else -> JsonPrimitive(value.toString())
         }
-    }
 }

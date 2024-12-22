@@ -529,7 +529,13 @@ internal class Client private constructor(
         return try {
             return settingResult.settings.map {
                 val evaluated =
-                    evaluate(it.value, it.key, user ?: defaultUser.value, settingResult.fetchTime, settingResult.settings)
+                    evaluate(
+                        it.value,
+                        it.key,
+                        user ?: defaultUser.value,
+                        settingResult.fetchTime,
+                        settingResult.settings,
+                    )
                 it.key to evaluated.value
             }.toMap()
         } catch (exception: Exception) {
