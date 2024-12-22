@@ -1,6 +1,10 @@
 package com.configcat
 
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 
 /**
  * An object containing attributes to properly identify a given user for variation evaluation.
@@ -83,6 +87,25 @@ public class ConfigCatUser(
     }
 
     override fun toString(): String {
-        return Constants.json.encodeToString(attributes)
+        return Constants.json.encodeToString(toJsonElement(attributes))
     }
+
+    private fun toJsonElement(value: Any): JsonElement =
+        when (value) {
+            is JsonElement -> value
+            is Number -> JsonPrimitive(value)
+            is String -> JsonPrimitive(value)
+            is Boolean -> JsonPrimitive(value)
+            is Enum<*> -> JsonPrimitive(value.toString())
+            is Array<*> -> JsonArray(value.map { toJsonElement(it ?: "") })
+            is Iterable<*> -> JsonArray(value.map { toJsonElement(it ?: "") })
+            is Map<*, *> ->
+                JsonObject(
+                    value.map {
+                            (key, value) ->
+                        key as String to toJsonElement(value ?: "")
+                    }.toMap(),
+                )
+            else -> JsonPrimitive(value.toString())
+        }
 }

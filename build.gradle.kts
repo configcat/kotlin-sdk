@@ -2,38 +2,19 @@ import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.dokka.gradle.DokkaTask
 import java.net.URL
 
-buildscript {
-    val kotlinVersion by extra("2.0.21")
-    val atomicfuVersion: String by project
-    dependencies {
-        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:$atomicfuVersion")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-        classpath("org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:$kotlinVersion")
-    }
-}
-
-apply(plugin = "kotlinx-atomicfu")
-
 plugins {
-    kotlin("multiplatform") version "2.0.21"
-    kotlin("plugin.serialization") version "2.0.21"
-    id("com.android.library")
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.serialization)
+    alias(libs.plugins.atomicfu)
+    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.dokka)
+    alias(libs.plugins.sonarqube)
+    alias(libs.plugins.kover)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.ktlint)
     id("maven-publish")
     id("signing")
-    id("org.jetbrains.dokka") version "1.9.20"
-    id("org.sonarqube") version "5.0.0.4638"
-    id("org.jetbrains.kotlinx.kover") version "0.7.6"
-    id("io.gitlab.arturbosch.detekt") version "1.23.6"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
 }
-
-val atomicfuVersion: String by project
-val ktorVersion: String by project
-val kotlinxSerializationVersion: String by project
-val kotlinxCoroutinesVersion: String by project
-val klockVersion: String by project
-val kryptoVersion: String by project
-val semverVersion: String by project
 
 val buildNumber: String get() = System.getenv("BUILD_NUMBER") ?: ""
 val isSnapshot: Boolean get() = System.getProperty("snapshot") != null
@@ -102,39 +83,39 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation("io.ktor:ktor-client-core:$ktorVersion")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinxSerializationVersion")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
-            implementation("com.soywiz.korlibs.klock:klock:$klockVersion")
-            implementation("com.soywiz.korlibs.krypto:krypto:$kryptoVersion")
-            implementation("io.github.z4kn4fein:semver:$semverVersion")
+            implementation(libs.ktor)
+            implementation(libs.serialization.core)
+            implementation(libs.serialization.json)
+            implementation(libs.coroutines.core)
+            implementation(libs.klock)
+            implementation(libs.krypto)
+            implementation(libs.semver)
         }
         commonTest.dependencies {
-            implementation(kotlin("test"))
-            implementation("io.ktor:ktor-client-mock:$ktorVersion")
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinxCoroutinesVersion")
+            implementation(libs.kotlin.test)
+            implementation(libs.ktor.mock)
+            implementation(libs.coroutines.test)
         }
 
         jvmMain.dependencies {
-            implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+            implementation(libs.ktor.okhttp)
         }
 
         jsMain.dependencies {
-            implementation("io.ktor:ktor-client-js:$ktorVersion")
+            implementation(libs.ktor.js)
         }
 
         androidMain.dependencies {
-            implementation("io.ktor:ktor-client-android:$ktorVersion")
-            implementation("org.jetbrains.kotlinx:atomicfu:$atomicfuVersion")
+            implementation(libs.ktor.android)
+            implementation(libs.atomicfu)
         }
 
         appleMain.dependencies {
-            implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+            implementation(libs.ktor.darwin)
         }
 
         appleTest.dependencies {
-            implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+            implementation(libs.ktor.darwin)
         }
 
         val nativeRestMain by creating {
@@ -143,7 +124,7 @@ kotlin {
         val nativeRestTest by creating {
             dependsOn(commonTest.get())
             dependencies {
-                implementation("io.ktor:ktor-client-cio:$ktorVersion")
+                implementation(libs.ktor.cio)
             }
         }
 
