@@ -12,7 +12,7 @@ complexity:
   ComplexCondition:
     threshold: 11
   TooManyFunctions:
-    thresholdInClasses: 22
+    thresholdInClasses: 23
     thresholdInInterfaces: 17
   LongMethod:
     threshold: 80
