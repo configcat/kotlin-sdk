@@ -75,7 +75,7 @@ internal class ConfigFetcher constructor(
         }
         val message = ConfigCatLogMessages.FETCH_FAILED_DUE_TO_REDIRECT_LOOP_ERROR
         logger.error(1104, message)
-        return FetchResponse.failure(message, true)
+        return FetchResponse.failure(message, RefreshErrorCode.UNEXPECTED_ERROR, true)
     }
 
     private suspend fun fetchHTTP(
@@ -103,7 +103,7 @@ internal class ConfigFetcher constructor(
                 val newETag = response.etag()
                 val (config, err) = deserializeConfig(body)
                 if (err != null) {
-                    return FetchResponse.failure(err, true)
+                    return FetchResponse.failure(err, RefreshErrorCode.INVALID_HTTP_RESPONSE_CONTENT, true)
                 }
                 val entry = Entry(config, newETag ?: "", body, DateTime.now())
                 return FetchResponse.success(entry)
@@ -115,7 +115,7 @@ internal class ConfigFetcher constructor(
                     ConfigCatLogMessages.FETCH_FAILED_DUE_TO_INVALID_SDK_KEY_ERROR +
                         " Received response: ${response.status}"
                 logger.error(1100, message)
-                return FetchResponse.failure(message, false)
+                return FetchResponse.failure(message, RefreshErrorCode.INVALID_SDK_KEY, false)
             } else {
                 val message =
                     ConfigCatLogMessages.getFetchFailedDueToUnexpectedHttpResponse(
@@ -123,7 +123,7 @@ internal class ConfigFetcher constructor(
                         response.bodyAsText(),
                     )
                 logger.error(1101, message)
-                return FetchResponse.failure(message, true)
+                return FetchResponse.failure(message, RefreshErrorCode.UNEXPECTED_HTTP_RESPONSE, true)
             }
         } catch (_: HttpRequestTimeoutException) {
             val message =
@@ -133,11 +133,11 @@ internal class ConfigFetcher constructor(
                     options.requestTimeout.inWholeMilliseconds,
                 )
             logger.error(1102, message)
-            return FetchResponse.failure(message, true)
+            return FetchResponse.failure(message, RefreshErrorCode.HTTP_REQUEST_TIMEOUT, true)
         } catch (e: Exception) {
             val message = ConfigCatLogMessages.FETCH_FAILED_DUE_TO_UNEXPECTED_ERROR
             logger.error(1103, message, e)
-            return FetchResponse.failure(message, true)
+            return FetchResponse.failure(message, RefreshErrorCode.HTTP_REQUEST_FAILURE, true)
         }
     }
 

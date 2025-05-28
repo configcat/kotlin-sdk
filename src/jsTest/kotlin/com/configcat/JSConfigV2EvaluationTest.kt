@@ -75,14 +75,16 @@ class JSConfigV2EvaluationTest {
             }
         client.forceRefresh()
 
-        val value = client.getValue(key, "", null)
+        val details = client.getValueDetails(key, "", null)
         val errorLogs = mutableListOf<LogEvent>()
         assertEquals(
             expectedValue,
-            value,
+            details.value,
             "Flag key: $key PrerequisiteFlagKey: $prerequisiteFlagKey PrerequisiteFlagValue: $prerequisiteFlagValue",
         )
         if (expectedValue.isNullOrEmpty()) {
+            assertEquals(EvaluationErrorCode.INVALID_CONFIG_MODEL, details.errorCode)
+
             val logsList = evaluationTestLogger.getLogList()
             for (i in logsList.indices) {
                 val log = logsList[i]

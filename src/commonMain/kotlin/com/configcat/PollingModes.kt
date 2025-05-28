@@ -39,19 +39,21 @@ public data class LazyLoadConfiguration(
 )
 
 /**
- * Creates an auto polling configuration.
+ * In this mode, the ConfigCat SDK downloads the latest config data automatically and stores it in the cache.
  */
 public fun autoPoll(block: AutoPollConfiguration.() -> Unit = {}): PollingMode =
     AutoPollMode(AutoPollConfiguration().apply(block))
 
 /**
- * Creates a lazy load polling configuration.
+ * In this mode, the ConfigCat SDK downloads the latest config data only if it is not present in the cache,
+ * or if it is but has expired.
  */
 public fun lazyLoad(block: LazyLoadConfiguration.() -> Unit = {}): PollingMode =
     LazyLoadMode(LazyLoadConfiguration().apply(block))
 
 /**
- * Creates a manual polling configuration.
+ * In this mode, the ConfigCat SDK will not download the config data automatically.
+ * You need to update the cache manually by calling [ConfigCatClient.forceRefresh].
  */
 public fun manualPoll(): PollingMode = ManualPollMode()
 

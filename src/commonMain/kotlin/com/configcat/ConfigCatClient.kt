@@ -1,20 +1,13 @@
 package com.configcat
 
-import com.configcat.Client.SettingTypeHelper.toSettingTypeOrNull
 import com.configcat.fetch.ConfigFetcher
+import com.configcat.fetch.RefreshErrorCode
 import com.configcat.fetch.RefreshResult
-import com.configcat.log.ConfigCatLogMessages
-import com.configcat.log.DefaultLogger
-import com.configcat.log.InternalLogger
-import com.configcat.log.LogLevel
-import com.configcat.log.Logger
-import com.configcat.model.Setting
+import com.configcat.log.*
 import com.configcat.model.SettingType
 import com.configcat.override.FlagOverrides
 import com.configcat.override.OverrideBehavior
-import io.ktor.client.engine.HttpClientEngine
-import io.ktor.client.engine.ProxyConfig
-import korlibs.time.DateTime
+import io.ktor.client.engine.*
 import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
@@ -159,7 +152,8 @@ public interface ConfigCatClient {
     public suspend fun getAllValues(user: ConfigCatUser? = null): Map<String, Any?>
 
     /**
-     * Initiates a force refresh on the cached configuration.
+     * Updates the internally cached config by synchronizing with the external cache (if any),
+     * then by fetching the latest version from the ConfigCat CDN (provided that the client is online).
      */
     public suspend fun forceRefresh(): RefreshResult
 
@@ -208,11 +202,35 @@ public interface ConfigCatClient {
     public fun isClosed(): Boolean
 
     /**
-     * Awaits for SDK initialization.
+     * Waits for the client to reach the ready state, i.e. to complete initialization.
      *
-     * @return the future which executes the wait for ready and return with the client state.
+     * Ready state is reached as soon as the initial sync with the external cache (if any) completes.
+     * If this does not produce up-to-date config data, and the client is online (i.e. HTTP requests are allowed),
+     * the first config fetch operation is also awaited in Auto Polling mode before ready state is reported.
+     *
+     * That is, reaching the ready state usually means the client is ready to evaluate feature flags and settings.
+     * However, please note that this is not guaranteed. In case of initialization failure or timeout,
+     * the internal cache may be empty or expired even after the ready state is reported. You can verify this by
+     * checking the return value.
+     *
+     * @return the state of the internal cache at the time the initialization was completed.
      */
-    public suspend fun waitForReady(): CompletableDeferred<ClientCacheState>
+    public suspend fun waitForReady(): ClientCacheState
+
+    /**
+     * Captures the SDK's internally cached config data.
+     * It does not attempt to update it by synchronizing with the external cache or by fetching
+     * the latest version from the ConfigCat CDN.
+     *
+     * Therefore, it is recommended to use snapshots in conjunction with the Auto Polling mode,
+     * where the SDK automatically updates the internal cache in the background.
+     *
+     * For other polling modes, you will need to manually initiate a cache
+     * update by invoking [ConfigCatClient.forceRefresh].
+     *
+     * @return the captured snapshot.
+     */
+    public fun snapshot(): ConfigCatSnapshot
 
     /**
      * Companion object of [ConfigCatClient].
@@ -267,7 +285,7 @@ internal suspend fun getValueInternal(
     user: ConfigCatUser?,
 ): Any? {
     val client = configCatClient as? Client
-    return client?.getValueImpl(key, defaultValue, user, allowAnyReturnType = false)
+    return client?.eval(key, defaultValue, user, allowAnyReturnType = false)
         ?: configCatClient.getAnyValue(key, defaultValue, user)
 }
 
@@ -301,6 +319,7 @@ public suspend inline fun <reified T> ConfigCatClient.getValueDetails(
         user,
         details.isDefaultValue,
         details.error,
+        details.errorCode,
         details.value as T,
         details.fetchTimeUnixMilliseconds,
         details.matchedTargetingRule,
@@ -316,7 +335,7 @@ internal suspend fun getValueDetailsInternal(
     user: ConfigCatUser?,
 ): EvaluationDetails {
     val client = configCatClient as? Client
-    return client?.getValueDetailsImpl(key, defaultValue, user, allowAnyReturnType = false)
+    return client?.evalDetails(key, defaultValue, user, allowAnyReturnType = false)
         ?: configCatClient.getAnyValueDetails(key, defaultValue, user)
 }
 
@@ -327,7 +346,7 @@ internal class Client private constructor(
     private val service: ConfigService?
     private val flagOverrides: FlagOverrides?
     private val evaluator: Evaluator
-    private val logLevel: LogLevel
+    internal val flagEvaluator: FlagEvaluator
     private val logger: InternalLogger
     private val defaultUser: AtomicRef<ConfigCatUser?> = atomic(null)
     private val isClosed = atomic(false)
@@ -337,7 +356,6 @@ internal class Client private constructor(
     init {
         options.sdkKey = sdkKey
         logger = InternalLogger(options.logger, options.logLevel, options.hooks)
-        logLevel = options.logLevel
         hooks = options.hooks
         defaultUser.value = options.defaultUser
         flagOverrides = options.flagOverrides?.let { FlagOverrides().apply(it) }
@@ -349,9 +367,10 @@ internal class Client private constructor(
                 ConfigService(options, ConfigFetcher(options, logger), logger, options.hooks)
             }
         evaluator = Evaluator(logger)
+        flagEvaluator = FlagEvaluator(logger, evaluator, options.hooks)
     }
 
-    internal suspend fun getValueImpl(
+    internal suspend fun eval(
         key: String,
         defaultValue: Any?,
         user: ConfigCatUser?,
@@ -361,41 +380,16 @@ internal class Client private constructor(
 
         val settingResult = getSettings()
         val evalUser = user ?: defaultUser.value
-        val checkSettingAvailable = checkSettingAvailable(settingResult, key, defaultValue)
-        val setting = checkSettingAvailable.second
-        if (setting == null) {
-            val details = EvaluationDetails.makeError(key, defaultValue, checkSettingAvailable.first, evalUser)
-            hooks.invokeOnFlagEvaluated(details)
-            return defaultValue
-        }
-        return try {
-            if (!allowAnyReturnType) {
-                validateValueType(setting.type, defaultValue)
-            }
-            evaluate(setting, key, evalUser, settingResult.fetchTime, settingResult.settings).value
-        } catch (exception: Exception) {
-            val errorMessage =
-                ConfigCatLogMessages.getSettingEvaluationErrorWithDefaultValue(
-                    "getAnyValue",
-                    key,
-                    "defaultValue",
-                    defaultValue ?: "null",
-                )
-            logger.error(1002, errorMessage, exception)
-            hooks.invokeOnFlagEvaluated(EvaluationDetails.makeError(key, defaultValue, errorMessage, evalUser))
-            defaultValue
-        }
+        return flagEvaluator.findAndEvalFlag(settingResult, key, defaultValue, evalUser, allowAnyReturnType)
     }
 
     override suspend fun getAnyValue(
         key: String,
         defaultValue: Any?,
         user: ConfigCatUser?,
-    ): Any? {
-        return getValueImpl(key, defaultValue, user, allowAnyReturnType = true)
-    }
+    ): Any? = eval(key, defaultValue, user, allowAnyReturnType = true)
 
-    internal suspend fun getValueDetailsImpl(
+    internal suspend fun evalDetails(
         key: String,
         defaultValue: Any?,
         user: ConfigCatUser?,
@@ -406,40 +400,14 @@ internal class Client private constructor(
         val settingResult = getSettings()
         val evalUser = user ?: defaultUser.value
 
-        val checkSettingAvailable = checkSettingAvailable(settingResult, key, defaultValue)
-        val setting = checkSettingAvailable.second
-        if (setting == null) {
-            val details = EvaluationDetails.makeError(key, defaultValue, checkSettingAvailable.first, evalUser)
-            hooks.invokeOnFlagEvaluated(details)
-            return details
-        }
-        return try {
-            if (!allowAnyReturnType) {
-                validateValueType(setting.type, defaultValue)
-            }
-            evaluate(setting, key, evalUser, settingResult.fetchTime, settingResult.settings)
-        } catch (exception: Exception) {
-            val errorMessage =
-                ConfigCatLogMessages.getSettingEvaluationErrorWithDefaultValue(
-                    "getAnyValueDetails",
-                    key,
-                    "defaultValue",
-                    defaultValue ?: "null",
-                )
-            logger.error(1002, errorMessage, exception)
-            val errorDetails = EvaluationDetails.makeError(key, defaultValue, exception.message ?: "", evalUser)
-            hooks.invokeOnFlagEvaluated(errorDetails)
-            errorDetails
-        }
+        return flagEvaluator.findAndEvalFlagDetails(settingResult, key, defaultValue, evalUser, allowAnyReturnType)
     }
 
     override suspend fun getAnyValueDetails(
         key: String,
         defaultValue: Any?,
         user: ConfigCatUser?,
-    ): EvaluationDetails {
-        return getValueDetailsImpl(key, defaultValue, user, allowAnyReturnType = true)
-    }
+    ): EvaluationDetails = evalDetails(key, defaultValue, user, allowAnyReturnType = true)
 
     override suspend fun getAllValueDetails(user: ConfigCatUser?): Collection<EvaluationDetails> {
         val settingResult = getSettings()
@@ -448,7 +416,13 @@ internal class Client private constructor(
         }
         return try {
             settingResult.settings.map {
-                evaluate(it.value, it.key, user ?: defaultUser.value, settingResult.fetchTime, settingResult.settings)
+                flagEvaluator.evalFlag(
+                    it.value,
+                    it.key,
+                    user ?: defaultUser.value,
+                    settingResult.fetchTime,
+                    settingResult.settings,
+                )
             }
         } catch (exception: Exception) {
             val errorMessage =
@@ -529,7 +503,7 @@ internal class Client private constructor(
         return try {
             return settingResult.settings.map {
                 val evaluated =
-                    evaluate(
+                    flagEvaluator.evalFlag(
                         it.value,
                         it.key,
                         user ?: defaultUser.value,
@@ -549,6 +523,7 @@ internal class Client private constructor(
         service?.refresh() ?: RefreshResult(
             false,
             "The ConfigCat SDK is in local-only mode. Calling .forceRefresh() has no effect.",
+            RefreshErrorCode.LOCAL_ONLY_CLIENT,
         )
 
     override fun setOffline() {
@@ -610,43 +585,23 @@ internal class Client private constructor(
         return isClosed.value
     }
 
-    override suspend fun waitForReady(): CompletableDeferred<ClientCacheState> {
+    override suspend fun waitForReady(): ClientCacheState {
         val completableDeferred = CompletableDeferred<ClientCacheState>()
         hooks.addOnClientReady { clientCacheState -> completableDeferred.complete(clientCacheState) }
-        return completableDeferred
+        return completableDeferred.await()
     }
+
+    override fun snapshot(): ConfigCatSnapshot =
+        Snapshot(
+            flagEvaluator,
+            getInMemorySettings(),
+            defaultUser.value,
+            logger,
+        )
 
     private fun closeResources() {
         service?.close()
         hooks.clear()
-    }
-
-    private fun evaluate(
-        setting: Setting,
-        key: String,
-        user: ConfigCatUser?,
-        fetchTime: DateTime,
-        settings: Map<String, Setting>,
-    ): EvaluationDetails {
-        var evaluateLogger: EvaluateLogger? = null
-        if (logLevel == LogLevel.INFO) {
-            evaluateLogger = EvaluateLogger()
-        }
-        val (value, variationId, targetingRule, percentageRule) =
-            evaluator.evaluate(
-                setting,
-                key,
-                user,
-                settings,
-                evaluateLogger,
-            )
-        val details =
-            EvaluationDetails(
-                key, variationId, user, false, null, Helpers.validateSettingValueType(value, setting.type),
-                fetchTime.unixMillisLong, targetingRule, percentageRule,
-            )
-        hooks.invokeOnFlagEvaluated(details)
-        return details
     }
 
     private suspend fun getSettings(): SettingResult {
@@ -677,39 +632,32 @@ internal class Client private constructor(
         return service?.getSettings() ?: SettingResult(mapOf(), Constants.distantPast)
     }
 
-    private fun validateValueType(
-        settingTypeInt: Int,
-        defaultValue: Any?,
-    ) {
-        val settingType =
-            settingTypeInt.toSettingTypeOrNull()
-                ?: throw IllegalArgumentException(
-                    "The setting type is not valid. Only String, Int, Double or Boolean types are supported.",
-                )
-        if (defaultValue == null) {
-            return
-        }
-        if (!(
-                (defaultValue is String && settingType == SettingType.STRING) ||
-                    (defaultValue is Boolean && settingType == SettingType.BOOLEAN) ||
-                    (
-                        defaultValue is Int && (settingType == SettingType.INT || settingType == SettingType.JS_NUMBER)
-                    ) ||
-                    (
-                        defaultValue is Double && (
-                            settingType == SettingType.DOUBLE || settingType == SettingType.JS_NUMBER
-                        )
+    private fun getInMemorySettings(): SettingResult {
+        if (flagOverrides != null) {
+            return when (flagOverrides.behavior) {
+                OverrideBehavior.LOCAL_ONLY ->
+                    SettingResult(
+                        flagOverrides.dataSource.getOverrides(),
+                        Constants.distantPast,
                     )
-            )
-        ) {
-            throw IllegalArgumentException(
-                "The type of a setting must match the type of the specified default value. " +
-                    "Setting's type was {" + settingType + "} but the default value's type was {" +
-                    defaultValue::class.toString() + "}. Please use a default value which corresponds to the setting " +
-                    "type {" + settingType + "}. Learn more: " +
-                    "https://configcat.com/docs/sdk-reference/kotlin/#setting-type-mapping",
-            )
+
+                OverrideBehavior.LOCAL_OVER_REMOTE -> {
+                    val result = service?.getInMemorySettings()
+                    val remote = result?.settings ?: mapOf()
+                    val local = flagOverrides.dataSource.getOverrides()
+                    SettingResult(remote + local, result?.fetchTime ?: Constants.distantPast)
+                }
+
+                OverrideBehavior.REMOTE_OVER_LOCAL -> {
+                    val result = service?.getInMemorySettings()
+                    val remote = result?.settings ?: mapOf()
+                    val local = flagOverrides.dataSource.getOverrides()
+                    SettingResult(local + remote, result?.fetchTime ?: Constants.distantPast)
+                }
+            }
         }
+
+        return service?.getInMemorySettings() ?: SettingResult(mapOf(), Constants.distantPast)
     }
 
     private fun checkSettingsAvailable(
@@ -721,32 +669,6 @@ internal class Client private constructor(
             return false
         }
         return true
-    }
-
-    private fun <T> checkSettingAvailable(
-        settingResult: SettingResult,
-        key: String,
-        defaultValue: T,
-    ): Pair<String, Setting?> {
-        if (settingResult.isEmpty()) {
-            val errorMessage =
-                ConfigCatLogMessages.getConfigJsonIsNotPresentedWithDefaultValue(key, "defaultValue", defaultValue)
-            logger.error(1000, errorMessage)
-            return Pair(errorMessage, null)
-        }
-        val setting = settingResult.settings[key]
-        if (setting == null) {
-            val errorMessage =
-                ConfigCatLogMessages.getSettingEvaluationFailedDueToMissingKey(
-                    key,
-                    "defaultValue",
-                    defaultValue,
-                    settingResult.settings.keys,
-                )
-            logger.error(1001, errorMessage)
-            return Pair(errorMessage, null)
-        }
-        return Pair("", setting)
     }
 
     companion object {

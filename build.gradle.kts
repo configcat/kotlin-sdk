@@ -1,6 +1,8 @@
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.KotlinMultiplatform
 import io.gitlab.arturbosch.detekt.Detekt
-import org.jetbrains.dokka.gradle.DokkaTask
-import java.net.URL
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -12,8 +14,7 @@ plugins {
     alias(libs.plugins.kover)
     alias(libs.plugins.detekt)
     alias(libs.plugins.ktlint)
-    id("maven-publish")
-    id("signing")
+    alias(libs.plugins.mavenPublish)
 }
 
 val buildNumber: String get() = System.getenv("BUILD_NUMBER") ?: ""
@@ -25,15 +26,11 @@ kotlin {
     explicitApi()
 
     jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = "1.8"
-        }
+        compilerOptions.jvmTarget = JvmTarget.JVM_1_8
     }
 
     androidTarget {
-        compilations.all {
-            kotlinOptions.jvmTarget = "1.8"
-        }
+        compilerOptions.jvmTarget = JvmTarget.JVM_1_8
         publishLibraryVariants("release")
     }
 
@@ -91,6 +88,7 @@ kotlin {
             implementation(libs.krypto)
             implementation(libs.semver)
         }
+
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.ktor.mock)
@@ -121,6 +119,7 @@ kotlin {
         val nativeRestMain by creating {
             dependsOn(commonMain.get())
         }
+
         val nativeRestTest by creating {
             dependsOn(commonTest.get())
             dependencies {
@@ -137,78 +136,66 @@ kotlin {
 }
 
 android {
-    compileSdk = 31
+    namespace = "com.configcat"
+    compileSdk = 35
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
-        //noinspection ExpiredTargetSdkVersion
-        targetSdk = 31
         consumerProguardFiles("configcat-proguard-rules.pro")
     }
-}
 
-tasks.getByName<DokkaTask>("dokkaHtml") {
-    outputDirectory.set(file(buildDir.resolve("dokka")))
+    @Suppress("UnstableApiUsage")
+    testOptions {
+        targetSdk = 31
+    }
 
-    dokkaSourceSets {
-        named("appleMain") {
-            platform.set(org.jetbrains.dokka.Platform.native)
-            sourceLink {
-                localDirectory.set(file("src/appleMain/kotlin"))
-                remoteUrl.set(URL("https://github.com/configcat/kotlin-sdk/blob/main/src/appleMain/kotlin"))
-                remoteLineSuffix.set("#L")
-            }
-        }
-
-        named("commonMain") {
-            sourceLink {
-                localDirectory.set(file("src/commonMain/kotlin"))
-                remoteUrl.set(URL("https://github.com/configcat/kotlin-sdk/blob/main/src/commonMain/kotlin"))
-                remoteLineSuffix.set("#L")
-            }
-        }
-
-        named("jsMain") {
-            sourceLink {
-                localDirectory.set(file("src/jsMain/kotlin"))
-                remoteUrl.set(URL("https://github.com/configcat/kotlin-sdk/blob/main/src/jsMain/kotlin"))
-                remoteLineSuffix.set("#L")
-            }
-        }
-
-        named("androidMain") {
-            sourceLink {
-                localDirectory.set(file("src/androidMain/kotlin"))
-                remoteUrl.set(URL("https://github.com/configcat/kotlin-sdk/blob/main/src/androidMain/kotlin"))
-                remoteLineSuffix.set("#L")
-            }
-        }
+    lint {
+        targetSdk = 31
     }
 }
 
-val javadocJar =
-    tasks.register<Jar>("javadocJar") {
-        archiveClassifier.set("javadoc")
-        dependsOn("dokkaHtml")
-        from(buildDir.resolve("dokka"))
+dokka {
+    dokkaPublications.html {
+        outputDirectory.set(layout.buildDirectory.dir("dokka"))
     }
+
+    dokkaSourceSets.commonMain {
+        sourceLink {
+            localDirectory.set(file("src/commonMain/kotlin"))
+            remoteUrl("https://github.com/configcat/kotlin-sdk/blob/main/src/commonMain/kotlin")
+            remoteLineSuffix.set("#L")
+        }
+    }
+
+    dokkaSourceSets.named("appleMain") {
+        sourceLink {
+            localDirectory.set(file("src/appleMain/kotlin"))
+            remoteUrl("https://github.com/configcat/kotlin-sdk/blob/main/src/appleMain/kotlin")
+            remoteLineSuffix.set("#L")
+        }
+    }
+
+    dokkaSourceSets.named("jsMain") {
+        sourceLink {
+            localDirectory.set(file("src/jsMain/kotlin"))
+            remoteUrl("https://github.com/configcat/kotlin-sdk/blob/main/src/jsMain/kotlin")
+            remoteLineSuffix.set("#L")
+        }
+    }
+
+    dokkaSourceSets.named("androidMain") {
+        sourceLink {
+            localDirectory.set(file("src/androidMain/kotlin"))
+            remoteUrl("https://github.com/configcat/kotlin-sdk/blob/main/src/androidMain/kotlin")
+            remoteLineSuffix.set("#L")
+        }
+    }
+}
 
 detekt {
-    config = files("$rootDir/detekt.yml")
+    config.setFrom("$rootDir/detekt.yml")
     buildUponDefaultConfig = true
     parallel = true
-    isIgnoreFailures = true
-}
-
-ktlint {
-    additionalEditorconfig.set(
-        mapOf(
-            "max_line_length" to "120"
-        )
-    )
-    filter {
-        exclude { element -> element.file.path.contains("build.gradle.kts") || element.file.path.contains("Test") }
-    }
 }
 
 tasks.withType<Detekt>().configureEach {
@@ -222,6 +209,17 @@ tasks.withType<Detekt>().configureEach {
     }
 }
 
+ktlint {
+    additionalEditorconfig.set(
+        mapOf(
+            "max_line_length" to "120"
+        )
+    )
+    filter {
+        exclude { element -> element.file.path.contains("build.gradle.kts") || element.file.path.contains("Test") }
+    }
+}
+
 sonarqube {
     properties {
         property("sonar.projectKey", "configcat_kotlin-sdk")
@@ -231,66 +229,53 @@ sonarqube {
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.sources", "src/commonMain/kotlin/com/configcat")
         property("sonar.tests", "src/commonTest/kotlin/com/configcat")
-        property("sonar.kotlin.detekt.reportPaths", buildDir.resolve("reports/detekt/detekt.xml"))
-        property("sonar.coverage.jacoco.xmlReportPaths", buildDir.resolve("reports/kover/report.xml"))
+        property("sonar.kotlin.detekt.reportPaths", "detekt.xml")
+        property("sonar.coverage.jacoco.xmlReportPaths", "report.xml")
     }
 }
 
-publishing {
-    repositories {
-        maven {
-            val releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2")
-            val snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots")
-            url = if (isSnapshot) snapshotsRepoUrl else releasesRepoUrl
-            credentials {
-                username = System.getenv("SONATYPE_USERNAME")
-                password = System.getenv("SONATYPE_PASSWORD")
-            }
-        }
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+    if (providers.environmentVariable("ORG_GRADLE_PROJECT_signingInMemoryKey").isPresent &&
+        providers.environmentVariable("ORG_GRADLE_PROJECT_signingInMemoryKeyPassword").isPresent
+    ) {
+        signAllPublications()
     }
 
-    publications.withType<MavenPublication> {
-        artifact(javadocJar.get())
+    configure(
+        KotlinMultiplatform(
+            javadocJar = JavadocJar.Dokka("dokkaGenerate"),
+            sourcesJar = true
+        )
+    )
 
-        pom {
-            name.set("ConfigCat Kotlin SDK")
-            description.set(
-                "Kotlin Multiplatform SDK for ConfigCat, a feature flag, feature toggle, and configuration management service. That lets you launch new features and change your software configuration remotely without actually (re)deploying code. ConfigCat even helps you do controlled roll-outs like canary releases and blue-green deployments.",
-            )
+    coordinates(project.group as String?, project.name, project.version as String?)
+
+    pom {
+        name.set("ConfigCat Kotlin SDK")
+        description.set(
+            "Kotlin Multiplatform SDK for ConfigCat, a feature flag, feature toggle, and configuration management service. That lets you launch new features and change your software configuration remotely without actually (re)deploying code. ConfigCat even helps you do controlled roll-outs like canary releases and blue-green deployments.",
+        )
+        url.set("https://github.com/configcat/kotlin-sdk")
+        issueManagement {
+            system.set("GitHub Issues")
+            url.set("https://github.com/configcat/kotlin-sdk/issues")
+        }
+        licenses {
+            license {
+                name.set("MIT License")
+                url.set("https://raw.githubusercontent.com/configcat/kotlin-sdk/main/LICENSE")
+            }
+        }
+        developers {
+            developer {
+                id.set("configcat")
+                name.set("ConfigCat")
+                email.set("developer@configcat.com")
+            }
+        }
+        scm {
             url.set("https://github.com/configcat/kotlin-sdk")
-            issueManagement {
-                system.set("GitHub Issues")
-                url.set("https://github.com/configcat/kotlin-sdk/issues")
-            }
-            licenses {
-                license {
-                    name.set("MIT License")
-                    url.set("https://raw.githubusercontent.com/configcat/kotlin-sdk/main/LICENSE")
-                }
-            }
-            developers {
-                developer {
-                    id.set("configcat")
-                    name.set("ConfigCat")
-                    email.set("developer@configcat.com")
-                }
-            }
-            scm {
-                url.set("https://github.com/configcat/kotlin-sdk")
-            }
         }
     }
-}
-
-signing {
-    val signingKey = System.getenv("SIGNING_KEY") ?: ""
-    val signingPassphrase = System.getenv("SIGNING_PASSPHRASE") ?: ""
-    if (signingKey.isNotEmpty() && signingPassphrase.isNotEmpty()) {
-        useInMemoryPgpKeys(signingKey, signingPassphrase)
-        sign(publishing.publications)
-    }
-}
-
-tasks.withType<AbstractPublishToMaven>().configureEach {
-    dependsOn(tasks.withType<Sign>())
 }

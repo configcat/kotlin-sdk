@@ -395,10 +395,11 @@ class ConfigV2EvaluationTest {
         client.forceRefresh()
 
         val valueDetails = client.getValueDetails(key, "", null)
-        assertEquals(
+        assertContains(
+            valueDetails.error ?: "",
             "Circular dependency detected between the following depending flags: $dependencyCycle.",
-            valueDetails.error,
         )
+        assertEquals(EvaluationErrorCode.INVALID_CONFIG_MODEL, valueDetails.errorCode)
 
         ConfigCatClient.closeAll()
     }
@@ -435,14 +436,16 @@ class ConfigV2EvaluationTest {
             }
         client.forceRefresh()
 
-        val value = client.getValue(key, "", null)
+        val details = client.getValueDetails(key, "", null)
         val errorLogs = mutableListOf<LogEvent>()
         assertEquals(
             expectedValue,
-            value,
+            details.value,
             "Flag key: $key PrerequisiteFlagKey: $prerequisiteFlagKey PrerequisiteFlagValue: $prerequisiteFlagValue",
         )
         if (expectedValue.isNullOrEmpty()) {
+            assertEquals(EvaluationErrorCode.INVALID_CONFIG_MODEL, details.errorCode)
+
             val logsList = evaluationTestLogger.getLogList()
             for (i in logsList.indices) {
                 val log = logsList[i]
@@ -453,7 +456,6 @@ class ConfigV2EvaluationTest {
             assertEquals(1, errorLogs.size, "Error size not matching")
             val errorMessage: String = errorLogs[0].logMessage
             assertContains(errorMessage, "[1002]")
-
             assertContains(errorMessage, "Type mismatch between comparison value")
 
             evaluationTestLogger.resetLogList()

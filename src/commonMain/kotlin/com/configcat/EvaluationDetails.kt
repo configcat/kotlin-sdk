@@ -4,6 +4,38 @@ import com.configcat.model.PercentageOption
 import com.configcat.model.TargetingRule
 
 /**
+ * Specifies the possible evaluation error codes.
+ */
+public enum class EvaluationErrorCode(public val code: Int) {
+    /** An unexpected error occurred during the evaluation. */
+    UNEXPECTED_ERROR(-1),
+
+    /** No error occurred (the evaluation was successful). */
+    NONE(0),
+
+    /**
+     * The evaluation failed because of an error in the config model.
+     * (Most likely, invalid data was passed to the SDK via flag overrides.)
+     */
+    INVALID_CONFIG_MODEL(1),
+
+    /**
+     * The evaluation failed because of a type mismatch between the evaluated
+     * setting value and the specified default value.
+     */
+    SETTING_VALUE_TYPE_MISMATCH(2),
+
+    /** The evaluation failed because the config JSON was not available locally. */
+    CONFIG_JSON_NOT_AVAILABLE(1000),
+
+    /**
+     * The evaluation failed because the key of the evaluated setting was not found in
+     * the config JSON.
+     */
+    SETTING_KEY_MISSING(1001),
+}
+
+/**
  * Additional information about flag evaluation.
  */
 public open class EvaluationDetailsBase internal constructor(
@@ -12,6 +44,7 @@ public open class EvaluationDetailsBase internal constructor(
     public val user: ConfigCatUser?,
     public val isDefaultValue: Boolean,
     public val error: String?,
+    public val errorCode: EvaluationErrorCode,
     public val fetchTimeUnixMilliseconds: Long,
     public val matchedTargetingRule: TargetingRule?,
     public val matchedPercentageOption: PercentageOption?,
@@ -26,6 +59,7 @@ public class TypedEvaluationDetails<T> public constructor(
     user: ConfigCatUser?,
     isDefaultValue: Boolean,
     error: String?,
+    errorCode: EvaluationErrorCode,
     public val value: T,
     fetchTimeUnixMilliseconds: Long,
     matchedTargetingRule: TargetingRule?,
@@ -36,6 +70,7 @@ public class TypedEvaluationDetails<T> public constructor(
         user,
         isDefaultValue,
         error,
+        errorCode,
         fetchTimeUnixMilliseconds,
         matchedTargetingRule,
         matchedPercentageOption,
@@ -50,6 +85,7 @@ public class EvaluationDetails internal constructor(
     user: ConfigCatUser?,
     isDefaultValue: Boolean,
     error: String?,
+    errorCode: EvaluationErrorCode,
     public val value: Any?,
     fetchTimeUnixMilliseconds: Long,
     matchedTargetingRule: TargetingRule?,
@@ -60,6 +96,7 @@ public class EvaluationDetails internal constructor(
         user,
         isDefaultValue,
         error,
+        errorCode,
         fetchTimeUnixMilliseconds,
         matchedTargetingRule,
         matchedPercentageOption,
@@ -69,10 +106,11 @@ public class EvaluationDetails internal constructor(
             key: String,
             defaultValue: Any?,
             error: String,
+            errorCode: EvaluationErrorCode,
             user: ConfigCatUser?,
         ): EvaluationDetails =
             EvaluationDetails(
-                key, "", user, true, error,
+                key, "", user, true, error, errorCode,
                 defaultValue, Constants.distantPast.unixMillisLong, null, null,
             )
     }

@@ -3,25 +3,15 @@ package com.configcat.log
 import com.configcat.Hooks
 import korlibs.time.DateTime
 
-internal class InternalLogger(private val logger: Logger, private val level: LogLevel, private val hooks: Hooks) {
+internal class InternalLogger(private val logger: Logger, val level: LogLevel, private val hooks: Hooks) {
     fun error(
         eventId: Int,
         message: String,
+        throwable: Throwable? = null,
     ) {
         hooks.invokeOnError(message)
         if (shouldLog(LogLevel.ERROR)) {
-            logger.error("[$eventId] $message")
-        }
-    }
-
-    fun error(
-        eventId: Int,
-        message: String,
-        throwable: Throwable,
-    ) {
-        hooks.invokeOnError(message)
-        if (shouldLog(LogLevel.ERROR)) {
-            logger.error("[$eventId] $message ${throwable.message}")
+            logger.error("[$eventId] $message${throwable?.let { " ${it.message}" } ?: ""}")
         }
     }
 

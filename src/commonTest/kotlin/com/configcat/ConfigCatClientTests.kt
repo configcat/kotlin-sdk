@@ -2,6 +2,7 @@ package com.configcat
 
 import com.configcat.evaluation.EvaluationTestLogger
 import com.configcat.evaluation.LogEvent
+import com.configcat.fetch.RefreshErrorCode
 import com.configcat.log.LogLevel
 import com.configcat.override.OverrideBehavior
 import io.ktor.client.engine.mock.MockEngine
@@ -70,6 +71,27 @@ class ConfigCatClientTests {
         }
 
     @Test
+    fun testGetValueMissing() =
+        runTest {
+            val mockEngine =
+                MockEngine {
+                    respond(
+                        content = Data.formatJsonBodyWithBoolean(true),
+                        status = HttpStatusCode.OK,
+                    )
+                }
+            val client =
+                ConfigCatClient(TestUtils.randomSdkKey()) {
+                    httpEngine = mockEngine
+                }
+
+            val details = client.getValueDetails("non-existing", 0)
+            assertEquals(0, details.value)
+            assertEquals(EvaluationErrorCode.SETTING_KEY_MISSING, details.errorCode)
+            assertTrue(details.isDefaultValue)
+        }
+
+    @Test
     fun testGetIntValue() =
         runTest {
             val mockEngine =
@@ -128,8 +150,8 @@ class ConfigCatClientTests {
                     configCache = SingleValueCache("")
                 }
 
-            val result = client.getValue("fakeKey", 0)
-            assertEquals(0, result)
+            val result = client.getValueDetails("fakeKey", 0)
+            assertEquals(0, result.value)
 
             val errorLogs = mutableListOf<LogEvent>()
 
@@ -145,7 +167,7 @@ class ConfigCatClientTests {
             assertContains(errorMessage, "[1002]")
             assertContains(
                 errorMessage,
-                "Error occurred in the `getAnyValue` method while evaluating setting 'fakeKey'. " +
+                "Error occurred in the `getAnyValueDetails` method while evaluating setting 'fakeKey'. " +
                     "Returning the `defaultValue` parameter that you specified in your application: '0'.",
             )
             // we don't check the full exception message because the Integer class can be different in other platforms. We only check the first part of the message
@@ -154,6 +176,7 @@ class ConfigCatClientTests {
                 "The type of a setting must match the type of the specified default value. Setting's " +
                     "type was {STRING} but the default value's type was ",
             )
+            assertEquals(EvaluationErrorCode.SETTING_VALUE_TYPE_MISMATCH, result.errorCode)
             evaluationTestLogger.resetLogList()
         }
 
@@ -172,7 +195,9 @@ class ConfigCatClientTests {
                     httpEngine = mockEngine
                 }
 
-            assertEquals(0, client.getValue("fakeKey", 0))
+            val details = client.getValueDetails("fakeKey", 0)
+            assertEquals(0, details.value)
+            assertEquals(EvaluationErrorCode.CONFIG_JSON_NOT_AVAILABLE, details.errorCode)
             assertTrue(mockEngine.requestHistory.size in 1..2)
         }
 
@@ -191,7 +216,9 @@ class ConfigCatClientTests {
                     httpEngine = mockEngine
                 }
 
-            assertEquals(0, client.getValue("fakeKey", 0))
+            val details = client.getValueDetails("fakeKey", 0)
+            assertEquals(0, details.value)
+            assertEquals(EvaluationErrorCode.CONFIG_JSON_NOT_AVAILABLE, details.errorCode)
             assertTrue(mockEngine.requestHistory.size in 1..2)
         }
 
@@ -745,6 +772,7 @@ class ConfigCatClientTests {
                     "Returning the `defaultValue` parameter that you specified in your application: ''.",
                 details.error,
             )
+            assertEquals(EvaluationErrorCode.CONFIG_JSON_NOT_AVAILABLE, details.errorCode)
         }
 
     @Test
@@ -760,6 +788,7 @@ class ConfigCatClientTests {
             val client =
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
+                    configCache = null
                     pollingMode = autoPoll { pollingInterval = 2.seconds }
                 }
 
@@ -774,6 +803,43 @@ class ConfigCatClientTests {
 
             assertFalse(result.isSuccess)
             assertEquals("Client is in offline mode, it cannot initiate HTTP calls.", result.error)
+            assertEquals(1, mockEngine.requestHistory.size)
+
+            client.setOnline()
+            assertFalse(client.isOffline)
+
+            TestUtils.awaitUntil {
+                mockEngine.requestHistory.size > 1
+            }
+        }
+
+    @Test
+    fun testOnlineOfflineWithCache() =
+        runTest {
+            val mockEngine =
+                MockEngine {
+                    respond(
+                        content = Data.formatJsonBodyWithBoolean(true),
+                        status = HttpStatusCode.OK,
+                    )
+                }
+            val client =
+                ConfigCatClient(TestUtils.randomSdkKey()) {
+                    httpEngine = mockEngine
+                    configCache = InMemoryCache()
+                    pollingMode = autoPoll { pollingInterval = 2.seconds }
+                }
+
+            TestUtils.awaitUntil {
+                mockEngine.requestHistory.size == 1
+            }
+
+            client.setOffline()
+            assertTrue(client.isOffline)
+
+            val result = client.forceRefresh()
+
+            assertTrue(result.isSuccess)
             assertEquals(1, mockEngine.requestHistory.size)
 
             client.setOnline()
@@ -837,6 +903,91 @@ class ConfigCatClientTests {
             TestUtils.awaitUntil {
                 ready != null
             }
+        }
+
+    @Test
+    fun testOfflineRefreshFromCache() =
+        runTest {
+            val mockEngine =
+                MockEngine {
+                    respond(
+                        content = "",
+                        status = HttpStatusCode.NotModified,
+                    )
+                }
+            val cache = SingleValueCache(Data.formatCacheEntry("test1"))
+            val client =
+                ConfigCatClient(TestUtils.randomSdkKey()) {
+                    httpEngine = mockEngine
+                    configCache = cache
+                    pollingMode = autoPoll { pollingInterval = 2.seconds }
+                }
+
+            TestUtils.awaitUntil {
+                mockEngine.requestHistory.size == 1
+            }
+
+            client.setOffline()
+            assertTrue(client.isOffline)
+
+            val value = client.getValue("fakeKey", "")
+            assertEquals("test1", value)
+
+            cache.write("", Data.formatCacheEntry("test2"))
+
+            val result = client.forceRefresh()
+
+            assertTrue(result.isSuccess)
+            assertEquals(RefreshErrorCode.NONE, result.errorCode)
+            assertEquals(1, mockEngine.requestHistory.size)
+
+            val value2 = client.getValue("fakeKey", "")
+            assertEquals("test2", value2)
+
+            client.setOnline()
+            assertFalse(client.isOffline)
+
+            TestUtils.awaitUntil {
+                mockEngine.requestHistory.size > 1
+            }
+        }
+
+    @Test
+    fun testOfflinePollRefreshesFromCache() =
+        runTest {
+            val mockEngine =
+                MockEngine {
+                    respond(
+                        content = "",
+                        status = HttpStatusCode.NotModified,
+                    )
+                }
+            val cache = SingleValueCache(Data.formatCacheEntry("test1"))
+            val client =
+                ConfigCatClient(TestUtils.randomSdkKey()) {
+                    httpEngine = mockEngine
+                    configCache = cache
+                    pollingMode = autoPoll { pollingInterval = 1.seconds }
+                    offline = true
+                }
+
+            client.waitForReady()
+
+            TestUtils.awaitUntil {
+                val snapshot = client.snapshot()
+                val value = snapshot.getValue("fakeKey", "")
+                value == "test1"
+            }
+
+            cache.write("", Data.formatCacheEntry("test2"))
+
+            TestUtils.awaitUntil {
+                val snapshot = client.snapshot()
+                val value = snapshot.getValue("fakeKey", "")
+                value == "test2"
+            }
+
+            assertEquals(0, mockEngine.requestHistory.size)
         }
 
     @Test
@@ -930,9 +1081,7 @@ class ConfigCatClientTests {
                     hooks.addOnError { err -> error = err }
                 }
 
-            val waitForReadyAsync = client.waitForReady()
-
-            waitForReadyAsync.await()
+            client.waitForReady()
 
             client.forceRefresh()
             client.forceRefresh()
@@ -1079,6 +1228,7 @@ class ConfigCatClientTests {
             val error = client.forceRefresh()
 
             assertEquals("Unexpected HTTP response was received while trying to fetch config JSON: 400 ", error.error)
+            assertEquals(RefreshErrorCode.UNEXPECTED_HTTP_RESPONSE, error.errorCode)
         }
 
     @Test
@@ -1104,6 +1254,7 @@ class ConfigCatClientTests {
                                 "`defaultValue` parameter that you specified in your application: ''.",
                             details.error,
                         )
+                        assertEquals(EvaluationErrorCode.CONFIG_JSON_NOT_AVAILABLE, details.errorCode)
                     }
                 }
 
@@ -1141,6 +1292,7 @@ class ConfigCatClientTests {
             assertEquals("Identifier", condition?.userCondition?.comparisonAttribute)
             assertEquals(2, condition?.userCondition?.comparator)
             assertEquals("@test1.com", condition?.userCondition?.stringArrayValue?.get(0))
+            assertEquals(EvaluationErrorCode.NONE, details.errorCode)
             assertNull(details.matchedPercentageOption)
         }
 
@@ -1169,6 +1321,7 @@ class ConfigCatClientTests {
                         assertEquals("Identifier", condition?.userCondition?.comparisonAttribute)
                         assertEquals(2, condition?.userCondition?.comparator)
                         assertEquals("@test1.com", condition?.userCondition?.stringArrayValue?.get(0))
+                        assertEquals(EvaluationErrorCode.NONE, details.errorCode)
                         assertNull(details.matchedPercentageOption)
 
                         called = true
@@ -1541,7 +1694,7 @@ class ConfigCatClientTests {
                     pollingMode = autoPoll()
                 }
 
-            val clientCacheState = client.waitForReady().await()
+            val clientCacheState = client.waitForReady()
 
             assertEquals(ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA, clientCacheState)
         }
