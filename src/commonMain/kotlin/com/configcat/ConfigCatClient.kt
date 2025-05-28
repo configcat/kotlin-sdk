@@ -3,11 +3,11 @@ package com.configcat
 import com.configcat.fetch.ConfigFetcher
 import com.configcat.fetch.RefreshErrorCode
 import com.configcat.fetch.RefreshResult
-import com.configcat.log.Logger
+import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.DefaultLogger
 import com.configcat.log.InternalLogger
 import com.configcat.log.LogLevel
-import com.configcat.log.ConfigCatLogMessages
+import com.configcat.log.Logger
 import com.configcat.model.SettingType
 import com.configcat.override.FlagOverrides
 import com.configcat.override.OverrideBehavior
