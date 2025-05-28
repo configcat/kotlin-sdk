@@ -151,7 +151,7 @@ internal class Snapshot(
         user: ConfigCatUser?,
     ): Any? = eval(key, defaultValue, user, allowAnyReturnType = true)
 
-    internal fun evalDetails(
+    fun evalDetails(
         key: String,
         defaultValue: Any?,
         user: ConfigCatUser?,

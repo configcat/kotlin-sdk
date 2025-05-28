@@ -351,7 +351,7 @@ internal class Client private constructor(
     private val service: ConfigService?
     private val flagOverrides: FlagOverrides?
     private val evaluator: Evaluator
-    internal val flagEvaluator: FlagEvaluator
+    private val flagEvaluator: FlagEvaluator
     private val logger: InternalLogger
     private val defaultUser: AtomicRef<ConfigCatUser?> = atomic(null)
     private val isClosed = atomic(false)
