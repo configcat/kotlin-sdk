@@ -70,6 +70,38 @@ class ConfigFetcherTests {
         }
 
     @Test
+    fun testFetchBadJson() =
+        runTest {
+            val mockEngine =
+                MockEngine {
+                    respond(content = "{", status = HttpStatusCode.OK)
+                }
+            val fetcher = Services.createFetcher(mockEngine)
+            val result = fetcher.fetch("")
+
+            assertTrue(result.isFailed)
+            assertTrue(result.entry.isEmpty())
+            assertEquals(RefreshErrorCode.INVALID_HTTP_RESPONSE_CONTENT, result.errorCode)
+            assertEquals(1, mockEngine.requestHistory.size)
+        }
+
+    @Test
+    fun testFetchNotFound() =
+        runTest {
+            val mockEngine =
+                MockEngine {
+                    respond(content = "", status = HttpStatusCode.NotFound)
+                }
+            val fetcher = Services.createFetcher(mockEngine)
+            val result = fetcher.fetch("")
+
+            assertTrue(result.isFailed)
+            assertTrue(result.entry.isEmpty())
+            assertEquals(RefreshErrorCode.INVALID_SDK_KEY, result.errorCode)
+            assertEquals(1, mockEngine.requestHistory.size)
+        }
+
+    @Test
     fun testFetchTimeout() =
         runTest {
             val mockEngine =
