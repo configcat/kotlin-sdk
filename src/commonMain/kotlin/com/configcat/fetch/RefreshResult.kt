@@ -48,5 +48,6 @@ public data class RefreshResult(
     public val isSuccess: Boolean,
     public val error: String?,
     public val errorCode: RefreshErrorCode,
-    public val exception: Exception?,
+    public val errorException: Exception?,
+
 )

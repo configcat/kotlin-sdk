@@ -74,13 +74,13 @@ internal object Helpers {
                 }
 
                 else -> {
-                    throw IllegalArgumentException(
+                    throw InvalidConfigModelException(
                         "Setting is of an unsupported type ($settingTypeEnum).",
                     )
                 }
             }
-        require(result != null) {
-            "Setting value is not of the expected type ${settingTypeEnum.value}."
+        if (result == null) {
+            throw InvalidConfigModelException("Setting value is not of the expected type ${settingTypeEnum.value}.")
         }
         return result
     }

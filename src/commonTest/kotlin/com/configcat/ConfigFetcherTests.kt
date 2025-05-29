@@ -37,7 +37,7 @@ class ConfigFetcherTests {
             assertEquals("fakeValue", result.entry.config.settings?.get("fakeKey")?.settingValue?.stringValue)
             assertEquals(1, mockEngine.requestHistory.size)
             assertEquals(RefreshErrorCode.NONE, result.errorCode)
-            assertNull(result.exception)
+            assertNull(result.errorException)
         }
 
     @Test
@@ -53,7 +53,7 @@ class ConfigFetcherTests {
             assertTrue(result.isNotModified)
             assertTrue(result.entry.isEmpty())
             assertEquals(RefreshErrorCode.NONE, result.errorCode)
-            assertNull(result.exception)
+            assertNull(result.errorException)
             assertEquals(1, mockEngine.requestHistory.size)
         }
 
@@ -70,7 +70,7 @@ class ConfigFetcherTests {
             assertTrue(result.isFailed)
             assertTrue(result.entry.isEmpty())
             assertEquals(RefreshErrorCode.UNEXPECTED_HTTP_RESPONSE, result.errorCode)
-            assertNull(result.exception)
+            assertNull(result.errorException)
             assertEquals(1, mockEngine.requestHistory.size)
         }
 
@@ -87,7 +87,7 @@ class ConfigFetcherTests {
             assertTrue(result.isFailed)
             assertTrue(result.entry.isEmpty())
             assertEquals(RefreshErrorCode.INVALID_HTTP_RESPONSE_CONTENT, result.errorCode)
-            assertNotNull(result.exception)
+            assertNotNull(result.errorException)
             assertEquals(1, mockEngine.requestHistory.size)
         }
 
@@ -104,7 +104,7 @@ class ConfigFetcherTests {
             assertTrue(result.isFailed)
             assertTrue(result.entry.isEmpty())
             assertEquals(RefreshErrorCode.INVALID_SDK_KEY, result.errorCode)
-            assertNull(result.exception)
+            assertNull(result.errorException)
             assertEquals(1, mockEngine.requestHistory.size)
         }
 
@@ -124,7 +124,7 @@ class ConfigFetcherTests {
             assertTrue(result.isFailed)
             assertTrue(result.entry.isEmpty())
             assertEquals(RefreshErrorCode.HTTP_REQUEST_TIMEOUT, result.errorCode)
-            assertNotNull(result.exception)
+            assertNotNull(result.errorException)
         }
 
     @Test

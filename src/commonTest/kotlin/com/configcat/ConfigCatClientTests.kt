@@ -939,7 +939,7 @@ class ConfigCatClientTests {
 
             assertTrue(result.isSuccess)
             assertEquals(RefreshErrorCode.NONE, result.errorCode)
-            assertNull(result.exception)
+            assertNull(result.errorException)
             assertEquals(1, mockEngine.requestHistory.size)
 
             val value2 = client.getValue("fakeKey", "")
@@ -1230,7 +1230,7 @@ class ConfigCatClientTests {
 
             assertEquals("Unexpected HTTP response was received while trying to fetch config JSON: 400 ", error.error)
             assertEquals(RefreshErrorCode.UNEXPECTED_HTTP_RESPONSE, error.errorCode)
-            assertNull(error.exception)
+            assertNull(error.errorException)
         }
 
     @Test

@@ -45,7 +45,7 @@ public open class EvaluationDetailsBase internal constructor(
     public val isDefaultValue: Boolean,
     public val error: String?,
     public val errorCode: EvaluationErrorCode,
-    public val exception: Exception?,
+    public val errorException: Exception?,
     public val fetchTimeUnixMilliseconds: Long,
     public val matchedTargetingRule: TargetingRule?,
     public val matchedPercentageOption: PercentageOption?,

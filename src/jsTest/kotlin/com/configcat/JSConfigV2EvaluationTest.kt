@@ -12,6 +12,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 class JSConfigV2EvaluationTest {
     // This is the same test cases as the ConfigV2EvaluationTest with different expected results.

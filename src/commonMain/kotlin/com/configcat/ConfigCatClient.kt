@@ -325,7 +325,7 @@ public suspend inline fun <reified T> ConfigCatClient.getValueDetails(
         details.isDefaultValue,
         details.error,
         details.errorCode,
-        details.exception,
+        details.errorException,
         details.value as T,
         details.fetchTimeUnixMilliseconds,
         details.matchedTargetingRule,
@@ -542,7 +542,8 @@ internal class Client private constructor(
     override suspend fun forceRefresh(): RefreshResult =
         service?.refresh() ?: RefreshResult(
             false,
-            "The ConfigCat SDK is in local-only mode. Calling .forceRefresh() has no effect.",
+            "Client is configured to use the LOCAL_ONLY override behavior, which prevents " +
+                "synchronization with external cache and making HTTP requests.",
             RefreshErrorCode.LOCAL_ONLY_CLIENT,
             null,
         )

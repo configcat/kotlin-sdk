@@ -108,7 +108,7 @@ public inline fun <reified T> ConfigCatClientSnapshot.getValueDetails(
         details.isDefaultValue,
         details.error,
         details.errorCode,
-        details.exception,
+        details.errorException,
         details.value as T,
         details.fetchTimeUnixMilliseconds,
         details.matchedTargetingRule,

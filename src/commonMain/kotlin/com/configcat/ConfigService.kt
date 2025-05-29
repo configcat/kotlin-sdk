@@ -237,7 +237,7 @@ internal class ConfigService(
                 writeCache(cachedEntry.value)
             }
             initializeAndReportCacheState(cachedEntry.value)
-            return EntryResult(cachedEntry.value, response.error, response.errorCode, response.exception)
+            return EntryResult(cachedEntry.value, response.error, response.errorCode, response.errorException)
         }
     }
 

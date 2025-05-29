@@ -1,6 +1,7 @@
 package com.configcat.model
 
 import com.configcat.Client.SettingTypeHelper.toSettingTypeOrNull
+import com.configcat.InvalidConfigModelException
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -49,7 +50,7 @@ public data class SettingValue(
             }
 
             else -> {
-                throw IllegalArgumentException(
+                throw InvalidConfigModelException(
                     "Setting is of an unsupported type ($settingTypeEnum).",
                 )
             }
