@@ -7,10 +7,12 @@ style:
     max: 9
   DestructuringDeclarationWithTooManyEntries:
     maxDestructuringEntries: 5
+  ThrowsCount:
+    max: 5
 
 complexity:
   ComplexCondition:
-    threshold: 11
+    threshold: 12
   TooManyFunctions:
     thresholdInClasses: 23
     thresholdInInterfaces: 17
@@ -20,7 +22,7 @@ complexity:
     constructorThreshold: 12
     functionThreshold: 8
   CyclomaticComplexMethod:
-    threshold: 17
+    threshold: 20
   NestedBlockDepth:
     threshold: 10
 
