@@ -49,9 +49,10 @@ internal object Helpers {
         settingType: Int,
     ): Any {
         val settingTypeEnum = settingType.toSettingTypeOrNull()
-        require(settingValue != null) { "Setting value is missing or invalid." }
-        val result: Any?
-        result =
+        if (settingValue == null) {
+            throw InvalidConfigModelException("Setting value is missing or invalid.")
+        }
+        val result =
             when (settingTypeEnum) {
                 SettingType.BOOLEAN -> {
                     settingValue.booleanValue
