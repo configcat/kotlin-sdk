@@ -4,9 +4,9 @@ import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 
 /**
- * Snapshot produced by the ConfigCat SDK.
+ * Represents the state of `ConfigCatClient` captured at a specific point in time.
  */
-public interface ConfigCatSnapshot {
+public interface ConfigCatClientSnapshot {
     /**
      * Gets the value of a feature flag or setting as [Any] identified by the given [key].
      *
