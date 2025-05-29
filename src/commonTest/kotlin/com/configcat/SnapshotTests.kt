@@ -8,9 +8,27 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class SnapshotTests {
+    @Test
+    fun testWaitForReadyMultiple() =
+        runTest {
+            val mockEngine =
+                MockEngine {
+                    respond(content = Data.MULTIPLE_BODY, status = HttpStatusCode.OK)
+                }
+            val client =
+                ConfigCatClient(TestUtils.randomSdkKey()) {
+                    httpEngine = mockEngine
+                }
+
+            client.waitForReady()
+            client.waitForReady()
+            assertNotNull(client.snapshot())
+        }
+
     @Test
     fun testGetValue() =
         runTest {
