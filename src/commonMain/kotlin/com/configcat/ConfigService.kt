@@ -84,8 +84,8 @@ internal class ConfigService(
             mutex.withLock {
                 val fromCache = readCache()
                 if (!fromCache.isEmpty() && fromCache.eTag != cachedEntry.value.eTag) {
-                    hooks.invokeOnConfigChanged(fromCache.config.settings)
                     cachedEntry.value = fromCache
+                    hooks.invokeOnConfigChanged(fromCache.config.settings)
                 }
                 initializeAndReportCacheState(cachedEntry.value)
             }
@@ -162,8 +162,8 @@ internal class ConfigService(
             // Sync up with the cache and use it when it's not expired.
             val fromCache = readCache()
             if (!fromCache.isEmpty() && fromCache.eTag != cachedEntry.value.eTag) {
-                hooks.invokeOnConfigChanged(fromCache.config.settings)
                 cachedEntry.value = fromCache
+                hooks.invokeOnConfigChanged(fromCache.config.settings)
             }
             // Cache isn't expired
             if (!cachedEntry.value.isExpired(threshold)) {
