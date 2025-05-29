@@ -49,5 +49,4 @@ public data class RefreshResult(
     public val error: String?,
     public val errorCode: RefreshErrorCode,
     public val errorException: Exception?,
-
 )
