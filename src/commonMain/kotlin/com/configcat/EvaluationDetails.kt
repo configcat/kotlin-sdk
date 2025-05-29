@@ -45,6 +45,7 @@ public open class EvaluationDetailsBase internal constructor(
     public val isDefaultValue: Boolean,
     public val error: String?,
     public val errorCode: EvaluationErrorCode,
+    public val exception: Exception?,
     public val fetchTimeUnixMilliseconds: Long,
     public val matchedTargetingRule: TargetingRule?,
     public val matchedPercentageOption: PercentageOption?,
@@ -60,6 +61,7 @@ public class TypedEvaluationDetails<T> public constructor(
     isDefaultValue: Boolean,
     error: String?,
     errorCode: EvaluationErrorCode,
+    exception: Exception?,
     public val value: T,
     fetchTimeUnixMilliseconds: Long,
     matchedTargetingRule: TargetingRule?,
@@ -71,6 +73,7 @@ public class TypedEvaluationDetails<T> public constructor(
         isDefaultValue,
         error,
         errorCode,
+        exception,
         fetchTimeUnixMilliseconds,
         matchedTargetingRule,
         matchedPercentageOption,
@@ -86,6 +89,7 @@ public class EvaluationDetails internal constructor(
     isDefaultValue: Boolean,
     error: String?,
     errorCode: EvaluationErrorCode,
+    exception: Exception?,
     public val value: Any?,
     fetchTimeUnixMilliseconds: Long,
     matchedTargetingRule: TargetingRule?,
@@ -97,6 +101,7 @@ public class EvaluationDetails internal constructor(
         isDefaultValue,
         error,
         errorCode,
+        exception,
         fetchTimeUnixMilliseconds,
         matchedTargetingRule,
         matchedPercentageOption,
@@ -107,10 +112,11 @@ public class EvaluationDetails internal constructor(
             defaultValue: Any?,
             error: String,
             errorCode: EvaluationErrorCode,
+            exception: Exception?,
             user: ConfigCatUser?,
         ): EvaluationDetails =
             EvaluationDetails(
-                key, "", user, true, error, errorCode,
+                key, "", user, true, error, errorCode, exception,
                 defaultValue, Constants.distantPast.unixMillisLong, null, null,
             )
     }

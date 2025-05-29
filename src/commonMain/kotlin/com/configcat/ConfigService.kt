@@ -35,6 +35,19 @@ internal data class SettingResult(val settings: Map<String, Setting>, val fetchT
     }
 }
 
+internal data class EntryResult(
+    val entry: Entry,
+    val errorMessage: String?,
+    val errorCode: RefreshErrorCode,
+    val exception: Exception?,
+) {
+    fun withEntry(entry: Entry) = EntryResult(entry, this.errorMessage, this.errorCode, this.exception)
+
+    companion object {
+        fun success(entry: Entry) = EntryResult(entry, null, RefreshErrorCode.NONE, null)
+    }
+}
+
 internal class ConfigService(
     private val options: ConfigCatOptions,
     private val configFetcher: ConfigFetcher,
@@ -50,7 +63,7 @@ internal class ConfigService(
     private val cacheStateReported = atomic(false)
     private val offline = atomic(options.offline)
     private val mode = options.pollingMode
-    private val fetchJob: AtomicRef<Deferred<Triple<Entry, String?, RefreshErrorCode>>?> = atomic(null)
+    private val fetchJob: AtomicRef<Deferred<EntryResult>?> = atomic(null)
     private val cachedEntry: AtomicRef<Entry> = atomic(Entry.empty)
     private var pollingJob: Job? = null
     private var fetching = false
@@ -105,10 +118,10 @@ internal class ConfigService(
                     fetchIfOlder(threshold, preferCached = initialized.value)
                 }
             }
-        return if (result.first.isEmpty()) {
+        return if (result.entry.isEmpty()) {
             SettingResult.empty
         } else {
-            SettingResult(result.first.config.settings ?: emptyMap(), result.first.fetchTime)
+            SettingResult(result.entry.config.settings ?: emptyMap(), result.entry.fetchTime)
         }
     }
 
@@ -134,17 +147,17 @@ internal class ConfigService(
         if (offline.value && (options.configCache == null || options.configCache is EmptyConfigCache)) {
             val offlineMessage = ConfigCatLogMessages.CONFIG_SERVICE_CANNOT_INITIATE_HTTP_CALLS_WARN
             logger.warning(3200, offlineMessage)
-            return RefreshResult(false, offlineMessage, RefreshErrorCode.OFFLINE_CLIENT)
+            return RefreshResult(false, offlineMessage, RefreshErrorCode.OFFLINE_CLIENT, null)
         }
         val result = fetchIfOlder(Constants.distantFuture)
-        return RefreshResult(result.second == null, result.second, result.third)
+        return RefreshResult(result.errorMessage == null, result.errorMessage, result.errorCode, result.exception)
     }
 
     @Suppress("ComplexMethod")
     private suspend fun fetchIfOlder(
         threshold: DateTime,
         preferCached: Boolean = false,
-    ): Triple<Entry, String?, RefreshErrorCode> {
+    ): EntryResult {
         mutex.withLock {
             // Sync up with the cache and use it when it's not expired.
             val fromCache = readCache()
@@ -155,12 +168,12 @@ internal class ConfigService(
             // Cache isn't expired
             if (!cachedEntry.value.isExpired(threshold)) {
                 initializeAndReportCacheState(cachedEntry.value)
-                return Triple(cachedEntry.value, null, RefreshErrorCode.NONE)
+                return EntryResult(cachedEntry.value, null, RefreshErrorCode.NONE, null)
             }
             // If we are in offline mode or the caller prefers cached values, do not initiate fetch.
             if (offline.value || preferCached) {
                 initializeAndReportCacheState(cachedEntry.value)
-                return Triple(cachedEntry.value, null, RefreshErrorCode.NONE)
+                return EntryResult(cachedEntry.value, null, RefreshErrorCode.NONE, null)
             }
 
             if (fetchJob.value == null || !fetching) {
@@ -188,7 +201,7 @@ internal class ConfigService(
                             logger.warning(4200, message)
                             initializeAndReportCacheState(cachedEntry.value)
 
-                            return@async Triple(Entry.empty, message, RefreshErrorCode.CLIENT_INIT_TIMED_OUT)
+                            return@async EntryResult(Entry.empty, message, RefreshErrorCode.CLIENT_INIT_TIMED_OUT, null)
                         } else {
                             // The service is initialized, start fetch without timeout.
                             return@async fetchConfig(eTag)
@@ -202,14 +215,14 @@ internal class ConfigService(
         mutex.withLock {
             return result?.let { value ->
                 when {
-                    value.first.isEmpty() -> Triple(cachedEntry.value, value.second, value.third)
+                    value.entry.isEmpty() -> value.withEntry(cachedEntry.value)
                     else -> value
                 }
-            } ?: Triple(cachedEntry.value, null, RefreshErrorCode.NONE)
+            } ?: EntryResult.success(cachedEntry.value)
         }
     }
 
-    private suspend fun fetchConfig(eTag: String): Triple<Entry, String?, RefreshErrorCode> {
+    private suspend fun fetchConfig(eTag: String): EntryResult {
         val response = configFetcher.fetch(eTag)
         mutex.withLock {
             fetching = false
@@ -218,13 +231,13 @@ internal class ConfigService(
                 writeCache(response.entry)
                 hooks.invokeOnConfigChanged(response.entry.config.settings)
                 initializeAndReportCacheState(response.entry)
-                return Triple(response.entry, null, RefreshErrorCode.NONE)
+                return EntryResult.success(response.entry)
             } else if ((response.isNotModified || !response.isTransientError) && !cachedEntry.value.isEmpty()) {
                 cachedEntry.value = cachedEntry.value.copy(fetchTime = DateTime.now())
                 writeCache(cachedEntry.value)
             }
             initializeAndReportCacheState(cachedEntry.value)
-            return Triple(cachedEntry.value, response.error, response.errorCode)
+            return EntryResult(cachedEntry.value, response.error, response.errorCode, response.exception)
         }
     }
 

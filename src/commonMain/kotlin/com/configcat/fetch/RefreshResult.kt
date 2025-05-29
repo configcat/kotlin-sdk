@@ -37,12 +37,6 @@ public enum class RefreshErrorCode(public val code: Int) {
     /** The refresh operation failed because an invalid HTTP response was received (200 OK with an invalid content). */
     INVALID_HTTP_RESPONSE_CONTENT(1105),
 
-    /**
-     * The refresh operation failed because an invalid HTTP response was
-     * received (304 Not Modified when no config JSON was cached locally).
-     */
-    INVALID_HTTP_RESPONSE_WHEN_LOCAL_CACHE_IS_EMPTY(1106),
-
     /** Initialization of the SDK timed out. **/
     CLIENT_INIT_TIMED_OUT(4200),
 }
@@ -54,4 +48,5 @@ public data class RefreshResult(
     public val isSuccess: Boolean,
     public val error: String?,
     public val errorCode: RefreshErrorCode,
+    public val exception: Exception?,
 )

@@ -167,7 +167,7 @@ class ConfigCatClientTests {
             assertContains(errorMessage, "[1002]")
             assertContains(
                 errorMessage,
-                "Error occurred in the `getAnyValueDetails` method while evaluating setting 'fakeKey'. " +
+                "Error occurred in the `getValueDetails` method while evaluating setting 'fakeKey'. " +
                     "Returning the `defaultValue` parameter that you specified in your application: '0'.",
             )
             // we don't check the full exception message because the Integer class can be different in other platforms. We only check the first part of the message
@@ -939,6 +939,7 @@ class ConfigCatClientTests {
 
             assertTrue(result.isSuccess)
             assertEquals(RefreshErrorCode.NONE, result.errorCode)
+            assertNull(result.exception)
             assertEquals(1, mockEngine.requestHistory.size)
 
             val value2 = client.getValue("fakeKey", "")
@@ -1229,6 +1230,7 @@ class ConfigCatClientTests {
 
             assertEquals("Unexpected HTTP response was received while trying to fetch config JSON: 400 ", error.error)
             assertEquals(RefreshErrorCode.UNEXPECTED_HTTP_RESPONSE, error.errorCode)
+            assertNull(error.exception)
         }
 
     @Test

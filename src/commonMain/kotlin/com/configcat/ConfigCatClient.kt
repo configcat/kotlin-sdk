@@ -235,7 +235,7 @@ public interface ConfigCatClient {
      *
      * @return the captured snapshot.
      */
-    public fun snapshot(): ConfigCatSnapshot
+    public fun snapshot(): ConfigCatClientSnapshot
 
     /**
      * Companion object of [ConfigCatClient].
@@ -325,6 +325,7 @@ public suspend inline fun <reified T> ConfigCatClient.getValueDetails(
         details.isDefaultValue,
         details.error,
         details.errorCode,
+        details.exception,
         details.value as T,
         details.fetchTimeUnixMilliseconds,
         details.matchedTargetingRule,
@@ -385,7 +386,14 @@ internal class Client private constructor(
 
         val settingResult = getSettings()
         val evalUser = user ?: defaultUser.value
-        return flagEvaluator.findAndEvalFlag(settingResult, key, defaultValue, evalUser, allowAnyReturnType)
+        return flagEvaluator.findAndEvalFlag(
+            settingResult,
+            key,
+            defaultValue,
+            evalUser,
+            "getValue",
+            allowAnyReturnType,
+        )
     }
 
     override suspend fun getAnyValue(
@@ -405,7 +413,14 @@ internal class Client private constructor(
         val settingResult = getSettings()
         val evalUser = user ?: defaultUser.value
 
-        return flagEvaluator.findAndEvalFlagDetails(settingResult, key, defaultValue, evalUser, allowAnyReturnType)
+        return flagEvaluator.findAndEvalFlagDetails(
+            settingResult,
+            key,
+            defaultValue,
+            evalUser,
+            "getValueDetails",
+            allowAnyReturnType,
+        )
     }
 
     override suspend fun getAnyValueDetails(
@@ -529,6 +544,7 @@ internal class Client private constructor(
             false,
             "The ConfigCat SDK is in local-only mode. Calling .forceRefresh() has no effect.",
             RefreshErrorCode.LOCAL_ONLY_CLIENT,
+            null,
         )
 
     override fun setOffline() {
@@ -596,7 +612,7 @@ internal class Client private constructor(
         return completableDeferred.await()
     }
 
-    override fun snapshot(): ConfigCatSnapshot =
+    override fun snapshot(): ConfigCatClientSnapshot =
         Snapshot(
             flagEvaluator,
             getInMemorySettings(),

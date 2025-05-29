@@ -18,6 +18,7 @@ internal class FlagEvaluator(
         key: String,
         defaultValue: Any?,
         user: ConfigCatUser?,
+        methodName: String,
         allowAnyReturnType: Boolean,
     ): Any? {
         require(key.isNotEmpty()) { "'key' cannot be empty." }
@@ -31,6 +32,7 @@ internal class FlagEvaluator(
                     defaultValue,
                     checkSettingAvailable.first,
                     checkSettingAvailable.second,
+                    null,
                     user,
                 )
             hooks.invokeOnFlagEvaluated(details)
@@ -42,32 +44,35 @@ internal class FlagEvaluator(
                 return handleEvaluationError(
                     key,
                     defaultValue,
-                    "getAnyValue",
+                    methodName,
                     EvaluationErrorCode.SETTING_VALUE_TYPE_MISMATCH,
                     user,
                     validationResult,
+                    null,
                 ).value
             }
         }
         return try {
             evalFlag(setting, key, user, result.fetchTime, result.settings).value
-        } catch (exception: IllegalArgumentException) {
+        } catch (exception: InvalidConfigModelException) {
             return handleEvaluationError(
                 key,
                 defaultValue,
-                "getAnyValueDetails",
+                methodName,
                 EvaluationErrorCode.INVALID_CONFIG_MODEL,
                 user,
                 exception.message,
+                null,
             ).value
         } catch (exception: Exception) {
             return handleEvaluationError(
                 key,
                 defaultValue,
-                "getAnyValue",
+                methodName,
                 EvaluationErrorCode.UNEXPECTED_ERROR,
                 user,
                 exception.message,
+                exception,
             ).value
         }
     }
@@ -77,6 +82,7 @@ internal class FlagEvaluator(
         key: String,
         defaultValue: Any?,
         user: ConfigCatUser?,
+        methodName: String,
         allowAnyReturnType: Boolean,
     ): EvaluationDetails {
         require(key.isNotEmpty()) { "'key' cannot be empty." }
@@ -90,6 +96,7 @@ internal class FlagEvaluator(
                     defaultValue,
                     checkSettingAvailable.first,
                     checkSettingAvailable.second,
+                    null,
                     user,
                 )
             hooks.invokeOnFlagEvaluated(details)
@@ -101,32 +108,35 @@ internal class FlagEvaluator(
                 return handleEvaluationError(
                     key,
                     defaultValue,
-                    "getAnyValueDetails",
+                    methodName,
                     EvaluationErrorCode.SETTING_VALUE_TYPE_MISMATCH,
                     user,
                     validationResult,
+                    null,
                 )
             }
         }
         return try {
             evalFlag(setting, key, user, result.fetchTime, result.settings)
-        } catch (exception: IllegalArgumentException) {
+        } catch (exception: InvalidConfigModelException) {
             return handleEvaluationError(
                 key,
                 defaultValue,
-                "getAnyValueDetails",
+                methodName,
                 EvaluationErrorCode.INVALID_CONFIG_MODEL,
                 user,
                 exception.message,
+                null,
             )
         } catch (exception: Exception) {
             return handleEvaluationError(
                 key,
                 defaultValue,
-                "getAnyValueDetails",
+                methodName,
                 EvaluationErrorCode.UNEXPECTED_ERROR,
                 user,
                 exception.message,
+                exception,
             )
         }
     }
@@ -152,7 +162,7 @@ internal class FlagEvaluator(
             )
         val details =
             EvaluationDetails(
-                key, variationId, user, false, null, EvaluationErrorCode.NONE,
+                key, variationId, user, false, null, EvaluationErrorCode.NONE, null,
                 Helpers.validateSettingValueType(value, setting.type),
                 fetchTime.unixMillisLong, targetingRule, percentageRule,
             )
@@ -220,6 +230,7 @@ internal class FlagEvaluator(
         errorCode: EvaluationErrorCode,
         user: ConfigCatUser?,
         error: String?,
+        exception: Exception?,
     ): EvaluationDetails {
         val errorMessage =
             "${
@@ -237,6 +248,7 @@ internal class FlagEvaluator(
                 defaultValue,
                 errorMessage,
                 errorCode,
+                exception,
                 user,
             )
         hooks.invokeOnFlagEvaluated(errorDetails)

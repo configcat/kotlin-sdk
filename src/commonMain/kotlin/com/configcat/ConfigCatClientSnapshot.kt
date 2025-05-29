@@ -48,7 +48,7 @@ public interface ConfigCatClientSnapshot {
  * @param T            the type of the desired feature flag or setting. Only the following types are allowed: [String],
  * [Boolean], [Int] and [Double] (both nullable and non-nullable).
  */
-public inline fun <reified T> ConfigCatSnapshot.getValue(
+public inline fun <reified T> ConfigCatClientSnapshot.getValue(
     key: String,
     defaultValue: T,
     user: ConfigCatUser? = null,
@@ -67,7 +67,7 @@ public inline fun <reified T> ConfigCatSnapshot.getValue(
 
 @PublishedApi
 internal fun getValueFromSnapshotInternal(
-    snapshot: ConfigCatSnapshot,
+    snapshot: ConfigCatClientSnapshot,
     key: String,
     defaultValue: Any?,
     user: ConfigCatUser?,
@@ -86,7 +86,7 @@ internal fun getValueFromSnapshotInternal(
  * @param T            the type of the desired feature flag or setting. Only the following types are allowed: [String],
  * [Boolean], [Int] and [Double] (both nullable and non-nullable).
  */
-public inline fun <reified T> ConfigCatSnapshot.getValueDetails(
+public inline fun <reified T> ConfigCatClientSnapshot.getValueDetails(
     key: String,
     defaultValue: T,
     user: ConfigCatUser? = null,
@@ -108,6 +108,7 @@ public inline fun <reified T> ConfigCatSnapshot.getValueDetails(
         details.isDefaultValue,
         details.error,
         details.errorCode,
+        details.exception,
         details.value as T,
         details.fetchTimeUnixMilliseconds,
         details.matchedTargetingRule,
@@ -117,7 +118,7 @@ public inline fun <reified T> ConfigCatSnapshot.getValueDetails(
 
 @PublishedApi
 internal fun getValueDetailsFromSnapshotInternal(
-    snapshot: ConfigCatSnapshot,
+    snapshot: ConfigCatClientSnapshot,
     key: String,
     defaultValue: Any?,
     user: ConfigCatUser?,
@@ -132,7 +133,7 @@ internal class Snapshot(
     private val settingResult: SettingResult,
     private val defaultUser: ConfigCatUser?,
     private val logger: InternalLogger,
-) : ConfigCatSnapshot {
+) : ConfigCatClientSnapshot {
     fun eval(
         key: String,
         defaultValue: Any?,
@@ -142,7 +143,14 @@ internal class Snapshot(
         require(key.isNotEmpty()) { "'key' cannot be empty." }
 
         val evalUser = user ?: defaultUser
-        return flagEvaluator.findAndEvalFlag(settingResult, key, defaultValue, evalUser, allowAnyReturnType)
+        return flagEvaluator.findAndEvalFlag(
+            settingResult,
+            key,
+            defaultValue,
+            evalUser,
+            "Snapshot.getValue",
+            allowAnyReturnType,
+        )
     }
 
     override fun getAnyValue(
@@ -160,7 +168,14 @@ internal class Snapshot(
         require(key.isNotEmpty()) { "'key' cannot be empty." }
 
         val evalUser = user ?: defaultUser
-        return flagEvaluator.findAndEvalFlagDetails(settingResult, key, defaultValue, evalUser, allowAnyReturnType)
+        return flagEvaluator.findAndEvalFlagDetails(
+            settingResult,
+            key,
+            defaultValue,
+            evalUser,
+            "Snapshot.getValueDetails",
+            allowAnyReturnType,
+        )
     }
 
     override fun getAnyValueDetails(
