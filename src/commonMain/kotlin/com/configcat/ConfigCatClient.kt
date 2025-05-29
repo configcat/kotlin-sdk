@@ -254,7 +254,15 @@ public interface ConfigCatClient {
 public fun ConfigCatClient(
     sdkKey: String,
     block: ConfigCatOptions.() -> Unit = {},
-): ConfigCatClient = Client.get(sdkKey, block)
+): ConfigCatClient = Client.get(sdkKey, ConfigCatOptions().apply(block))
+
+/**
+ * Creates a new or gets an already existing [ConfigCatClient] for the given [sdkKey].
+ */
+public fun ConfigCatClient(
+    sdkKey: String,
+    options: ConfigCatOptions,
+): ConfigCatClient = Client.get(sdkKey, options)
 
 /**
  * Gets the value of a feature flag or setting as [T] identified by the given [key].
@@ -699,9 +707,8 @@ internal class Client private constructor(
 
         fun get(
             sdkKey: String,
-            block: ConfigCatOptions.() -> Unit = {},
+            options: ConfigCatOptions,
         ): Client {
-            val options = ConfigCatOptions().apply(block)
             val flagOverrides = options.flagOverrides?.let { FlagOverrides().apply(it) }
             if (sdkKey.isEmpty()) {
                 options.hooks.invokeOnClientReady(ClientCacheState.NO_FLAG_DATA)

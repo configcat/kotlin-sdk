@@ -405,12 +405,11 @@ class ConfigCatClientTests {
                 "${sdkKey}_${Constants.CONFIG_FILE_NAME}_${Constants.SERIALIZATION_FORMAT_VERSION}".encodeToByteArray()
                     .sha1().hex
             val cache = InMemoryCache()
+            val opts = ConfigCatOptions()
+            opts.configCache = cache
+            opts.httpEngine = mockEngine
             cache.write(cacheKey, Data.formatCacheEntry("test"))
-            val client =
-                ConfigCatClient(sdkKey) {
-                    httpEngine = mockEngine
-                    configCache = cache
-                }
+            val client = ConfigCatClient(sdkKey, opts)
 
             val result = client.forceRefresh()
             assertFalse(result.isSuccess)
