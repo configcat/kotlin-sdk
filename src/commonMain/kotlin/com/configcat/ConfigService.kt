@@ -35,6 +35,8 @@ internal data class SettingResult(val settings: Map<String, Setting>, val fetchT
     }
 }
 
+internal data class InMemoryResult(val settingResult: SettingResult, val cacheState: ClientCacheState)
+
 internal data class EntryResult(
     val entry: Entry,
     val errorMessage: String?,
@@ -92,9 +94,12 @@ internal class ConfigService(
         }
     }
 
-    fun getInMemorySettings(): SettingResult {
+    fun getInMemoryState(): InMemoryResult {
         val entry = cachedEntry.value
-        return SettingResult(entry.config.settings ?: mapOf(), entry.fetchTime)
+        return InMemoryResult(
+            SettingResult(entry.config.settings ?: mapOf(), entry.fetchTime),
+            determineCacheState(entry),
+        )
     }
 
     suspend fun getSettings(): SettingResult {

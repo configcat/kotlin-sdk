@@ -8,8 +8,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
 
 class SnapshotTests {
     @Test
@@ -26,7 +26,40 @@ class SnapshotTests {
 
             client.waitForReady()
             client.waitForReady()
-            assertNotNull(client.snapshot())
+
+            val snapshot = client.snapshot()
+            assertEquals(ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA, snapshot.cacheState)
+
+            client.close()
+        }
+
+    @Test
+    fun testClientState() =
+        runTest {
+            val mockEngine =
+                MockEngine.create {
+                    this.addHandler {
+                        respond(content = "", status = HttpStatusCode.OK)
+                    }
+                    this.addHandler {
+                        respond(content = Data.MULTIPLE_BODY, status = HttpStatusCode.OK)
+                    }
+                }
+            val client =
+                ConfigCatClient(TestUtils.randomSdkKey()) {
+                    httpEngine = mockEngine
+                    pollingMode = autoPoll { pollingInterval = 1.seconds }
+                }
+
+            val state = client.waitForReady()
+            assertEquals(ClientCacheState.NO_FLAG_DATA, state)
+            assertEquals(ClientCacheState.NO_FLAG_DATA, client.snapshot().cacheState)
+
+            TestUtils.awaitUntil {
+                client.snapshot().cacheState == ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA
+            }
+
+            client.close()
         }
 
     @Test
@@ -49,6 +82,8 @@ class SnapshotTests {
 
             val anyVal = snapshot.getAnyValue("key1", false, null)
             assertEquals(true, anyVal)
+
+            client.close()
         }
 
     @Test
@@ -77,6 +112,8 @@ class SnapshotTests {
             assertEquals("key1", anyDetails.key)
             assertEquals("fakeId1", anyDetails.variationId)
             assertFalse(anyDetails.isDefaultValue)
+
+            client.close()
         }
 
     @Test
@@ -102,6 +139,8 @@ class SnapshotTests {
             assertEquals("key1", details.key)
             assertEquals("", details.variationId)
             assertTrue(details.isDefaultValue)
+
+            client.close()
         }
 
     @Test
@@ -121,6 +160,8 @@ class SnapshotTests {
 
             val keys = snapshot.getAllKeys()
             assertEquals(linkedSetOf("key1", "key2"), keys)
+
+            client.close()
         }
 
     @Test
@@ -140,6 +181,8 @@ class SnapshotTests {
 
             val keys = snapshot.getAllKeys()
             assertEquals(emptySet(), keys)
+
+            client.close()
         }
 
     @Test
@@ -168,6 +211,8 @@ class SnapshotTests {
                     snapshot.getValueDetails("", false)
                 })
             assertEquals("'key' cannot be empty.", exception2.message)
+
+            client.close()
         }
     }
 }

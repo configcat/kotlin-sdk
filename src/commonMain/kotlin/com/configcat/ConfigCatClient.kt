@@ -638,13 +638,16 @@ internal class Client private constructor(
         return completableDeferred.await()
     }
 
-    override fun snapshot(): ConfigCatClientSnapshot =
-        Snapshot(
+    override fun snapshot(): ConfigCatClientSnapshot {
+        val result = getInMemorySettings()
+        return Snapshot(
             flagEvaluator,
-            getInMemorySettings(),
+            result.settingResult,
+            result.cacheState,
             defaultUser.value,
             logger,
         )
+    }
 
     private fun closeResources() {
         service?.close()
@@ -679,32 +682,43 @@ internal class Client private constructor(
         return service?.getSettings() ?: SettingResult(mapOf(), Constants.distantPast)
     }
 
-    private fun getInMemorySettings(): SettingResult {
+    private fun getInMemorySettings(): InMemoryResult {
         if (flagOverrides != null) {
             return when (flagOverrides.behavior) {
                 OverrideBehavior.LOCAL_ONLY ->
-                    SettingResult(
-                        flagOverrides.dataSource.getOverrides(),
-                        Constants.distantPast,
+                    InMemoryResult(
+                        SettingResult(
+                            flagOverrides.dataSource.getOverrides(),
+                            Constants.distantPast,
+                        ),
+                        ClientCacheState.HAS_LOCAL_OVERRIDE_FLAG_DATA_ONLY,
                     )
 
                 OverrideBehavior.LOCAL_OVER_REMOTE -> {
-                    val result = service?.getInMemorySettings()
-                    val remote = result?.settings ?: mapOf()
+                    val result = service?.getInMemoryState()
+                    val remote = result?.settingResult?.settings ?: mapOf()
                     val local = flagOverrides.dataSource.getOverrides()
-                    SettingResult(remote + local, result?.fetchTime ?: Constants.distantPast)
+                    InMemoryResult(
+                        SettingResult(remote + local, result?.settingResult?.fetchTime ?: Constants.distantPast),
+                        result?.cacheState ?: ClientCacheState.HAS_LOCAL_OVERRIDE_FLAG_DATA_ONLY,
+                    )
                 }
 
                 OverrideBehavior.REMOTE_OVER_LOCAL -> {
-                    val result = service?.getInMemorySettings()
-                    val remote = result?.settings ?: mapOf()
+                    val result = service?.getInMemoryState()
+                    val remote = result?.settingResult?.settings ?: mapOf()
                     val local = flagOverrides.dataSource.getOverrides()
-                    SettingResult(local + remote, result?.fetchTime ?: Constants.distantPast)
+                    InMemoryResult(
+                        SettingResult(local + remote, result?.settingResult?.fetchTime ?: Constants.distantPast),
+                        result?.cacheState ?: ClientCacheState.HAS_LOCAL_OVERRIDE_FLAG_DATA_ONLY,
+                    )
                 }
             }
         }
 
-        return service?.getInMemorySettings() ?: SettingResult(mapOf(), Constants.distantPast)
+        return service?.getInMemoryState() ?: InMemoryResult(
+            SettingResult(mapOf(), Constants.distantPast), ClientCacheState.NO_FLAG_DATA,
+        )
     }
 
     private fun checkSettingsAvailable(

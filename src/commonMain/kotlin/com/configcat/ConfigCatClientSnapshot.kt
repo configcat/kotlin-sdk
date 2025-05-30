@@ -37,6 +37,11 @@ public interface ConfigCatClientSnapshot {
      * Gets a collection of all setting keys.
      */
     public fun getAllKeys(): Collection<String>
+
+    /**
+     * The state of the internal cache at the time the snapshot was created.
+     */
+    public val cacheState: ClientCacheState
 }
 
 /**
@@ -131,6 +136,7 @@ internal fun getValueDetailsFromSnapshotInternal(
 internal class Snapshot(
     private val flagEvaluator: FlagEvaluator,
     private val settingResult: SettingResult,
+    override val cacheState: ClientCacheState,
     private val defaultUser: ConfigCatUser?,
     private val logger: InternalLogger,
 ) : ConfigCatClientSnapshot {
