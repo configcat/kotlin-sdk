@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.0.21"
+kotlin = "2.1.10"
 android-gradle-plugin = "8.7.3"
 ktor = "3.0.0"
 kotlinx-serialization = "1.7.3"
@@ -7,12 +7,13 @@ kotlinx-coroutines= "1.9.0"
 klock = "4.0.10"
 krypto = "4.0.10"
 atomicfu = "0.26.1"
-semver = "2.0.0"
-dokka = "1.9.20"
+semver = "3.0.0"
+dokka = "2.0.0"
 sonarqube = "5.0.0.4638"
 kover = "0.7.6"
 detekt = "1.23.6"
 ktlint = "12.1.0"
+mavenPublish = "0.32.0"
 
 [libraries]
 ktor = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
@@ -42,3 +43,4 @@ sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }

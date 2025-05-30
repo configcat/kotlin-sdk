@@ -79,7 +79,13 @@ public class ConfigCatUser(
         attributes = attr
     }
 
-    internal fun attributeFor(key: String): Any? {
+    /**
+     * Retrieves the attribute value associated with the given key.
+     *
+     * @param key The key of the attribute to retrieve. Should not be empty.
+     * @return The value of the attribute associated with the given key, or null if the key is empty or does not exist.
+     */
+    public fun attributeFor(key: String): Any? {
         if (key.isEmpty()) {
             return null
         }

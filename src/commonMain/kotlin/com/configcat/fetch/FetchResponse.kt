@@ -18,6 +18,8 @@ internal class FetchResponse(
     status: FetchStatus,
     val entry: Entry = Entry.empty,
     val error: String? = null,
+    val errorCode: RefreshErrorCode = RefreshErrorCode.NONE,
+    val errorException: Exception? = null,
     val isTransientError: Boolean = false,
 ) {
     val isFetched: Boolean = status == FetchStatus.FETCHED
@@ -31,7 +33,16 @@ internal class FetchResponse(
 
         fun failure(
             error: String,
+            errorCode: RefreshErrorCode,
             isTransient: Boolean,
-        ): FetchResponse = FetchResponse(FetchStatus.FAILED, error = error, isTransientError = isTransient)
+            exception: Exception? = null,
+        ): FetchResponse =
+            FetchResponse(
+                FetchStatus.FAILED,
+                error = error,
+                isTransientError = isTransient,
+                errorCode = errorCode,
+                errorException = exception,
+            )
     }
 }

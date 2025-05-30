@@ -24,7 +24,7 @@ import korlibs.time.DateTime
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
 
-internal class ConfigFetcher constructor(
+internal class ConfigFetcher(
     private val options: ConfigCatOptions,
     private val logger: InternalLogger,
 ) : Closeable {
@@ -75,7 +75,7 @@ internal class ConfigFetcher constructor(
         }
         val message = ConfigCatLogMessages.FETCH_FAILED_DUE_TO_REDIRECT_LOOP_ERROR
         logger.error(1104, message)
-        return FetchResponse.failure(message, true)
+        return FetchResponse.failure(message, RefreshErrorCode.UNEXPECTED_ERROR, true)
     }
 
     private suspend fun fetchHTTP(
@@ -103,7 +103,12 @@ internal class ConfigFetcher constructor(
                 val newETag = response.etag()
                 val (config, err) = deserializeConfig(body)
                 if (err != null) {
-                    return FetchResponse.failure(err, true)
+                    return FetchResponse.failure(
+                        err.message ?: "",
+                        RefreshErrorCode.INVALID_HTTP_RESPONSE_CONTENT,
+                        true,
+                        err,
+                    )
                 }
                 val entry = Entry(config, newETag ?: "", body, DateTime.now())
                 return FetchResponse.success(entry)
@@ -115,7 +120,7 @@ internal class ConfigFetcher constructor(
                     ConfigCatLogMessages.FETCH_FAILED_DUE_TO_INVALID_SDK_KEY_ERROR +
                         " Received response: ${response.status}"
                 logger.error(1100, message)
-                return FetchResponse.failure(message, false)
+                return FetchResponse.failure(message, RefreshErrorCode.INVALID_SDK_KEY, false)
             } else {
                 val message =
                     ConfigCatLogMessages.getFetchFailedDueToUnexpectedHttpResponse(
@@ -123,9 +128,9 @@ internal class ConfigFetcher constructor(
                         response.bodyAsText(),
                     )
                 logger.error(1101, message)
-                return FetchResponse.failure(message, true)
+                return FetchResponse.failure(message, RefreshErrorCode.UNEXPECTED_HTTP_RESPONSE, true)
             }
-        } catch (_: HttpRequestTimeoutException) {
+        } catch (e: HttpRequestTimeoutException) {
             val message =
                 ConfigCatLogMessages.getFetchFailedDueToRequestTimeout(
                     options.requestTimeout.inWholeMilliseconds,
@@ -133,11 +138,11 @@ internal class ConfigFetcher constructor(
                     options.requestTimeout.inWholeMilliseconds,
                 )
             logger.error(1102, message)
-            return FetchResponse.failure(message, true)
+            return FetchResponse.failure(message, RefreshErrorCode.HTTP_REQUEST_TIMEOUT, true, e)
         } catch (e: Exception) {
             val message = ConfigCatLogMessages.FETCH_FAILED_DUE_TO_UNEXPECTED_ERROR
             logger.error(1103, message, e)
-            return FetchResponse.failure(message, true)
+            return FetchResponse.failure(message, RefreshErrorCode.HTTP_REQUEST_FAILURE, true, e)
         }
     }
 
@@ -154,12 +159,12 @@ internal class ConfigFetcher constructor(
         }
     }
 
-    private fun deserializeConfig(jsonString: String): Pair<Config, String?> {
+    private fun deserializeConfig(jsonString: String): Pair<Config, Exception?> {
         return try {
             Pair(Helpers.parseConfigJson(jsonString), null)
         } catch (e: Exception) {
             logger.error(1105, ConfigCatLogMessages.FETCH_RECEIVED_200_WITH_INVALID_BODY_ERROR, e)
-            Pair(Config.empty, e.message)
+            Pair(Config.empty, e)
         }
     }
 }

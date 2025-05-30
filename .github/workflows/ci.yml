@@ -145,14 +145,12 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: coverage-report
-        path: build/reports/kover
     - name: Download analysis report
       uses: actions/download-artifact@v4
       with:
         name: analysis-report
-        path: build/reports/detekt
     - name: Upload reports to SonarCloud
-      run: ./gradlew sonarqube --stacktrace
+      run: ./gradlew sonar --stacktrace
       shell: bash
 
   deploy-snapshot:
@@ -160,11 +158,10 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: macos-latest
     env:
-      SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-      SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-      SIGNING_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-      SIGNING_PASSPHRASE: ${{ secrets.PASSPHRASE }}
-      BUILD_NUMBER: ${{ github.run_number }}
+      ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_USERNAME }}
+      ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_PASSWORD }}
+      ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_PRIVATE_KEY }}
+      ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.PASSPHRASE }}
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK
@@ -177,7 +174,7 @@ jobs:
     - name: Cache Gradle
       uses: ./.github/actions/cache-gradle
     - name: Deploy snapshot
-      run: ./gradlew publish -Dsnapshot=true --stacktrace
+      run: ./gradlew publishAllPublicationsToMavenCentralRepository -Dsnapshot=true --stacktrace
       shell: bash
 
   deploy-release:
@@ -185,11 +182,10 @@ jobs:
     if: startsWith(github.ref, 'refs/tags')
     runs-on: macos-latest
     env:
-      SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-      SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-      SIGNING_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-      SIGNING_PASSPHRASE: ${{ secrets.PASSPHRASE }}
-      BUILD_NUMBER: ${{ github.run_number }}
+      ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_USERNAME }}
+      ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_PASSWORD }}
+      ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_PRIVATE_KEY }}
+      ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.PASSPHRASE }}
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK
@@ -202,7 +198,7 @@ jobs:
     - name: Cache Gradle
       uses: ./.github/actions/cache-gradle
     - name: Deploy release
-      run: ./gradlew publish --stacktrace
+      run: ./gradlew publishToMavenCentral --stacktrace --no-configuration-cache
       shell: bash
 
   deploy-gh-pages:
@@ -221,7 +217,7 @@ jobs:
     - name: Cache Gradle
       uses: ./.github/actions/cache-gradle
     - name: Generate HTML docs
-      run: ./gradlew dokkaHtml --stacktrace
+      run: ./gradlew dokkaGenerate --stacktrace
       shell: bash
     - name: Deploy docs to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@v4.7.3

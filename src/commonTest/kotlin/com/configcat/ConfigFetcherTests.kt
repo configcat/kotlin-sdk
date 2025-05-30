@@ -1,16 +1,21 @@
 package com.configcat
 
+import com.configcat.fetch.RefreshErrorCode
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.util.PlatformUtils
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
 
 class ConfigFetcherTests {
     @AfterTest
@@ -31,6 +36,8 @@ class ConfigFetcherTests {
             assertTrue(result.isFetched)
             assertEquals("fakeValue", result.entry.config.settings?.get("fakeKey")?.settingValue?.stringValue)
             assertEquals(1, mockEngine.requestHistory.size)
+            assertEquals(RefreshErrorCode.NONE, result.errorCode)
+            assertNull(result.errorException)
         }
 
     @Test
@@ -45,6 +52,8 @@ class ConfigFetcherTests {
 
             assertTrue(result.isNotModified)
             assertTrue(result.entry.isEmpty())
+            assertEquals(RefreshErrorCode.NONE, result.errorCode)
+            assertNull(result.errorException)
             assertEquals(1, mockEngine.requestHistory.size)
         }
 
@@ -60,7 +69,62 @@ class ConfigFetcherTests {
 
             assertTrue(result.isFailed)
             assertTrue(result.entry.isEmpty())
+            assertEquals(RefreshErrorCode.UNEXPECTED_HTTP_RESPONSE, result.errorCode)
+            assertNull(result.errorException)
             assertEquals(1, mockEngine.requestHistory.size)
+        }
+
+    @Test
+    fun testFetchBadJson() =
+        runTest {
+            val mockEngine =
+                MockEngine {
+                    respond(content = "{", status = HttpStatusCode.OK)
+                }
+            val fetcher = Services.createFetcher(mockEngine)
+            val result = fetcher.fetch("")
+
+            assertTrue(result.isFailed)
+            assertTrue(result.entry.isEmpty())
+            assertEquals(RefreshErrorCode.INVALID_HTTP_RESPONSE_CONTENT, result.errorCode)
+            assertNotNull(result.errorException)
+            assertEquals(1, mockEngine.requestHistory.size)
+        }
+
+    @Test
+    fun testFetchNotFound() =
+        runTest {
+            val mockEngine =
+                MockEngine {
+                    respond(content = "", status = HttpStatusCode.NotFound)
+                }
+            val fetcher = Services.createFetcher(mockEngine)
+            val result = fetcher.fetch("")
+
+            assertTrue(result.isFailed)
+            assertTrue(result.entry.isEmpty())
+            assertEquals(RefreshErrorCode.INVALID_SDK_KEY, result.errorCode)
+            assertNull(result.errorException)
+            assertEquals(1, mockEngine.requestHistory.size)
+        }
+
+    @Test
+    fun testFetchTimeout() =
+        runTest {
+            val mockEngine =
+                MockEngine {
+                    delay(3000)
+                    respond(content = TEST_BODY, status = HttpStatusCode.OK)
+                }
+            val opts = ConfigCatOptions()
+            opts.requestTimeout = 1.seconds
+            val fetcher = Services.createFetcher(mockEngine, options = opts)
+            val result = fetcher.fetch("")
+
+            assertTrue(result.isFailed)
+            assertTrue(result.entry.isEmpty())
+            assertEquals(RefreshErrorCode.HTTP_REQUEST_TIMEOUT, result.errorCode)
+            assertNotNull(result.errorException)
         }
 
     @Test

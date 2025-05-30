@@ -150,7 +150,7 @@ internal class Evaluator(private val logger: InternalLogger) {
                 return EvaluationResult(rule.servedValue.value, rule.servedValue.variationId, rule, null)
             }
             if (rule.percentageOptions.isNullOrEmpty()) {
-                error("Targeting rule THEN part is missing or invalid.")
+                throw InvalidConfigModelException("Targeting rule THEN part is missing or invalid.")
             }
             evaluateLogger?.increaseIndentLevel()
             val evaluatePercentageOptions =
@@ -289,10 +289,14 @@ internal class Evaluator(private val logger: InternalLogger) {
             throw RolloutEvaluatorException(USER_OBJECT_IS_MISSING)
         }
 
-        require(segment != null) { "Segment reference is invalid." }
+        if (segment == null) {
+            throw InvalidConfigModelException("Segment reference is invalid.")
+        }
 
         val segmentName: String? = segment.name
-        require(!segmentName.isNullOrEmpty()) { "Segment name is missing." }
+        if (segmentName.isNullOrEmpty()) {
+            throw InvalidConfigModelException("Segment name is missing.")
+        }
 
         evaluateLogger?.logSegmentEvaluationStart(segmentName)
         var result: Boolean
@@ -311,7 +315,7 @@ internal class Evaluator(private val logger: InternalLogger) {
 
             val segmentComparator =
                 segmentCondition.segmentComparator.toSegmentComparatorOrNull()
-                    ?: throw IllegalArgumentException("Segment comparison operator is invalid.")
+                    ?: throw InvalidConfigModelException("Segment comparison operator is invalid.")
             result = segmentRulesResult
             if (SegmentComparator.IS_NOT_IN_SEGMENT == segmentComparator) {
                 result = !result
@@ -333,24 +337,25 @@ internal class Evaluator(private val logger: InternalLogger) {
         evaluateLogger?.append(EvaluatorLogHelper.formatPrerequisiteFlagCondition(prerequisiteFlagCondition))
         val prerequisiteFlagKey: String? = prerequisiteFlagCondition.prerequisiteFlagKey
         val prerequisiteFlagSetting = context.settings?.get(prerequisiteFlagKey)
-        require(!prerequisiteFlagKey.isNullOrEmpty() && prerequisiteFlagSetting != null) {
-            "Prerequisite flag key is missing or invalid."
+        if (prerequisiteFlagKey.isNullOrEmpty() || prerequisiteFlagSetting == null) {
+            throw InvalidConfigModelException("Prerequisite flag key is missing or invalid.")
         }
 
         val settingType = prerequisiteFlagSetting.type.toSettingTypeOrNull()
-        require(
-            settingType == SettingType.JS_NUMBER &&
-                (
-                    prerequisiteFlagCondition.value?.doubleValue != null ||
-                        prerequisiteFlagCondition.value?.integerValue != null
-                ) ||
-                settingType == SettingType.BOOLEAN && prerequisiteFlagCondition.value?.booleanValue != null ||
-                settingType == SettingType.STRING && prerequisiteFlagCondition.value?.stringValue != null ||
-                settingType == SettingType.INT && prerequisiteFlagCondition.value?.integerValue != null ||
-                settingType == SettingType.DOUBLE && prerequisiteFlagCondition.value?.doubleValue != null,
+        if (settingType == SettingType.JS_NUMBER &&
+            (
+                prerequisiteFlagCondition.value?.doubleValue == null &&
+                    prerequisiteFlagCondition.value?.integerValue == null
+            ) ||
+            settingType == SettingType.BOOLEAN && prerequisiteFlagCondition.value?.booleanValue == null ||
+            settingType == SettingType.STRING && prerequisiteFlagCondition.value?.stringValue == null ||
+            settingType == SettingType.INT && prerequisiteFlagCondition.value?.integerValue == null ||
+            settingType == SettingType.DOUBLE && prerequisiteFlagCondition.value?.doubleValue == null
         ) {
-            "Type mismatch between comparison value '${prerequisiteFlagCondition.value}' and prerequisite flag " +
-                "'$prerequisiteFlagKey'."
+            throw InvalidConfigModelException(
+                "Type mismatch between comparison value '${prerequisiteFlagCondition.value}' and prerequisite flag " +
+                    "'$prerequisiteFlagKey'.",
+            )
         }
 
         val visitedKeys: ArrayList<String> = context.visitedKeys ?: ArrayList()
@@ -358,7 +363,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         if (visitedKeys.contains(prerequisiteFlagKey)) {
             val dependencyCycle: String =
                 EvaluatorLogHelper.formatCircularDependencyList(visitedKeys, prerequisiteFlagKey)
-            throw IllegalArgumentException(
+            throw InvalidConfigModelException(
                 "Circular dependency detected between the following depending flags: $dependencyCycle.",
             )
         }
@@ -384,7 +389,7 @@ internal class Evaluator(private val logger: InternalLogger) {
 
         val prerequisiteComparator =
             prerequisiteFlagCondition.prerequisiteComparator.toPrerequisiteComparatorOrNull()
-                ?: throw IllegalArgumentException("Prerequisite Flag comparison operator is invalid.")
+                ?: throw InvalidConfigModelException("Prerequisite Flag comparison operator is invalid.")
 
         val conditionValue: SettingValue? = prerequisiteFlagCondition.value
         var result = evaluateResult.value.equalsBasedOnSettingType(conditionValue, prerequisiteFlagSetting.type)
@@ -417,7 +422,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         val userValue = context.user.attributeFor(comparisonAttribute)
         val comparator =
             condition.comparator.toComparatorOrNull()
-                ?: throw IllegalArgumentException("Comparison operator is invalid.")
+                ?: throw InvalidConfigModelException("Comparison operator is invalid.")
 
         if (userValue == null) {
             logger.warning(
@@ -627,7 +632,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             UserComparator.LTE_SEMVER -> userVersion <= comparisonVersion
             UserComparator.GT_SEMVER -> userVersion > comparisonVersion
             UserComparator.GTE_SEMVER -> userVersion >= comparisonVersion
-            else -> error("Invalid comparator $userComparator.")
+            else -> throw InvalidConfigModelException("Invalid comparator $userComparator.")
         }
     }
 
@@ -644,7 +649,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             UserComparator.LTE_NUM -> userNumber <= comparisonNumber
             UserComparator.GT_NUM -> userNumber > comparisonNumber
             UserComparator.GTE_NUM -> userNumber >= comparisonNumber
-            else -> error("Invalid comparator $userComparator.")
+            else -> throw InvalidConfigModelException("Invalid comparator $userComparator.")
         }
     }
 
@@ -682,7 +687,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         return when (userComparator) {
             UserComparator.DATE_BEFORE -> userDateDouble < comparisonDateDouble
             UserComparator.DATE_AFTER -> userDateDouble > comparisonDateDouble
-            else -> error("Invalid comparator $userComparator.")
+            else -> throw InvalidConfigModelException("Invalid comparator $userComparator.")
         }
     }
 
@@ -718,20 +723,22 @@ internal class Evaluator(private val logger: InternalLogger) {
         @Suppress("LoopWithTooManyJumpStatements")
         for (comparisonValueHashedStartsEnds in withValuesSplit) {
             val comparedTextLength = ensureComparisonValue(comparisonValueHashedStartsEnds).substringBefore("_")
-            require(comparedTextLength != comparisonValueHashedStartsEnds) {
-                "Comparison value is missing or invalid."
+            if (comparedTextLength == comparisonValueHashedStartsEnds) {
+                throw InvalidConfigModelException("Comparison value is missing or invalid.")
             }
             val comparedTextLengthInt: Int
             try {
                 comparedTextLengthInt = comparedTextLength.trim().toInt()
             } catch (e: NumberFormatException) {
-                throw IllegalArgumentException("Comparison value is missing or invalid.")
+                throw InvalidConfigModelException("Comparison value is missing or invalid.")
             }
             if (userValueUTF8.size < comparedTextLengthInt) {
                 continue
             }
             val comparisonHashValue = comparisonValueHashedStartsEnds.substringAfter("_")
-            require(comparisonHashValue.isNotEmpty()) { "Comparison value is missing or invalid." }
+            if (comparisonHashValue.isEmpty()) {
+                throw InvalidConfigModelException("Comparison value is missing or invalid.")
+            }
             val userValueSlice =
                 if (userComparator == UserComparator.HASHED_STARTS_WITH ||
                     userComparator == UserComparator.HASHED_NOT_STARTS_WITH
@@ -890,7 +897,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             }
         }
 
-        throw IllegalArgumentException("Sum of percentage option percentages is less than 100.")
+        throw InvalidConfigModelException("Sum of percentage option percentages is less than 100.")
     }
 
     private fun getUserAttributeAsStringArray(
@@ -1105,14 +1112,14 @@ internal class Evaluator(private val logger: InternalLogger) {
         if (configSalt != null) {
             return configSalt
         }
-        throw IllegalArgumentException("Config JSON salt is missing.")
+        throw InvalidConfigModelException("Config JSON salt is missing.")
     }
 
     private inline fun <reified T> ensureComparisonValue(value: T?): T {
         if (value != null) {
             return value
         }
-        throw IllegalArgumentException("Comparison value is missing or invalid.")
+        throw InvalidConfigModelException("Comparison value is missing or invalid.")
     }
 
     /**
@@ -1215,3 +1222,5 @@ internal fun commonFormatDoubleForLog(doubleToFormat: Double): String {
 }
 
 internal class RolloutEvaluatorException(message: String?) : Exception(message)
+
+internal class InvalidConfigModelException(message: String?) : IllegalArgumentException(message)

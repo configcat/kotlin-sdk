@@ -12,6 +12,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 class JSConfigV2EvaluationTest {
     // This is the same test cases as the ConfigV2EvaluationTest with different expected results.
@@ -75,14 +76,16 @@ class JSConfigV2EvaluationTest {
             }
         client.forceRefresh()
 
-        val value = client.getValue(key, "", null)
+        val details = client.getValueDetails(key, "", null)
         val errorLogs = mutableListOf<LogEvent>()
         assertEquals(
             expectedValue,
-            value,
+            details.value,
             "Flag key: $key PrerequisiteFlagKey: $prerequisiteFlagKey PrerequisiteFlagValue: $prerequisiteFlagValue",
         )
         if (expectedValue.isNullOrEmpty()) {
+            assertEquals(EvaluationErrorCode.INVALID_CONFIG_MODEL, details.errorCode)
+
             val logsList = evaluationTestLogger.getLogList()
             for (i in logsList.indices) {
                 val log = logsList[i]

@@ -1,10 +1,9 @@
 # ConfigCat SDK for Kotlin Multiplatform
 [![Kotlin CI](https://github.com/configcat/kotlin-sdk/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/configcat/kotlin-sdk/actions/workflows/ci.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/com.configcat/configcat-kotlin-client?label=maven%20central)](https://search.maven.org/artifact/com.configcat/configcat-kotlin-client/)
-![Snapshot](https://img.shields.io/nexus/s/com.configcat/configcat-kotlin-client?label=snapshot&server=https%3A%2F%2Foss.sonatype.org)
 [![Quality Gate Status](https://img.shields.io/sonar/quality_gate/configcat_kotlin-sdk?logo=SonarCloud&server=https%3A%2F%2Fsonarcloud.io)](https://sonarcloud.io/project/overview?id=configcat_kotlin-sdk)
 [![SonarCloud Coverage](https://img.shields.io/sonar/coverage/configcat_kotlin-sdk?logo=SonarCloud&server=https%3A%2F%2Fsonarcloud.io)](https://sonarcloud.io/project/overview?id=configcat_kotlin-sdk)
-[![Kotlin](https://img.shields.io/badge/kotlin-1.9-blueviolet.svg?logo=kotlin)](http://kotlinlang.org)
+[![Kotlin](https://img.shields.io/badge/kotlin-2.1-blueviolet.svg?logo=kotlin)](http://kotlinlang.org)
 
 ConfigCat SDK for Kotlin Multiplatform provides easy integration for your application to [ConfigCat](https://configcat.com).
 

@@ -12,7 +12,7 @@ internal interface Closeable {
 }
 
 internal object Constants {
-    const val VERSION: String = "4.1.1"
+    const val VERSION: String = "4.2.0"
     const val CONFIG_FILE_NAME: String = "config_v6.json"
     const val SERIALIZATION_FORMAT_VERSION: String = "v2"
     const val GLOBAL_CDN_URL = "https://cdn-global.configcat.com"
@@ -49,9 +49,10 @@ internal object Helpers {
         settingType: Int,
     ): Any {
         val settingTypeEnum = settingType.toSettingTypeOrNull()
-        require(settingValue != null) { "Setting value is missing or invalid." }
-        val result: Any?
-        result =
+        if (settingValue == null) {
+            throw InvalidConfigModelException("Setting value is missing or invalid.")
+        }
+        val result =
             when (settingTypeEnum) {
                 SettingType.BOOLEAN -> {
                     settingValue.booleanValue
@@ -74,13 +75,13 @@ internal object Helpers {
                 }
 
                 else -> {
-                    throw IllegalArgumentException(
+                    throw InvalidConfigModelException(
                         "Setting is of an unsupported type ($settingTypeEnum).",
                     )
                 }
             }
-        require(result != null) {
-            "Setting value is not of the expected type ${settingTypeEnum.value}."
+        if (result == null) {
+            throw InvalidConfigModelException("Setting value is not of the expected type ${settingTypeEnum.value}.")
         }
         return result
     }
