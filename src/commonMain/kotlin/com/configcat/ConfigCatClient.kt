@@ -250,6 +250,14 @@ public interface ConfigCatClient {
 
 /**
  * Creates a new or gets an already existing [ConfigCatClient] for the given [sdkKey].
+ *
+ * This method accepts an optional functional parameter to configure the constructed [ConfigCatClient].
+ *
+ * ```
+ * val client = ConfigCatClient("YOUR-SDK-KEY") {
+ *     pollingMode = autoPoll()
+ * }
+ * ```
  */
 public fun ConfigCatClient(
     sdkKey: String,
@@ -258,6 +266,15 @@ public fun ConfigCatClient(
 
 /**
  * Creates a new or gets an already existing [ConfigCatClient] for the given [sdkKey].
+ *
+ * This method accepts an optional [ConfigCatOptions] parameter to configure the constructed [ConfigCatClient].
+ *
+ * ```
+ * val options = ConfigCatOptions()
+ * options.pollingMode = autoPoll()
+ *
+ * val client = ConfigCatClient("YOUR-SDK-KEY", options)
+ * ```
  */
 public fun ConfigCatClient(
     sdkKey: String,
