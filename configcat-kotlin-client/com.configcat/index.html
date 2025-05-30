@@ -26,45 +26,115 @@
 <link href="../../styles/prism.css" rel="Stylesheet">
 <link href="../../styles/logo-styles.css" rel="Stylesheet">
 <link href="../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<link href="../../ui-kit/ui-kit.min.css" rel="Stylesheet">
 <script type="text/javascript" src="../../scripts/clipboard.js" async="async"></script>
 <script type="text/javascript" src="../../scripts/navigation-loader.js" async="async"></script>
 <script type="text/javascript" src="../../scripts/platform-content-handler.js" async="async"></script>
 <script type="text/javascript" src="../../scripts/main.js" defer="defer"></script>
 <script type="text/javascript" src="../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../ui-kit/ui-kit.min.js" defer="defer"></script>
 <script type="text/javascript" src="../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
 </head>
 <body>
     <div class="root">
-<nav class="navigation" id="navigation-wrapper">
-    <div class="navigation--inner">
-        <div class="navigation-title">
-            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
-            <div class="library-name">
-                    <a class="library-name--link" href="../../index.html">
-                            configcat-kotlin-client
-                    </a>
+    <nav class="navigation theme-dark" id="navigation-wrapper">
+            <a class="library-name--link" href="../../index.html">
+                    configcat-kotlin-client
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+4.2.0        </div>
+        <div class="navigation-controls">
+        <div class="filter-section filter-section_loading" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active=""
+                        data-filter=":/androidMain">android</button>
+                <button class="platform-tag platform-selector common-like" data-active=""
+                        data-filter=":/appleMain">apple</button>
+                <button class="platform-tag platform-selector common-like" data-active=""
+                        data-filter=":/commonMain">common</button>
+                <button class="platform-tag platform-selector js-like" data-active=""
+                        data-filter=":/jsMain">js</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox">
+                    <div class="dropdown--header"><span>Platform filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close platform filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":/androidMain"
+                                       data-filter=":/androidMain"/>
+                                <span class="checkbox--icon"></span>
+                                android
+                            </label>
+                        </li>
+                        <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":/appleMain"
+                                       data-filter=":/appleMain"/>
+                                <span class="checkbox--icon"></span>
+                                apple
+                            </label>
+                        </li>
+                        <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":/commonMain"
+                                       data-filter=":/commonMain"/>
+                                <span class="checkbox--icon"></span>
+                                common
+                            </label>
+                        </li>
+                        <li role="option" class="dropdown--option platform-selector-option js-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":/jsMain"
+                                       data-filter=":/jsMain"/>
+                                <span class="checkbox--icon"></span>
+                                js
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
             </div>
-            <div class="library-version">
-4.1.1            </div>
         </div>
-        <div class="filter-section" id="filter-section">
-                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":dokkaHtml/androidMain">android</button>
-                <button class="platform-tag platform-selector native-like" data-active="" data-filter=":dokkaHtml/appleMain">apple</button>
-                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":dokkaHtml/commonMain">common</button>
-                <button class="platform-tag platform-selector js-like" data-active="" data-filter=":dokkaHtml/jsMain">js</button>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
         </div>
-    </div>
-    <div class="navigation-controls">
-        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
-        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
-    </div>
-</nav>
+    </nav>
         <div id="container">
             <div class="sidebar" id="leftColumn">
-                <div class="sidebar--inner" id="sideMenu"></div>
+                <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                    <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                        data-role="dropdown-listbox">
+                        <div class="dropdown--header">
+                            <span>
+                                    configcat-kotlin-client
+                            </span>
+                            <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                                <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                            </button>
+                        </div>
+                        <div class="sidebar--inner" id="sideMenu"></div>
+                    </ul>
+                    <div class="dropdown--overlay"></div>
+                </div>
             </div>
             <div id="main">
-<div class="main-content" data-page-type="package" id="content" pageIds="configcat-kotlin-client::com.configcat////PointingToDeclaration//1014750110">
+<div class="main-content" data-page-type="package" id="content" pageIds="configcat-kotlin-client::com.configcat////PointingToDeclaration//-2002865072">
   <div class="breadcrumbs"><a href="../../index.html">configcat-kotlin-client</a><span class="delimiter">/</span><span class="current">com.configcat</span></div>
   <div class="cover ">
     <h1 class="cover"><span><span>Package-level</span></span> <span><span>declarations</span></span></h1>
@@ -74,248 +144,278 @@
     <div class="tabs-section-body">
       <div data-togglable="TYPE">
         <h2 class="">Types</h2>
-        <div class="table"><a data-name="1344193457%2FClasslikes%2F788909594" anchor-label="AutoPollConfiguration" id="1344193457%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+        <div class="table"><a data-name="1344193457%2FClasslikes%2F1558683979" anchor-label="AutoPollConfiguration" id="1344193457%2FClasslikes%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-auto-poll-configuration/index.html"><span>Auto</span><wbr></wbr><span>Poll</span><wbr></wbr><span><span>Configuration</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1344193457%2FClasslikes%2F788909594"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1344193457%2FClasslikes%2F1558683979"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-auto-poll-configuration/index.html">AutoPollConfiguration</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">var </span>pollingInterval<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.time/-duration/index.html">Duration</a><span class="token operator"> = </span>60.seconds<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">var </span>maxInitWaitTime<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.time/-duration/index.html">Duration</a><span class="token operator"> = </span>5.seconds</span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Describes the auto polling configuration.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-auto-poll-configuration/index.html">AutoPollConfiguration</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">var </span>pollingInterval<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.time/-duration/index.html">Duration</a><span class="token operator"> = </span>60.seconds<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">var </span>maxInitWaitTime<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.time/-duration/index.html">Duration</a><span class="token operator"> = </span>5.seconds</span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Describes the auto polling configuration.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="93159439%2FClasslikes%2F788909594" anchor-label="ClientCacheState" id="93159439%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+<a data-name="93159439%2FClasslikes%2F1558683979" anchor-label="ClientCacheState" id="93159439%2FClasslikes%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-client-cache-state/index.html"><span>Client</span><wbr></wbr><span>Cache</span><wbr></wbr><span><span>State</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="93159439%2FClasslikes%2F788909594"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="93159439%2FClasslikes%2F1558683979"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">enum </span><a href="-client-cache-state/index.html">ClientCacheState</a> : <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><a href="-client-cache-state/index.html">ClientCacheState</a><span class="token operator">&gt; </span></div><div class="brief "><p class="paragraph">Defines levels to control logging verbosity.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">enum </span><a href="-client-cache-state/index.html">ClientCacheState</a> : <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><a href="-client-cache-state/index.html">ClientCacheState</a><span class="token operator">&gt; </span></div><div class="brief "><p class="paragraph">Defines the possible states of the internal cache.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-541905703%2FClasslikes%2F788909594" anchor-label="ConfigCache" id="-541905703%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+<a data-name="-541905703%2FClasslikes%2F1558683979" anchor-label="ConfigCache" id="-541905703%2FClasslikes%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-config-cache/index.html"><span>Config</span><wbr></wbr><span><span>Cache</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-541905703%2FClasslikes%2F788909594"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-541905703%2FClasslikes%2F1558683979"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-config-cache/index.html">ConfigCache</a></div><div class="brief "><p class="paragraph">A cache API used to make custom cache implementations.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-config-cache/index.html">ConfigCache</a></div><div class="brief "><p class="paragraph">A cache API used to make custom cache implementations.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="40572154%2FClasslikes%2F788909594" anchor-label="ConfigCatClient" id="40572154%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+<a data-name="40572154%2FClasslikes%2F1558683979" anchor-label="ConfigCatClient" id="40572154%2FClasslikes%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-config-cat-client/index.html"><span>Config</span><wbr></wbr><span>Cat</span><wbr></wbr><span><span>Client</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="40572154%2FClasslikes%2F788909594"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="40572154%2FClasslikes%2F1558683979"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-config-cat-client/index.html">ConfigCatClient</a></div><div class="brief "><p class="paragraph">ConfigCat SDK client.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-config-cat-client/index.html">ConfigCatClient</a></div><div class="brief "><p class="paragraph">ConfigCat SDK client.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="1100839839%2FClasslikes%2F788909594" anchor-label="ConfigCatOptions" id="1100839839%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+<a data-name="1415785110%2FClasslikes%2F1558683979" anchor-label="ConfigCatClientSnapshot" id="1415785110%2FClasslikes%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-config-cat-client-snapshot/index.html"><span>Config</span><wbr></wbr><span>Cat</span><wbr></wbr><span>Client</span><wbr></wbr><span><span>Snapshot</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1415785110%2FClasslikes%2F1558683979"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-config-cat-client-snapshot/index.html">ConfigCatClientSnapshot</a></div><div class="brief "><p class="paragraph">Represents the state of <code class="lang-kotlin">ConfigCatClient</code> captured at a specific point in time.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1100839839%2FClasslikes%2F1558683979" anchor-label="ConfigCatOptions" id="1100839839%2FClasslikes%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-config-cat-options/index.html"><span>Config</span><wbr></wbr><span>Cat</span><wbr></wbr><span><span>Options</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1100839839%2FClasslikes%2F788909594"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1100839839%2FClasslikes%2F1558683979"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-config-cat-options/index.html">ConfigCatOptions</a></div><div class="brief "><p class="paragraph">Configuration options for <a href="-config-cat-client/index.html">ConfigCatClient</a>.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-config-cat-options/index.html">ConfigCatOptions</a></div><div class="brief "><p class="paragraph">Configuration options for <a href="-config-cat-client/index.html">ConfigCatClient</a>.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="647141882%2FClasslikes%2F788909594" anchor-label="ConfigCatUser" id="647141882%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+<a data-name="647141882%2FClasslikes%2F1558683979" anchor-label="ConfigCatUser" id="647141882%2FClasslikes%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-config-cat-user/index.html"><span>Config</span><wbr></wbr><span>Cat</span><wbr></wbr><span><span>User</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="647141882%2FClasslikes%2F788909594"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="647141882%2FClasslikes%2F1558683979"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-config-cat-user/index.html">ConfigCatUser</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>identifier<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">email<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">country<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">custom<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">An object containing attributes to properly identify a given user for variation evaluation. Its only mandatory attribute is the <a href="-config-cat-user/identifier.html">identifier</a>.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-config-cat-user/index.html">ConfigCatUser</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>identifier<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">email<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">country<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">custom<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">An object containing attributes to properly identify a given user for variation evaluation. Its only mandatory attribute is the <a href="-config-cat-user/identifier.html">identifier</a>.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-1037165187%2FClasslikes%2F788909594" anchor-label="DataGovernance" id="-1037165187%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+<a data-name="-1037165187%2FClasslikes%2F1558683979" anchor-label="DataGovernance" id="-1037165187%2FClasslikes%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-data-governance/index.html"><span>Data</span><wbr></wbr><span><span>Governance</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1037165187%2FClasslikes%2F788909594"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1037165187%2FClasslikes%2F1558683979"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">enum </span><a href="-data-governance/index.html">DataGovernance</a> : <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><a href="-data-governance/index.html">DataGovernance</a><span class="token operator">&gt; </span></div><div class="brief "><p class="paragraph">Describes the location of your feature flag and setting data within the ConfigCat CDN.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">enum </span><a href="-data-governance/index.html">DataGovernance</a> : <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><a href="-data-governance/index.html">DataGovernance</a><span class="token operator">&gt; </span></div><div class="brief "><p class="paragraph">Describes the location of your feature flag and setting data within the ConfigCat CDN.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-1744107629%2FClasslikes%2F788909594" anchor-label="EvaluationDetails" id="-1744107629%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+<a data-name="-1744107629%2FClasslikes%2F1558683979" anchor-label="EvaluationDetails" id="-1744107629%2FClasslikes%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-evaluation-details/index.html"><span>Evaluation</span><wbr></wbr><span><span>Details</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1744107629%2FClasslikes%2F788909594"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1744107629%2FClasslikes%2F1558683979"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-evaluation-details/index.html">EvaluationDetails</a> : <a href="-evaluation-details-base/index.html">EvaluationDetailsBase</a></div><div class="brief "><p class="paragraph">Additional information about flag evaluation.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-evaluation-details/index.html">EvaluationDetails</a> : <a href="-evaluation-details-base/index.html">EvaluationDetailsBase</a></div><div class="brief "><p class="paragraph">Additional information about flag evaluation.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-1415279422%2FClasslikes%2F788909594" anchor-label="EvaluationDetailsBase" id="-1415279422%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+<a data-name="-1415279422%2FClasslikes%2F1558683979" anchor-label="EvaluationDetailsBase" id="-1415279422%2FClasslikes%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-evaluation-details-base/index.html"><span>Evaluation</span><wbr></wbr><span>Details</span><wbr></wbr><span><span>Base</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1415279422%2FClasslikes%2F788909594"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1415279422%2FClasslikes%2F1558683979"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">class </span><a href="-evaluation-details-base/index.html">EvaluationDetailsBase</a></div><div class="brief "><p class="paragraph">Additional information about flag evaluation.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">class </span><a href="-evaluation-details-base/index.html">EvaluationDetailsBase</a></div><div class="brief "><p class="paragraph">Additional information about flag evaluation.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="537875081%2FClasslikes%2F788909594" anchor-label="Hooks" id="537875081%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+<a data-name="192783392%2FClasslikes%2F1558683979" anchor-label="EvaluationErrorCode" id="192783392%2FClasslikes%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-evaluation-error-code/index.html"><span>Evaluation</span><wbr></wbr><span>Error</span><wbr></wbr><span><span>Code</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="192783392%2FClasslikes%2F1558683979"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">enum </span><a href="-evaluation-error-code/index.html">EvaluationErrorCode</a> : <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><a href="-evaluation-error-code/index.html">EvaluationErrorCode</a><span class="token operator">&gt; </span></div><div class="brief "><p class="paragraph">Specifies the possible evaluation error codes.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="537875081%2FClasslikes%2F1558683979" anchor-label="Hooks" id="537875081%2FClasslikes%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-hooks/index.html"><span><span>Hooks</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="537875081%2FClasslikes%2F788909594"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="537875081%2FClasslikes%2F1558683979"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-hooks/index.html">Hooks</a></div><div class="brief "><p class="paragraph">Events fired by <a href="-config-cat-client/index.html">ConfigCatClient</a>.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-hooks/index.html">Hooks</a></div><div class="brief "><p class="paragraph">Events fired by <a href="-config-cat-client/index.html">ConfigCatClient</a>.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-1780118755%2FClasslikes%2F788909594" anchor-label="LazyLoadConfiguration" id="-1780118755%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+<a data-name="-1780118755%2FClasslikes%2F1558683979" anchor-label="LazyLoadConfiguration" id="-1780118755%2FClasslikes%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-lazy-load-configuration/index.html"><span>Lazy</span><wbr></wbr><span>Load</span><wbr></wbr><span><span>Configuration</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1780118755%2FClasslikes%2F788909594"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1780118755%2FClasslikes%2F1558683979"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-lazy-load-configuration/index.html">LazyLoadConfiguration</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">var </span>cacheRefreshInterval<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.time/-duration/index.html">Duration</a><span class="token operator"> = </span>60.seconds</span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Describes the lazy load polling configuration.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-lazy-load-configuration/index.html">LazyLoadConfiguration</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">var </span>cacheRefreshInterval<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.time/-duration/index.html">Duration</a><span class="token operator"> = </span>60.seconds</span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Describes the lazy load polling configuration.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="361276327%2FClasslikes%2F371682492" anchor-label="LocalStorageCache" id="361276327%2FClasslikes%2F371682492" data-filterable-set=":dokkaHtml/jsMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/jsMain" data-filterable-set=":dokkaHtml/jsMain">
+<a data-name="361276327%2FClasslikes%2F-649084563" anchor-label="LocalStorageCache" id="361276327%2FClasslikes%2F-649084563" data-filterable-set=":/jsMain"></a>
+          <div class="table-row" data-filterable-current=":/jsMain" data-filterable-set=":/jsMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-local-storage-cache/index.html"><span>Local</span><wbr></wbr><span>Storage</span><wbr></wbr><span><span>Cache</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="361276327%2FClasslikes%2F371682492"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="361276327%2FClasslikes%2F-649084563"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":dokkaHtml/jsMain" data-filterable-set=":dokkaHtml/jsMain" data-active="" data-toggle=":dokkaHtml/jsMain">js</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/jsMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-local-storage-cache/index.html">LocalStorageCache</a> : <a href="-config-cache/index.html">ConfigCache</a></div><div class="brief "><p class="paragraph"><a href="-config-cache/index.html">ConfigCache</a> implementation that uses <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlinx.browser/index.html">localStorage</a> as persistent storage.</p></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/jsMain" data-filterable-set=":/jsMain" data-active="" data-toggle=":/jsMain">js</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/jsMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-local-storage-cache/index.html">LocalStorageCache</a> : <a href="-config-cache/index.html">ConfigCache</a></div><div class="brief "><p class="paragraph"><a href="-config-cache/index.html">ConfigCache</a> implementation that uses <span data-unresolved-link="kotlinx.browser//localStorage/#/PointingToDeclaration/">localStorage</span> as persistent storage.</p></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="346538227%2FClasslikes%2F788909594" anchor-label="PollingMode" id="346538227%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+<a data-name="346538227%2FClasslikes%2F1558683979" anchor-label="PollingMode" id="346538227%2FClasslikes%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-polling-mode/index.html"><span>Polling</span><wbr></wbr><span><span>Mode</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="346538227%2FClasslikes%2F788909594"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="346538227%2FClasslikes%2F1558683979"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-polling-mode/index.html">PollingMode</a></div><div class="brief "><p class="paragraph">Describes a polling mode configuration.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-polling-mode/index.html">PollingMode</a></div><div class="brief "><p class="paragraph">Describes a polling mode configuration.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="567687706%2FClasslikes%2F1837590656" anchor-label="SharedPreferencesCache" id="567687706%2FClasslikes%2F1837590656" data-filterable-set=":dokkaHtml/androidMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/androidMain" data-filterable-set=":dokkaHtml/androidMain">
+<a data-name="567687706%2FClasslikes%2F1031138095" anchor-label="SharedPreferencesCache" id="567687706%2FClasslikes%2F1031138095" data-filterable-set=":/androidMain"></a>
+          <div class="table-row" data-filterable-current=":/androidMain" data-filterable-set=":/androidMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-shared-preferences-cache/index.html"><span>Shared</span><wbr></wbr><span>Preferences</span><wbr></wbr><span><span>Cache</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="567687706%2FClasslikes%2F1837590656"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="567687706%2FClasslikes%2F1031138095"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":dokkaHtml/androidMain" data-filterable-set=":dokkaHtml/androidMain" data-active="" data-toggle=":dokkaHtml/androidMain">android</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/androidMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-shared-preferences-cache/index.html">SharedPreferencesCache</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">context<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/content/Context.html">Context</a></span></span><span class="token punctuation">)</span> : <a href="-config-cache/index.html">ConfigCache</a></div><div class="brief "><p class="paragraph"><a href="-config-cache/index.html">ConfigCache</a> implementation that uses <a href="https://developer.android.com/reference/kotlin/android/content/SharedPreferences.html">SharedPreferences</a> as persistent storage.</p></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/androidMain" data-filterable-set=":/androidMain" data-active="" data-toggle=":/androidMain">android</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/androidMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-shared-preferences-cache/index.html">SharedPreferencesCache</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">context<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/content/Context.html">Context</a></span></span><span class="token punctuation">)</span> : <a href="-config-cache/index.html">ConfigCache</a></div><div class="brief "><p class="paragraph"><a href="-config-cache/index.html">ConfigCache</a> implementation that uses <a href="https://developer.android.com/reference/kotlin/android/content/SharedPreferences.html">SharedPreferences</a> as persistent storage.</p></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="2107435149%2FClasslikes%2F788909594" anchor-label="TypedEvaluationDetails" id="2107435149%2FClasslikes%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+<a data-name="2107435149%2FClasslikes%2F1558683979" anchor-label="TypedEvaluationDetails" id="2107435149%2FClasslikes%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-typed-evaluation-details/index.html"><span>Typed</span><wbr></wbr><span>Evaluation</span><wbr></wbr><span><span>Details</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2107435149%2FClasslikes%2F788909594"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2107435149%2FClasslikes%2F1558683979"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-typed-evaluation-details/index.html">TypedEvaluationDetails</a><span class="token operator">&lt;</span><a href="-typed-evaluation-details/index.html">T</a><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>key<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>variationId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>user<span class="token operator">: </span><a href="-config-cat-user/index.html">ConfigCatUser</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>isDefaultValue<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>error<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>value<span class="token operator">: </span><a href="-typed-evaluation-details/index.html">T</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>fetchTimeUnixMilliseconds<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html">Long</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>matchedTargetingRule<span class="token operator">: </span><a href="../com.configcat.model/-targeting-rule/index.html">TargetingRule</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>matchedPercentageOption<span class="token operator">: </span><a href="../com.configcat.model/-percentage-option/index.html">PercentageOption</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span> : <a href="-evaluation-details-base/index.html">EvaluationDetailsBase</a></div><div class="brief "><p class="paragraph">Additional information about flag evaluation.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-typed-evaluation-details/index.html">TypedEvaluationDetails</a><span class="token operator">&lt;</span><a href="-typed-evaluation-details/index.html">T</a><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>variationId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>user<span class="token operator">: </span><a href="-config-cat-user/index.html">ConfigCatUser</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>isDefaultValue<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>error<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>errorCode<span class="token operator">: </span><a href="-evaluation-error-code/index.html">EvaluationErrorCode</a><span class="token punctuation">, </span></span><span class="parameter ">exception<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-exception/index.html">Exception</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>value<span class="token operator">: </span><a href="-typed-evaluation-details/index.html">T</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>fetchTimeUnixMilliseconds<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>matchedTargetingRule<span class="token operator">: </span><a href="../com.configcat.model/-targeting-rule/index.html">TargetingRule</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>matchedPercentageOption<span class="token operator">: </span><a href="../com.configcat.model/-percentage-option/index.html">PercentageOption</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span> : <a href="-evaluation-details-base/index.html">EvaluationDetailsBase</a></div><div class="brief "><p class="paragraph">Additional information about flag evaluation.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-229908076%2FClasslikes%2F-1925898064" anchor-label="UserDefaultsCache" id="-229908076%2FClasslikes%2F-1925898064" data-filterable-set=":dokkaHtml/appleMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/appleMain" data-filterable-set=":dokkaHtml/appleMain">
+<a data-name="-229908076%2FClasslikes%2F1287810253" anchor-label="UserDefaultsCache" id="-229908076%2FClasslikes%2F1287810253" data-filterable-set=":/appleMain"></a>
+          <div class="table-row" data-filterable-current=":/appleMain" data-filterable-set=":/appleMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-user-defaults-cache/index.html"><span>User</span><wbr></wbr><span>Defaults</span><wbr></wbr><span><span>Cache</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-229908076%2FClasslikes%2F-1925898064"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-229908076%2FClasslikes%2F1287810253"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":dokkaHtml/appleMain" data-filterable-set=":dokkaHtml/appleMain" data-active="" data-toggle=":dokkaHtml/appleMain">apple</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/appleMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-user-defaults-cache/index.html">UserDefaultsCache</a> : <span data-unresolved-link="com.configcat/ConfigCache///PointingToDeclaration/">ConfigCache</span></div><div class="brief "><p class="paragraph"><span data-unresolved-link="com.configcat/ConfigCache///PointingToDeclaration/">ConfigCache</span> implementation that uses NSUserDefaults as persistent storage.</p></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":/appleMain" data-filterable-set=":/appleMain" data-active="" data-toggle=":/appleMain">apple</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":/appleMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-user-defaults-cache/index.html">UserDefaultsCache</a> : <span data-unresolved-link="com.configcat/ConfigCache///PointingToDeclaration/">ConfigCache</span></div><div class="brief "><p class="paragraph"><span data-unresolved-link="com.configcat/ConfigCache///PointingToDeclaration/">ConfigCache</span> implementation that uses <span data-unresolved-link="platform.Foundation/NSUserDefaults///PointingToDeclaration/">NSUserDefaults</span> as persistent storage.</p></div></div>                  </div>
                 </div>
               </div>
             </div>
@@ -324,92 +424,92 @@
       </div>
       <div data-togglable="FUNCTION">
         <h2 class="">Functions</h2>
-        <div class="table"><a data-name="-742189580%2FFunctions%2F788909594" anchor-label="autoPoll" id="-742189580%2FFunctions%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+        <div class="table"><a data-name="-742189580%2FFunctions%2F1558683979" anchor-label="autoPoll" id="-742189580%2FFunctions%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="auto-poll.html"><span>auto</span><wbr></wbr><span><span>Poll</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-742189580%2FFunctions%2F788909594"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-742189580%2FFunctions%2F1558683979"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="auto-poll.html"><span class="token function">autoPoll</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-auto-poll-configuration/index.html">AutoPollConfiguration</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a><span class="token operator"> = </span>{}</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-polling-mode/index.html">PollingMode</a></div><div class="brief "><p class="paragraph">Creates an auto polling configuration.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="auto-poll.html"><span class="token function">autoPoll</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-auto-poll-configuration/index.html">AutoPollConfiguration</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a><span class="token operator"> = </span>{}</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-polling-mode/index.html">PollingMode</a></div><div class="brief "><p class="paragraph">In this mode, the ConfigCat SDK downloads the latest config data automatically and stores it in the cache.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="611933256%2FFunctions%2F788909594" anchor-label="ConfigCatClient" id="611933256%2FFunctions%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+<a data-name="412360965%2FFunctions%2F1558683979" anchor-label="ConfigCatClient" id="412360965%2FFunctions%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-config-cat-client.html"><span>Config</span><wbr></wbr><span>Cat</span><wbr></wbr><span><span>Client</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="611933256%2FFunctions%2F788909594"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="412360965%2FFunctions%2F1558683979"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="-config-cat-client.html"><span class="token function">ConfigCatClient</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">sdkKey<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">block<span class="token operator">: </span><a href="-config-cat-options/index.html">ConfigCatOptions</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a><span class="token operator"> = </span>{}</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-config-cat-client/index.html">ConfigCatClient</a></div><div class="brief "><p class="paragraph">Creates a new or gets an already existing <a href="-config-cat-client/index.html">ConfigCatClient</a> for the given <a href="-config-cat-client.html">sdkKey</a>.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="-config-cat-client.html"><span class="token function">ConfigCatClient</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">sdkKey<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">options<span class="token operator">: </span><a href="-config-cat-options/index.html">ConfigCatOptions</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-config-cat-client/index.html">ConfigCatClient</a></div><div class="symbol monospace"><span class="token keyword">fun </span><a href="-config-cat-client.html"><span class="token function">ConfigCatClient</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">sdkKey<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">block<span class="token operator">: </span><a href="-config-cat-options/index.html">ConfigCatOptions</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a><span class="token operator"> = </span>{}</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-config-cat-client/index.html">ConfigCatClient</a></div><div class="brief "><p class="paragraph">Creates a new or gets an already existing <a href="-config-cat-client/index.html">ConfigCatClient</a> for the given <a href="-config-cat-client.html">sdkKey</a>.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="1413992270%2FFunctions%2F788909594" anchor-label="getValue" id="1413992270%2FFunctions%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+<a data-name="-746040400%2FFunctions%2F1558683979" anchor-label="getValue" id="-746040400%2FFunctions%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-value.html"><span>get</span><wbr></wbr><span><span>Value</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1413992270%2FFunctions%2F788909594"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-746040400%2FFunctions%2F1558683979"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">inline suspend </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="get-value.html">T</a><span class="token operator">&gt; </span><a href="-config-cat-client/index.html">ConfigCatClient</a><span class="token punctuation">.</span><a href="get-value.html"><span class="token function">getValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">defaultValue<span class="token operator">: </span><a href="get-value.html">T</a><span class="token punctuation">, </span></span><span class="parameter ">user<span class="token operator">: </span><a href="-config-cat-user/index.html">ConfigCatUser</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="get-value.html">T</a></div><div class="brief "><p class="paragraph">Gets the value of a feature flag or setting as <a href="get-value.html">T</a> identified by the given <a href="get-value.html">key</a>.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">inline suspend </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="get-value.html">T</a><span class="token operator">&gt; </span><a href="-config-cat-client/index.html">ConfigCatClient</a><span class="token punctuation">.</span><a href="get-value.html"><span class="token function">getValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">defaultValue<span class="token operator">: </span><a href="get-value.html">T</a><span class="token punctuation">, </span></span><span class="parameter ">user<span class="token operator">: </span><a href="-config-cat-user/index.html">ConfigCatUser</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="get-value.html">T</a></div><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="get-value.html">T</a><span class="token operator">&gt; </span><a href="-config-cat-client-snapshot/index.html">ConfigCatClientSnapshot</a><span class="token punctuation">.</span><a href="get-value.html"><span class="token function">getValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">defaultValue<span class="token operator">: </span><a href="get-value.html">T</a><span class="token punctuation">, </span></span><span class="parameter ">user<span class="token operator">: </span><a href="-config-cat-user/index.html">ConfigCatUser</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="get-value.html">T</a></div><div class="brief "><p class="paragraph">Gets the value of a feature flag or setting as <a href="get-value.html">T</a> identified by the given <a href="get-value.html">key</a>.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="289920812%2FFunctions%2F788909594" anchor-label="getValueDetails" id="289920812%2FFunctions%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+<a data-name="-791811920%2FFunctions%2F1558683979" anchor-label="getValueDetails" id="-791811920%2FFunctions%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-value-details.html"><span>get</span><wbr></wbr><span>Value</span><wbr></wbr><span><span>Details</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="289920812%2FFunctions%2F788909594"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-791811920%2FFunctions%2F1558683979"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">inline suspend </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="get-value-details.html">T</a><span class="token operator">&gt; </span><a href="-config-cat-client/index.html">ConfigCatClient</a><span class="token punctuation">.</span><a href="get-value-details.html"><span class="token function">getValueDetails</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">defaultValue<span class="token operator">: </span><a href="get-value-details.html">T</a><span class="token punctuation">, </span></span><span class="parameter ">user<span class="token operator">: </span><a href="-config-cat-user/index.html">ConfigCatUser</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-typed-evaluation-details/index.html">TypedEvaluationDetails</a><span class="token operator">&lt;</span><a href="get-value-details.html">T</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Gets the value and evaluation details of a feature flag or setting identified by the given <a href="get-value-details.html">key</a>.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">inline suspend </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="get-value-details.html">T</a><span class="token operator">&gt; </span><a href="-config-cat-client/index.html">ConfigCatClient</a><span class="token punctuation">.</span><a href="get-value-details.html"><span class="token function">getValueDetails</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">defaultValue<span class="token operator">: </span><a href="get-value-details.html">T</a><span class="token punctuation">, </span></span><span class="parameter ">user<span class="token operator">: </span><a href="-config-cat-user/index.html">ConfigCatUser</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-typed-evaluation-details/index.html">TypedEvaluationDetails</a><span class="token operator">&lt;</span><a href="get-value-details.html">T</a><span class="token operator">&gt;</span></div><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="get-value-details.html">T</a><span class="token operator">&gt; </span><a href="-config-cat-client-snapshot/index.html">ConfigCatClientSnapshot</a><span class="token punctuation">.</span><a href="get-value-details.html"><span class="token function">getValueDetails</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">defaultValue<span class="token operator">: </span><a href="get-value-details.html">T</a><span class="token punctuation">, </span></span><span class="parameter ">user<span class="token operator">: </span><a href="-config-cat-user/index.html">ConfigCatUser</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-typed-evaluation-details/index.html">TypedEvaluationDetails</a><span class="token operator">&lt;</span><a href="get-value-details.html">T</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Gets the value and evaluation details of a feature flag or setting identified by the given <a href="get-value-details.html">key</a>.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-264250252%2FFunctions%2F788909594" anchor-label="lazyLoad" id="-264250252%2FFunctions%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+<a data-name="-264250252%2FFunctions%2F1558683979" anchor-label="lazyLoad" id="-264250252%2FFunctions%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="lazy-load.html"><span>lazy</span><wbr></wbr><span><span>Load</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-264250252%2FFunctions%2F788909594"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-264250252%2FFunctions%2F1558683979"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="lazy-load.html"><span class="token function">lazyLoad</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-lazy-load-configuration/index.html">LazyLoadConfiguration</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a><span class="token operator"> = </span>{}</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-polling-mode/index.html">PollingMode</a></div><div class="brief "><p class="paragraph">Creates a lazy load polling configuration.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="lazy-load.html"><span class="token function">lazyLoad</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-lazy-load-configuration/index.html">LazyLoadConfiguration</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a><span class="token operator"> = </span>{}</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-polling-mode/index.html">PollingMode</a></div><div class="brief "><p class="paragraph">In this mode, the ConfigCat SDK downloads the latest config data only if it is not present in the cache, or if it is but has expired.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="2135489553%2FFunctions%2F788909594" anchor-label="manualPoll" id="2135489553%2FFunctions%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
-          <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
+<a data-name="2135489553%2FFunctions%2F1558683979" anchor-label="manualPoll" id="2135489553%2FFunctions%2F1558683979" data-filterable-set=":/commonMain"></a>
+          <div class="table-row" data-filterable-current=":/commonMain" data-filterable-set=":/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="manual-poll.html"><span>manual</span><wbr></wbr><span><span>Poll</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2135489553%2FFunctions%2F788909594"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2135489553%2FFunctions%2F1558683979"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="manual-poll.html"><span class="token function">manualPoll</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-polling-mode/index.html">PollingMode</a></div><div class="brief "><p class="paragraph">Creates a manual polling configuration.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="manual-poll.html"><span class="token function">manualPoll</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-polling-mode/index.html">PollingMode</a></div><div class="brief "><p class="paragraph">In this mode, the ConfigCat SDK will not download the config data automatically. You need to update the cache manually by calling <a href="-config-cat-client/force-refresh.html">ConfigCatClient.forceRefresh</a>.</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -419,11 +519,16 @@
     </div>
   </div>
 </div>
-      <div class="footer">
-        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2025 Copyright</span><span
-                class="pull-right"><span>Generated by </span><a
-                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
-      </div>
+    <div class="footer">
+        <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+        <span>© 2025 Copyright</span>
+        <span class="pull-right">
+            <span>Generated by </span>
+            <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                <span>dokka</span>
+            </a>
+        </span>
+    </div>
             </div>
         </div>
     </div>

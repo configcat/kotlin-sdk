@@ -1,9 +1,26 @@
 $dokka.format:html-v1
 $dokka.linkExtension:html
 $dokka.location:com.configcat.fetch////PointingToDeclaration/configcat-kotlin-client/com.configcat.fetch/index.html
+$dokka.location:com.configcat.fetch/RefreshErrorCode.CLIENT_INIT_TIMED_OUT///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat.fetch/-refresh-error-code/-c-l-i-e-n-t_-i-n-i-t_-t-i-m-e-d_-o-u-t/index.html
+$dokka.location:com.configcat.fetch/RefreshErrorCode.HTTP_REQUEST_FAILURE///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat.fetch/-refresh-error-code/-h-t-t-p_-r-e-q-u-e-s-t_-f-a-i-l-u-r-e/index.html
+$dokka.location:com.configcat.fetch/RefreshErrorCode.HTTP_REQUEST_TIMEOUT///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat.fetch/-refresh-error-code/-h-t-t-p_-r-e-q-u-e-s-t_-t-i-m-e-o-u-t/index.html
+$dokka.location:com.configcat.fetch/RefreshErrorCode.INVALID_HTTP_RESPONSE_CONTENT///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat.fetch/-refresh-error-code/-i-n-v-a-l-i-d_-h-t-t-p_-r-e-s-p-o-n-s-e_-c-o-n-t-e-n-t/index.html
+$dokka.location:com.configcat.fetch/RefreshErrorCode.INVALID_SDK_KEY///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat.fetch/-refresh-error-code/-i-n-v-a-l-i-d_-s-d-k_-k-e-y/index.html
+$dokka.location:com.configcat.fetch/RefreshErrorCode.LOCAL_ONLY_CLIENT///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat.fetch/-refresh-error-code/-l-o-c-a-l_-o-n-l-y_-c-l-i-e-n-t/index.html
+$dokka.location:com.configcat.fetch/RefreshErrorCode.NONE///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat.fetch/-refresh-error-code/-n-o-n-e/index.html
+$dokka.location:com.configcat.fetch/RefreshErrorCode.OFFLINE_CLIENT///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat.fetch/-refresh-error-code/-o-f-f-l-i-n-e_-c-l-i-e-n-t/index.html
+$dokka.location:com.configcat.fetch/RefreshErrorCode.UNEXPECTED_ERROR///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat.fetch/-refresh-error-code/-u-n-e-x-p-e-c-t-e-d_-e-r-r-o-r/index.html
+$dokka.location:com.configcat.fetch/RefreshErrorCode.UNEXPECTED_HTTP_RESPONSE///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat.fetch/-refresh-error-code/-u-n-e-x-p-e-c-t-e-d_-h-t-t-p_-r-e-s-p-o-n-s-e/index.html
+$dokka.location:com.configcat.fetch/RefreshErrorCode///PointingToDeclaration/configcat-kotlin-client/com.configcat.fetch/-refresh-error-code/index.html
+$dokka.location:com.configcat.fetch/RefreshErrorCode/code/#/PointingToDeclaration/configcat-kotlin-client/com.configcat.fetch/-refresh-error-code/code.html
+$dokka.location:com.configcat.fetch/RefreshErrorCode/entries/#/PointingToDeclaration/configcat-kotlin-client/com.configcat.fetch/-refresh-error-code/entries.html
+$dokka.location:com.configcat.fetch/RefreshErrorCode/valueOf/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat.fetch/-refresh-error-code/value-of.html
+$dokka.location:com.configcat.fetch/RefreshErrorCode/values/#/PointingToDeclaration/configcat-kotlin-client/com.configcat.fetch/-refresh-error-code/values.html
 $dokka.location:com.configcat.fetch/RefreshResult///PointingToDeclaration/configcat-kotlin-client/com.configcat.fetch/-refresh-result/index.html
-$dokka.location:com.configcat.fetch/RefreshResult/RefreshResult/#kotlin.Boolean#kotlin.String?/PointingToDeclaration/configcat-kotlin-client/com.configcat.fetch/-refresh-result/-refresh-result.html
+$dokka.location:com.configcat.fetch/RefreshResult/RefreshResult/#kotlin.Boolean#kotlin.String?#com.configcat.fetch.RefreshErrorCode#kotlin.Exception?/PointingToDeclaration/configcat-kotlin-client/com.configcat.fetch/-refresh-result/-refresh-result.html
 $dokka.location:com.configcat.fetch/RefreshResult/error/#/PointingToDeclaration/configcat-kotlin-client/com.configcat.fetch/-refresh-result/error.html
+$dokka.location:com.configcat.fetch/RefreshResult/errorCode/#/PointingToDeclaration/configcat-kotlin-client/com.configcat.fetch/-refresh-result/error-code.html
+$dokka.location:com.configcat.fetch/RefreshResult/errorException/#/PointingToDeclaration/configcat-kotlin-client/com.configcat.fetch/-refresh-result/error-exception.html
 $dokka.location:com.configcat.fetch/RefreshResult/isSuccess/#/PointingToDeclaration/configcat-kotlin-client/com.configcat.fetch/-refresh-result/is-success.html
 $dokka.location:com.configcat.log////PointingToDeclaration/configcat-kotlin-client/com.configcat.log/index.html
 $dokka.location:com.configcat.log/LogLevel.DEBUG///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat.log/-log-level/-d-e-b-u-g/index.html
@@ -120,10 +137,13 @@ $dokka.location:com.configcat.override/OverrideDataSource.Companion/map/#kotlin.
 $dokka.location:com.configcat.override/OverrideDataSource///PointingToDeclaration/configcat-kotlin-client/com.configcat.override/-override-data-source/index.html
 $dokka.location:com.configcat.override/OverrideDataSource/getOverrides/#/PointingToDeclaration/configcat-kotlin-client/com.configcat.override/-override-data-source/get-overrides.html
 $dokka.location:com.configcat////PointingToDeclaration/configcat-kotlin-client/com.configcat/index.html
+$dokka.location:com.configcat//ConfigCatClient/#kotlin.String#com.configcat.ConfigCatOptions/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client.html
 $dokka.location:com.configcat//ConfigCatClient/#kotlin.String#kotlin.Function1[com.configcat.ConfigCatOptions,kotlin.Unit]/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client.html
 $dokka.location:com.configcat//autoPoll/#kotlin.Function1[com.configcat.AutoPollConfiguration,kotlin.Unit]/PointingToDeclaration/configcat-kotlin-client/com.configcat/auto-poll.html
 $dokka.location:com.configcat//getValue/com.configcat.ConfigCatClient#kotlin.String#TypeParam(bounds=[kotlin.Any?])#com.configcat.ConfigCatUser?/PointingToDeclaration/configcat-kotlin-client/com.configcat/get-value.html
+$dokka.location:com.configcat//getValue/com.configcat.ConfigCatClientSnapshot#kotlin.String#TypeParam(bounds=[kotlin.Any?])#com.configcat.ConfigCatUser?/PointingToDeclaration/configcat-kotlin-client/com.configcat/get-value.html
 $dokka.location:com.configcat//getValueDetails/com.configcat.ConfigCatClient#kotlin.String#TypeParam(bounds=[kotlin.Any?])#com.configcat.ConfigCatUser?/PointingToDeclaration/configcat-kotlin-client/com.configcat/get-value-details.html
+$dokka.location:com.configcat//getValueDetails/com.configcat.ConfigCatClientSnapshot#kotlin.String#TypeParam(bounds=[kotlin.Any?])#com.configcat.ConfigCatUser?/PointingToDeclaration/configcat-kotlin-client/com.configcat/get-value-details.html
 $dokka.location:com.configcat//lazyLoad/#kotlin.Function1[com.configcat.LazyLoadConfiguration,kotlin.Unit]/PointingToDeclaration/configcat-kotlin-client/com.configcat/lazy-load.html
 $dokka.location:com.configcat//manualPoll/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/manual-poll.html
 $dokka.location:com.configcat/AutoPollConfiguration///PointingToDeclaration/configcat-kotlin-client/com.configcat/-auto-poll-configuration/index.html
@@ -159,7 +179,13 @@ $dokka.location:com.configcat/ConfigCatClient/isOffline/#/PointingToDeclaration/
 $dokka.location:com.configcat/ConfigCatClient/setDefaultUser/#com.configcat.ConfigCatUser/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/set-default-user.html
 $dokka.location:com.configcat/ConfigCatClient/setOffline/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/set-offline.html
 $dokka.location:com.configcat/ConfigCatClient/setOnline/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/set-online.html
+$dokka.location:com.configcat/ConfigCatClient/snapshot/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/snapshot.html
 $dokka.location:com.configcat/ConfigCatClient/waitForReady/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client/wait-for-ready.html
+$dokka.location:com.configcat/ConfigCatClientSnapshot///PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client-snapshot/index.html
+$dokka.location:com.configcat/ConfigCatClientSnapshot/cacheState/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client-snapshot/cache-state.html
+$dokka.location:com.configcat/ConfigCatClientSnapshot/getAllKeys/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client-snapshot/get-all-keys.html
+$dokka.location:com.configcat/ConfigCatClientSnapshot/getAnyValue/#kotlin.String#kotlin.Any?#com.configcat.ConfigCatUser?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client-snapshot/get-any-value.html
+$dokka.location:com.configcat/ConfigCatClientSnapshot/getAnyValueDetails/#kotlin.String#kotlin.Any?#com.configcat.ConfigCatUser?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-client-snapshot/get-any-value-details.html
 $dokka.location:com.configcat/ConfigCatOptions///PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-options/index.html
 $dokka.location:com.configcat/ConfigCatOptions/ConfigCatOptions/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-options/-config-cat-options.html
 $dokka.location:com.configcat/ConfigCatOptions/baseUrl/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-options/base-url.html
@@ -177,6 +203,7 @@ $dokka.location:com.configcat/ConfigCatOptions/pollingMode/#/PointingToDeclarati
 $dokka.location:com.configcat/ConfigCatOptions/requestTimeout/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-options/request-timeout.html
 $dokka.location:com.configcat/ConfigCatUser///PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-user/index.html
 $dokka.location:com.configcat/ConfigCatUser/ConfigCatUser/#kotlin.String#kotlin.String?#kotlin.String?#kotlin.collections.Map[kotlin.String,kotlin.Any]?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-user/-config-cat-user.html
+$dokka.location:com.configcat/ConfigCatUser/attributeFor/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-user/attribute-for.html
 $dokka.location:com.configcat/ConfigCatUser/identifier/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-user/identifier.html
 $dokka.location:com.configcat/ConfigCatUser/toString/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-config-cat-user/to-string.html
 $dokka.location:com.configcat/DataGovernance.EU_ONLY///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat/-data-governance/-e-u_-o-n-l-y/index.html
@@ -189,6 +216,8 @@ $dokka.location:com.configcat/EvaluationDetails///PointingToDeclaration/configc
 $dokka.location:com.configcat/EvaluationDetails/value/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-evaluation-details/value.html
 $dokka.location:com.configcat/EvaluationDetailsBase///PointingToDeclaration/configcat-kotlin-client/com.configcat/-evaluation-details-base/index.html
 $dokka.location:com.configcat/EvaluationDetailsBase/error/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-evaluation-details-base/error.html
+$dokka.location:com.configcat/EvaluationDetailsBase/errorCode/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-evaluation-details-base/error-code.html
+$dokka.location:com.configcat/EvaluationDetailsBase/errorException/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-evaluation-details-base/error-exception.html
 $dokka.location:com.configcat/EvaluationDetailsBase/fetchTimeUnixMilliseconds/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-evaluation-details-base/fetch-time-unix-milliseconds.html
 $dokka.location:com.configcat/EvaluationDetailsBase/isDefaultValue/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-evaluation-details-base/is-default-value.html
 $dokka.location:com.configcat/EvaluationDetailsBase/key/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-evaluation-details-base/key.html
@@ -196,6 +225,17 @@ $dokka.location:com.configcat/EvaluationDetailsBase/matchedPercentageOption/#/Po
 $dokka.location:com.configcat/EvaluationDetailsBase/matchedTargetingRule/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-evaluation-details-base/matched-targeting-rule.html
 $dokka.location:com.configcat/EvaluationDetailsBase/user/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-evaluation-details-base/user.html
 $dokka.location:com.configcat/EvaluationDetailsBase/variationId/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-evaluation-details-base/variation-id.html
+$dokka.location:com.configcat/EvaluationErrorCode.CONFIG_JSON_NOT_AVAILABLE///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat/-evaluation-error-code/-c-o-n-f-i-g_-j-s-o-n_-n-o-t_-a-v-a-i-l-a-b-l-e/index.html
+$dokka.location:com.configcat/EvaluationErrorCode.INVALID_CONFIG_MODEL///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat/-evaluation-error-code/-i-n-v-a-l-i-d_-c-o-n-f-i-g_-m-o-d-e-l/index.html
+$dokka.location:com.configcat/EvaluationErrorCode.NONE///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat/-evaluation-error-code/-n-o-n-e/index.html
+$dokka.location:com.configcat/EvaluationErrorCode.SETTING_KEY_MISSING///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat/-evaluation-error-code/-s-e-t-t-i-n-g_-k-e-y_-m-i-s-s-i-n-g/index.html
+$dokka.location:com.configcat/EvaluationErrorCode.SETTING_VALUE_TYPE_MISMATCH///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat/-evaluation-error-code/-s-e-t-t-i-n-g_-v-a-l-u-e_-t-y-p-e_-m-i-s-m-a-t-c-h/index.html
+$dokka.location:com.configcat/EvaluationErrorCode.UNEXPECTED_ERROR///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}configcat-kotlin-client/com.configcat/-evaluation-error-code/-u-n-e-x-p-e-c-t-e-d_-e-r-r-o-r/index.html
+$dokka.location:com.configcat/EvaluationErrorCode///PointingToDeclaration/configcat-kotlin-client/com.configcat/-evaluation-error-code/index.html
+$dokka.location:com.configcat/EvaluationErrorCode/code/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-evaluation-error-code/code.html
+$dokka.location:com.configcat/EvaluationErrorCode/entries/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-evaluation-error-code/entries.html
+$dokka.location:com.configcat/EvaluationErrorCode/valueOf/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-evaluation-error-code/value-of.html
+$dokka.location:com.configcat/EvaluationErrorCode/values/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-evaluation-error-code/values.html
 $dokka.location:com.configcat/Hooks///PointingToDeclaration/configcat-kotlin-client/com.configcat/-hooks/index.html
 $dokka.location:com.configcat/Hooks/Hooks/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-hooks/-hooks.html
 $dokka.location:com.configcat/Hooks/addOnClientReady/#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/configcat-kotlin-client/com.configcat/-hooks/add-on-client-ready.html
@@ -217,7 +257,7 @@ $dokka.location:com.configcat/SharedPreferencesCache/SharedPreferencesCache/#and
 $dokka.location:com.configcat/SharedPreferencesCache/read/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-shared-preferences-cache/read.html
 $dokka.location:com.configcat/SharedPreferencesCache/write/#kotlin.String#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-shared-preferences-cache/write.html
 $dokka.location:com.configcat/TypedEvaluationDetails///PointingToDeclaration/configcat-kotlin-client/com.configcat/-typed-evaluation-details/index.html
-$dokka.location:com.configcat/TypedEvaluationDetails/TypedEvaluationDetails/#kotlin.String#kotlin.String?#com.configcat.ConfigCatUser?#kotlin.Boolean#kotlin.String?#TypeParam(bounds=[kotlin.Any?])#kotlin.Long#com.configcat.model.TargetingRule?#com.configcat.model.PercentageOption?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-typed-evaluation-details/-typed-evaluation-details.html
+$dokka.location:com.configcat/TypedEvaluationDetails/TypedEvaluationDetails/#kotlin.String#kotlin.String?#com.configcat.ConfigCatUser?#kotlin.Boolean#kotlin.String?#com.configcat.EvaluationErrorCode#kotlin.Exception?#TypeParam(bounds=[kotlin.Any?])#kotlin.Long#com.configcat.model.TargetingRule?#com.configcat.model.PercentageOption?/PointingToDeclaration/configcat-kotlin-client/com.configcat/-typed-evaluation-details/-typed-evaluation-details.html
 $dokka.location:com.configcat/TypedEvaluationDetails/value/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-typed-evaluation-details/value.html
 $dokka.location:com.configcat/UserDefaultsCache///PointingToDeclaration/configcat-kotlin-client/com.configcat/-user-defaults-cache/index.html
 $dokka.location:com.configcat/UserDefaultsCache/UserDefaultsCache/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-user-defaults-cache/-user-defaults-cache.html
@@ -228,4 +268,3 @@ com.configcat.fetch
 com.configcat.log
 com.configcat.model
 com.configcat.override
-
