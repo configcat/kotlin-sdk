@@ -895,7 +895,7 @@ class ConfigCatClientTests {
                 httpEngine = mockEngine
                 pollingMode = autoPoll { pollingInterval = 2.seconds }
                 offline = true
-                hooks.addOnClientReady { clientCacheState-> ready = clientCacheState }
+                hooks.addOnClientReady { clientCacheState: ClientCacheState -> ready = clientCacheState }
             }
 
             assertEquals(0, mockEngine.requestHistory.size)
@@ -1075,9 +1075,9 @@ class ConfigCatClientTests {
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = manualPoll()
-                    hooks.addOnConfigChanged { changed = true }
-                    hooks.addOnClientReady { clientReadyState -> readyWithClientState = clientReadyState }
-                    hooks.addOnClientReady { -> ready = true}
+                    hooks.addOnConfigChanged { settings, snapshot -> changed = true }
+                    hooks.addOnClientReady { clientCacheState: ClientCacheState -> readyWithClientState = clientCacheState }
+                    hooks.addOnClientReadyWithSnapshot { snapshot: ConfigCatClientSnapshot -> ready = true}
                     hooks.addOnError { err -> error = err }
                 }
 
@@ -1118,7 +1118,7 @@ class ConfigCatClientTests {
                     pollingMode = manualPoll()
                 }
 
-            client.hooks.addOnConfigChanged { changed = true }
+            client.hooks.addOnConfigChanged { settings, snapshot -> changed = true }
             client.hooks.addOnError { err -> error = err }
 
             client.forceRefresh()
@@ -1143,7 +1143,7 @@ class ConfigCatClientTests {
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     pollingMode = manualPoll()
                     configCache = cache
-                    hooks.addOnClientReady { clientReadyState -> ready = clientReadyState }
+                    hooks.addOnClientReady { clientReadyState: ClientCacheState -> ready = clientReadyState }
                 }
 
             TestUtils.awaitUntil {
@@ -1163,7 +1163,7 @@ class ConfigCatClientTests {
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY }
                     pollingMode = manualPoll()
-                    hooks.addOnClientReady { clientReadyState -> ready = clientReadyState }
+                    hooks.addOnClientReady { clientReadyState: ClientCacheState -> ready = clientReadyState }
                 }
 
             assertEquals(ClientCacheState.HAS_LOCAL_OVERRIDE_FLAG_DATA_ONLY, ready)
@@ -1189,8 +1189,8 @@ class ConfigCatClientTests {
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = autoPoll()
-                    hooks.addOnConfigChanged { changed = true }
-                    hooks.addOnClientReady { clientReadyState -> ready = clientReadyState }
+                    hooks.addOnConfigChanged { settings, snapshot -> changed = true }
+                    hooks.addOnClientReady { clientReadyState: ClientCacheState -> ready = clientReadyState }
                     hooks.addOnError { err -> error = err }
                 }
 
