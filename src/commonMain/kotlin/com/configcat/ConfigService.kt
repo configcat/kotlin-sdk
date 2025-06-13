@@ -52,6 +52,7 @@ internal data class EntryResult(
 
 internal class ConfigService(
     private val options: ConfigCatOptions,
+    private val snapshotBuilder: SnapshotBuilder,
     private val configFetcher: ConfigFetcher,
     private val logger: InternalLogger,
     private val hooks: Hooks,
@@ -87,9 +88,9 @@ internal class ConfigService(
                 val fromCache = readCache()
                 if (!fromCache.isEmpty() && fromCache.eTag != cachedEntry.value.eTag) {
                     cachedEntry.value = fromCache
-                    hooks.invokeOnConfigChanged(fromCache.config.settings)
+                    hooks.invokeOnConfigChanged(snapshotBuilder, getInMemoryState())
                 }
-                initializeAndReportCacheState(cachedEntry.value)
+                initializeAndReportCacheState()
             }
         }
     }
@@ -168,16 +169,16 @@ internal class ConfigService(
             val fromCache = readCache()
             if (!fromCache.isEmpty() && fromCache.eTag != cachedEntry.value.eTag) {
                 cachedEntry.value = fromCache
-                hooks.invokeOnConfigChanged(fromCache.config.settings)
+                hooks.invokeOnConfigChanged(snapshotBuilder, getInMemoryState())
             }
             // Cache isn't expired
             if (!cachedEntry.value.isExpired(threshold)) {
-                initializeAndReportCacheState(cachedEntry.value)
+                initializeAndReportCacheState()
                 return EntryResult(cachedEntry.value, null, RefreshErrorCode.NONE, null)
             }
             // If we are in offline mode or the caller prefers cached values, do not initiate fetch.
             if (offline.value || preferCached) {
-                initializeAndReportCacheState(cachedEntry.value)
+                initializeAndReportCacheState()
                 return EntryResult(cachedEntry.value, null, RefreshErrorCode.NONE, null)
             }
 
@@ -204,7 +205,7 @@ internal class ConfigService(
                                     mode.configuration.maxInitWaitTime.inWholeMilliseconds,
                                 )
                             logger.warning(4200, message)
-                            initializeAndReportCacheState(cachedEntry.value)
+                            initializeAndReportCacheState()
 
                             return@async EntryResult(Entry.empty, message, RefreshErrorCode.CLIENT_INIT_TIMED_OUT, null)
                         } else {
@@ -234,14 +235,14 @@ internal class ConfigService(
             if (response.isFetched) {
                 cachedEntry.value = response.entry
                 writeCache(response.entry)
-                hooks.invokeOnConfigChanged(response.entry.config.settings)
-                initializeAndReportCacheState(response.entry)
+                hooks.invokeOnConfigChanged(snapshotBuilder, getInMemoryState())
+                initializeAndReportCacheState()
                 return EntryResult.success(response.entry)
             } else if ((response.isNotModified || !response.isTransientError) && !cachedEntry.value.isEmpty()) {
                 cachedEntry.value = cachedEntry.value.copy(fetchTime = DateTime.now())
                 writeCache(cachedEntry.value)
             }
-            initializeAndReportCacheState(cachedEntry.value)
+            initializeAndReportCacheState()
             return EntryResult(cachedEntry.value, response.error, response.errorCode, response.errorException)
         }
     }
@@ -260,10 +261,10 @@ internal class ConfigService(
             }
     }
 
-    private fun initializeAndReportCacheState(entry: Entry) {
+    private fun initializeAndReportCacheState() {
         initialized.value = true
         if (cacheStateReported.compareAndSet(expect = false, update = true)) {
-            hooks.invokeOnClientReady(determineCacheState(entry))
+            hooks.invokeOnClientReady(snapshotBuilder, getInMemoryState())
         }
     }
 

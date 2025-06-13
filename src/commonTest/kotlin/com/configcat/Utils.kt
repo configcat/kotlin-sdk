@@ -208,11 +208,16 @@ internal object Services {
         options.configCache = cache
         options.hooks = hooks
         options.offline = offline
+        val logger = InternalLogger(options.logger, options.logLevel, hooks)
         val service =
             ConfigService(
                 options,
+                SnapshotBuilder(FlagEvaluator(
+                    logger, Evaluator(logger),
+                    hooks = hooks
+                ), null, logger, null),
                 createFetcher(engine, options = options),
-                InternalLogger(options.logger, options.logLevel, hooks),
+        logger,
                 hooks,
             )
         closeables.add(service)

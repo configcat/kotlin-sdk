@@ -12,29 +12,17 @@ import kotlinx.atomicfu.locks.withLock
 public class Hooks {
     private val isClientReady = atomic(false)
     private val clientCacheState = atomic(ClientCacheState.NO_FLAG_DATA)
-    private val onClientReady: MutableList<() -> Unit> = mutableListOf()
     private val onClientReadyWithState: MutableList<(ClientCacheState) -> Unit> = mutableListOf()
-    private val onConfigChanged: MutableList<(Map<String, Setting>) -> Unit> = mutableListOf()
+    private val onClientReadyWithSnapshot: MutableList<(ConfigCatClientSnapshot) -> Unit> = mutableListOf()
+    private val onConfigChanged: MutableList<
+        (
+            Map<String, Setting>,
+            ConfigCatClientSnapshot,
+        ) -> Unit,
+        > = mutableListOf()
     private val onFlagEvaluated: MutableList<(EvaluationDetails) -> Unit> = mutableListOf()
     private val onError: MutableList<(String) -> Unit> = mutableListOf()
     private val lock: ReentrantLock = reentrantLock()
-
-    /**
-     * This event is sent when the SDK reaches the ready state.
-     * If the SDK is configured with lazy load or manual polling it's considered ready right after instantiation.
-     * If it's using auto polling, the ready state is reached when the SDK has a valid config.json loaded into
-     * memory either from cache or from HTTP. If the config couldn't be loaded neither from cache nor
-     * from HTTP the `onClientReady` event fires when the auto polling's `maxInitWaitTimeInSeconds` is reached.
-     */
-    @Deprecated(
-        message = "Use the new addOnClientReady(handler: (ClientCacheState) -> Unit) method.",
-        level = DeprecationLevel.WARNING,
-    )
-    public fun addOnClientReady(handler: () -> Unit) {
-        lock.withLock {
-            onClientReady.add(handler)
-        }
-    }
 
     /**
      * This event is sent when the SDK reaches the ready state.
@@ -54,10 +42,26 @@ public class Hooks {
     }
 
     /**
+     * This event is sent when the SDK reaches the ready state.
+     * If the SDK is configured with lazy load or manual polling it's considered ready right after instantiation.
+     * If it's using auto polling, the ready state is reached when the SDK has a valid config.json loaded into
+     * memory either from cache or from HTTP. If the config couldn't be loaded neither from cache nor
+     * from HTTP the `onClientReady` event fires when the auto polling's `maxInitWaitTimeInSeconds` is reached.
+     *
+     * Late subscriptions (through the `client.hooks` property) might not get notified
+     * if the client reached the ready state before the subscription.
+     */
+    public fun addOnClientReadyWithSnapshot(snapshotHandler: (ConfigCatClientSnapshot) -> Unit) {
+        lock.withLock {
+            onClientReadyWithSnapshot.add(snapshotHandler)
+        }
+    }
+
+    /**
      * This event is sent when the SDK loads a valid config.json into memory from cache,
      * and each subsequent time when the loaded config.json changes via HTTP.
      */
-    public fun addOnConfigChanged(handler: (Map<String, Setting>) -> Unit) {
+    public fun addOnConfigChanged(handler: (Map<String, Setting>, ConfigCatClientSnapshot) -> Unit) {
         lock.withLock {
             onConfigChanged.add(handler)
         }
@@ -82,23 +86,35 @@ public class Hooks {
         }
     }
 
-    internal fun invokeOnClientReady(clientCacheState: ClientCacheState) {
+    internal fun invokeOnClientReady(
+        snapshotBuilder: SnapshotBuilder,
+        inMemoryResult: InMemoryResult,
+    ) {
         lock.withLock {
             this.isClientReady.value = true
-            this.clientCacheState.value = clientCacheState
+            this.clientCacheState.value = inMemoryResult.cacheState
             for (method in onClientReadyWithState) {
-                method(clientCacheState)
+                method(inMemoryResult.cacheState)
             }
-            for (method in onClientReady) {
-                method()
+            if (onClientReadyWithSnapshot.isNotEmpty()) {
+                val snapshot = snapshotBuilder.buildSnapshot(inMemoryResult)
+                for (method in onClientReadyWithSnapshot) {
+                    method(snapshot)
+                }
             }
         }
     }
 
-    internal fun invokeOnConfigChanged(settings: Map<String, Setting>?) {
+    internal fun invokeOnConfigChanged(
+        snapshotBuilder: SnapshotBuilder,
+        inMemoryResult: InMemoryResult,
+    ) {
         lock.withLock {
-            for (method in onConfigChanged) {
-                method(settings ?: mapOf())
+            if (onConfigChanged.isNotEmpty()) {
+                val snapshot = snapshotBuilder.buildSnapshot(inMemoryResult)
+                for (method in onConfigChanged) {
+                    method(inMemoryResult.settingResult.settings, snapshot)
+                }
             }
         }
     }
@@ -121,7 +137,7 @@ public class Hooks {
 
     internal fun clear() {
         lock.withLock {
-            onClientReady.clear()
+            onClientReadyWithSnapshot.clear()
             onClientReadyWithState.clear()
             onConfigChanged.clear()
             onFlagEvaluated.clear()

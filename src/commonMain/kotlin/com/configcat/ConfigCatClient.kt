@@ -13,7 +13,6 @@ import com.configcat.override.FlagOverrides
 import com.configcat.override.OverrideBehavior
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.ProxyConfig
-import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
@@ -379,7 +378,7 @@ internal class Client private constructor(
     private val evaluator: Evaluator
     private val flagEvaluator: FlagEvaluator
     private val logger: InternalLogger
-    private val defaultUser: AtomicRef<ConfigCatUser?> = atomic(null)
+    private val snapshotBuilder: SnapshotBuilder
     private val isClosed = atomic(false)
 
     override val hooks: Hooks
@@ -388,17 +387,23 @@ internal class Client private constructor(
         options.sdkKey = sdkKey
         logger = InternalLogger(options.logger, options.logLevel, options.hooks)
         hooks = options.hooks
-        defaultUser.value = options.defaultUser
         flagOverrides = options.flagOverrides?.let { FlagOverrides().apply(it) }
-        service =
-            if (flagOverrides != null && flagOverrides.behavior == OverrideBehavior.LOCAL_ONLY) {
-                hooks.invokeOnClientReady(ClientCacheState.HAS_LOCAL_OVERRIDE_FLAG_DATA_ONLY)
-                null
-            } else {
-                ConfigService(options, ConfigFetcher(options, logger), logger, options.hooks)
-            }
         evaluator = Evaluator(logger)
         flagEvaluator = FlagEvaluator(logger, evaluator, options.hooks)
+        snapshotBuilder = SnapshotBuilder(flagEvaluator, flagOverrides, logger, options.defaultUser)
+        service =
+            if (flagOverrides != null && flagOverrides.behavior == OverrideBehavior.LOCAL_ONLY) {
+                hooks.invokeOnClientReady(
+                    snapshotBuilder,
+                    InMemoryResult(
+                        SettingResult.empty,
+                        ClientCacheState.HAS_LOCAL_OVERRIDE_FLAG_DATA_ONLY,
+                    ),
+                )
+                null
+            } else {
+                ConfigService(options, snapshotBuilder, ConfigFetcher(options, logger), logger, options.hooks)
+            }
     }
 
     internal suspend fun eval(
@@ -410,7 +415,7 @@ internal class Client private constructor(
         require(key.isNotEmpty()) { "'key' cannot be empty." }
 
         val settingResult = getSettings()
-        val evalUser = user ?: defaultUser.value
+        val evalUser = user ?: snapshotBuilder.defaultUser.value
         return flagEvaluator.findAndEvalFlag(
             settingResult,
             key,
@@ -436,7 +441,7 @@ internal class Client private constructor(
         require(key.isNotEmpty()) { "'key' cannot be empty." }
 
         val settingResult = getSettings()
-        val evalUser = user ?: defaultUser.value
+        val evalUser = user ?: snapshotBuilder.defaultUser.value
 
         return flagEvaluator.findAndEvalFlagDetails(
             settingResult,
@@ -464,7 +469,7 @@ internal class Client private constructor(
                 flagEvaluator.evalFlag(
                     it.value,
                     it.key,
-                    user ?: defaultUser.value,
+                    user ?: snapshotBuilder.defaultUser.value,
                     settingResult.fetchTime,
                     settingResult.settings,
                 )
@@ -551,7 +556,7 @@ internal class Client private constructor(
                     flagEvaluator.evalFlag(
                         it.value,
                         it.key,
-                        user ?: defaultUser.value,
+                        user ?: snapshotBuilder.defaultUser.value,
                         settingResult.fetchTime,
                         settingResult.settings,
                     )
@@ -606,7 +611,7 @@ internal class Client private constructor(
             )
             return
         }
-        defaultUser.value = user
+        snapshotBuilder.defaultUser.value = user
     }
 
     override fun clearDefaultUser() {
@@ -617,7 +622,7 @@ internal class Client private constructor(
             )
             return
         }
-        defaultUser.value = null
+        snapshotBuilder.defaultUser.value = null
     }
 
     override fun close() {
@@ -634,7 +639,7 @@ internal class Client private constructor(
 
     override suspend fun waitForReady(): ClientCacheState {
         val completableDeferred = CompletableDeferred<ClientCacheState>()
-        hooks.addOnClientReady { clientCacheState -> completableDeferred.complete(clientCacheState) }
+        hooks.addOnClientReady { clientCacheState: ClientCacheState -> completableDeferred.complete(clientCacheState) }
         return completableDeferred.await()
     }
 
@@ -644,7 +649,7 @@ internal class Client private constructor(
             flagEvaluator,
             result.settingResult,
             result.cacheState,
-            defaultUser.value,
+            snapshotBuilder.defaultUser.value,
             logger,
         )
     }
@@ -741,16 +746,12 @@ internal class Client private constructor(
             options: ConfigCatOptions,
         ): Client {
             val flagOverrides = options.flagOverrides?.let { FlagOverrides().apply(it) }
-            if (sdkKey.isEmpty()) {
-                options.hooks.invokeOnClientReady(ClientCacheState.NO_FLAG_DATA)
-                throw IllegalArgumentException("SDK Key cannot be empty.")
-            }
-
-            if (OverrideBehavior.LOCAL_ONLY != flagOverrides?.behavior &&
-                !isValidKey(sdkKey, options.isBaseURLCustom())
+            require(sdkKey.isNotEmpty()) { "SDK Key cannot be empty." }
+            require(
+                OverrideBehavior.LOCAL_ONLY == flagOverrides?.behavior ||
+                    isValidKey(sdkKey, options.isBaseURLCustom()),
             ) {
-                options.hooks.invokeOnClientReady(ClientCacheState.NO_FLAG_DATA)
-                throw IllegalArgumentException("SDK Key '$sdkKey' is invalid.")
+                "SDK Key '$sdkKey' is invalid."
             }
 
             lock.withLock {
