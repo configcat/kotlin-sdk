@@ -238,9 +238,9 @@ $dokka.location:com.configcat/EvaluationErrorCode/valueOf/#kotlin.String/Pointin
 $dokka.location:com.configcat/EvaluationErrorCode/values/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-evaluation-error-code/values.html
 $dokka.location:com.configcat/Hooks///PointingToDeclaration/configcat-kotlin-client/com.configcat/-hooks/index.html
 $dokka.location:com.configcat/Hooks/Hooks/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-hooks/-hooks.html
-$dokka.location:com.configcat/Hooks/addOnClientReady/#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/configcat-kotlin-client/com.configcat/-hooks/add-on-client-ready.html
 $dokka.location:com.configcat/Hooks/addOnClientReady/#kotlin.Function1[com.configcat.ClientCacheState,kotlin.Unit]/PointingToDeclaration/configcat-kotlin-client/com.configcat/-hooks/add-on-client-ready.html
-$dokka.location:com.configcat/Hooks/addOnConfigChanged/#kotlin.Function1[kotlin.collections.Map[kotlin.String,com.configcat.model.Setting],kotlin.Unit]/PointingToDeclaration/configcat-kotlin-client/com.configcat/-hooks/add-on-config-changed.html
+$dokka.location:com.configcat/Hooks/addOnClientReadyWithSnapshot/#kotlin.Function1[com.configcat.ConfigCatClientSnapshot,kotlin.Unit]/PointingToDeclaration/configcat-kotlin-client/com.configcat/-hooks/add-on-client-ready-with-snapshot.html
+$dokka.location:com.configcat/Hooks/addOnConfigChanged/#kotlin.Function2[kotlin.collections.Map[kotlin.String,com.configcat.model.Setting],com.configcat.ConfigCatClientSnapshot,kotlin.Unit]/PointingToDeclaration/configcat-kotlin-client/com.configcat/-hooks/add-on-config-changed.html
 $dokka.location:com.configcat/Hooks/addOnError/#kotlin.Function1[kotlin.String,kotlin.Unit]/PointingToDeclaration/configcat-kotlin-client/com.configcat/-hooks/add-on-error.html
 $dokka.location:com.configcat/Hooks/addOnFlagEvaluated/#kotlin.Function1[com.configcat.EvaluationDetails,kotlin.Unit]/PointingToDeclaration/configcat-kotlin-client/com.configcat/-hooks/add-on-flag-evaluated.html
 $dokka.location:com.configcat/LazyLoadConfiguration///PointingToDeclaration/configcat-kotlin-client/com.configcat/-lazy-load-configuration/index.html
