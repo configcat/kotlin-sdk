@@ -2,14 +2,18 @@ package com.configcat.model
 
 import com.configcat.Constants
 import com.configcat.DateTimeUtils
+import com.configcat.DateTimeUtils.defaultTimeZone
 import com.configcat.Helpers
-import korlibs.time.DateTime
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 
 internal data class Entry(
     val config: Config,
     val eTag: String,
     val configJson: String,
-    val fetchTime: DateTime,
+    val fetchTime: LocalDateTime,
 ) {
     var cacheString: String = ""
         private set
@@ -20,7 +24,7 @@ internal data class Entry(
 
     fun isEmpty(): Boolean = this === empty
 
-    fun isExpired(threshold: DateTime): Boolean {
+    fun isExpired(threshold: LocalDateTime): Boolean {
         return fetchTime <= threshold
     }
 
@@ -43,7 +47,13 @@ internal data class Entry(
             require(configJson.isNotEmpty()) { "Empty config jsom value." }
             return try {
                 val config: Config = Helpers.parseConfigJson(configJson)
-                Entry(config, eTag, configJson, DateTime(fetchTimeUnixMillis))
+                Entry(
+                    config,
+                    eTag,
+                    configJson,
+                    Instant.fromEpochMilliseconds(fetchTimeUnixMillis)
+                        .toLocalDateTime(defaultTimeZone)
+                )
             } catch (e: Exception) {
                 throw IllegalArgumentException("Invalid config JSON content: $configJson", e)
             }
@@ -51,10 +61,10 @@ internal data class Entry(
     }
 
     private fun serialize(
-        fetchTime: DateTime,
+        fetchTime: LocalDateTime,
         eTag: String,
         configJson: String,
     ): String {
-        return "${fetchTime.unixMillis.toLong()}\n${eTag}\n$configJson"
+        return "${fetchTime.toInstant(defaultTimeZone).toEpochMilliseconds()}\n${eTag}\n$configJson"
     }
 }

@@ -1,6 +1,9 @@
 package com.configcat
 
-import korlibs.time.DateTime
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+
 
 internal object DateTimeUtils {
     fun isValidDate(fetchTime: String): Boolean {
@@ -9,8 +12,10 @@ internal object DateTimeUtils {
     }
 
     fun Double.toDateTimeUTCString(): String {
-        val dateInMillisecond: Long = this.toLong() * 1000
-        val dateTime = DateTime.fromUnixMillis(dateInMillisecond)
-        return dateTime.toString("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+        val instant = Instant.fromEpochSeconds(this.toLong())
+        val dateTime = instant.toLocalDateTime(defaultTimeZone)
+        return dateTime.toString() + "Z"
     }
+
+    val defaultTimeZone = TimeZone.currentSystemDefault()
 }

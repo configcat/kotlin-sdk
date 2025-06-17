@@ -1,12 +1,14 @@
 package com.configcat
 
 import com.configcat.Client.SettingTypeHelper.toSettingTypeOrNull
+import com.configcat.DateTimeUtils.defaultTimeZone
 import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.configcat.log.LogLevel
 import com.configcat.model.Setting
 import com.configcat.model.SettingType
-import korlibs.time.DateTime
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toInstant
 
 internal class FlagEvaluator(
     private val logger: InternalLogger,
@@ -145,7 +147,7 @@ internal class FlagEvaluator(
         setting: Setting,
         key: String,
         user: ConfigCatUser?,
-        fetchTime: DateTime,
+        fetchTime: LocalDateTime,
         settings: Map<String, Setting>,
     ): EvaluationDetails {
         var evaluateLogger: EvaluateLogger? = null
@@ -164,7 +166,7 @@ internal class FlagEvaluator(
             EvaluationDetails(
                 key, variationId, user, false, null, EvaluationErrorCode.NONE, null,
                 Helpers.validateSettingValueType(value, setting.type),
-                fetchTime.unixMillisLong, targetingRule, percentageRule,
+                fetchTime.toInstant(defaultTimeZone).toEpochMilliseconds(), targetingRule, percentageRule,
             )
         hooks.invokeOnFlagEvaluated(details)
         return details

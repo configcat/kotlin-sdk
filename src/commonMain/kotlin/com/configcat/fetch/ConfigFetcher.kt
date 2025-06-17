@@ -4,6 +4,7 @@ import com.configcat.Closeable
 import com.configcat.ConfigCatOptions
 import com.configcat.Constants
 import com.configcat.DataGovernance
+import com.configcat.DateTimeUtils.defaultTimeZone
 import com.configcat.Helpers
 import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
@@ -20,9 +21,11 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.etag
-import korlibs.time.DateTime
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toLocalDateTime
 
 internal class ConfigFetcher(
     private val options: ConfigCatOptions,
@@ -110,7 +113,7 @@ internal class ConfigFetcher(
                         err,
                     )
                 }
-                val entry = Entry(config, newETag ?: "", body, DateTime.now())
+                val entry = Entry(config, newETag ?: "", body, Clock.System.now().toLocalDateTime(defaultTimeZone))
                 return FetchResponse.success(entry)
             } else if (response.status == HttpStatusCode.NotModified) {
                 logger.debug("Fetch was successful: config not modified.")

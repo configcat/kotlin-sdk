@@ -4,8 +4,12 @@ import com.configcat.Client.SettingTypeHelper.toSettingTypeOrNull
 import com.configcat.model.Config
 import com.configcat.model.SettingType
 import com.configcat.model.SettingValue
-import korlibs.time.DateTime
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.Json
+import kotlin.time.Duration.Companion.seconds
 
 internal interface Closeable {
     fun close()
@@ -21,8 +25,9 @@ internal object Constants {
     const val SDK_KEY_PREFIX = "configcat-sdk-1"
     const val SDK_KEY_SECTION_LENGTH = 22
 
-    val distantPast = DateTime.fromUnixMillis(0)
-    val distantFuture = DateTime.now().add(10_000, 0.0)
+    val distantPast = Instant.fromEpochMilliseconds(0).toLocalDateTime(TimeZone.currentSystemDefault())
+    val distantFuture = Clock.System.now().plus(10_000.seconds).toLocalDateTime(TimeZone.currentSystemDefault())
+
     val json =
         Json {
             ignoreUnknownKeys = true

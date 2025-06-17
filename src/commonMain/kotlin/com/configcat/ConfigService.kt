@@ -1,5 +1,6 @@
 package com.configcat
 
+import com.configcat.DateTimeUtils.defaultTimeZone
 import com.configcat.fetch.ConfigFetcher
 import com.configcat.fetch.RefreshErrorCode
 import com.configcat.fetch.RefreshResult
@@ -7,8 +8,6 @@ import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.configcat.model.Entry
 import com.configcat.model.Setting
-import korlibs.crypto.sha1
-import korlibs.time.DateTime
 import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
@@ -26,8 +25,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import org.kotlincrypto.hash.sha1.SHA1
+import kotlin.time.Duration.Companion.milliseconds
 
-internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: DateTime) {
+internal data class SettingResult(
+    val settings: Map<String, Setting>,
+    val fetchTime: LocalDateTime
+) {
     fun isEmpty(): Boolean = this === empty
 
     companion object {
@@ -35,7 +43,10 @@ internal data class SettingResult(val settings: Map<String, Setting>, val fetchT
     }
 }
 
-internal data class InMemoryResult(val settingResult: SettingResult, val cacheState: ClientCacheState)
+internal data class InMemoryResult(
+    val settingResult: SettingResult,
+    val cacheState: ClientCacheState
+)
 
 internal data class EntryResult(
     val entry: Entry,
@@ -43,7 +54,8 @@ internal data class EntryResult(
     val errorCode: RefreshErrorCode,
     val exception: Exception?,
 ) {
-    fun withEntry(entry: Entry) = EntryResult(entry, this.errorMessage, this.errorCode, this.exception)
+    fun withEntry(entry: Entry) =
+        EntryResult(entry, this.errorMessage, this.errorCode, this.exception)
 
     companion object {
         fun success(entry: Entry) = EntryResult(entry, null, RefreshErrorCode.NONE, null)
@@ -108,16 +120,19 @@ internal class ConfigService(
             when (mode) {
                 is LazyLoadMode -> {
                     fetchIfOlder(
-                        DateTime.now()
-                            .add(0, -mode.configuration.cacheRefreshInterval.inWholeMilliseconds.toDouble()),
+                        (Clock.System.now() - mode.configuration.cacheRefreshInterval).toLocalDateTime(
+                            defaultTimeZone
+                        )
                     )
                 }
+
                 else -> {
                     // If we are initialized, we prefer the cached results
                     val threshold =
                         if (!initialized.value && mode is AutoPollMode) {
-                            DateTime.now()
-                                .add(0, -mode.configuration.pollingInterval.inWholeMilliseconds.toDouble())
+                            (Clock.System.now() - mode.configuration.pollingInterval).toLocalDateTime(
+                                defaultTimeZone
+                            )
                         } else {
                             Constants.distantPast
                         }
@@ -156,12 +171,17 @@ internal class ConfigService(
             return RefreshResult(false, offlineMessage, RefreshErrorCode.OFFLINE_CLIENT, null)
         }
         val result = fetchIfOlder(Constants.distantFuture)
-        return RefreshResult(result.errorMessage == null, result.errorMessage, result.errorCode, result.exception)
+        return RefreshResult(
+            result.errorMessage == null,
+            result.errorMessage,
+            result.errorCode,
+            result.exception
+        )
     }
 
     @Suppress("ComplexMethod")
     private suspend fun fetchIfOlder(
-        threshold: DateTime,
+        threshold: LocalDateTime,
         preferCached: Boolean = false,
     ): EntryResult {
         mutex.withLock {
@@ -207,7 +227,12 @@ internal class ConfigService(
                             logger.warning(4200, message)
                             initializeAndReportCacheState()
 
-                            return@async EntryResult(Entry.empty, message, RefreshErrorCode.CLIENT_INIT_TIMED_OUT, null)
+                            return@async EntryResult(
+                                Entry.empty,
+                                message,
+                                RefreshErrorCode.CLIENT_INIT_TIMED_OUT,
+                                null
+                            )
                         } else {
                             // The service is initialized, start fetch without timeout.
                             return@async fetchConfig(eTag)
@@ -239,11 +264,20 @@ internal class ConfigService(
                 initializeAndReportCacheState()
                 return EntryResult.success(response.entry)
             } else if ((response.isNotModified || !response.isTransientError) && !cachedEntry.value.isEmpty()) {
-                cachedEntry.value = cachedEntry.value.copy(fetchTime = DateTime.now())
+                cachedEntry.value = cachedEntry.value.copy(
+                    fetchTime = Clock.System.now().toLocalDateTime(
+                        defaultTimeZone
+                    )
+                )
                 writeCache(cachedEntry.value)
             }
             initializeAndReportCacheState()
-            return EntryResult(cachedEntry.value, response.error, response.errorCode, response.errorException)
+            return EntryResult(
+                cachedEntry.value,
+                response.error,
+                response.errorCode,
+                response.errorException
+            )
         }
     }
 
@@ -253,8 +287,10 @@ internal class ConfigService(
             coroutineScope.launch {
                 while (isActive) {
                     fetchIfOlder(
-                        DateTime.now()
-                            .add(0, -(mode.configuration.pollingInterval.inWholeMilliseconds.toDouble() - 500)),
+                        (Clock.System.now() -
+                                (mode.configuration.pollingInterval - 500.milliseconds)).toLocalDateTime(
+                            defaultTimeZone
+                        )
                     )
                     delay(mode.configuration.pollingInterval)
                 }
@@ -289,9 +325,12 @@ internal class ConfigService(
         }
     }
 
-    private fun getCacheKey() =
-        "${options.sdkKey}_${Constants.CONFIG_FILE_NAME}_${Constants.SERIALIZATION_FORMAT_VERSION}".encodeToByteArray()
-            .sha1().hex
+    @OptIn(ExperimentalStdlibApi::class)
+    private fun getCacheKey(): String {
+        val input =
+            "${options.sdkKey}_${Constants.CONFIG_FILE_NAME}_${Constants.SERIALIZATION_FORMAT_VERSION}"
+        return SHA1().digest(input.encodeToByteArray()).toHexString()
+    }
 
     override fun close() {
         if (!closed.compareAndSet(expect = false, update = true)) return
@@ -307,19 +346,23 @@ internal class ConfigService(
             is ManualPollMode -> {
                 return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY
             }
+
             is LazyLoadMode -> {
                 if (cachedEntry.isExpired(
-                        DateTime.now()
-                            .add(0, -mode.configuration.cacheRefreshInterval.inWholeMilliseconds.toDouble()),
+                        (Clock.System.now() - mode.configuration.cacheRefreshInterval).toLocalDateTime(
+                            defaultTimeZone
+                        )
                     )
                 ) {
                     return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY
                 }
             }
+
             is AutoPollMode -> {
                 if (cachedEntry.isExpired(
-                        DateTime.now()
-                            .add(0, -mode.configuration.pollingInterval.inWholeMilliseconds.toDouble()),
+                        (Clock.System.now() - mode.configuration.pollingInterval).toLocalDateTime(
+                            defaultTimeZone
+                        )
                     )
                 ) {
                     return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY

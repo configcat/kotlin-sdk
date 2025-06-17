@@ -1,5 +1,6 @@
 package com.configcat
 
+import com.configcat.DateTimeUtils.defaultTimeZone
 import com.configcat.fetch.ConfigFetcher
 import com.configcat.log.InternalLogger
 import com.configcat.model.Condition
@@ -11,11 +12,12 @@ import com.configcat.model.SettingValue
 import com.configcat.model.TargetingRule
 import com.configcat.model.UserCondition
 import io.ktor.client.engine.mock.MockEngine
-import korlibs.time.DateTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.encodeToString
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toInstant
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -26,17 +28,17 @@ internal object TestUtils {
         timeout: Duration = 5.seconds,
         condTarget: suspend () -> Boolean,
     ): Long {
-        val start = DateTime.now()
+        val start = Clock.System.now()
         withContext(Dispatchers.Default) {
             while (!condTarget()) {
                 delay(200)
-                val elapsed = DateTime.now() - start
-                if (elapsed.milliseconds > timeout.inWholeMilliseconds) {
+                val elapsed = Clock.System.now() - start
+                if (elapsed.inWholeMilliseconds > timeout.inWholeMilliseconds) {
                     throw Exception("Test await timed out.")
                 }
             }
         }
-        return (DateTime.now() - start).milliseconds.toLong()
+        return (Clock.System.now() - start).inWholeMilliseconds.toLong()
     }
 
     suspend fun wait(timeout: Duration) {
@@ -150,7 +152,7 @@ internal object Data {
     }
 
     fun formatCacheEntry(value: Any): String {
-        val fetchTimeUnixSeconds = DateTime.now().unixMillis.toLong()
+        val fetchTimeUnixSeconds: Long = Clock.System.now().toEpochMilliseconds() / 1000
         return "${fetchTimeUnixSeconds}\n$value\n" +
             """{"p":{"u":"https://cdn-global.configcat.com","r":"0","s": "test-slat"},
             |"f":{"fakeKey":{"v":{"s":"$value"},"t":1,"p":[],"r":[], "a":""}}, "s":[]}
@@ -161,7 +163,7 @@ internal object Data {
         value: Any,
         eTag: String,
     ): String {
-        val fetchTimeUnixSeconds = DateTime.now().unixMillis.toLong()
+        val fetchTimeUnixSeconds: Long = Clock.System.now().toEpochMilliseconds() / 1000
         return "${fetchTimeUnixSeconds}\n$eTag\n" +
             """{"p":{"u":"https://cdn-global.configcat.com","r":"0","s": "test-slat"},
             |"f":{"fakeKey":{"v":{"s":"$value"},"t":1,"p":[],"r":[], "a":""}}, "s":[]}
@@ -170,10 +172,10 @@ internal object Data {
 
     fun formatCacheEntryWithDate(
         value: Any,
-        time: DateTime,
+        time: LocalDateTime,
     ): String {
-        val fetchTimeUnixSeconds = time.unixMillis.toLong()
-        return "${fetchTimeUnixSeconds}\n$value\n" +
+        val fetchTimeUnixMillis = time.toInstant(defaultTimeZone).toEpochMilliseconds()
+        return "${fetchTimeUnixMillis}\n$value\n" +
             """{"p":{"u":"https://cdn-global.configcat.com","r":"0","s": "test-slat"},
             |"f":{"fakeKey":{"v":{"s":"$value"},"t":1,"p":[],"r":[], "a":""}}, "s":[]}
             """.trimMargin()

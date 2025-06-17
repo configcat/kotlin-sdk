@@ -3,6 +3,7 @@ import com.vanniktech.maven.publish.KotlinMultiplatform
 import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import com.vanniktech.maven.publish.SonatypeHost
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -56,6 +57,32 @@ kotlin {
         }
     }
 
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask {
+                useKarma {
+                    useChromeHeadless()
+                }
+            }
+            commonWebpackConfig {
+                cssSupport {
+                    enabled.set(true)
+                }
+            }
+        }
+        nodejs {
+            testTask {
+                useMocha {
+                    timeout = "20000"
+                }
+            }
+        }
+        compilations.all {
+            kotlinOptions.freeCompilerArgs += listOf("-Xklib-duplicated-unique-name-strategy=allow-all-with-warning")
+        }
+    }
+
     macosX64()
     macosArm64()
 
@@ -84,9 +111,15 @@ kotlin {
             implementation(libs.serialization.core)
             implementation(libs.serialization.json)
             implementation(libs.coroutines.core)
-            implementation(libs.klock)
-            implementation(libs.krypto)
             implementation(libs.semver)
+
+            implementation(libs.kotlinx.datetime)
+
+            // define the BOM and its version
+            implementation(project.dependencies.platform(libs.kotlincrypto))
+            // SHA-1
+            implementation(libs.sha1)
+            implementation(libs.sha2)
         }
 
         commonTest.dependencies {

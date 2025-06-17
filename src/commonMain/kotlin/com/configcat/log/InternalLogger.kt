@@ -1,7 +1,12 @@
 package com.configcat.log
 
+import com.configcat.DateTimeUtils.defaultTimeZone
 import com.configcat.Hooks
-import korlibs.time.DateTime
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.format.FormatStringsInDatetimeFormats
+import kotlinx.datetime.format.byUnicodePattern
+import kotlinx.datetime.toLocalDateTime
 
 internal class InternalLogger(private val logger: Logger, val level: LogLevel, private val hooks: Hooks) {
     fun error(
@@ -84,6 +89,16 @@ internal class DefaultLogger : Logger {
         message: String,
         level: LogLevel,
     ): String {
-        return "${DateTime.now().toString("yyyy-MM-dd HH:mm:ss z")} [${levelMap[level]}]: ConfigCat - $message"
+
+        val now = Clock.System.now().toLocalDateTime(defaultTimeZone)
+
+        @OptIn(FormatStringsInDatetimeFormats::class)
+        val format = LocalDateTime.Format {
+            byUnicodePattern("yyyy-MM-dd HH:mm:ss")
+        }
+
+        val formatted = format.format(now) + defaultTimeZone.id
+
+        return "$formatted [${levelMap[level]}]: ConfigCat - $message"
     }
 }

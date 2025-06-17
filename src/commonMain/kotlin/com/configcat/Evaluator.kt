@@ -4,6 +4,7 @@ import com.configcat.Client.SettingTypeHelper.toSettingTypeOrNull
 import com.configcat.ComparatorHelp.toComparatorOrNull
 import com.configcat.ComparatorHelp.toPrerequisiteComparatorOrNull
 import com.configcat.ComparatorHelp.toSegmentComparatorOrNull
+import com.configcat.DateTimeUtils.defaultTimeZone
 import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.configcat.model.ConditionAccessor
@@ -20,11 +21,11 @@ import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
 import io.github.z4kn4fein.semver.toVersionOrNull
-import korlibs.crypto.sha1
-import korlibs.crypto.sha256
-import korlibs.time.DateTime
-import korlibs.time.DateTimeTz
-import kotlinx.serialization.encodeToString
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toInstant
+import org.kotlincrypto.hash.sha1.SHA1
+import org.kotlincrypto.hash.sha2.SHA256
 import kotlin.math.absoluteValue
 
 internal data class EvaluationResult(
@@ -823,15 +824,17 @@ internal class Evaluator(private val logger: InternalLogger) {
         return negateArrayContains
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     private fun getSaltedUserValue(
         userValue: String,
         configSalt: String,
         contextSalt: String,
     ): String {
         val value = userValue + configSalt + contextSalt
-        return value.encodeToByteArray().sha256().hex
+        return SHA256().digest(value.encodeToByteArray()).toHexString()
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     private fun getSaltedUserValueSlice(
         userValue: ByteArray,
         configSalt: String,
@@ -840,9 +843,10 @@ internal class Evaluator(private val logger: InternalLogger) {
         val configSaltByteArray = configSalt.encodeToByteArray()
         val contextSaltByteArray = contextSalt.encodeToByteArray()
         val concatByteArray = userValue + configSaltByteArray + contextSaltByteArray
-        return concatByteArray.sha256().hex
+        return SHA256().digest(concatByteArray).toHexString()
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     private fun evaluatePercentageOptions(
         percentageOptions: Array<PercentageOption>,
         percentageOptionAttribute: String?,
@@ -882,7 +886,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         evaluateLogger?.logPercentageOptionEvaluation(percentageOptionAttributeName)
 
         val hashCandidate = "${context.key}$percentageOptionAttributeValue"
-        val hash = hashCandidate.encodeToByteArray().sha1().hex.substring(0, 7)
+        val hash = SHA1().digest(hashCandidate.encodeToByteArray()).toHexString(0,7)
         val numberRepresentation = hash.toInt(radix = 16)
         val scale = numberRepresentation % 100
         evaluateLogger?.logPercentageOptionEvaluationHash(percentageOptionAttributeName, scale)
@@ -1004,13 +1008,13 @@ internal class Evaluator(private val logger: InternalLogger) {
         userValue: Any,
     ): Double {
         try {
-            if (userValue is DateTime) {
-                return userValue.unixMillisDouble / 1000
+            return when (userValue) {
+                is Instant -> userValue.toEpochMilliseconds() / 1000.0
+                is LocalDateTime -> {
+                    userValue.toInstant(defaultTimeZone).toEpochMilliseconds() / 1000.0
+                }
+                else -> userAttributeToDouble(userValue)
             }
-            if (userValue is DateTimeTz) {
-                return userValue.local.unixMillisDouble / 1000
-            }
-            return userAttributeToDouble(userValue)
         } catch (e: NumberFormatException) {
             val reason =
                 "'$userValue' is not a valid Unix timestamp (number of seconds elapsed since Unix epoch)"
@@ -1073,12 +1077,13 @@ internal class Evaluator(private val logger: InternalLogger) {
             return doubleToString(userValue)
         }
 
-        if (userValue is DateTime) {
-            return doubleToString((userValue.unixMillisDouble / 1000))
+        if (userValue is Instant) {
+            return doubleToString(userValue.toEpochMilliseconds() / 1000.0)
         }
-        if (userValue is DateTimeTz) {
-            return doubleToString((userValue.local.unixMillisDouble / 1000))
+        if (userValue is LocalDateTime) {
+            return doubleToString(userValue.toInstant(defaultTimeZone).toEpochMilliseconds() / 1000.0)
         }
+
         return userValue.toString()
     }
 
