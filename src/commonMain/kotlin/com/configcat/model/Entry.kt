@@ -13,23 +13,23 @@ internal data class Entry(
     val config: Config,
     val eTag: String,
     val configJson: String,
-    val fetchTime: LocalDateTime,
+    val fetchTime: Instant,
 ) {
     var cacheString: String = ""
         private set
 
     init {
-        cacheString = serialize(fetchTime, eTag, configJson)
+        cacheString = serialize(fetchTime.toLocalDateTime(DateTimeUtils.defaultTimeZone), eTag, configJson)
     }
 
     fun isEmpty(): Boolean = this === empty
 
     fun isExpired(threshold: LocalDateTime): Boolean {
-        return fetchTime <= threshold
+        return fetchTime.toLocalDateTime(defaultTimeZone) <= threshold
     }
 
     companion object {
-        val empty: Entry = Entry(Config.empty, "", "", Constants.distantPast)
+        val empty: Entry = Entry(Config.empty, "", "", Constants.distantPast.toInstant(defaultTimeZone))
 
         fun fromString(cacheValue: String?): Entry {
             if (cacheValue.isNullOrEmpty()) {
@@ -52,7 +52,6 @@ internal data class Entry(
                     eTag,
                     configJson,
                     Instant.fromEpochMilliseconds(fetchTimeUnixMillis)
-                        .toLocalDateTime(defaultTimeZone)
                 )
             } catch (e: Exception) {
                 throw IllegalArgumentException("Invalid config JSON content: $configJson", e)

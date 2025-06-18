@@ -9,14 +9,14 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.PlatformUtils
-import korlibs.crypto.sha1
-import korlibs.time.DateTime
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Clock
+import org.kotlincrypto.hash.sha1.SHA1
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -350,13 +350,14 @@ class ConfigCatClientTests {
                     requestTimeout = 1.seconds
                 }
 
-            val start = DateTime.now()
+            val start = Clock.System.now()
             assertEquals(false, client.getValue("fakeKey", false))
-            val elapsed = DateTime.now() - start
-            assertTrue(elapsed.seconds > 1)
-            assertTrue(elapsed.seconds < 2)
+            val elapsed = Clock.System.now() - start
+            assertTrue(elapsed > 1.seconds)
+            assertTrue(elapsed < 2.seconds)
         }
 
+    @OptIn(ExperimentalStdlibApi::class)
     @Test
     fun testGetFromOnlyCache() =
         runTest {
@@ -368,9 +369,7 @@ class ConfigCatClientTests {
                     )
                 }
             val sdkKey = TestUtils.randomSdkKey()
-            val cacheKey: String =
-                "${sdkKey}_${Constants.CONFIG_FILE_NAME}_${Constants.SERIALIZATION_FORMAT_VERSION}".encodeToByteArray()
-                    .sha1().hex
+            val cacheKey: String = SHA1().digest("${sdkKey}_${Constants.CONFIG_FILE_NAME}_${Constants.SERIALIZATION_FORMAT_VERSION}".encodeToByteArray()).toHexString()
             val cache = InMemoryCache()
             cache.write(cacheKey, Data.formatCacheEntry("test"))
             val client =
@@ -390,6 +389,7 @@ class ConfigCatClientTests {
             }
         }
 
+    @OptIn(ExperimentalStdlibApi::class)
     @Test
     fun testOnlyCacheRefresh() =
         runTest {
@@ -401,9 +401,7 @@ class ConfigCatClientTests {
                     )
                 }
             val sdkKey = TestUtils.randomSdkKey()
-            val cacheKey: String =
-                "${sdkKey}_${Constants.CONFIG_FILE_NAME}_${Constants.SERIALIZATION_FORMAT_VERSION}".encodeToByteArray()
-                    .sha1().hex
+            val cacheKey: String = SHA1().digest("${sdkKey}_${Constants.CONFIG_FILE_NAME}_${Constants.SERIALIZATION_FORMAT_VERSION}".encodeToByteArray()).toHexString()
             val cache = InMemoryCache()
             val opts = ConfigCatOptions()
             opts.configCache = cache

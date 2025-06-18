@@ -24,7 +24,6 @@ import io.ktor.http.etag
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
 import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toLocalDateTime
 
 internal class ConfigFetcher(
@@ -113,7 +112,7 @@ internal class ConfigFetcher(
                         err,
                     )
                 }
-                val entry = Entry(config, newETag ?: "", body, Clock.System.now().toLocalDateTime(defaultTimeZone))
+                val entry = Entry(config, newETag ?: "", body, Clock.System.now())
                 return FetchResponse.success(entry)
             } else if (response.status == HttpStatusCode.NotModified) {
                 logger.debug("Fetch was successful: config not modified.")

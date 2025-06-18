@@ -2,8 +2,10 @@ package com.configcat
 
 import com.configcat.model.Config
 import com.configcat.model.Entry
-import korlibs.time.DateTime
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toLocalDateTime
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -22,11 +24,12 @@ class EntrySerializationTests {
         runTest {
             val json: String = Data.formatJsonBodyWithString("test")
             val config: Config = Constants.json.decodeFromString(json)
-            val fetchTimeNow = DateTime.now()
+
+            val fetchTimeNow: Instant = Clock.System.now()
             val entry = Entry(config, "fakeTag", json, fetchTimeNow)
 
+            val fetchTimeNowUnixSecond = fetchTimeNow.toEpochMilliseconds()
 
-            val fetchTimeNowUnixSecond = fetchTimeNow.unixMillis.toLong()
             val expected = "$fetchTimeNowUnixSecond\nfakeTag\n$json"
             assertEquals(expected, entry.cacheString)
         }
@@ -38,17 +41,19 @@ class EntrySerializationTests {
                 "\"f\":{\"testKey\":{\"v\":{\"s\":\"testValue\"},\"t\":1,\"p\":[],\"r\":[], \"a\":\"\"}}, \"s\":[] }"
         val config: Config = Constants.json.decodeFromString(payloadTestConfigJson)
 
-        val entry = Entry(config, "test-etag", payloadTestConfigJson, DateTime(1686756435844L))
+        val timestamp = Instant.fromEpochMilliseconds(1686756435844L)
+        val entry = Entry(config, "test-etag", payloadTestConfigJson, timestamp)
 
         assertEquals("1686756435844\ntest-etag\n$payloadTestConfigJson", entry.cacheString)
+
     }
 
     @Test
     fun testDeserialize() =
         runTest {
             val json: String = Data.formatJsonBodyWithString("test")
-            val dateTimeNow = DateTime.now()
-            val dateTimeNowUnixSeconds: Long = dateTimeNow.unixMillis.toLong()
+            val dateTimeNow = Clock.System.now()
+            val dateTimeNowUnixSeconds: Long = dateTimeNow.toEpochMilliseconds()
 
             val cacheValue = "$dateTimeNowUnixSeconds\nfakeTag\n$json"
 
@@ -100,7 +105,7 @@ class EntrySerializationTests {
     @Test
     fun testDeserializeInvalidETag() =
         runTest {
-            val fetchTimeTest = DateTime.now().unixMillis.toLong()
+            val fetchTimeTest = Clock.System.now().toEpochMilliseconds()
             val cacheValue = "${fetchTimeTest}\n\nTestjson"
 
             val exception =
@@ -113,7 +118,7 @@ class EntrySerializationTests {
     @Test
     fun testDeserializeInvalidJson() =
         runTest {
-            val fetchTimeTest = DateTime.now().unixMillis.toLong()
+            val fetchTimeTest = Clock.System.now().toEpochMilliseconds()
             val cacheValueEmptyJson = "${fetchTimeTest}\nTestETag\n"
 
             val exception =

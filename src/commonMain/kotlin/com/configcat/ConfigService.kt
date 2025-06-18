@@ -110,7 +110,7 @@ internal class ConfigService(
     fun getInMemoryState(): InMemoryResult {
         val entry = cachedEntry.value
         return InMemoryResult(
-            SettingResult(entry.config.settings ?: mapOf(), entry.fetchTime),
+            SettingResult(entry.config.settings ?: mapOf(), entry.fetchTime.toLocalDateTime(DateTimeUtils.defaultTimeZone)),
             determineCacheState(entry),
         )
     }
@@ -142,7 +142,7 @@ internal class ConfigService(
         return if (result.entry.isEmpty()) {
             SettingResult.empty
         } else {
-            SettingResult(result.entry.config.settings ?: emptyMap(), result.entry.fetchTime)
+            SettingResult(result.entry.config.settings ?: emptyMap(), result.entry.fetchTime.toLocalDateTime(DateTimeUtils.defaultTimeZone))
         }
     }
 
@@ -265,9 +265,7 @@ internal class ConfigService(
                 return EntryResult.success(response.entry)
             } else if ((response.isNotModified || !response.isTransientError) && !cachedEntry.value.isEmpty()) {
                 cachedEntry.value = cachedEntry.value.copy(
-                    fetchTime = Clock.System.now().toLocalDateTime(
-                        defaultTimeZone
-                    )
+                    fetchTime = Clock.System.now()
                 )
                 writeCache(cachedEntry.value)
             }

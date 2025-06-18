@@ -25,8 +25,8 @@ internal object Constants {
     const val SDK_KEY_PREFIX = "configcat-sdk-1"
     const val SDK_KEY_SECTION_LENGTH = 22
 
-    val distantPast = Instant.fromEpochMilliseconds(0).toLocalDateTime(TimeZone.currentSystemDefault())
-    val distantFuture = Clock.System.now().plus(10_000.seconds).toLocalDateTime(TimeZone.currentSystemDefault())
+    val distantPast = Instant.fromEpochMilliseconds(0).toLocalDateTime(DateTimeUtils.defaultTimeZone)
+    val distantFuture = Clock.System.now().plus(10_000.seconds).toLocalDateTime(DateTimeUtils.defaultTimeZone)
 
     val json =
         Json {

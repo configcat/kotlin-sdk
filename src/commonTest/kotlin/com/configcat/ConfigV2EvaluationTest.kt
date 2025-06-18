@@ -9,8 +9,9 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.PlatformUtils
-import korlibs.time.DateTime
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toLocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -525,7 +526,7 @@ class ConfigV2EvaluationTest {
             }
         val userAttributeToMap: Any =
             if (userAttribute is String && userAttribute.startsWith("date:")) {
-                DateTime.fromString(userAttribute.substring(5))
+                Instant.parse(userAttribute.substring(5)).toLocalDateTime(DateTimeUtils.defaultTimeZone)
             } else {
                 userAttribute
             }

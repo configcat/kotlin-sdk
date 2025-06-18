@@ -1,7 +1,9 @@
 package com.configcat
 
+import com.configcat.DateTimeUtils.defaultTimeZone
 import com.configcat.model.PercentageOption
 import com.configcat.model.TargetingRule
+import kotlinx.datetime.toInstant
 
 /**
  * Specifies the possible evaluation error codes.
@@ -117,7 +119,7 @@ public class EvaluationDetails internal constructor(
         ): EvaluationDetails =
             EvaluationDetails(
                 key, "", user, true, error, errorCode, exception,
-                defaultValue, Constants.distantPast.unixMillisLong, null, null,
+                defaultValue, Constants.distantPast.toInstant(defaultTimeZone).toEpochMilliseconds(), null, null,
             )
     }
 }
