@@ -152,7 +152,7 @@ internal object Data {
     }
 
     fun formatCacheEntry(value: Any): String {
-        val fetchTimeUnixSeconds: Long = Clock.System.now().toEpochMilliseconds() / 1000
+        val fetchTimeUnixSeconds: Long = Clock.System.now().toEpochMilliseconds()
         return "${fetchTimeUnixSeconds}\n$value\n" +
             """{"p":{"u":"https://cdn-global.configcat.com","r":"0","s": "test-slat"},
             |"f":{"fakeKey":{"v":{"s":"$value"},"t":1,"p":[],"r":[], "a":""}}, "s":[]}
@@ -163,7 +163,7 @@ internal object Data {
         value: Any,
         eTag: String,
     ): String {
-        val fetchTimeUnixSeconds: Long = Clock.System.now().toEpochMilliseconds() / 1000
+        val fetchTimeUnixSeconds: Long = Clock.System.now().toEpochMilliseconds()
         return "${fetchTimeUnixSeconds}\n$eTag\n" +
             """{"p":{"u":"https://cdn-global.configcat.com","r":"0","s": "test-slat"},
             |"f":{"fakeKey":{"v":{"s":"$value"},"t":1,"p":[],"r":[], "a":""}}, "s":[]}
