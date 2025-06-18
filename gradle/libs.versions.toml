@@ -1,6 +1,7 @@
 [versions]
 kotlin = "2.1.21"
 android-gradle-plugin = "8.7.3"
+kotlinxBrowser = "0.3"
 kotlinxDatetime = "0.6.2"
 ktor = "3.1.3"
 kotlinx-serialization = "1.8.1"
@@ -16,6 +17,7 @@ mavenPublish = "0.32.0"
 kotlincrypto = "0.7.0"
 
 [libraries]
+kotlinx-browser = { module = "org.jetbrains.kotlinx:kotlinx-browser", version.ref = "kotlinxBrowser" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 ktor = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }

@@ -136,6 +136,10 @@ kotlin {
             implementation(libs.ktor.js)
         }
 
+        wasmJsMain.dependencies {
+            implementation(libs.kotlinx.browser)
+        }
+
         androidMain.dependencies {
             implementation(libs.ktor.android)
             implementation(libs.atomicfu)
