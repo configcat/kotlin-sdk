@@ -22,10 +22,11 @@ import io.github.z4kn4fein.semver.toVersion
 import io.github.z4kn4fein.semver.toVersionOrNull
 import korlibs.crypto.sha1
 import korlibs.crypto.sha256
-import korlibs.time.DateTime
-import korlibs.time.DateTimeTz
-import kotlinx.serialization.encodeToString
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import kotlin.math.absoluteValue
+import kotlin.time.Instant
 
 internal data class EvaluationResult(
     val value: SettingValue,
@@ -1004,11 +1005,11 @@ internal class Evaluator(private val logger: InternalLogger) {
         userValue: Any,
     ): Double {
         try {
-            if (userValue is DateTime) {
-                return userValue.unixMillisDouble / 1000
+            if (userValue is Instant) {
+                return userValue.toEpochMilliseconds() / 1000.0
             }
-            if (userValue is DateTimeTz) {
-                return userValue.local.unixMillisDouble / 1000
+            if (userValue is LocalDateTime) {
+                return userValue.toInstant(TimeZone.UTC).toEpochMilliseconds() / 1000.0
             }
             return userAttributeToDouble(userValue)
         } catch (e: NumberFormatException) {
@@ -1073,11 +1074,11 @@ internal class Evaluator(private val logger: InternalLogger) {
             return doubleToString(userValue)
         }
 
-        if (userValue is DateTime) {
-            return doubleToString((userValue.unixMillisDouble / 1000))
+        if (userValue is Instant) {
+            return doubleToString((userValue.toEpochMilliseconds() / 1000.0))
         }
-        if (userValue is DateTimeTz) {
-            return doubleToString((userValue.local.unixMillisDouble / 1000))
+        if (userValue is LocalDateTime) {
+            return doubleToString((userValue.toInstant(TimeZone.UTC).toEpochMilliseconds() / 1000.0))
         }
         return userValue.toString()
     }

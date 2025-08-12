@@ -4,7 +4,7 @@ android-gradle-plugin = "8.7.3"
 ktor = "3.1.1"
 kotlinx-serialization = "1.8.0"
 kotlinx-coroutines= "1.10.2"
-klock = "4.0.10"
+kotlinx-datetime = "0.7.1"
 krypto = "4.0.10"
 atomicfu = "0.27.0"
 semver = "3.0.0"
@@ -27,7 +27,7 @@ serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-cor
 serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
-klock = { module = "com.soywiz.korlibs.klock:klock", version.ref = "klock" }
+datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 krypto = { module = "com.soywiz.korlibs.krypto:krypto", version.ref = "krypto" }
 semver = { module = "io.github.z4kn4fein:semver", version.ref = "semver" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }

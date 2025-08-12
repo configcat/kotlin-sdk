@@ -13,10 +13,12 @@ import com.configcat.userattribute.data.StringConvertData
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
-import korlibs.time.DateTime
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.time.Instant
 
 class UserAttributeConvertTest {
     @Test
@@ -58,8 +60,10 @@ class UserAttributeConvertTest {
             runConvertTest(DateConvertData, 1680307199L, false)
             runConvertTest(DateConvertData, 1680307200.001, true)
             runConvertTest(DateConvertData, 1680307199.999, false)
-            runConvertTest(DateConvertData, DateTime(1680307200001L), true)
-            runConvertTest(DateConvertData, DateTime(1680307199999L), false)
+            runConvertTest(DateConvertData, Instant.fromEpochMilliseconds(1680307200001L), true)
+            runConvertTest(DateConvertData, Instant.fromEpochMilliseconds(1680307199999L), false)
+            runConvertTest(DateConvertData, Instant.fromEpochMilliseconds(1680307200001L).toLocalDateTime(TimeZone.UTC), true)
+            runConvertTest(DateConvertData, Instant.fromEpochMilliseconds(1680307199999L).toLocalDateTime(TimeZone.UTC), false)
         }
 
     @Test

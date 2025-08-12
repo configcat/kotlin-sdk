@@ -1,10 +1,10 @@
 package com.configcat
 
-import korlibs.time.DateTime
 import kotlinx.serialization.json.JsonPrimitive
 import kotlin.test.assertEquals
 import kotlin.test.Test
 import kotlin.test.assertNull
+import kotlin.time.Instant
 
 class ConfigCatUserTests {
     @Test
@@ -23,10 +23,10 @@ class ConfigCatUserTests {
             "d" to TestEnum.A,
             "e" to arrayOf("A", "B"),
             "f" to listOf("C", "D"),
-            "g" to DateTime.EPOCH,
+            "g" to Instant.fromEpochMilliseconds(0),
             "h" to JsonPrimitive("json"),
         ))
-        assertEquals("{\"Identifier\":\"test\",\"a\":1,\"b\":1.2,\"c\":true,\"d\":\"A\",\"e\":[\"A\",\"B\"],\"f\":[\"C\",\"D\"],\"g\":\"DateTime(0)\",\"h\":\"json\"}", user.toString())
+        assertEquals("{\"Identifier\":\"test\",\"a\":1,\"b\":1.2,\"c\":true,\"d\":\"A\",\"e\":[\"A\",\"B\"],\"f\":[\"C\",\"D\"],\"g\":\"1970-01-01T00:00:00Z\",\"h\":\"json\"}", user.toString())
     }
 
     enum class TestEnum {

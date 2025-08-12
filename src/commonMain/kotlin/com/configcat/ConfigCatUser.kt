@@ -35,7 +35,7 @@ import kotlinx.serialization.json.JsonPrimitive
  *  will be skipped).
  *
  * Date time-based comparisons (BEFORE / AFTER)<br>
- *  * accept [korlibs.time.DateTime] values, which are automatically converted to a second-based Unix timestamp
+ *  * accept [kotlin.time.Instant] and [kotlinx.datetime.LocalDateTime] values, which are automatically converted to a second-based Unix timestamp
  *  * accept [Double] values representing a second-based Unix timestamp and all other numeric values which can safely
  *  be converted to {@link Double}
  *  * accept [String] values containing a properly formatted, valid [Double]  value

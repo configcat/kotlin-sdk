@@ -10,7 +10,6 @@ import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.PlatformUtils
 import korlibs.crypto.sha1
-import korlibs.time.DateTime
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -30,6 +29,7 @@ import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
 
 class ConfigCatClientTests {
     @AfterTest
@@ -350,11 +350,11 @@ class ConfigCatClientTests {
                     requestTimeout = 1.seconds
                 }
 
-            val start = DateTime.now()
+            val ts = TimeSource.Monotonic
+            val start = ts.markNow()
             assertEquals(false, client.getValue("fakeKey", false))
-            val elapsed = DateTime.now() - start
-            assertTrue(elapsed.seconds > 1)
-            assertTrue(elapsed.seconds < 2)
+            val elapsed = ts.markNow() - start
+            assertTrue(elapsed.inWholeSeconds in 1..2)
         }
 
     @Test

@@ -84,7 +84,7 @@ kotlin {
             implementation(libs.serialization.core)
             implementation(libs.serialization.json)
             implementation(libs.coroutines.core)
-            implementation(libs.klock)
+            implementation(libs.datetime)
             implementation(libs.krypto)
             implementation(libs.semver)
         }
@@ -132,6 +132,10 @@ kotlin {
 
         linuxMain.get().dependsOn(nativeRestMain)
         linuxTest.get().dependsOn(nativeRestTest)
+    }
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xopt-in=kotlin.time.ExperimentalTime")
     }
 }
 

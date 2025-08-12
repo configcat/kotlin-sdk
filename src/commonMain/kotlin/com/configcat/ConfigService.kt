@@ -8,7 +8,6 @@ import com.configcat.log.InternalLogger
 import com.configcat.model.Entry
 import com.configcat.model.Setting
 import korlibs.crypto.sha1
-import korlibs.time.DateTime
 import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
@@ -26,12 +25,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
-internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: DateTime) {
+internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: Instant) {
     fun isEmpty(): Boolean = this === empty
 
     companion object {
-        val empty: SettingResult = SettingResult(emptyMap(), Constants.distantPast)
+        val empty: SettingResult = SettingResult(emptyMap(), Instant.DISTANT_PAST)
     }
 }
 
@@ -108,18 +110,16 @@ internal class ConfigService(
             when (mode) {
                 is LazyLoadMode -> {
                     fetchIfOlder(
-                        DateTime.now()
-                            .add(0, -mode.configuration.cacheRefreshInterval.inWholeMilliseconds.toDouble()),
+                        Clock.System.now().minus(mode.configuration.cacheRefreshInterval),
                     )
                 }
                 else -> {
                     // If we are initialized, we prefer the cached results
                     val threshold =
                         if (!initialized.value && mode is AutoPollMode) {
-                            DateTime.now()
-                                .add(0, -mode.configuration.pollingInterval.inWholeMilliseconds.toDouble())
+                            Clock.System.now().minus(mode.configuration.pollingInterval)
                         } else {
-                            Constants.distantPast
+                            Instant.DISTANT_PAST
                         }
                     fetchIfOlder(threshold, preferCached = initialized.value)
                 }
@@ -155,13 +155,13 @@ internal class ConfigService(
             logger.warning(3200, offlineMessage)
             return RefreshResult(false, offlineMessage, RefreshErrorCode.OFFLINE_CLIENT, null)
         }
-        val result = fetchIfOlder(Constants.distantFuture)
+        val result = fetchIfOlder(Instant.DISTANT_FUTURE)
         return RefreshResult(result.errorMessage == null, result.errorMessage, result.errorCode, result.exception)
     }
 
     @Suppress("ComplexMethod")
     private suspend fun fetchIfOlder(
-        threshold: DateTime,
+        threshold: Instant,
         preferCached: Boolean = false,
     ): EntryResult {
         mutex.withLock {
@@ -239,7 +239,7 @@ internal class ConfigService(
                 initializeAndReportCacheState()
                 return EntryResult.success(response.entry)
             } else if ((response.isNotModified || !response.isTransientError) && !cachedEntry.value.isEmpty()) {
-                cachedEntry.value = cachedEntry.value.copy(fetchTime = DateTime.now())
+                cachedEntry.value = cachedEntry.value.copy(fetchTime = Clock.System.now())
                 writeCache(cachedEntry.value)
             }
             initializeAndReportCacheState()
@@ -253,8 +253,7 @@ internal class ConfigService(
             coroutineScope.launch {
                 while (isActive) {
                     fetchIfOlder(
-                        DateTime.now()
-                            .add(0, -(mode.configuration.pollingInterval.inWholeMilliseconds.toDouble() - 500)),
+                        Clock.System.now().minus(mode.configuration.pollingInterval),
                     )
                     delay(mode.configuration.pollingInterval)
                 }
@@ -309,8 +308,7 @@ internal class ConfigService(
             }
             is LazyLoadMode -> {
                 if (cachedEntry.isExpired(
-                        DateTime.now()
-                            .add(0, -mode.configuration.cacheRefreshInterval.inWholeMilliseconds.toDouble()),
+                        Clock.System.now().minus(mode.configuration.cacheRefreshInterval),
                     )
                 ) {
                     return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY
@@ -318,8 +316,7 @@ internal class ConfigService(
             }
             is AutoPollMode -> {
                 if (cachedEntry.isExpired(
-                        DateTime.now()
-                            .add(0, -mode.configuration.pollingInterval.inWholeMilliseconds.toDouble()),
+                        Clock.System.now().minus(mode.configuration.pollingInterval),
                     )
                 ) {
                     return ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY

@@ -4,7 +4,6 @@ import com.configcat.Client.SettingTypeHelper.toSettingTypeOrNull
 import com.configcat.model.Config
 import com.configcat.model.SettingType
 import com.configcat.model.SettingValue
-import korlibs.time.DateTime
 import kotlinx.serialization.json.Json
 
 internal interface Closeable {
@@ -21,8 +20,6 @@ internal object Constants {
     const val SDK_KEY_PREFIX = "configcat-sdk-1"
     const val SDK_KEY_SECTION_LENGTH = 22
 
-    val distantPast = DateTime.fromUnixMillis(0)
-    val distantFuture = DateTime.now().add(10_000, 0.0)
     val json =
         Json {
             ignoreUnknownKeys = true
