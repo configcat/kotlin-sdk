@@ -84,7 +84,6 @@ kotlin {
             implementation(libs.serialization.core)
             implementation(libs.serialization.json)
             implementation(libs.coroutines.core)
-            implementation(libs.datetime)
             implementation(libs.krypto)
             implementation(libs.semver)
         }

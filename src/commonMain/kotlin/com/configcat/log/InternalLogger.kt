@@ -1,8 +1,6 @@
 package com.configcat.log
 
 import com.configcat.Hooks
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 
 internal class InternalLogger(private val logger: Logger, val level: LogLevel, private val hooks: Hooks) {
@@ -86,6 +84,6 @@ internal class DefaultLogger : Logger {
         message: String,
         level: LogLevel,
     ): String {
-        return "${Clock.System.now().toLocalDateTime(TimeZone.UTC)} [${levelMap[level]}]: ConfigCat - $message"
+        return "${Clock.System.now()} [${levelMap[level]}]: ConfigCat - $message"
     }
 }

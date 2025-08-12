@@ -10,7 +10,6 @@ import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.PlatformUtils
 import kotlinx.coroutines.test.runTest
-import kotlinx.datetime.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
