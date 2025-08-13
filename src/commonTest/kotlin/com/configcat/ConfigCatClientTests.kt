@@ -9,7 +9,6 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.PlatformUtils
-import korlibs.crypto.sha1
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -370,7 +369,7 @@ class ConfigCatClientTests {
             val sdkKey = TestUtils.randomSdkKey()
             val cacheKey: String =
                 "${sdkKey}_${Constants.CONFIG_FILE_NAME}_${Constants.SERIALIZATION_FORMAT_VERSION}".encodeToByteArray()
-                    .sha1().hex
+                    .sha1Hex()
             val cache = InMemoryCache()
             cache.write(cacheKey, Data.formatCacheEntry("test"))
             val client =
@@ -403,7 +402,7 @@ class ConfigCatClientTests {
             val sdkKey = TestUtils.randomSdkKey()
             val cacheKey: String =
                 "${sdkKey}_${Constants.CONFIG_FILE_NAME}_${Constants.SERIALIZATION_FORMAT_VERSION}".encodeToByteArray()
-                    .sha1().hex
+                    .sha1Hex()
             val cache = InMemoryCache()
             val opts = ConfigCatOptions()
             opts.configCache = cache

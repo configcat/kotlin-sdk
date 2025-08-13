@@ -7,7 +7,6 @@ import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.configcat.model.Entry
 import com.configcat.model.Setting
-import korlibs.crypto.sha1
 import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
@@ -26,7 +25,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: Instant) {
@@ -290,7 +288,7 @@ internal class ConfigService(
 
     private fun getCacheKey() =
         "${options.sdkKey}_${Constants.CONFIG_FILE_NAME}_${Constants.SERIALIZATION_FORMAT_VERSION}".encodeToByteArray()
-            .sha1().hex
+            .sha1Hex()
 
     override fun close() {
         if (!closed.compareAndSet(expect = false, update = true)) return

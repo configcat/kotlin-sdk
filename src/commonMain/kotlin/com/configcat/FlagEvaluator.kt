@@ -163,7 +163,7 @@ internal class FlagEvaluator(
         val details =
             EvaluationDetails(
                 key, variationId, user, false, null, EvaluationErrorCode.NONE, null,
-                Helpers.validateSettingValueType(value, setting.type),
+                value.validateType(setting.type),
                 fetchTime.toEpochMilliseconds(), targetingRule, percentageRule,
             )
         hooks.invokeOnFlagEvaluated(details)

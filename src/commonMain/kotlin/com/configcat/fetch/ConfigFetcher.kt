@@ -4,11 +4,11 @@ import com.configcat.Closeable
 import com.configcat.ConfigCatOptions
 import com.configcat.Constants
 import com.configcat.DataGovernance
-import com.configcat.Helpers
 import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.configcat.model.Config
 import com.configcat.model.Entry
+import com.configcat.parseConfigJson
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.plugins.HttpRequestTimeoutException
@@ -157,7 +157,7 @@ internal class ConfigFetcher(
 
     private fun deserializeConfig(jsonString: String): Pair<Config, Exception?> {
         return try {
-            Pair(Helpers.parseConfigJson(jsonString), null)
+            Pair(jsonString.parseConfigJson(), null)
         } catch (e: Exception) {
             logger.error(1105, ConfigCatLogMessages.FETCH_RECEIVED_200_WITH_INVALID_BODY_ERROR, e)
             Pair(Config.empty, e)

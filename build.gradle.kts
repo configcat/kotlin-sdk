@@ -84,7 +84,8 @@ kotlin {
             implementation(libs.serialization.core)
             implementation(libs.serialization.json)
             implementation(libs.coroutines.core)
-            implementation(libs.krypto)
+            implementation(libs.sha1)
+            implementation(libs.sha2)
             implementation(libs.semver)
         }
 
@@ -134,7 +135,7 @@ kotlin {
     }
 
     compilerOptions {
-        freeCompilerArgs.add("-Xopt-in=kotlin.time.ExperimentalTime")
+        freeCompilerArgs.add("-opt-in=kotlin.time.ExperimentalTime")
     }
 }
 

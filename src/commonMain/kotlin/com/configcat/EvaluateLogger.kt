@@ -3,7 +3,6 @@ package com.configcat
 import com.configcat.ComparatorHelp.toComparatorOrNull
 import com.configcat.ComparatorHelp.toPrerequisiteComparatorOrNull
 import com.configcat.ComparatorHelp.toSegmentComparatorOrNull
-import com.configcat.DateTimeUtils.toDateTimeUTCString
 import com.configcat.model.PrerequisiteFlagCondition
 import com.configcat.model.Segment
 import com.configcat.model.SegmentCondition

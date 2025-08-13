@@ -20,8 +20,6 @@ import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
 import io.github.z4kn4fein.semver.toVersionOrNull
-import korlibs.crypto.sha1
-import korlibs.crypto.sha256
 import kotlin.math.absoluteValue
 import kotlin.time.Instant
 
@@ -383,7 +381,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             )
         visitedKeys.removeAt(visitedKeys.size - 1)
 
-        Helpers.validateSettingValueType(evaluateResult.value, prerequisiteFlagSetting.type)
+        evaluateResult.value.validateType(prerequisiteFlagSetting.type)
 
         val prerequisiteComparator =
             prerequisiteFlagCondition.prerequisiteComparator.toPrerequisiteComparatorOrNull()
@@ -827,7 +825,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         contextSalt: String,
     ): String {
         val value = userValue + configSalt + contextSalt
-        return value.encodeToByteArray().sha256().hex
+        return value.encodeToByteArray().sha256Hex()
     }
 
     private fun getSaltedUserValueSlice(
@@ -838,7 +836,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         val configSaltByteArray = configSalt.encodeToByteArray()
         val contextSaltByteArray = contextSalt.encodeToByteArray()
         val concatByteArray = userValue + configSaltByteArray + contextSaltByteArray
-        return concatByteArray.sha256().hex
+        return concatByteArray.sha256Hex()
     }
 
     private fun evaluatePercentageOptions(
@@ -880,7 +878,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         evaluateLogger?.logPercentageOptionEvaluation(percentageOptionAttributeName)
 
         val hashCandidate = "${context.key}$percentageOptionAttributeValue"
-        val hash = hashCandidate.encodeToByteArray().sha1().hex.substring(0, 7)
+        val hash = hashCandidate.encodeToByteArray().sha1Hex().substring(0, 7)
         val numberRepresentation = hash.toInt(radix = 16)
         val scale = numberRepresentation % 100
         evaluateLogger?.logPercentageOptionEvaluationHash(percentageOptionAttributeName, scale)

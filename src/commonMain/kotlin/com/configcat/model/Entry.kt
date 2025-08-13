@@ -1,8 +1,7 @@
 package com.configcat.model
 
-import com.configcat.Constants
-import com.configcat.DateTimeUtils
-import com.configcat.Helpers
+import com.configcat.isValidDate
+import com.configcat.parseConfigJson
 import kotlin.time.Instant
 
 internal data class Entry(
@@ -34,15 +33,15 @@ internal data class Entry(
             val fetchTimeIndex = cacheValue.indexOf("\n")
             val eTagIndex = cacheValue.indexOf("\n", fetchTimeIndex + 1)
             require(fetchTimeIndex > 0 && eTagIndex > 0) { "Number of values is fewer than expected." }
-            val fetchTimeRaw = cacheValue.substring(0, fetchTimeIndex)
-            require(DateTimeUtils.isValidDate(fetchTimeRaw)) { "Invalid fetch time: $fetchTimeRaw" }
+            val fetchTimeRaw = cacheValue.take(fetchTimeIndex)
+            require(fetchTimeRaw.isValidDate()) { "Invalid fetch time: $fetchTimeRaw" }
             val fetchTimeUnixMillis = fetchTimeRaw.toLong()
             val eTag = cacheValue.substring(fetchTimeIndex + 1, eTagIndex)
             require(eTag.isNotEmpty()) { "Empty eTag value." }
             val configJson = cacheValue.substring(eTagIndex + 1)
             require(configJson.isNotEmpty()) { "Empty config jsom value." }
             return try {
-                val config: Config = Helpers.parseConfigJson(configJson)
+                val config: Config = configJson.parseConfigJson()
                 Entry(config, eTag, configJson, Instant.fromEpochMilliseconds(fetchTimeUnixMillis))
             } catch (e: Exception) {
                 throw IllegalArgumentException("Invalid config JSON content: $configJson", e)

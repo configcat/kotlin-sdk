@@ -496,7 +496,7 @@ internal class Client private constructor(
                 if (setting.value.variationId == variationId) {
                     return Pair(
                         setting.key,
-                        Helpers.validateSettingValueType(setting.value.settingValue, setting.value.type),
+                        setting.value.settingValue.validateType(setting.value.type),
                     )
                 }
                 setting.value.targetingRules?.forEach { targetingRule ->
@@ -504,7 +504,7 @@ internal class Client private constructor(
                         if (targetingRule.servedValue.variationId == variationId) {
                             return Pair(
                                 setting.key,
-                                Helpers.validateSettingValueType(targetingRule.servedValue.value, setting.value.type),
+                                targetingRule.servedValue.value.validateType(setting.value.type),
                             )
                         }
                     } else if (!targetingRule.percentageOptions.isNullOrEmpty()) {
@@ -512,7 +512,7 @@ internal class Client private constructor(
                             if (percentageOption.variationId == variationId) {
                                 return Pair(
                                     setting.key,
-                                    Helpers.validateSettingValueType(percentageOption.value, setting.value.type),
+                                    percentageOption.value.validateType(setting.value.type),
                                 )
                             }
                         }
@@ -524,7 +524,7 @@ internal class Client private constructor(
                     if (percentageOption.variationId == variationId) {
                         return Pair(
                             setting.key,
-                            Helpers.validateSettingValueType(percentageOption.value, setting.value.type),
+                            percentageOption.value.validateType(setting.value.type),
                         )
                     }
                 }
