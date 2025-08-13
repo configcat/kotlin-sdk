@@ -96,7 +96,7 @@ class ConfigV2EvaluationTest {
     @Test
     fun prerequisiteFlagTypeMismatchTest() =
         runTest {
-            if (PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE) {
+            if (PlatformUtils.IS_JS) {
                 return@runTest
             }
             runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", true, "Dog")
