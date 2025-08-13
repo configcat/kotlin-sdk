@@ -1,9 +1,5 @@
 package com.configcat
 
-import com.configcat.Client.SettingTypeHelper.toSettingTypeOrNull
-import com.configcat.model.Config
-import com.configcat.model.SettingType
-import com.configcat.model.SettingValue
 import kotlinx.serialization.json.Json
 
 internal interface Closeable {

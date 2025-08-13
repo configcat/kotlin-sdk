@@ -33,9 +33,7 @@ internal fun Double.toDateTimeUTCString(): String {
     return instant.toString()
 }
 
-internal fun SettingValue?.validateType(
-    settingType: Int,
-): Any {
+internal fun SettingValue?.validateType(settingType: Int): Any {
     val settingTypeEnum = settingType.toSettingTypeOrNull()
     if (this == null) {
         throw InvalidConfigModelException("Setting value is missing or invalid.")

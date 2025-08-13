@@ -164,9 +164,7 @@ internal object ConfigCatLogMessages {
      * @param timeout Timeout in milliseconds.
      * @return The formatted error message.
      */
-    fun getFetchFailedDueToRequestTimeout(
-        timeout: Duration,
-    ): String {
+    fun getFetchFailedDueToRequestTimeout(timeout: Duration): String {
         return "Request timed out while trying to fetch config JSON. Timeout value: ${timeout.inWholeMilliseconds}ms"
     }
 
