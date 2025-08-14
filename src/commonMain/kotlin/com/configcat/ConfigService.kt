@@ -25,6 +25,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
 
 internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: Instant) {
@@ -251,7 +252,7 @@ internal class ConfigService(
             coroutineScope.launch {
                 while (isActive) {
                     fetchIfOlder(
-                        Clock.System.now().minus(mode.configuration.pollingInterval),
+                        Clock.System.now().minus(mode.configuration.pollingInterval - 500.milliseconds),
                     )
                     delay(mode.configuration.pollingInterval)
                 }
