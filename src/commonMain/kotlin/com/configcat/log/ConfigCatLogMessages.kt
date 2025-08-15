@@ -2,6 +2,7 @@ package com.configcat.log
 
 import com.configcat.EvaluatorLogHelper
 import com.configcat.model.UserCondition
+import kotlin.time.Duration
 
 @Suppress("TooManyFunctions")
 internal object ConfigCatLogMessages {
@@ -160,18 +161,11 @@ internal object ConfigCatLogMessages {
     /**
      * Log message for Fetch Failed Due To Request Timeout error. The log eventId is 1102.
      *
-     * @param connectTimeoutMillis Connect timeout in milliseconds.
-     * @param readTimeoutMillis    Read timeout in milliseconds.
-     * @param writeTimeoutMillis   Write timeout in milliseconds.
+     * @param timeout Timeout in milliseconds.
      * @return The formatted error message.
      */
-    fun getFetchFailedDueToRequestTimeout(
-        connectTimeoutMillis: Long,
-        readTimeoutMillis: Long,
-        writeTimeoutMillis: Long,
-    ): String {
-        return "Request timed out while trying to fetch config JSON. Timeout values: [connect: " +
-            "${connectTimeoutMillis}ms, read: ${readTimeoutMillis}ms, write: ${writeTimeoutMillis}ms]"
+    fun getFetchFailedDueToRequestTimeout(timeout: Duration): String {
+        return "Request timed out while trying to fetch config JSON. Timeout value: ${timeout.inWholeMilliseconds}ms"
     }
 
     /**

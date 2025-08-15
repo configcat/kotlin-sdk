@@ -1,6 +1,9 @@
 name: Kotlin SDK Test
 
 on:
+  push:
+    branches-ignore:
+      - main
   pull_request:
     branches: [ main ]
     paths-ignore:

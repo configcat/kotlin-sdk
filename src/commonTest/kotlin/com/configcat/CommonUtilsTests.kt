@@ -21,15 +21,15 @@ class CommonUtilsTests {
         runTest {
             val settingValue = SettingValue(true, "stringValue", 1, 3.14)
             // test valid types -1, 0, 1, 2, 3
-            var result: Any = Helpers.validateSettingValueType(settingValue, -1)
+            var result: Any = settingValue.validateType(-1)
             assertEquals(3.14, result)
-            result = Helpers.validateSettingValueType(settingValue, 0)
+            result = settingValue.validateType(0)
             assertEquals(true, result)
-            result = Helpers.validateSettingValueType(settingValue, 1)
+            result = settingValue.validateType(1)
             assertEquals("stringValue", result)
-            result = Helpers.validateSettingValueType(settingValue, 2)
+            result = settingValue.validateType(2)
             assertEquals(1, result)
-            result = Helpers.validateSettingValueType(settingValue, 3)
+            result = settingValue.validateType(3)
             assertEquals(3.14, result)
 
             // test setting value not matching type - bool value & string type
@@ -37,7 +37,7 @@ class CommonUtilsTests {
             val invalidSettingResultException =
                 assertFailsWith(
                     exceptionClass = IllegalArgumentException::class,
-                    block = { Helpers.validateSettingValueType(invalidSettingValue, 1) },
+                    block = { invalidSettingValue.validateType(1) },
                 )
             assertEquals("Setting value is not of the expected type String.", invalidSettingResultException.message)
 
@@ -45,7 +45,7 @@ class CommonUtilsTests {
             val invalidTypeException =
                 assertFailsWith(
                     exceptionClass = IllegalArgumentException::class,
-                    block = { Helpers.validateSettingValueType(settingValue, 99) },
+                    block = { settingValue.validateType(99) },
                 )
             assertEquals("Setting is of an unsupported type (null).", invalidTypeException.message)
 
@@ -53,7 +53,7 @@ class CommonUtilsTests {
             val invalidSettingValueException =
                 assertFailsWith(
                     exceptionClass = IllegalArgumentException::class,
-                    block = { Helpers.validateSettingValueType(null, 1) },
+                    block = { null.validateType(1) },
                 )
             assertEquals("Setting value is missing or invalid.", invalidSettingValueException.message)
         }
@@ -77,7 +77,7 @@ class CommonUtilsTests {
                     ),
                     arrayOf(Segment("test-segment", null)),
                 )
-            Helpers.addConfigSaltAndSegmentsToSettings(config)
+            config.addConfigSaltAndSegmentsToSettings()
 
             assertEquals("test-salt", config.settings?.get("test-setting")?.configSalt)
             assertEquals("test-segment", config.settings?.get("test-setting")?.segments?.get(0)?.name)
@@ -86,7 +86,7 @@ class CommonUtilsTests {
     @Test
     fun testParseConfigJson() =
         runTest {
-            val configResult = Helpers.parseConfigJson(Data.formatJsonBodyWithString("fake"))
+            val configResult = Data.formatJsonBodyWithString("fake").parseConfigJson()
             assertNotNull(configResult)
             assertEquals("test-salt", configResult.preferences?.salt)
             assertEquals("https://cdn-global.configcat.com", configResult.preferences?.baseUrl)

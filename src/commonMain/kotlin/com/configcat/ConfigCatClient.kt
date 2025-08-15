@@ -19,6 +19,7 @@ import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.CompletableDeferred
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 /**
  * Configuration options for [ConfigCatClient].
@@ -495,7 +496,7 @@ internal class Client private constructor(
                 if (setting.value.variationId == variationId) {
                     return Pair(
                         setting.key,
-                        Helpers.validateSettingValueType(setting.value.settingValue, setting.value.type),
+                        setting.value.settingValue.validateType(setting.value.type),
                     )
                 }
                 setting.value.targetingRules?.forEach { targetingRule ->
@@ -503,7 +504,7 @@ internal class Client private constructor(
                         if (targetingRule.servedValue.variationId == variationId) {
                             return Pair(
                                 setting.key,
-                                Helpers.validateSettingValueType(targetingRule.servedValue.value, setting.value.type),
+                                targetingRule.servedValue.value.validateType(setting.value.type),
                             )
                         }
                     } else if (!targetingRule.percentageOptions.isNullOrEmpty()) {
@@ -511,7 +512,7 @@ internal class Client private constructor(
                             if (percentageOption.variationId == variationId) {
                                 return Pair(
                                     setting.key,
-                                    Helpers.validateSettingValueType(percentageOption.value, setting.value.type),
+                                    percentageOption.value.validateType(setting.value.type),
                                 )
                             }
                         }
@@ -523,7 +524,7 @@ internal class Client private constructor(
                     if (percentageOption.variationId == variationId) {
                         return Pair(
                             setting.key,
-                            Helpers.validateSettingValueType(percentageOption.value, setting.value.type),
+                            percentageOption.value.validateType(setting.value.type),
                         )
                     }
                 }
@@ -665,26 +666,26 @@ internal class Client private constructor(
                 OverrideBehavior.LOCAL_ONLY ->
                     SettingResult(
                         flagOverrides.dataSource.getOverrides(),
-                        Constants.distantPast,
+                        Instant.DISTANT_PAST,
                     )
 
                 OverrideBehavior.LOCAL_OVER_REMOTE -> {
                     val result = service?.getSettings()
                     val remote = result?.settings ?: mapOf()
                     val local = flagOverrides.dataSource.getOverrides()
-                    SettingResult(remote + local, result?.fetchTime ?: Constants.distantPast)
+                    SettingResult(remote + local, result?.fetchTime ?: Instant.DISTANT_PAST)
                 }
 
                 OverrideBehavior.REMOTE_OVER_LOCAL -> {
                     val result = service?.getSettings()
                     val remote = result?.settings ?: mapOf()
                     val local = flagOverrides.dataSource.getOverrides()
-                    SettingResult(local + remote, result?.fetchTime ?: Constants.distantPast)
+                    SettingResult(local + remote, result?.fetchTime ?: Instant.DISTANT_PAST)
                 }
             }
         }
 
-        return service?.getSettings() ?: SettingResult(mapOf(), Constants.distantPast)
+        return service?.getSettings() ?: SettingResult(mapOf(), Instant.DISTANT_PAST)
     }
 
     private fun getInMemorySettings(): InMemoryResult {
@@ -694,7 +695,7 @@ internal class Client private constructor(
                     InMemoryResult(
                         SettingResult(
                             flagOverrides.dataSource.getOverrides(),
-                            Constants.distantPast,
+                            Instant.DISTANT_PAST,
                         ),
                         ClientCacheState.HAS_LOCAL_OVERRIDE_FLAG_DATA_ONLY,
                     )
@@ -704,7 +705,7 @@ internal class Client private constructor(
                     val remote = result?.settingResult?.settings ?: mapOf()
                     val local = flagOverrides.dataSource.getOverrides()
                     InMemoryResult(
-                        SettingResult(remote + local, result?.settingResult?.fetchTime ?: Constants.distantPast),
+                        SettingResult(remote + local, result?.settingResult?.fetchTime ?: Instant.DISTANT_PAST),
                         result?.cacheState ?: ClientCacheState.HAS_LOCAL_OVERRIDE_FLAG_DATA_ONLY,
                     )
                 }
@@ -714,7 +715,7 @@ internal class Client private constructor(
                     val remote = result?.settingResult?.settings ?: mapOf()
                     val local = flagOverrides.dataSource.getOverrides()
                     InMemoryResult(
-                        SettingResult(local + remote, result?.settingResult?.fetchTime ?: Constants.distantPast),
+                        SettingResult(local + remote, result?.settingResult?.fetchTime ?: Instant.DISTANT_PAST),
                         result?.cacheState ?: ClientCacheState.HAS_LOCAL_OVERRIDE_FLAG_DATA_ONLY,
                     )
                 }
@@ -722,7 +723,7 @@ internal class Client private constructor(
         }
 
         return service?.getInMemoryState() ?: InMemoryResult(
-            SettingResult(mapOf(), Constants.distantPast), ClientCacheState.NO_FLAG_DATA,
+            SettingResult(mapOf(), Instant.DISTANT_PAST), ClientCacheState.NO_FLAG_DATA,
         )
     }
 

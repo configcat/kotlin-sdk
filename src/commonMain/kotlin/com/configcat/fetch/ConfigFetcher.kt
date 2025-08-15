@@ -4,11 +4,11 @@ import com.configcat.Closeable
 import com.configcat.ConfigCatOptions
 import com.configcat.Constants
 import com.configcat.DataGovernance
-import com.configcat.Helpers
 import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.configcat.model.Config
 import com.configcat.model.Entry
+import com.configcat.parseConfigJson
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.plugins.HttpRequestTimeoutException
@@ -20,9 +20,9 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.etag
-import korlibs.time.DateTime
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
+import kotlin.time.Clock
 
 internal class ConfigFetcher(
     private val options: ConfigCatOptions,
@@ -110,7 +110,7 @@ internal class ConfigFetcher(
                         err,
                     )
                 }
-                val entry = Entry(config, newETag ?: "", body, DateTime.now())
+                val entry = Entry(config, newETag ?: "", body, Clock.System.now())
                 return FetchResponse.success(entry)
             } else if (response.status == HttpStatusCode.NotModified) {
                 logger.debug("Fetch was successful: config not modified.")
@@ -132,11 +132,7 @@ internal class ConfigFetcher(
             }
         } catch (e: HttpRequestTimeoutException) {
             val message =
-                ConfigCatLogMessages.getFetchFailedDueToRequestTimeout(
-                    options.requestTimeout.inWholeMilliseconds,
-                    options.requestTimeout.inWholeMilliseconds,
-                    options.requestTimeout.inWholeMilliseconds,
-                )
+                ConfigCatLogMessages.getFetchFailedDueToRequestTimeout(options.requestTimeout)
             logger.error(1102, message)
             return FetchResponse.failure(message, RefreshErrorCode.HTTP_REQUEST_TIMEOUT, true, e)
         } catch (e: Exception) {
@@ -161,7 +157,7 @@ internal class ConfigFetcher(
 
     private fun deserializeConfig(jsonString: String): Pair<Config, Exception?> {
         return try {
-            Pair(Helpers.parseConfigJson(jsonString), null)
+            Pair(jsonString.parseConfigJson(), null)
         } catch (e: Exception) {
             logger.error(1105, ConfigCatLogMessages.FETCH_RECEIVED_200_WITH_INVALID_BODY_ERROR, e)
             Pair(Config.empty, e)

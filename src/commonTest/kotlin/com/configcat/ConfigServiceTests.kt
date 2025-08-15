@@ -1,10 +1,8 @@
 package com.configcat
 
-import com.configcat.fetch.RefreshErrorCode
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
-import korlibs.time.DateTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
@@ -12,7 +10,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
+import kotlin.time.TimeSource
 
 class ConfigServiceTests {
     @AfterTest
@@ -201,7 +202,8 @@ class ConfigServiceTests {
                     respond(content = Data.formatJsonBodyWithString("test1"), status = HttpStatusCode.OK)
                 }
 
-            val start = DateTime.now()
+            val ts = TimeSource.Monotonic
+            val start = ts.markNow()
             val service =
                 Services.createConfigService(
                     mockEngine,
@@ -212,9 +214,9 @@ class ConfigServiceTests {
                 )
 
             val result = service.getSettings()
-            val elapsed = DateTime.now() - start
+            val elapsed = ts.markNow() - start
             assertNull(result.settings["fakeKey"]?.settingValue?.stringValue)
-            assertTrue(elapsed.seconds in 1.0..2.0)
+            assertTrue(elapsed.inWholeSeconds in 1..2)
         }
 
     @Test
@@ -246,8 +248,9 @@ class ConfigServiceTests {
                     delay(5000)
                     respond(content = Data.formatJsonBodyWithString("test1"), status = HttpStatusCode.OK)
                 }
-            val cache = SingleValueCache(Data.formatCacheEntryWithDate("test", Constants.distantPast))
-            val start = DateTime.now()
+            val cache = SingleValueCache(Data.formatCacheEntryWithDate("test", Instant.DISTANT_PAST))
+            val ts = TimeSource.Monotonic
+            val start = ts.markNow()
             val service =
                 Services.createConfigService(
                     mockEngine,
@@ -258,10 +261,10 @@ class ConfigServiceTests {
                     cache,
                 )
             val result = service.getSettings()
-            val elapsed = DateTime.now() - start
+            val elapsed = ts.markNow() - start
             assertEquals("test", result.settings["fakeKey"]?.settingValue?.stringValue)
             println(elapsed)
-            assertTrue(elapsed.seconds in 1.0..2.0)
+            assertTrue(elapsed.inWholeSeconds in 1..2)
         }
 
     @Test
@@ -323,7 +326,7 @@ class ConfigServiceTests {
                     }
                 } as MockEngine
 
-            val cache = SingleValueCache(Data.formatCacheEntryWithDate("test", DateTime.now().add(0, -5000.0)))
+            val cache = SingleValueCache(Data.formatCacheEntryWithDate("test", Clock.System.now().minus(5.seconds)))
             val service = Services.createConfigService(mockEngine, autoPoll { pollingInterval = 1.seconds }, cache)
 
             val setting = service.getSettings().settings["fakeKey"]
@@ -390,7 +393,8 @@ class ConfigServiceTests {
                     delay(5000)
                     respond(content = Data.formatJsonBodyWithString("test"), status = HttpStatusCode.OK)
                 }
-            val start = DateTime.now()
+            val ts = TimeSource.Monotonic
+            val start = ts.markNow()
             val cache = SingleValueCache(Data.formatCacheEntry("test"))
             val service =
                 Services.createConfigService(
@@ -402,9 +406,9 @@ class ConfigServiceTests {
                     cache,
                 )
             val result = service.getSettings()
-            val elapsed = DateTime.now() - start
+            val elapsed = ts.markNow() - start
             assertEquals("test", result.settings["fakeKey"]?.settingValue?.stringValue)
-            assertTrue(elapsed.seconds < 1)
+            assertTrue(elapsed.inWholeSeconds < 1)
         }
 
     @Test

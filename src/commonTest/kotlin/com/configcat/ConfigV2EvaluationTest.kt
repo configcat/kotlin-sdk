@@ -9,11 +9,11 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.PlatformUtils
-import korlibs.time.DateTime
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.time.Instant
 
 class ConfigV2EvaluationTest {
     @Test
@@ -96,7 +96,7 @@ class ConfigV2EvaluationTest {
     @Test
     fun prerequisiteFlagTypeMismatchTest() =
         runTest {
-            if (PlatformUtils.IS_BROWSER || PlatformUtils.IS_NODE) {
+            if (PlatformUtils.IS_JS) {
                 return@runTest
             }
             runPrerequisiteFlagTypeMismatchTest("stringDependsOnBool", "mainBoolFlag", true, "Dog")
@@ -525,7 +525,7 @@ class ConfigV2EvaluationTest {
             }
         val userAttributeToMap: Any =
             if (userAttribute is String && userAttribute.startsWith("date:")) {
-                DateTime.fromString(userAttribute.substring(5))
+                Instant.parse(userAttribute.substring(5))
             } else {
                 userAttribute
             }

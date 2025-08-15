@@ -3,7 +3,6 @@ package com.configcat
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
-import korlibs.time.DateTime
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -11,6 +10,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 class SnapshotTests {
     @Test
@@ -210,7 +210,7 @@ class SnapshotTests {
     @Test
     fun testHookSnapshotCacheExpired() =
         runTest {
-            val cache = SingleValueCache(Data.formatCacheEntryWithDate("test", Constants.distantPast))
+            val cache = SingleValueCache(Data.formatCacheEntryWithDate("test", Instant.DISTANT_PAST))
 
             val mockEngine =
                 MockEngine {

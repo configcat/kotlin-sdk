@@ -2,6 +2,7 @@ package com.configcat
 
 import com.configcat.model.PercentageOption
 import com.configcat.model.TargetingRule
+import kotlin.time.Instant
 
 /**
  * Specifies the possible evaluation error codes.
@@ -117,7 +118,7 @@ public class EvaluationDetails internal constructor(
         ): EvaluationDetails =
             EvaluationDetails(
                 key, "", user, true, error, errorCode, exception,
-                defaultValue, Constants.distantPast.unixMillisLong, null, null,
+                defaultValue, Instant.DISTANT_PAST.toEpochMilliseconds(), null, null,
             )
     }
 }

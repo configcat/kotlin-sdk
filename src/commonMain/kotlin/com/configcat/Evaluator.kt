@@ -20,12 +20,8 @@ import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
 import io.github.z4kn4fein.semver.toVersionOrNull
-import korlibs.crypto.sha1
-import korlibs.crypto.sha256
-import korlibs.time.DateTime
-import korlibs.time.DateTimeTz
-import kotlinx.serialization.encodeToString
 import kotlin.math.absoluteValue
+import kotlin.time.Instant
 
 internal data class EvaluationResult(
     val value: SettingValue,
@@ -385,7 +381,7 @@ internal class Evaluator(private val logger: InternalLogger) {
             )
         visitedKeys.removeAt(visitedKeys.size - 1)
 
-        Helpers.validateSettingValueType(evaluateResult.value, prerequisiteFlagSetting.type)
+        evaluateResult.value.validateType(prerequisiteFlagSetting.type)
 
         val prerequisiteComparator =
             prerequisiteFlagCondition.prerequisiteComparator.toPrerequisiteComparatorOrNull()
@@ -829,7 +825,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         contextSalt: String,
     ): String {
         val value = userValue + configSalt + contextSalt
-        return value.encodeToByteArray().sha256().hex
+        return value.encodeToByteArray().sha256Hex()
     }
 
     private fun getSaltedUserValueSlice(
@@ -840,7 +836,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         val configSaltByteArray = configSalt.encodeToByteArray()
         val contextSaltByteArray = contextSalt.encodeToByteArray()
         val concatByteArray = userValue + configSaltByteArray + contextSaltByteArray
-        return concatByteArray.sha256().hex
+        return concatByteArray.sha256Hex()
     }
 
     private fun evaluatePercentageOptions(
@@ -882,7 +878,7 @@ internal class Evaluator(private val logger: InternalLogger) {
         evaluateLogger?.logPercentageOptionEvaluation(percentageOptionAttributeName)
 
         val hashCandidate = "${context.key}$percentageOptionAttributeValue"
-        val hash = hashCandidate.encodeToByteArray().sha1().hex.substring(0, 7)
+        val hash = hashCandidate.encodeToByteArray().sha1Hex().substring(0, 7)
         val numberRepresentation = hash.toInt(radix = 16)
         val scale = numberRepresentation % 100
         evaluateLogger?.logPercentageOptionEvaluationHash(percentageOptionAttributeName, scale)
@@ -1004,11 +1000,8 @@ internal class Evaluator(private val logger: InternalLogger) {
         userValue: Any,
     ): Double {
         try {
-            if (userValue is DateTime) {
-                return userValue.unixMillisDouble / 1000
-            }
-            if (userValue is DateTimeTz) {
-                return userValue.local.unixMillisDouble / 1000
+            if (userValue is Instant) {
+                return userValue.toEpochMilliseconds() / 1000.0
             }
             return userAttributeToDouble(userValue)
         } catch (e: NumberFormatException) {
@@ -1073,11 +1066,8 @@ internal class Evaluator(private val logger: InternalLogger) {
             return doubleToString(userValue)
         }
 
-        if (userValue is DateTime) {
-            return doubleToString((userValue.unixMillisDouble / 1000))
-        }
-        if (userValue is DateTimeTz) {
-            return doubleToString((userValue.local.unixMillisDouble / 1000))
+        if (userValue is Instant) {
+            return doubleToString((userValue.toEpochMilliseconds() / 1000.0))
         }
         return userValue.toString()
     }

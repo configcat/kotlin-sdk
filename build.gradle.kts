@@ -3,6 +3,7 @@ import com.vanniktech.maven.publish.KotlinMultiplatform
 import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import com.vanniktech.maven.publish.SonatypeHost
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -56,6 +57,23 @@ kotlin {
         }
     }
 
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask {
+                useKarma {
+                    useChromeHeadless()
+                }
+            }
+            commonWebpackConfig {
+                cssSupport {
+                    enabled.set(true)
+                }
+            }
+        }
+        nodejs()
+    }
+
     macosX64()
     macosArm64()
 
@@ -84,8 +102,8 @@ kotlin {
             implementation(libs.serialization.core)
             implementation(libs.serialization.json)
             implementation(libs.coroutines.core)
-            implementation(libs.klock)
-            implementation(libs.krypto)
+            implementation(libs.sha1)
+            implementation(libs.sha2)
             implementation(libs.semver)
         }
 
@@ -101,6 +119,10 @@ kotlin {
 
         jsMain.dependencies {
             implementation(libs.ktor.js)
+        }
+
+        wasmJsMain.dependencies {
+            implementation(libs.browser)
         }
 
         androidMain.dependencies {
@@ -132,6 +154,10 @@ kotlin {
 
         linuxMain.get().dependsOn(nativeRestMain)
         linuxTest.get().dependsOn(nativeRestTest)
+    }
+
+    compilerOptions {
+        freeCompilerArgs.add("-opt-in=kotlin.time.ExperimentalTime")
     }
 }
 

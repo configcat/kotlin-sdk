@@ -5,6 +5,7 @@ import com.configcat.override.FlagOverrides
 import com.configcat.override.OverrideBehavior
 import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
+import kotlin.time.Instant
 
 internal class SnapshotBuilder(
     private val flagEvaluator: FlagEvaluator,
@@ -32,7 +33,7 @@ internal class SnapshotBuilder(
                     InMemoryResult(
                         SettingResult(
                             flagOverrides.dataSource.getOverrides(),
-                            Constants.distantPast,
+                            Instant.DISTANT_PAST,
                         ),
                         ClientCacheState.HAS_LOCAL_OVERRIDE_FLAG_DATA_ONLY,
                     )
