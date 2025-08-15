@@ -246,10 +246,10 @@ $dokka.location:com.configcat/Hooks/addOnFlagEvaluated/#kotlin.Function1[com.con
 $dokka.location:com.configcat/LazyLoadConfiguration///PointingToDeclaration/configcat-kotlin-client/com.configcat/-lazy-load-configuration/index.html
 $dokka.location:com.configcat/LazyLoadConfiguration/LazyLoadConfiguration/#kotlin.time.Duration/PointingToDeclaration/configcat-kotlin-client/com.configcat/-lazy-load-configuration/-lazy-load-configuration.html
 $dokka.location:com.configcat/LazyLoadConfiguration/cacheRefreshInterval/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-lazy-load-configuration/cache-refresh-interval.html
-$dokka.location:com.configcat/LocalStorageCache///PointingToDeclaration/configcat-kotlin-client/com.configcat/-local-storage-cache/index.html
-$dokka.location:com.configcat/LocalStorageCache/LocalStorageCache/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-local-storage-cache/-local-storage-cache.html
-$dokka.location:com.configcat/LocalStorageCache/read/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-local-storage-cache/read.html
-$dokka.location:com.configcat/LocalStorageCache/write/#kotlin.String#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/-local-storage-cache/write.html
+$dokka.location:com.configcat/LocalStorageCache///PointingToDeclaration/configcat-kotlin-client/com.configcat/[wasm-js]-local-storage-cache/index.html
+$dokka.location:com.configcat/LocalStorageCache/LocalStorageCache/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/[wasm-js]-local-storage-cache/-local-storage-cache.html
+$dokka.location:com.configcat/LocalStorageCache/read/#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/[wasm-js]-local-storage-cache/read.html
+$dokka.location:com.configcat/LocalStorageCache/write/#kotlin.String#kotlin.String/PointingToDeclaration/configcat-kotlin-client/com.configcat/[wasm-js]-local-storage-cache/write.html
 $dokka.location:com.configcat/PollingMode///PointingToDeclaration/configcat-kotlin-client/com.configcat/-polling-mode/index.html
 $dokka.location:com.configcat/PollingMode/identifier/#/PointingToDeclaration/configcat-kotlin-client/com.configcat/-polling-mode/identifier.html
 $dokka.location:com.configcat/SharedPreferencesCache///PointingToDeclaration/configcat-kotlin-client/com.configcat/-shared-preferences-cache/index.html
