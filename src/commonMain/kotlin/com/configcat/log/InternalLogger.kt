@@ -3,7 +3,11 @@ package com.configcat.log
 import com.configcat.Hooks
 import kotlin.time.Clock
 
-internal class InternalLogger(private val logger: Logger, val level: LogLevel, private val hooks: Hooks) {
+internal class InternalLogger(
+    private val logger: Logger,
+    val level: LogLevel,
+    private val hooks: Hooks,
+) {
     fun error(
         eventId: Int,
         message: String,
@@ -39,9 +43,7 @@ internal class InternalLogger(private val logger: Logger, val level: LogLevel, p
         }
     }
 
-    private fun shouldLog(requestedLevel: LogLevel): Boolean {
-        return requestedLevel >= level
-    }
+    private fun shouldLog(requestedLevel: LogLevel): Boolean = requestedLevel >= level
 }
 
 internal class DefaultLogger : Logger {
@@ -83,7 +85,5 @@ internal class DefaultLogger : Logger {
     private fun enrichMessage(
         message: String,
         level: LogLevel,
-    ): String {
-        return "${Clock.System.now()} [${levelMap[level]}]: ConfigCat - $message"
-    }
+    ): String = "${Clock.System.now()} [${levelMap[level]}]: ConfigCat - $message"
 }

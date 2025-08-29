@@ -5,6 +5,4 @@ internal actual fun doubleToString(doubleToString: Double): String {
     return doubleToString.toString()
 }
 
-internal actual fun formatDoubleForLog(doubleToFormat: Double): String {
-    return commonFormatDoubleForLog(doubleToFormat)
-}
+internal actual fun formatDoubleForLog(doubleToFormat: Double): String = commonFormatDoubleForLog(doubleToFormat)

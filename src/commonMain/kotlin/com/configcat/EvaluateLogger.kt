@@ -36,9 +36,7 @@ internal class EvaluateLogger {
         }
     }
 
-    fun print(): String {
-        return entries.toString()
-    }
+    fun print(): String = entries.toString()
 
     fun logEvaluation(key: String) {
         append("Evaluating '$key'")
@@ -260,13 +258,12 @@ internal object EvaluatorLogHelper {
     private fun formatStringComparisonValue(
         comparisonValue: String?,
         isSensitive: Boolean,
-    ): String {
-        return if (isSensitive) {
+    ): String =
+        if (isSensitive) {
             "'$HASHED_VALUE'"
         } else {
             "'$comparisonValue'"
         }
-    }
 
     private fun formatDoubleComparisonValue(
         comparisonValue: Double?,

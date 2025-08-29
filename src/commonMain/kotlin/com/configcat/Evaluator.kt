@@ -55,7 +55,9 @@ internal object ComparatorHelp {
 private const val USER_OBJECT_IS_MISSING = "cannot evaluate, User Object is missing"
 
 @Suppress("LargeClass", "TooManyFunctions")
-internal class Evaluator(private val logger: InternalLogger) {
+internal class Evaluator(
+    private val logger: InternalLogger,
+) {
     fun evaluate(
         setting: Setting,
         key: String,
@@ -343,10 +345,14 @@ internal class Evaluator(private val logger: InternalLogger) {
                 prerequisiteFlagCondition.value?.doubleValue == null &&
                     prerequisiteFlagCondition.value?.integerValue == null
             ) ||
-            settingType == SettingType.BOOLEAN && prerequisiteFlagCondition.value?.booleanValue == null ||
-            settingType == SettingType.STRING && prerequisiteFlagCondition.value?.stringValue == null ||
-            settingType == SettingType.INT && prerequisiteFlagCondition.value?.integerValue == null ||
-            settingType == SettingType.DOUBLE && prerequisiteFlagCondition.value?.doubleValue == null
+            settingType == SettingType.BOOLEAN &&
+            prerequisiteFlagCondition.value?.booleanValue == null ||
+            settingType == SettingType.STRING &&
+            prerequisiteFlagCondition.value?.stringValue == null ||
+            settingType == SettingType.INT &&
+            prerequisiteFlagCondition.value?.integerValue == null ||
+            settingType == SettingType.DOUBLE &&
+            prerequisiteFlagCondition.value?.doubleValue == null
         ) {
             throw InvalidConfigModelException(
                 "Type mismatch between comparison value '${prerequisiteFlagCondition.value}' and prerequisite flag " +
@@ -1115,7 +1121,10 @@ internal class Evaluator(private val logger: InternalLogger) {
     /**
      * Describes the Rollout Evaluator User Condition Comparators.
      */
-    enum class UserComparator(val id: Int, val value: String) {
+    enum class UserComparator(
+        val id: Int,
+        val value: String,
+    ) {
         IS_ONE_OF(0, "IS ONE OF"),
         IS_NOT_ONE_OF(1, "IS NOT ONE OF"),
         CONTAINS_ANY_OF(2, "CONTAINS ANY OF"),
@@ -1157,7 +1166,10 @@ internal class Evaluator(private val logger: InternalLogger) {
     /**
      * Describes the Prerequisite Comparators.
      */
-    enum class PrerequisiteComparator(val id: Int, val value: String) {
+    enum class PrerequisiteComparator(
+        val id: Int,
+        val value: String,
+    ) {
         EQUALS(0, "EQUALS"),
         NOT_EQUALS(1, "NOT EQUALS"),
     }
@@ -1165,7 +1177,10 @@ internal class Evaluator(private val logger: InternalLogger) {
     /**
      * Describes the Segment Comparators.
      */
-    enum class SegmentComparator(val id: Int, val value: String) {
+    enum class SegmentComparator(
+        val id: Int,
+        val value: String,
+    ) {
         IS_IN_SEGMENT(0, "IS IN SEGMENT"),
         IS_NOT_IN_SEGMENT(1, "IS NOT IN SEGMENT"),
     }
@@ -1211,6 +1226,10 @@ internal fun commonFormatDoubleForLog(doubleToFormat: Double): String {
     }
 }
 
-internal class RolloutEvaluatorException(message: String?) : Exception(message)
+internal class RolloutEvaluatorException(
+    message: String?,
+) : Exception(message)
 
-internal class InvalidConfigModelException(message: String?) : IllegalArgumentException(message)
+internal class InvalidConfigModelException(
+    message: String?,
+) : IllegalArgumentException(message)

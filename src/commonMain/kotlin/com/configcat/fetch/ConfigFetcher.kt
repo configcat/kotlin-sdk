@@ -20,8 +20,8 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.etag
-import kotlinx.atomicfu.atomic
-import kotlinx.atomicfu.update
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.AtomicReference
 import kotlin.time.Clock
 
 internal class ConfigFetcher(
@@ -29,10 +29,10 @@ internal class ConfigFetcher(
     private val logger: InternalLogger,
 ) : Closeable {
     private val httpClient = createClient()
-    private val closed = atomic(false)
+    private val closed = AtomicBoolean(false)
     private val isUrlCustom = options.isBaseURLCustom()
     private val baseUrl =
-        atomic(
+        AtomicReference(
             options.baseUrl?.let { it.ifEmpty { null } }
                 ?: if (options.dataGovernance == DataGovernance.GLOBAL) {
                     Constants.GLOBAL_CDN_URL
@@ -41,23 +41,21 @@ internal class ConfigFetcher(
                 },
         )
 
-    suspend fun fetch(eTag: String): FetchResponse {
-        return fetchHTTPWithPreferenceHandling(eTag)
-    }
+    suspend fun fetch(eTag: String): FetchResponse = fetchHTTPWithPreferenceHandling(eTag)
 
     override fun close() {
-        if (!closed.compareAndSet(expect = false, update = true)) return
+        if (!closed.compareAndSet(expectedValue = false, newValue = true)) return
         httpClient.close()
     }
 
     private suspend fun fetchHTTPWithPreferenceHandling(eTag: String): FetchResponse {
         repeat(3) {
-            val response = fetchHTTP(baseUrl.value, eTag)
+            val response = fetchHTTP(baseUrl.load(), eTag)
             val preferences = response.entry.config.preferences
             if (!response.isFetched ||
                 response.entry.isEmpty() ||
                 preferences == null ||
-                preferences.baseUrl == baseUrl.value
+                preferences.baseUrl == baseUrl.load()
             ) {
                 return response
             }
@@ -65,7 +63,7 @@ internal class ConfigFetcher(
                 return response
             }
 
-            baseUrl.update { preferences.baseUrl }
+            baseUrl.store(preferences.baseUrl)
 
             if (preferences.redirect == RedirectMode.NO_REDIRECT.ordinal) {
                 return response
@@ -155,14 +153,13 @@ internal class ConfigFetcher(
         }
     }
 
-    private fun deserializeConfig(jsonString: String): Pair<Config, Exception?> {
-        return try {
+    private fun deserializeConfig(jsonString: String): Pair<Config, Exception?> =
+        try {
             Pair(jsonString.parseConfigJson(), null)
         } catch (e: Exception) {
             logger.error(1105, ConfigCatLogMessages.FETCH_RECEIVED_200_WITH_INVALID_BODY_ERROR, e)
             Pair(Config.empty, e)
         }
-    }
 }
 
 internal expect fun httpRequestBuilder(

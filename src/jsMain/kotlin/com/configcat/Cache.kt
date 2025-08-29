@@ -24,6 +24,5 @@ public class LocalStorageCache : ConfigCache {
     }
 }
 
-internal fun isBrowser(): Boolean {
-    return js("typeof window !== \"undefined\" && typeof window.document !== \"undefined\"") as? Boolean ?: false
-}
+internal fun isBrowser(): Boolean =
+    js("typeof window !== \"undefined\" && typeof window.document !== \"undefined\"") as? Boolean ?: false

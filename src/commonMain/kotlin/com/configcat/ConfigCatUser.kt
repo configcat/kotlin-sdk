@@ -92,9 +92,7 @@ public class ConfigCatUser(
         return attributes[key]
     }
 
-    override fun toString(): String {
-        return Constants.json.encodeToString(toJsonElement(attributes))
-    }
+    override fun toString(): String = Constants.json.encodeToString(toJsonElement(attributes))
 
     private fun toJsonElement(value: Any): JsonElement =
         when (value) {
@@ -107,10 +105,10 @@ public class ConfigCatUser(
             is Iterable<*> -> JsonArray(value.map { toJsonElement(it ?: "") })
             is Map<*, *> ->
                 JsonObject(
-                    value.map {
-                            (key, value) ->
-                        key as String to toJsonElement(value ?: "")
-                    }.toMap(),
+                    value
+                        .map { (key, value) ->
+                            key as String to toJsonElement(value ?: "")
+                        }.toMap(),
                 )
             else -> JsonPrimitive(value.toString())
         }

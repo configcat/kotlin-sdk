@@ -2,7 +2,6 @@ import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinMultiplatform
 import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -127,7 +126,6 @@ kotlin {
 
         androidMain.dependencies {
             implementation(libs.ktor.android)
-            implementation(libs.atomicfu)
         }
 
         appleMain.dependencies {
@@ -154,23 +152,29 @@ kotlin {
 
         linuxMain.get().dependsOn(nativeRestMain)
         linuxTest.get().dependsOn(nativeRestTest)
-    }
 
-    compilerOptions {
-        freeCompilerArgs.add("-opt-in=kotlin.time.ExperimentalTime")
+        all {
+            languageSettings.optIn("kotlin.time.ExperimentalTime")
+            languageSettings.optIn("kotlin.concurrent.atomics.ExperimentalAtomicApi")
+        }
     }
 }
 
 android {
     namespace = "com.configcat"
-    compileSdk = 35
+    compileSdk = 36
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
+        version = project.version as String
         consumerProguardFiles("configcat-proguard-rules.pro")
     }
 
-    @Suppress("UnstableApiUsage")
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
     testOptions {
         targetSdk = 31
     }
@@ -261,7 +265,6 @@ sonarqube {
 }
 
 mavenPublishing {
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     if (providers.environmentVariable("ORG_GRADLE_PROJECT_signingInMemoryKey").isPresent &&
         providers.environmentVariable("ORG_GRADLE_PROJECT_signingInMemoryKeyPassword").isPresent
     ) {

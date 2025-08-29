@@ -2,9 +2,7 @@ package com.configcat
 
 import platform.Foundation.NSUserDefaults
 
-internal actual fun defaultCache(): ConfigCache {
-    return UserDefaultsCache()
-}
+internal actual fun defaultCache(): ConfigCache = UserDefaultsCache()
 
 /**
  * [ConfigCache] implementation that uses [NSUserDefaults] as persistent storage.

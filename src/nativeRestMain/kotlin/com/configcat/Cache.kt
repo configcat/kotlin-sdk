@@ -1,5 +1,3 @@
 package com.configcat
 
-internal actual fun defaultCache(): ConfigCache {
-    return EmptyConfigCache()
-}
+internal actual fun defaultCache(): ConfigCache = EmptyConfigCache()

@@ -57,8 +57,8 @@ public data class SettingValue(
         }
     }
 
-    override fun toString(): String {
-        return when {
+    override fun toString(): String =
+        when {
             booleanValue != null -> {
                 booleanValue.toString()
             }
@@ -71,5 +71,4 @@ public data class SettingValue(
                 stringValue.toString()
             }
         }
-    }
 }

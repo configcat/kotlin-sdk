@@ -3,8 +3,7 @@ package com.configcat
 import com.configcat.log.InternalLogger
 import com.configcat.override.FlagOverrides
 import com.configcat.override.OverrideBehavior
-import kotlinx.atomicfu.AtomicRef
-import kotlinx.atomicfu.atomic
+import kotlin.concurrent.atomics.AtomicReference
 import kotlin.time.Instant
 
 internal class SnapshotBuilder(
@@ -13,15 +12,15 @@ internal class SnapshotBuilder(
     private val logger: InternalLogger,
     defaultUser: ConfigCatUser?,
 ) {
-    public val defaultUser: AtomicRef<ConfigCatUser?> = atomic(defaultUser)
+    val defaultUser = AtomicReference(defaultUser)
 
-    public fun buildSnapshot(inMemoryResult: InMemoryResult): ConfigCatClientSnapshot {
+    fun buildSnapshot(inMemoryResult: InMemoryResult): ConfigCatClientSnapshot {
         val inMemorySettings = calcInMemorySettingsWithOverrides(inMemoryResult)
         return Snapshot(
             flagEvaluator,
             inMemorySettings.settingResult,
             inMemorySettings.cacheState,
-            defaultUser.value,
+            defaultUser.load(),
             logger,
         )
     }

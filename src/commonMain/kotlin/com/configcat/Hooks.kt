@@ -1,17 +1,18 @@
 package com.configcat
 
 import com.configcat.model.Setting
-import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.ReentrantLock
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.AtomicReference
 
 /**
  * Events fired by [ConfigCatClient].
  */
 public class Hooks {
-    private val isClientReady = atomic(false)
-    private val clientCacheState = atomic(ClientCacheState.NO_FLAG_DATA)
+    private val isClientReady = AtomicBoolean(false)
+    private val clientCacheState = AtomicReference(ClientCacheState.NO_FLAG_DATA)
     private val onClientReadyWithState: MutableList<(ClientCacheState) -> Unit> = mutableListOf()
     private val onClientReadyWithSnapshot: MutableList<(ConfigCatClientSnapshot) -> Unit> = mutableListOf()
     private val onConfigChanged: MutableList<
@@ -19,7 +20,7 @@ public class Hooks {
             Map<String, Setting>,
             ConfigCatClientSnapshot,
         ) -> Unit,
-        > = mutableListOf()
+    > = mutableListOf()
     private val onFlagEvaluated: MutableList<(EvaluationDetails) -> Unit> = mutableListOf()
     private val onError: MutableList<(String) -> Unit> = mutableListOf()
     private val lock: ReentrantLock = reentrantLock()
@@ -33,8 +34,8 @@ public class Hooks {
      */
     public fun addOnClientReady(handler: (ClientCacheState) -> Unit) {
         lock.withLock {
-            if (isClientReady.value) {
-                handler(clientCacheState.value)
+            if (isClientReady.load()) {
+                handler(clientCacheState.load())
             } else {
                 onClientReadyWithState.add(handler)
             }
@@ -91,8 +92,8 @@ public class Hooks {
         inMemoryResult: InMemoryResult,
     ) {
         lock.withLock {
-            this.isClientReady.value = true
-            this.clientCacheState.value = inMemoryResult.cacheState
+            this.isClientReady.store(true)
+            this.clientCacheState.store(inMemoryResult.cacheState)
             for (method in onClientReadyWithState) {
                 method(inMemoryResult.cacheState)
             }

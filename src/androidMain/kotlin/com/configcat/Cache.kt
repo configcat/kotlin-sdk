@@ -3,14 +3,14 @@ package com.configcat
 import android.content.Context
 import android.content.SharedPreferences
 
-internal actual fun defaultCache(): ConfigCache {
-    return EmptyConfigCache()
-}
+internal actual fun defaultCache(): ConfigCache = EmptyConfigCache()
 
 /**
  * [ConfigCache] implementation that uses [SharedPreferences] as persistent storage.
  */
-public class SharedPreferencesCache(context: Context) : ConfigCache {
+public class SharedPreferencesCache(
+    context: Context,
+) : ConfigCache {
     private val sharedPreferences: SharedPreferences =
         context.applicationContext.getSharedPreferences("configcat_preferences", Context.MODE_PRIVATE)
 

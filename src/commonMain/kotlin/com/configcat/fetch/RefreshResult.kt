@@ -3,7 +3,9 @@ package com.configcat.fetch
 import com.configcat.ConfigCatClient
 
 /** Specifies the possible config data refresh error codes. */
-public enum class RefreshErrorCode(public val code: Int) {
+public enum class RefreshErrorCode(
+    public val code: Int,
+) {
     /** An unexpected error occurred during the refresh operation. */
     UNEXPECTED_ERROR(-1),
 
