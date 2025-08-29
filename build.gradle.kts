@@ -265,6 +265,7 @@ sonarqube {
 }
 
 mavenPublishing {
+    publishToMavenCentral()
     if (providers.environmentVariable("ORG_GRADLE_PROJECT_signingInMemoryKey").isPresent &&
         providers.environmentVariable("ORG_GRADLE_PROJECT_signingInMemoryKeyPassword").isPresent
     ) {

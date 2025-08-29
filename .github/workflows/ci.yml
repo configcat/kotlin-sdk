@@ -174,7 +174,7 @@ jobs:
     - name: Cache Gradle
       uses: ./.github/actions/cache-gradle
     - name: Deploy snapshot
-      run: ./gradlew publishAllPublicationsToMavenCentralRepository -Dsnapshot=true --stacktrace
+      run: ./gradlew publishToMavenCentral -Dsnapshot=true --stacktrace
       shell: bash
 
   deploy-release:
