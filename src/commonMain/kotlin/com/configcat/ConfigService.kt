@@ -65,7 +65,7 @@ internal class ConfigService(
     private val hooks: Hooks,
 ) : Closeable {
     internal val cacheKey: String = getCacheKey()
-    private val mutex = Mutex()
+    private val asyncLock = Mutex()
     private val syncLock = reentrantLock()
     private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val closed = AtomicBoolean(false)
@@ -73,10 +73,9 @@ internal class ConfigService(
     private val cacheStateReported = AtomicBoolean(false)
     private val offline = AtomicBoolean(options.offline)
     private val mode = options.pollingMode
-    private val fetchJob = AtomicReference<Deferred<EntryResult>?>(null)
+    private var fetchJob: Deferred<EntryResult>? = null
     private val cachedEntry = AtomicReference(Entry.empty)
     private var pollingJob: Job? = null
-    private var fetching = false
 
     val isOffline: Boolean get() = offline.load()
 
@@ -91,14 +90,11 @@ internal class ConfigService(
     private fun setInitializedState() {
         initialized.store(true)
         coroutineScope.launch {
-            mutex.withLock {
-                val fromCache = readCache()
-                if (!fromCache.isEmpty() && fromCache.eTag != cachedEntry.load().eTag) {
-                    cachedEntry.store(fromCache)
-                    hooks.invokeOnConfigChanged(snapshotBuilder, getInMemoryState())
-                }
-                initializeAndReportCacheState()
+            val inMemory = cachedEntry.load()
+            if (!inMemory.isEmpty()) {
+                return@launch
             }
+            fetchIfOlder(Instant.DISTANT_FUTURE, preferCached = true)
         }
     }
 
@@ -137,21 +133,16 @@ internal class ConfigService(
     }
 
     fun offline() {
-        syncLock.withLock {
-            if (!offline.compareAndSet(expectedValue = false, newValue = true)) return
-            logger.info(5200, ConfigCatLogMessages.getConfigServiceStatusChanged("OFFLINE"))
-        }
+        if (!offline.compareAndSet(expectedValue = false, newValue = true)) return
+        logger.info(5200, ConfigCatLogMessages.getConfigServiceStatusChanged("OFFLINE"))
     }
 
     fun online() {
-        syncLock.withLock {
-            if (!offline.compareAndSet(expectedValue = true, newValue = false)) return
-            if (mode is AutoPollMode) {
-                pollingJob?.cancel()
-                startPoll(mode)
-            }
-            logger.info(5200, ConfigCatLogMessages.getConfigServiceStatusChanged("ONLINE"))
+        if (!offline.compareAndSet(expectedValue = true, newValue = false)) return
+        if (mode is AutoPollMode) {
+            startPoll(mode)
         }
+        logger.info(5200, ConfigCatLogMessages.getConfigServiceStatusChanged("ONLINE"))
     }
 
     suspend fun refresh(): RefreshResult {
@@ -169,12 +160,12 @@ internal class ConfigService(
         threshold: Instant,
         preferCached: Boolean = false,
     ): EntryResult {
-        mutex.withLock {
+        asyncLock.withLock {
             // Sync up with the cache and use it when it's not expired.
             val fromCache = readCache()
             if (!fromCache.isEmpty() && fromCache.eTag != cachedEntry.load().eTag) {
                 cachedEntry.store(fromCache)
-                hooks.invokeOnConfigChanged(snapshotBuilder, getInMemoryState())
+                reportConfigChanged()
             }
             // Cache isn't expired
             if (!cachedEntry.load().isExpired(threshold)) {
@@ -187,11 +178,10 @@ internal class ConfigService(
                 return EntryResult(cachedEntry.load(), null, RefreshErrorCode.NONE, null)
             }
 
-            if (fetchJob.load() == null || !fetching) {
+            if (fetchJob == null) {
                 // No fetch is running, initiate a new one.
-                fetching = true
                 val eTag = cachedEntry.load().eTag
-                fetchJob.store(
+                fetchJob =
                     coroutineScope.async {
                         if (mode is AutoPollMode && !initialized.load()) {
                             // Waiting for the client initialization.
@@ -217,31 +207,28 @@ internal class ConfigService(
                             // The service is initialized, start fetch without timeout.
                             return@async fetchConfig(eTag)
                         }
-                    },
-                )
+                    }
+
             }
         }
         // Await the fetch routine.
-        val result = fetchJob.load()?.await()
-
-        mutex.withLock {
-            return result?.let { value ->
-                when {
-                    value.entry.isEmpty() -> value.withEntry(cachedEntry.load())
-                    else -> value
-                }
-            } ?: EntryResult.success(cachedEntry.load())
-        }
+        val result = fetchJob?.await()
+        return result?.let { value ->
+            when {
+                value.entry.isEmpty() -> value.withEntry(cachedEntry.load())
+                else -> value
+            }
+        } ?: EntryResult.success(cachedEntry.load())
     }
 
     private suspend fun fetchConfig(eTag: String): EntryResult {
         val response = configFetcher.fetch(eTag)
-        mutex.withLock {
-            fetching = false
+        asyncLock.withLock {
+            fetchJob = null
             if (response.isFetched) {
                 cachedEntry.store(response.entry)
                 writeCache(response.entry)
-                hooks.invokeOnConfigChanged(snapshotBuilder, getInMemoryState())
+                reportConfigChanged()
                 initializeAndReportCacheState()
                 return EntryResult.success(response.entry)
             } else if ((response.isNotModified || !response.isTransientError) && !cachedEntry.load().isEmpty()) {
@@ -255,21 +242,32 @@ internal class ConfigService(
 
     private fun startPoll(mode: AutoPollMode) {
         logger.debug("Start polling with ${mode.configuration.pollingInterval.inWholeMilliseconds}ms interval.")
-        pollingJob =
-            coroutineScope.launch {
-                while (isActive) {
-                    fetchIfOlder(
-                        Clock.System.now().minus(mode.configuration.pollingInterval - 500.milliseconds),
-                    )
-                    delay(mode.configuration.pollingInterval)
+        syncLock.withLock {
+            pollingJob?.cancel()
+            pollingJob =
+                coroutineScope.launch {
+                    while (isActive) {
+                        fetchIfOlder(
+                            Clock.System.now().minus(mode.configuration.pollingInterval - 500.milliseconds),
+                        )
+                        delay(mode.configuration.pollingInterval)
+                    }
                 }
-            }
+        }
     }
 
     private fun initializeAndReportCacheState() {
         initialized.store(true)
         if (cacheStateReported.compareAndSet(expectedValue = false, newValue = true)) {
-            hooks.invokeOnClientReady(snapshotBuilder, getInMemoryState())
+            coroutineScope.launch {
+                hooks.invokeOnClientReady(snapshotBuilder, getInMemoryState())
+            }
+        }
+    }
+
+    private fun reportConfigChanged() {
+        coroutineScope.launch {
+            hooks.invokeOnConfigChanged(snapshotBuilder, getInMemoryState())
         }
     }
 
