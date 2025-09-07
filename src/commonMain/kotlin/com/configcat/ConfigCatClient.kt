@@ -93,6 +93,19 @@ public class ConfigCatOptions {
      */
     public var hooks: Hooks = Hooks()
 
+    /**
+     * Represents an optional monitor for tracking application state changes within the SDK.
+     *
+     * Allows detection of changes to determine if the SDK is allowed to perform operations such as HTTP calls.
+     * Typically used to manage the SDK's behavior in response to application lifecycle events (e.g., going
+     * online or offline).
+     *
+     * The `StateMonitor` implementation can be subscribed to monitor real-time state updates or
+     * queried to check if the SDK is currently permitted to use HTTP.
+     * If set to `null`, state monitoring will not be active.
+     */
+    public var stateMonitor: StateMonitor? = null
+
     internal var sdkKey: String? = null
 
     internal fun isBaseURLCustom(): Boolean = !baseUrl.isNullOrEmpty()

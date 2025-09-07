@@ -149,7 +149,7 @@ internal class FlagEvaluator(
         settings: Map<String, Setting>,
     ): EvaluationDetails {
         var evaluateLogger: EvaluateLogger? = null
-        if (logger.level == LogLevel.INFO) {
+        if (logger.isLevelAllowed(LogLevel.INFO)) {
             evaluateLogger = EvaluateLogger()
         }
         val (value, variationId, targetingRule, percentageRule) =

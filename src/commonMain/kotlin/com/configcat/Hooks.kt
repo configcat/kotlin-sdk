@@ -1,7 +1,6 @@
 package com.configcat
 
 import com.configcat.model.Setting
-import kotlinx.atomicfu.locks.ReentrantLock
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
 import kotlin.concurrent.atomics.AtomicBoolean
@@ -23,7 +22,7 @@ public class Hooks {
     > = mutableListOf()
     private val onFlagEvaluated: MutableList<(EvaluationDetails) -> Unit> = mutableListOf()
     private val onError: MutableList<(String) -> Unit> = mutableListOf()
-    private val lock: ReentrantLock = reentrantLock()
+    private val lock = reentrantLock()
 
     /**
      * This event is sent when the SDK reaches the ready state.

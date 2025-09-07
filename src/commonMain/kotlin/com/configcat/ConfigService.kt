@@ -72,6 +72,7 @@ internal class ConfigService(
     private val initialized = AtomicBoolean(false)
     private val cacheStateReported = AtomicBoolean(false)
     private val offline = AtomicBoolean(options.offline)
+    private val isAllowedToUseHTTP = AtomicBoolean(options.stateMonitor?.isAllowedToUseHTTP() ?: true)
     private val mode = options.pollingMode
     private var fetchJob: Deferred<EntryResult>? = null
     private val cachedEntry = AtomicReference(Entry.empty)
@@ -80,6 +81,16 @@ internal class ConfigService(
     val isOffline: Boolean get() = offline.load()
 
     init {
+        options.stateMonitor?.subscribeToStateChanges { isAllowedToUseHTTP ->
+            logger.debug("Application state change notification received. isAllowedToUseHTTP: $isAllowedToUseHTTP")
+            this.isAllowedToUseHTTP.store(isAllowedToUseHTTP)
+            if (isAllowedToUseHTTP) {
+                online()
+            } else {
+                offline()
+            }
+        }
+
         if (mode is AutoPollMode) {
             startPoll(mode)
         } else {
@@ -172,8 +183,9 @@ internal class ConfigService(
                 initializeAndReportCacheState()
                 return EntryResult(cachedEntry.load(), null, RefreshErrorCode.NONE, null)
             }
-            // If we are in offline mode or the caller prefers cached values, do not initiate fetch.
-            if (offline.load() || preferCached) {
+            // If we are in offline mode, or prohibited from using HTTP,
+            // or the caller prefers cached values, do not initiate fetch.
+            if (offline.load() || !isAllowedToUseHTTP.load() || preferCached) {
                 initializeAndReportCacheState()
                 return EntryResult(cachedEntry.load(), null, RefreshErrorCode.NONE, null)
             }
@@ -208,7 +220,6 @@ internal class ConfigService(
                             return@async fetchConfig(eTag)
                         }
                     }
-
             }
         }
         // Await the fetch routine.
@@ -300,6 +311,7 @@ internal class ConfigService(
     override fun close() {
         if (!closed.compareAndSet(expectedValue = false, newValue = true)) return
         configFetcher.close()
+        options.stateMonitor?.close()
         coroutineScope.cancel()
     }
 
