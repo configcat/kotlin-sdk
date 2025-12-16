@@ -1,5 +1,7 @@
 package com.configcat
 
+import kotlin.concurrent.atomics.AtomicBoolean
+
 class InMemoryCache : ConfigCache {
     internal val store: MutableMap<String, String> = mutableMapOf()
 
@@ -24,4 +26,12 @@ class SingleValueCache(private var value: String) : ConfigCache {
     ) {
         this.value = value
     }
+}
+
+class TestStateMonitor : StateMonitor() {
+    var isInValidState: AtomicBoolean = AtomicBoolean(true)
+
+    override fun isAllowedToUseHTTP() = isInValidState.load()
+
+    fun notifyListeners() = notifyStateChanged()
 }

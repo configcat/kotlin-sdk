@@ -32,10 +32,10 @@ public class AndroidStateMonitor(
         networkMonitor.setNotifyStateChanged(::notifyStateChanged)
         application.registerActivityLifecycleCallbacks(this)
         application.registerComponentCallbacks(this)
-        application.registerReceiver(networkMonitor, IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"))
+        application.registerReceiver(networkMonitor, IntentFilter(AndroidConstants.CONNECTIVITY_CHANGE))
     }
 
-    override fun isAllowedToUseHTTP(): Boolean = inForeground.load() && networkMonitor.hasNetwork.load()
+    override fun isAllowedToUseHTTP(): Boolean = inForeground.load() && networkMonitor.isNetworkAvailable()
 
     override fun onActivityCreated(
         p0: Activity,
@@ -94,7 +94,6 @@ public class AndroidStateMonitor(
     private class NetworkMonitor(
         private val context: Context,
     ) : BroadcastReceiver() {
-        val hasNetwork = AtomicBoolean(isNetworkAvailable())
         private var notifyStateChanged: (() -> Unit)? = null
 
         fun setNotifyStateChanged(notifyStateChanged: () -> Unit) {
@@ -105,12 +104,8 @@ public class AndroidStateMonitor(
             p0: Context?,
             p1: Intent?,
         ) {
-            val isConnected = isNetworkAvailable()
-            if (isConnected && hasNetwork.compareAndSet(expectedValue = false, newValue = true)) {
-                notifyStateChanged?.invoke()
-            } else if (!isConnected && hasNetwork.compareAndSet(expectedValue = true, newValue = false)) {
-                notifyStateChanged?.invoke()
-            }
+            if (AndroidConstants.CONNECTIVITY_CHANGE != p1?.action) return
+            notifyStateChanged?.invoke()
         }
 
         fun isNetworkAvailable(): Boolean {

@@ -71,24 +71,21 @@ internal class ConfigService(
     private val closed = AtomicBoolean(false)
     private val initialized = AtomicBoolean(false)
     private val cacheStateReported = AtomicBoolean(false)
-    private val offline = AtomicBoolean(options.offline)
-    private val isAllowedToUseHTTP = AtomicBoolean(options.stateMonitor?.isAllowedToUseHTTP() ?: true)
+    private val userIndicatedOffline = AtomicBoolean(options.offline)
+    private val inForegroundAndHasNetwork = AtomicBoolean(options.stateMonitor?.isAllowedToUseHTTP() ?: true)
+    private val offline = AtomicBoolean(isOffline)
     private val mode = options.pollingMode
     private var fetchJob: Deferred<EntryResult>? = null
     private val cachedEntry = AtomicReference(Entry.empty)
     private var pollingJob: Job? = null
 
-    val isOffline: Boolean get() = offline.load()
+    val isOffline: Boolean get() = userIndicatedOffline.load() || !inForegroundAndHasNetwork.load()
 
     init {
         options.stateMonitor?.subscribeToStateChanges { isAllowedToUseHTTP ->
             logger.debug("Application state change notification received. isAllowedToUseHTTP: $isAllowedToUseHTTP")
-            this.isAllowedToUseHTTP.store(isAllowedToUseHTTP)
-            if (isAllowedToUseHTTP) {
-                online()
-            } else {
-                offline()
-            }
+            this.inForegroundAndHasNetwork.store(isAllowedToUseHTTP)
+            switchStateIfNeeded()
         }
 
         if (mode is AutoPollMode) {
@@ -144,20 +141,30 @@ internal class ConfigService(
     }
 
     fun offline() {
-        if (!offline.compareAndSet(expectedValue = false, newValue = true)) return
-        logger.info(5200, ConfigCatLogMessages.getConfigServiceStatusChanged("OFFLINE"))
+        if (!userIndicatedOffline.compareAndSet(expectedValue = false, newValue = true)) return
+        switchStateIfNeeded()
     }
 
     fun online() {
-        if (!offline.compareAndSet(expectedValue = true, newValue = false)) return
-        if (mode is AutoPollMode) {
-            startPoll(mode)
+        if (!userIndicatedOffline.compareAndSet(expectedValue = true, newValue = false)) return
+        switchStateIfNeeded()
+    }
+
+    fun switchStateIfNeeded() {
+        val currentOfflineState = isOffline
+        if (currentOfflineState && offline.compareAndSet(expectedValue = false, newValue = true)) {
+            logger.info(5200, ConfigCatLogMessages.getConfigServiceStatusChanged("OFFLINE"))
         }
-        logger.info(5200, ConfigCatLogMessages.getConfigServiceStatusChanged("ONLINE"))
+        if (!currentOfflineState && offline.compareAndSet(expectedValue = true, newValue = false)) {
+            if (mode is AutoPollMode) {
+                startPoll(mode)
+            }
+            logger.info(5200, ConfigCatLogMessages.getConfigServiceStatusChanged("ONLINE"))
+        }
     }
 
     suspend fun refresh(): RefreshResult {
-        if (offline.load() && (options.configCache == null || options.configCache is EmptyConfigCache)) {
+        if (isOffline && (options.configCache == null || options.configCache is EmptyConfigCache)) {
             val offlineMessage = ConfigCatLogMessages.CONFIG_SERVICE_CANNOT_INITIATE_HTTP_CALLS_WARN
             logger.warning(3200, offlineMessage)
             return RefreshResult(false, offlineMessage, RefreshErrorCode.OFFLINE_CLIENT, null)
@@ -185,7 +192,7 @@ internal class ConfigService(
             }
             // If we are in offline mode, or prohibited from using HTTP,
             // or the caller prefers cached values, do not initiate fetch.
-            if (offline.load() || !isAllowedToUseHTTP.load() || preferCached) {
+            if (isOffline || preferCached) {
                 initializeAndReportCacheState()
                 return EntryResult(cachedEntry.load(), null, RefreshErrorCode.NONE, null)
             }

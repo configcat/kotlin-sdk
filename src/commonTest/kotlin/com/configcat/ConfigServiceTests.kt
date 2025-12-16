@@ -8,6 +8,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Clock
@@ -681,4 +682,51 @@ class ConfigServiceTests {
         val service2 = Services.createConfigService(mockEngine, options = configCatOptions)
         assertEquals("da7bfd8662209c8ed3f9db96daed4f8d91ba5876", service2.cacheKey)
     }
+
+    @Test
+    fun testStateMonitor() =
+        runTest {
+            val mockEngine =
+                MockEngine.create {
+                    this.addHandler {
+                        respond(content = Data.formatJsonBodyWithString("test"), status = HttpStatusCode.OK)
+                    }
+                } as MockEngine
+
+            val opts = ConfigCatOptions()
+            val monitor = TestStateMonitor()
+            opts.stateMonitor = monitor
+            val service = Services.createConfigService(mockEngine, options = opts)
+
+            assertFalse(service.isOffline)
+
+            monitor.isInValidState.store(false)
+            monitor.notifyListeners()
+
+            assertTrue(service.isOffline)
+
+            monitor.isInValidState.store(true)
+            monitor.notifyListeners()
+
+            assertFalse(service.isOffline)
+
+            service.offline()
+            assertTrue(service.isOffline)
+
+            monitor.isInValidState.store(false)
+            monitor.notifyListeners()
+
+            assertTrue(service.isOffline)
+
+            monitor.isInValidState.store(true)
+            monitor.notifyListeners()
+
+            assertTrue(service.isOffline)
+
+            service.online()
+
+            assertFalse(service.isOffline)
+
+            service.close()
+        }
 }
