@@ -97,7 +97,7 @@ internal class ConfigFetcher(
                         }
                     }
                 }
-            if (response.status.value in 200..299) {
+            if (response.status == HttpStatusCode.OK) {
                 logger.debug("Fetch was successful: new config fetched.")
                 val body = response.bodyAsText()
                 val newETag = response.etag()

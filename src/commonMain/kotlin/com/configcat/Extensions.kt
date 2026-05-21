@@ -9,6 +9,7 @@ import org.kotlincrypto.hash.sha2.SHA256
 import kotlin.time.Instant
 
 internal fun String.parseConfigJson(): Config {
+    require(this.isNotBlank()) { "Config JSON content is empty." }
     val config: Config = Constants.json.decodeFromString(this)
     config.addConfigSaltAndSegmentsToSettings()
     return config
@@ -77,3 +78,4 @@ internal fun ByteArray.sha1Hex(): String = SHA1().digest(this).toHexString()
 
 @OptIn(ExperimentalStdlibApi::class)
 internal fun ByteArray.sha256Hex(): String = SHA256().digest(this).toHexString()
+

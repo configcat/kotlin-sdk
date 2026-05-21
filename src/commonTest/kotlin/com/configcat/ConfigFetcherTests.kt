@@ -92,6 +92,40 @@ class ConfigFetcherTests {
         }
 
     @Test
+    fun testFetchBlankBody() =
+        runTest {
+            val mockEngine =
+                MockEngine {
+                    respond(content = "   ", status = HttpStatusCode.OK)
+                }
+            val fetcher = Services.createFetcher(mockEngine)
+            val result = fetcher.fetch("")
+
+            assertTrue(result.isFailed)
+            assertTrue(result.entry.isEmpty())
+            assertEquals(RefreshErrorCode.INVALID_HTTP_RESPONSE_CONTENT, result.errorCode)
+            assertNotNull(result.errorException)
+            assertEquals(1, mockEngine.requestHistory.size)
+        }
+
+    @Test
+    fun testFetchCreatedIsUnexpectedHttpResponse() =
+        runTest {
+            val mockEngine =
+                MockEngine {
+                    respond(content = TEST_BODY, status = HttpStatusCode.Created)
+                }
+            val fetcher = Services.createFetcher(mockEngine)
+            val result = fetcher.fetch("")
+
+            assertTrue(result.isFailed)
+            assertTrue(result.entry.isEmpty())
+            assertEquals(RefreshErrorCode.UNEXPECTED_HTTP_RESPONSE, result.errorCode)
+            assertNull(result.errorException)
+            assertEquals(1, mockEngine.requestHistory.size)
+        }
+
+    @Test
     fun testFetchNotFound() =
         runTest {
             val mockEngine =
