@@ -78,4 +78,3 @@ internal fun ByteArray.sha1Hex(): String = SHA1().digest(this).toHexString()
 
 @OptIn(ExperimentalStdlibApi::class)
 internal fun ByteArray.sha256Hex(): String = SHA256().digest(this).toHexString()
-
