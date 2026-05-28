@@ -16,7 +16,7 @@ jobs:
       matrix:
         os: [ macos-latest, ubuntu-latest, windows-latest ]
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Set up JDK
       uses: actions/setup-java@v5
       with:
@@ -36,7 +36,7 @@ jobs:
       matrix:
         os: [ macos-latest, ubuntu-latest, windows-latest ]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up JDK
         uses: actions/setup-java@v5
         with:
@@ -53,7 +53,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up JDK
         uses: actions/setup-java@v5
         with:
@@ -70,7 +70,7 @@ jobs:
   analysis:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up JDK
         uses: actions/setup-java@v5
         with:
@@ -84,11 +84,11 @@ jobs:
         run: ./gradlew detekt --stacktrace
         shell: bash
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: build/reports/detekt/detekt.sarif
       - name: Upload analysis report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: analysis-report
           path: build/reports/detekt
@@ -96,7 +96,7 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Set up JDK
       uses: actions/setup-java@v5
       with:
@@ -110,7 +110,7 @@ jobs:
       run: ./gradlew koverXmlReport --stacktrace
       shell: bash
     - name: Upload coverage report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: coverage-report
         path: build/reports/kover
@@ -123,7 +123,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       BUILD_NUMBER: ${{ github.run_number }}
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0
     - name: Set up JDK
@@ -132,7 +132,7 @@ jobs:
         java-version: 17
         distribution: zulu
     - name: SonarCloud cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ~/.sonar/cache
         key: ${{ runner.os }}-sonar
@@ -142,11 +142,11 @@ jobs:
     - name: Cache Gradle
       uses: ./.github/actions/cache-gradle
     - name: Download coverage report
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v8
       with:
         name: coverage-report
     - name: Download analysis report
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v8
       with:
         name: analysis-report
     - name: Upload reports to SonarCloud
@@ -163,7 +163,7 @@ jobs:
       ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_PRIVATE_KEY }}
       ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.PASSPHRASE }}
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Set up JDK
       uses: actions/setup-java@v5
       with:
@@ -187,7 +187,7 @@ jobs:
       ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_PRIVATE_KEY }}
       ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.PASSPHRASE }}
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Set up JDK
       uses: actions/setup-java@v5
       with:
@@ -206,7 +206,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags')
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Set up JDK
       uses: actions/setup-java@v5
       with:
@@ -220,7 +220,7 @@ jobs:
       run: ./gradlew dokkaGenerate --stacktrace
       shell: bash
     - name: Deploy docs to GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@v4.7.3
+      uses: JamesIves/github-pages-deploy-action@v4.8.0
       with:
         branch: gh-pages
         folder: build/dokka
