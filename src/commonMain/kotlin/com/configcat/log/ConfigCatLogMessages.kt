@@ -70,11 +70,10 @@ internal object ConfigCatLogMessages {
         key: String,
         defaultParamName: String,
         defaultParamValue: Any?,
-    ): String {
-        return "Config JSON is not present when evaluating setting '$key'. " +
+    ): String =
+        "Config JSON is not present when evaluating setting '$key'. " +
             "Returning the `$defaultParamName` parameter that you specified in your " +
             "application: '$defaultParamValue'."
-    }
 
     /**
      * Log message for Config Json Is Not Presented errors when the method returns with empty value.
@@ -83,9 +82,8 @@ internal object ConfigCatLogMessages {
      * @param emptyResult The empty result.
      * @return The formatted error message.
      */
-    fun getConfigJsonIsNotPresentedWithEmptyResult(emptyResult: String): String {
-        return "Config JSON is not present. Returning $emptyResult."
-    }
+    fun getConfigJsonIsNotPresentedWithEmptyResult(emptyResult: String): String =
+        "Config JSON is not present. Returning $emptyResult."
 
     /**
      * Log message for Setting Evaluation Failed Due To Missing Key error. The log eventId is 1001.
@@ -101,15 +99,14 @@ internal object ConfigCatLogMessages {
         defaultParamName: String,
         defaultParamValue: Any?,
         availableKeysSet: Set<String?>,
-    ): String {
-        return "Failed to evaluate setting '$key' (the key was not found in config JSON). " +
+    ): String =
+        "Failed to evaluate setting '$key' (the key was not found in config JSON). " +
             "Returning the `$defaultParamName` parameter that you specified in your " +
             "application: '$defaultParamValue'. Available keys: [" +
             availableKeysSet.joinToString(
                 ", ",
                 transform = { availableKey -> "'$availableKey'" },
             ) + "]."
-    }
 
     /**
      * Log message for Setting Evaluation errors when the method returns with empty value. The log eventId is 1002.
@@ -121,9 +118,7 @@ internal object ConfigCatLogMessages {
     fun getSettingEvaluationErrorWithEmptyValue(
         methodName: String,
         emptyResult: String,
-    ): String {
-        return "Error occurred in the `$methodName` method. Returning $emptyResult."
-    }
+    ): String = "Error occurred in the `$methodName` method. Returning $emptyResult."
 
     /**
      * Log message for Setting Evaluation errors when the method returns with default value. The log eventId is 1002.
@@ -139,10 +134,9 @@ internal object ConfigCatLogMessages {
         key: String,
         defaultParamName: String,
         defaultParamValue: Any,
-    ): String {
-        return "Error occurred in the `$methodName` method while evaluating setting '$key'. Returning the " +
+    ): String =
+        "Error occurred in the `$methodName` method while evaluating setting '$key'. Returning the " +
             "`$defaultParamName` parameter that you specified in your application: '$defaultParamValue'."
-    }
 
     /**
      * Log message for Fetch Failed Due To Unexpected Http Response error. The log eventId is 1101.
@@ -154,9 +148,8 @@ internal object ConfigCatLogMessages {
     fun getFetchFailedDueToUnexpectedHttpResponse(
         responseCode: Int,
         responseMessage: String,
-    ): String {
-        return "Unexpected HTTP response was received while trying to fetch config JSON: $responseCode $responseMessage"
-    }
+    ): String =
+        "Unexpected HTTP response was received while trying to fetch config JSON: $responseCode $responseMessage"
 
     /**
      * Log message for Fetch Failed Due To Request Timeout error. The log eventId is 1102.
@@ -164,9 +157,8 @@ internal object ConfigCatLogMessages {
      * @param timeout Timeout in milliseconds.
      * @return The formatted error message.
      */
-    fun getFetchFailedDueToRequestTimeout(timeout: Duration): String {
-        return "Request timed out while trying to fetch config JSON. Timeout value: ${timeout.inWholeMilliseconds}ms"
-    }
+    fun getFetchFailedDueToRequestTimeout(timeout: Duration): String =
+        "Request timed out while trying to fetch config JSON. Timeout value: ${timeout.inWholeMilliseconds}ms"
 
     /**
      * Log message for Setting For Variation Id Is Not Present error. The log eventId is 2011.
@@ -174,9 +166,8 @@ internal object ConfigCatLogMessages {
      * @param variationId The variation id.
      * @return The formatted error message.
      */
-    fun getSettingForVariationIdIsNotPresent(variationId: String): String {
-        return "Could not find the setting for the specified variation ID: '$variationId'."
-    }
+    fun getSettingForVariationIdIsNotPresent(variationId: String): String =
+        "Could not find the setting for the specified variation ID: '$variationId'."
 
     /**
      * Log message for Client Is Already Created warning. The log eventId 3000.
@@ -184,11 +175,10 @@ internal object ConfigCatLogMessages {
      * @param sdkKey The ConfigCat client SDK key.
      * @return The formatted warn message.
      */
-    fun getClientIsAlreadyCreated(sdkKey: String): String {
-        return "There is an existing client instance for the specified SDK Key. No new client instance will be " +
+    fun getClientIsAlreadyCreated(sdkKey: String): String =
+        "There is an existing client instance for the specified SDK Key. No new client instance will be " +
             "created and the specified options callback is ignored. " +
             "Returning the existing client instance. SDK Key: '$sdkKey'."
-    }
 
     /**
      * Log message for User Object is missing warning. The log eventId 3001.
@@ -196,11 +186,10 @@ internal object ConfigCatLogMessages {
      * @param key The feature flag setting key.
      * @return The formatted warn message.
      */
-    fun getUserObjectMissing(key: String): String {
-        return "Cannot evaluate targeting rules and % options for setting '$key' (User Object is missing). " +
+    fun getUserObjectMissing(key: String): String =
+        "Cannot evaluate targeting rules and % options for setting '$key' (User Object is missing). " +
             "You should pass a User Object to the evaluation methods like `getValue()` " +
             "in order to make targeting work properly. Read more: https://configcat.com/docs/advanced/user-object/"
-    }
 
     /**
      * Log message for User Attribute is missing warning. The log eventId 3003.
@@ -214,12 +203,11 @@ internal object ConfigCatLogMessages {
         key: String,
         userCondition: UserCondition,
         attributeName: String,
-    ): String {
-        return "Cannot evaluate condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting " +
+    ): String =
+        "Cannot evaluate condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting " +
             "'$key' (the User.$attributeName attribute is missing). You should set the User.$attributeName " +
             "attribute in order to make targeting work properly. " +
             "Read more: https://configcat.com/docs/advanced/user-object/"
-    }
 
     /**
      * Log message for User Attribute is missing warning. The log eventId 3003.
@@ -231,11 +219,10 @@ internal object ConfigCatLogMessages {
     fun getUserAttributeMissing(
         key: String,
         attributeName: String,
-    ): String {
-        return "Cannot evaluate % options for setting '$key' (the User.$attributeName attribute is missing). " +
+    ): String =
+        "Cannot evaluate % options for setting '$key' (the User.$attributeName attribute is missing). " +
             "You should set the User.$attributeName attribute in order to make targeting work properly. " +
             "Read more: https://configcat.com/docs/advanced/user-object/"
-    }
 
     /**
      * Log message for User Attribute is invalid warning. The log eventId 3004.
@@ -251,11 +238,10 @@ internal object ConfigCatLogMessages {
         userCondition: UserCondition,
         reason: String,
         attributeName: String,
-    ): String {
-        return "Cannot evaluate condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting " +
+    ): String =
+        "Cannot evaluate condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting " +
             "'$key' ($reason). Please check the User.$attributeName attribute and make sure that its value " +
             "corresponds to the comparison operator."
-    }
 
     /**
      * Log message for User Attribute value is automatically converted warning. The log eventId 3005.
@@ -271,12 +257,11 @@ internal object ConfigCatLogMessages {
         userCondition: UserCondition,
         attributeName: String,
         attributeValue: String,
-    ): String {
-        return "Evaluation of condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting " +
+    ): String =
+        "Evaluation of condition (${EvaluatorLogHelper.formatUserCondition(userCondition)}) for setting " +
             "'$key' may not produce the expected result (the User.$attributeName attribute is not a string value, " +
             "thus it was automatically converted to the string value '$attributeValue'). Please make sure that using " +
             "a non-string value was intended."
-    }
 
     /**
      * Log message for Config Service Method Has No Effect Due To Closed Client warning. The log eventId 3201.
@@ -284,9 +269,8 @@ internal object ConfigCatLogMessages {
      * @param methodName The method name.
      * @return The formatted warn message.
      */
-    fun getConfigServiceMethodHasNoEffectDueToClosedClient(methodName: String): String {
-        return "The client object is already closed, thus `$methodName` has no effect."
-    }
+    fun getConfigServiceMethodHasNoEffectDueToClosedClient(methodName: String): String =
+        "The client object is already closed, thus `$methodName` has no effect."
 
     /**
      * Log message for Auto Poll Max Init Wait Time Reached warning. The log eventId 4200.
@@ -294,10 +278,9 @@ internal object ConfigCatLogMessages {
      * @param maxInitWaitTimeSeconds The auto polling `maxInitWaitTimeSeconds` value.
      * @return The formatted warn message.
      */
-    fun getAutoPollMaxInitWaitTimeReached(maxInitWaitTimeSeconds: Long): String {
-        return "`maxInitWaitTimeSeconds` for the very first fetch reached (${maxInitWaitTimeSeconds}s)." +
+    fun getAutoPollMaxInitWaitTimeReached(maxInitWaitTimeSeconds: Long): String =
+        "`maxInitWaitTimeSeconds` for the very first fetch reached (${maxInitWaitTimeSeconds}s)." +
             " Returning cached config."
-    }
 
     /**
      * Log message for Config Service Status Changed info. The log eventId 5200.
@@ -305,7 +288,5 @@ internal object ConfigCatLogMessages {
      * @param mode The change mode.
      * @return The formatted info message.
      */
-    fun getConfigServiceStatusChanged(mode: String): String {
-        return "Switched to $mode mode."
-    }
+    fun getConfigServiceStatusChanged(mode: String): String = "Switched to $mode mode."
 }

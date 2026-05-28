@@ -3,14 +3,18 @@ package com.configcat.log
 import com.configcat.Hooks
 import kotlin.time.Clock
 
-internal class InternalLogger(private val logger: Logger, val level: LogLevel, private val hooks: Hooks) {
+internal class InternalLogger(
+    private val logger: Logger,
+    private val level: LogLevel,
+    private val hooks: Hooks,
+) {
     fun error(
         eventId: Int,
         message: String,
         throwable: Throwable? = null,
     ) {
         hooks.invokeOnError(message)
-        if (shouldLog(LogLevel.ERROR)) {
+        if (isLevelAllowed(LogLevel.ERROR)) {
             logger.error("[$eventId] $message${throwable?.let { " ${it.message}" } ?: ""}")
         }
     }
@@ -19,7 +23,7 @@ internal class InternalLogger(private val logger: Logger, val level: LogLevel, p
         eventId: Int,
         message: String,
     ) {
-        if (shouldLog(LogLevel.WARNING)) {
+        if (isLevelAllowed(LogLevel.WARNING)) {
             logger.warning("[$eventId] $message")
         }
     }
@@ -28,20 +32,18 @@ internal class InternalLogger(private val logger: Logger, val level: LogLevel, p
         eventId: Int,
         message: String,
     ) {
-        if (shouldLog(LogLevel.INFO)) {
+        if (isLevelAllowed(LogLevel.INFO)) {
             logger.info("[$eventId] $message")
         }
     }
 
     fun debug(message: String) {
-        if (shouldLog(LogLevel.DEBUG)) {
+        if (isLevelAllowed(LogLevel.DEBUG)) {
             logger.debug("[0] $message")
         }
     }
 
-    private fun shouldLog(requestedLevel: LogLevel): Boolean {
-        return requestedLevel >= level
-    }
+    fun isLevelAllowed(requestedLevel: LogLevel): Boolean = requestedLevel >= level
 }
 
 internal class DefaultLogger : Logger {
@@ -83,7 +85,5 @@ internal class DefaultLogger : Logger {
     private fun enrichMessage(
         message: String,
         level: LogLevel,
-    ): String {
-        return "${Clock.System.now()} [${levelMap[level]}]: ConfigCat - $message"
-    }
+    ): String = "${Clock.System.now()} [${levelMap[level]}]: ConfigCat - $message"
 }

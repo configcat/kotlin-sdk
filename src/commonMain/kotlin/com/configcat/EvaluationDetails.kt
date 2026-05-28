@@ -7,7 +7,9 @@ import kotlin.time.Instant
 /**
  * Specifies the possible evaluation error codes.
  */
-public enum class EvaluationErrorCode(public val code: Int) {
+public enum class EvaluationErrorCode(
+    public val code: Int,
+) {
     /** An unexpected error occurred during the evaluation. */
     UNEXPECTED_ERROR(-1),
 
@@ -117,8 +119,17 @@ public class EvaluationDetails internal constructor(
             user: ConfigCatUser?,
         ): EvaluationDetails =
             EvaluationDetails(
-                key, "", user, true, error, errorCode, exception,
-                defaultValue, Instant.DISTANT_PAST.toEpochMilliseconds(), null, null,
+                key,
+                "",
+                user,
+                true,
+                error,
+                errorCode,
+                exception,
+                defaultValue,
+                Instant.DISTANT_PAST.toEpochMilliseconds(),
+                null,
+                null,
             )
     }
 }

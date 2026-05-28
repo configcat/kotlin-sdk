@@ -149,7 +149,7 @@ internal class FlagEvaluator(
         settings: Map<String, Setting>,
     ): EvaluationDetails {
         var evaluateLogger: EvaluateLogger? = null
-        if (logger.level == LogLevel.INFO) {
+        if (logger.isLevelAllowed(LogLevel.INFO)) {
             evaluateLogger = EvaluateLogger()
         }
         val (value, variationId, targetingRule, percentageRule) =
@@ -162,9 +162,17 @@ internal class FlagEvaluator(
             )
         val details =
             EvaluationDetails(
-                key, variationId, user, false, null, EvaluationErrorCode.NONE, null,
+                key,
+                variationId,
+                user,
+                false,
+                null,
+                EvaluationErrorCode.NONE,
+                null,
                 value.validateType(setting.type),
-                fetchTime.toEpochMilliseconds(), targetingRule, percentageRule,
+                fetchTime.toEpochMilliseconds(),
+                targetingRule,
+                percentageRule,
             )
         hooks.invokeOnFlagEvaluated(details)
         return details

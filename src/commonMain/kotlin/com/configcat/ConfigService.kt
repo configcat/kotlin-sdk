@@ -7,8 +7,6 @@ import com.configcat.log.ConfigCatLogMessages
 import com.configcat.log.InternalLogger
 import com.configcat.model.Entry
 import com.configcat.model.Setting
-import kotlinx.atomicfu.AtomicRef
-import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.CoroutineScope
@@ -24,11 +22,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.AtomicReference
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
 
-internal data class SettingResult(val settings: Map<String, Setting>, val fetchTime: Instant) {
+internal data class SettingResult(
+    val settings: Map<String, Setting>,
+    val fetchTime: Instant,
+) {
     fun isEmpty(): Boolean = this === empty
 
     companion object {
@@ -36,7 +39,10 @@ internal data class SettingResult(val settings: Map<String, Setting>, val fetchT
     }
 }
 
-internal data class InMemoryResult(val settingResult: SettingResult, val cacheState: ClientCacheState)
+internal data class InMemoryResult(
+    val settingResult: SettingResult,
+    val cacheState: ClientCacheState,
+)
 
 internal data class EntryResult(
     val entry: Entry,
@@ -59,22 +65,29 @@ internal class ConfigService(
     private val hooks: Hooks,
 ) : Closeable {
     internal val cacheKey: String = getCacheKey()
-    private val mutex = Mutex()
+    private val asyncLock = Mutex()
     private val syncLock = reentrantLock()
     private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
-    private val closed = atomic(false)
-    private val initialized = atomic(false)
-    private val cacheStateReported = atomic(false)
-    private val offline = atomic(options.offline)
+    private val closed = AtomicBoolean(false)
+    private val initialized = AtomicBoolean(false)
+    private val cacheStateReported = AtomicBoolean(false)
+    private val userIndicatedOffline = AtomicBoolean(options.offline)
+    private val inForegroundAndHasNetwork = AtomicBoolean(options.stateMonitor?.isAllowedToUseHTTP() ?: true)
+    private val offline = AtomicBoolean(isOffline)
     private val mode = options.pollingMode
-    private val fetchJob: AtomicRef<Deferred<EntryResult>?> = atomic(null)
-    private val cachedEntry: AtomicRef<Entry> = atomic(Entry.empty)
+    private var fetchJob: Deferred<EntryResult>? = null
+    private val cachedEntry = AtomicReference(Entry.empty)
     private var pollingJob: Job? = null
-    private var fetching = false
 
-    val isOffline: Boolean get() = offline.value
+    val isOffline: Boolean get() = userIndicatedOffline.load() || !inForegroundAndHasNetwork.load()
 
     init {
+        options.stateMonitor?.subscribeToStateChanges { isAllowedToUseHTTP ->
+            logger.debug("Application state change notification received. isAllowedToUseHTTP: $isAllowedToUseHTTP")
+            this.inForegroundAndHasNetwork.store(isAllowedToUseHTTP)
+            switchStateIfNeeded()
+        }
+
         if (mode is AutoPollMode) {
             startPoll(mode)
         } else {
@@ -83,21 +96,18 @@ internal class ConfigService(
     }
 
     private fun setInitializedState() {
-        initialized.value = true
+        initialized.store(true)
         coroutineScope.launch {
-            mutex.withLock {
-                val fromCache = readCache()
-                if (!fromCache.isEmpty() && fromCache.eTag != cachedEntry.value.eTag) {
-                    cachedEntry.value = fromCache
-                    hooks.invokeOnConfigChanged(snapshotBuilder, getInMemoryState())
-                }
-                initializeAndReportCacheState()
+            val inMemory = cachedEntry.load()
+            if (!inMemory.isEmpty()) {
+                return@launch
             }
+            fetchIfOlder(Instant.DISTANT_FUTURE, preferCached = true)
         }
     }
 
     fun getInMemoryState(): InMemoryResult {
-        val entry = cachedEntry.value
+        val entry = cachedEntry.load()
         return InMemoryResult(
             SettingResult(entry.config.settings ?: mapOf(), entry.fetchTime),
             determineCacheState(entry),
@@ -115,12 +125,12 @@ internal class ConfigService(
                 else -> {
                     // If we are initialized, we prefer the cached results
                     val threshold =
-                        if (!initialized.value && mode is AutoPollMode) {
+                        if (!initialized.load() && mode is AutoPollMode) {
                             Clock.System.now().minus(mode.configuration.pollingInterval)
                         } else {
                             Instant.DISTANT_PAST
                         }
-                    fetchIfOlder(threshold, preferCached = initialized.value)
+                    fetchIfOlder(threshold, preferCached = initialized.load())
                 }
             }
         return if (result.entry.isEmpty()) {
@@ -131,17 +141,22 @@ internal class ConfigService(
     }
 
     fun offline() {
-        syncLock.withLock {
-            if (!offline.compareAndSet(expect = false, update = true)) return
-            logger.info(5200, ConfigCatLogMessages.getConfigServiceStatusChanged("OFFLINE"))
-        }
+        if (!userIndicatedOffline.compareAndSet(expectedValue = false, newValue = true)) return
+        switchStateIfNeeded()
     }
 
     fun online() {
-        syncLock.withLock {
-            if (!offline.compareAndSet(expect = true, update = false)) return
+        if (!userIndicatedOffline.compareAndSet(expectedValue = true, newValue = false)) return
+        switchStateIfNeeded()
+    }
+
+    fun switchStateIfNeeded() {
+        val currentOfflineState = isOffline
+        if (currentOfflineState && offline.compareAndSet(expectedValue = false, newValue = true)) {
+            logger.info(5200, ConfigCatLogMessages.getConfigServiceStatusChanged("OFFLINE"))
+        }
+        if (!currentOfflineState && offline.compareAndSet(expectedValue = true, newValue = false)) {
             if (mode is AutoPollMode) {
-                pollingJob?.cancel()
                 startPoll(mode)
             }
             logger.info(5200, ConfigCatLogMessages.getConfigServiceStatusChanged("ONLINE"))
@@ -149,7 +164,7 @@ internal class ConfigService(
     }
 
     suspend fun refresh(): RefreshResult {
-        if (offline.value && (options.configCache == null || options.configCache is EmptyConfigCache)) {
+        if (isOffline && (options.configCache == null || options.configCache is EmptyConfigCache)) {
             val offlineMessage = ConfigCatLogMessages.CONFIG_SERVICE_CANNOT_INITIATE_HTTP_CALLS_WARN
             logger.warning(3200, offlineMessage)
             return RefreshResult(false, offlineMessage, RefreshErrorCode.OFFLINE_CLIENT, null)
@@ -163,31 +178,31 @@ internal class ConfigService(
         threshold: Instant,
         preferCached: Boolean = false,
     ): EntryResult {
-        mutex.withLock {
+        asyncLock.withLock {
             // Sync up with the cache and use it when it's not expired.
             val fromCache = readCache()
-            if (!fromCache.isEmpty() && fromCache.eTag != cachedEntry.value.eTag) {
-                cachedEntry.value = fromCache
-                hooks.invokeOnConfigChanged(snapshotBuilder, getInMemoryState())
+            if (!fromCache.isEmpty() && fromCache.eTag != cachedEntry.load().eTag) {
+                cachedEntry.store(fromCache)
+                reportConfigChanged()
             }
             // Cache isn't expired
-            if (!cachedEntry.value.isExpired(threshold)) {
+            if (!cachedEntry.load().isExpired(threshold)) {
                 initializeAndReportCacheState()
-                return EntryResult(cachedEntry.value, null, RefreshErrorCode.NONE, null)
+                return EntryResult(cachedEntry.load(), null, RefreshErrorCode.NONE, null)
             }
-            // If we are in offline mode or the caller prefers cached values, do not initiate fetch.
-            if (offline.value || preferCached) {
+            // If we are in offline mode, or prohibited from using HTTP,
+            // or the caller prefers cached values, do not initiate fetch.
+            if (isOffline || preferCached) {
                 initializeAndReportCacheState()
-                return EntryResult(cachedEntry.value, null, RefreshErrorCode.NONE, null)
+                return EntryResult(cachedEntry.load(), null, RefreshErrorCode.NONE, null)
             }
 
-            if (fetchJob.value == null || !fetching) {
+            if (fetchJob == null) {
                 // No fetch is running, initiate a new one.
-                fetching = true
-                val eTag = cachedEntry.value.eTag
-                fetchJob.value =
+                val eTag = cachedEntry.load().eTag
+                fetchJob =
                     coroutineScope.async {
-                        if (mode is AutoPollMode && !initialized.value) {
+                        if (mode is AutoPollMode && !initialized.load()) {
                             // Waiting for the client initialization.
                             // After the maxInitWaitTimeInSeconds timeout the client will be initialized and while
                             // the config is not ready the default value will be returned.
@@ -215,61 +230,69 @@ internal class ConfigService(
             }
         }
         // Await the fetch routine.
-        val result = fetchJob.value?.await()
-
-        mutex.withLock {
-            return result?.let { value ->
-                when {
-                    value.entry.isEmpty() -> value.withEntry(cachedEntry.value)
-                    else -> value
-                }
-            } ?: EntryResult.success(cachedEntry.value)
-        }
+        val result = fetchJob?.await()
+        return result?.let { value ->
+            when {
+                value.entry.isEmpty() -> value.withEntry(cachedEntry.load())
+                else -> value
+            }
+        } ?: EntryResult.success(cachedEntry.load())
     }
 
     private suspend fun fetchConfig(eTag: String): EntryResult {
         val response = configFetcher.fetch(eTag)
-        mutex.withLock {
-            fetching = false
+        asyncLock.withLock {
+            fetchJob = null
             if (response.isFetched) {
-                cachedEntry.value = response.entry
+                cachedEntry.store(response.entry)
                 writeCache(response.entry)
-                hooks.invokeOnConfigChanged(snapshotBuilder, getInMemoryState())
+                reportConfigChanged()
                 initializeAndReportCacheState()
                 return EntryResult.success(response.entry)
-            } else if ((response.isNotModified || !response.isTransientError) && !cachedEntry.value.isEmpty()) {
-                cachedEntry.value = cachedEntry.value.copy(fetchTime = Clock.System.now())
-                writeCache(cachedEntry.value)
+            } else if ((response.isNotModified || !response.isTransientError) && !cachedEntry.load().isEmpty()) {
+                cachedEntry.store(cachedEntry.load().copy(fetchTime = Clock.System.now()))
+                writeCache(cachedEntry.load())
             }
             initializeAndReportCacheState()
-            return EntryResult(cachedEntry.value, response.error, response.errorCode, response.errorException)
+            return EntryResult(cachedEntry.load(), response.error, response.errorCode, response.errorException)
         }
     }
 
     private fun startPoll(mode: AutoPollMode) {
         logger.debug("Start polling with ${mode.configuration.pollingInterval.inWholeMilliseconds}ms interval.")
-        pollingJob =
-            coroutineScope.launch {
-                while (isActive) {
-                    fetchIfOlder(
-                        Clock.System.now().minus(mode.configuration.pollingInterval - 500.milliseconds),
-                    )
-                    delay(mode.configuration.pollingInterval)
+        syncLock.withLock {
+            pollingJob?.cancel()
+            pollingJob =
+                coroutineScope.launch {
+                    while (isActive) {
+                        fetchIfOlder(
+                            Clock.System.now().minus(mode.configuration.pollingInterval - 500.milliseconds),
+                        )
+                        delay(mode.configuration.pollingInterval)
+                    }
                 }
-            }
+        }
     }
 
     private fun initializeAndReportCacheState() {
-        initialized.value = true
-        if (cacheStateReported.compareAndSet(expect = false, update = true)) {
-            hooks.invokeOnClientReady(snapshotBuilder, getInMemoryState())
+        initialized.store(true)
+        if (cacheStateReported.compareAndSet(expectedValue = false, newValue = true)) {
+            coroutineScope.launch {
+                hooks.invokeOnClientReady(snapshotBuilder, getInMemoryState())
+            }
+        }
+    }
+
+    private fun reportConfigChanged() {
+        coroutineScope.launch {
+            hooks.invokeOnConfigChanged(snapshotBuilder, getInMemoryState())
         }
     }
 
     private suspend fun readCache(): Entry {
         return try {
             val cached = options.configCache?.read(cacheKey) ?: ""
-            if (cached.isEmpty() || cached == cachedEntry.value.cacheString) return Entry.empty
+            if (cached.isEmpty() || cached == cachedEntry.load().cacheString) return Entry.empty
             Entry.fromString(cached)
         } catch (e: Exception) {
             logger.error(2200, ConfigCatLogMessages.CONFIG_SERVICE_CACHE_READ_ERROR, e)
@@ -288,12 +311,14 @@ internal class ConfigService(
     }
 
     private fun getCacheKey() =
-        "${options.sdkKey}_${Constants.CONFIG_FILE_NAME}_${Constants.SERIALIZATION_FORMAT_VERSION}".encodeToByteArray()
+        "${options.sdkKey}_${Constants.CONFIG_FILE_NAME}_${Constants.SERIALIZATION_FORMAT_VERSION}"
+            .encodeToByteArray()
             .sha1Hex()
 
     override fun close() {
-        if (!closed.compareAndSet(expect = false, update = true)) return
+        if (!closed.compareAndSet(expectedValue = false, newValue = true)) return
         configFetcher.close()
+        options.stateMonitor?.close()
         coroutineScope.cancel()
     }
 

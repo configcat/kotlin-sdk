@@ -13,10 +13,10 @@ import com.configcat.override.FlagOverrides
 import com.configcat.override.OverrideBehavior
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.ProxyConfig
-import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.CompletableDeferred
+import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
@@ -93,11 +93,22 @@ public class ConfigCatOptions {
      */
     public var hooks: Hooks = Hooks()
 
+    /**
+     * Represents an optional monitor for tracking application state changes within the SDK.
+     *
+     * Allows detection of changes to determine if the SDK is allowed to perform operations such as HTTP calls.
+     * Typically used to manage the SDK's behavior in response to application lifecycle events (e.g., going
+     * online or offline).
+     *
+     * The `StateMonitor` implementation can be subscribed to monitor real-time state updates or
+     * queried to check if the SDK is currently permitted to use HTTP.
+     * If set to `null`, state monitoring will not be active.
+     */
+    public var stateMonitor: StateMonitor? = null
+
     internal var sdkKey: String? = null
 
-    internal fun isBaseURLCustom(): Boolean {
-        return !baseUrl.isNullOrEmpty()
-    }
+    internal fun isBaseURLCustom(): Boolean = !baseUrl.isNullOrEmpty()
 }
 
 /**
@@ -373,14 +384,15 @@ internal suspend fun getValueDetailsInternal(
 internal class Client private constructor(
     private val sdkKey: String,
     options: ConfigCatOptions,
-) : ConfigCatClient, Closeable {
+) : ConfigCatClient,
+    Closeable {
     private val service: ConfigService?
     private val flagOverrides: FlagOverrides?
     private val evaluator: Evaluator
     private val flagEvaluator: FlagEvaluator
     private val logger: InternalLogger
     private val snapshotBuilder: SnapshotBuilder
-    private val isClosed = atomic(false)
+    private val isClosed = AtomicBoolean(false)
 
     override val hooks: Hooks
 
@@ -416,7 +428,7 @@ internal class Client private constructor(
         require(key.isNotEmpty()) { "'key' cannot be empty." }
 
         val settingResult = getSettings()
-        val evalUser = user ?: snapshotBuilder.defaultUser.value
+        val evalUser = user ?: snapshotBuilder.defaultUser.load()
         return flagEvaluator.findAndEvalFlag(
             settingResult,
             key,
@@ -442,7 +454,7 @@ internal class Client private constructor(
         require(key.isNotEmpty()) { "'key' cannot be empty." }
 
         val settingResult = getSettings()
-        val evalUser = user ?: snapshotBuilder.defaultUser.value
+        val evalUser = user ?: snapshotBuilder.defaultUser.load()
 
         return flagEvaluator.findAndEvalFlagDetails(
             settingResult,
@@ -470,7 +482,7 @@ internal class Client private constructor(
                 flagEvaluator.evalFlag(
                     it.value,
                     it.key,
-                    user ?: snapshotBuilder.defaultUser.value,
+                    user ?: snapshotBuilder.defaultUser.load(),
                     settingResult.fetchTime,
                     settingResult.settings,
                 )
@@ -552,17 +564,18 @@ internal class Client private constructor(
             return emptyMap()
         }
         return try {
-            return settingResult.settings.map {
-                val evaluated =
-                    flagEvaluator.evalFlag(
-                        it.value,
-                        it.key,
-                        user ?: snapshotBuilder.defaultUser.value,
-                        settingResult.fetchTime,
-                        settingResult.settings,
-                    )
-                it.key to evaluated.value
-            }.toMap()
+            return settingResult.settings
+                .map {
+                    val evaluated =
+                        flagEvaluator.evalFlag(
+                            it.value,
+                            it.key,
+                            user ?: snapshotBuilder.defaultUser.load(),
+                            settingResult.fetchTime,
+                            settingResult.settings,
+                        )
+                    it.key to evaluated.value
+                }.toMap()
         } catch (exception: Exception) {
             val errorMessage = ConfigCatLogMessages.getSettingEvaluationErrorWithEmptyValue("getAllValues", "empty map")
             logger.error(1002, errorMessage, exception)
@@ -612,7 +625,7 @@ internal class Client private constructor(
             )
             return
         }
-        snapshotBuilder.defaultUser.value = user
+        snapshotBuilder.defaultUser.store(user)
     }
 
     override fun clearDefaultUser() {
@@ -623,20 +636,18 @@ internal class Client private constructor(
             )
             return
         }
-        snapshotBuilder.defaultUser.value = null
+        snapshotBuilder.defaultUser.store(null)
     }
 
     override fun close() {
-        if (!this.isClosed.compareAndSet(false, update = true)) {
+        if (!this.isClosed.compareAndSet(expectedValue = false, newValue = true)) {
             return
         }
         closeResources()
         removeFromInstances(this)
     }
 
-    override fun isClosed(): Boolean {
-        return isClosed.value
-    }
+    override fun isClosed(): Boolean = isClosed.load()
 
     override suspend fun waitForReady(): ClientCacheState {
         val completableDeferred = CompletableDeferred<ClientCacheState>()
@@ -650,7 +661,7 @@ internal class Client private constructor(
             flagEvaluator,
             result.settingResult,
             result.cacheState,
-            snapshotBuilder.defaultUser.value,
+            snapshotBuilder.defaultUser.load(),
             logger,
         )
     }
@@ -723,7 +734,8 @@ internal class Client private constructor(
         }
 
         return service?.getInMemoryState() ?: InMemoryResult(
-            SettingResult(mapOf(), Instant.DISTANT_PAST), ClientCacheState.NO_FLAG_DATA,
+            SettingResult(mapOf(), Instant.DISTANT_PAST),
+            ClientCacheState.NO_FLAG_DATA,
         )
     }
 
@@ -772,20 +784,23 @@ internal class Client private constructor(
             isCustomBaseURL: Boolean,
         ): Boolean {
             // configcat-proxy/ rules
-            if (isCustomBaseURL && sdkKey.length > Constants.SDK_KEY_PROXY_PREFIX.length &&
+            if (isCustomBaseURL &&
+                sdkKey.length > Constants.SDK_KEY_PROXY_PREFIX.length &&
                 sdkKey.startsWith(Constants.SDK_KEY_PROXY_PREFIX)
             ) {
                 return true
             }
             val splitSDKKey = sdkKey.split("/").toTypedArray()
             // 22/22 rules
-            return if (splitSDKKey.size == 2 && splitSDKKey[0].length == Constants.SDK_KEY_SECTION_LENGTH &&
+            return if (splitSDKKey.size == 2 &&
+                splitSDKKey[0].length == Constants.SDK_KEY_SECTION_LENGTH &&
                 splitSDKKey[1].length == Constants.SDK_KEY_SECTION_LENGTH
             ) {
                 true
                 // configcat-sdk-1/22/22 rules
             } else {
-                splitSDKKey.size == 3 && splitSDKKey[0] == Constants.SDK_KEY_PREFIX &&
+                splitSDKKey.size == 3 &&
+                    splitSDKKey[0] == Constants.SDK_KEY_PREFIX &&
                     splitSDKKey[1].length == Constants.SDK_KEY_SECTION_LENGTH &&
                     splitSDKKey[2].length == Constants.SDK_KEY_SECTION_LENGTH
             }

@@ -20,16 +20,13 @@ public interface OverrideDataSource {
         /**
          * Create an [OverrideDataSource] that stores the overrides in a key-value map.
          */
-        public fun map(map: Map<String, Any>): OverrideDataSource {
-            return MapOverrideDataSource(map.map { it.key to convertToSetting(it.value) }.toMap())
-        }
+        public fun map(map: Map<String, Any>): OverrideDataSource =
+            MapOverrideDataSource(map.map { it.key to convertToSetting(it.value) }.toMap())
 
         /**
          * Create an [OverrideDataSource] that stores the override config in a key-value map.
          */
-        public fun config(config: Config): OverrideDataSource {
-            return ConfigOverrideDataSource(config)
-        }
+        public fun config(config: Config): OverrideDataSource = ConfigOverrideDataSource(config)
     }
 }
 
@@ -61,13 +58,15 @@ internal fun commonConvertToSetting(value: Any): Setting {
     return setting
 }
 
-internal class MapOverrideDataSource constructor(private val map: Map<String, Setting>) : OverrideDataSource {
-    override fun getOverrides(): Map<String, Setting> {
-        return map
-    }
+internal class MapOverrideDataSource constructor(
+    private val map: Map<String, Setting>,
+) : OverrideDataSource {
+    override fun getOverrides(): Map<String, Setting> = map
 }
 
-internal class ConfigOverrideDataSource constructor(private val config: Config) : OverrideDataSource {
+internal class ConfigOverrideDataSource constructor(
+    private val config: Config,
+) : OverrideDataSource {
     override fun getOverrides(): Map<String, Setting> {
         config.addConfigSaltAndSegmentsToSettings()
         return config.settings ?: emptyMap()

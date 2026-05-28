@@ -19,9 +19,7 @@ internal data class Entry(
 
     fun isEmpty(): Boolean = this === empty
 
-    fun isExpired(threshold: Instant): Boolean {
-        return fetchTime <= threshold
-    }
+    fun isExpired(threshold: Instant): Boolean = fetchTime <= threshold
 
     companion object {
         val empty: Entry = Entry(Config.empty, "", "", Instant.DISTANT_PAST)
@@ -53,7 +51,5 @@ internal data class Entry(
         fetchTime: Instant,
         eTag: String,
         configJson: String,
-    ): String {
-        return "${fetchTime.toEpochMilliseconds()}\n${eTag}\n$configJson"
-    }
+    ): String = "${fetchTime.toEpochMilliseconds()}\n${eTag}\n$configJson"
 }
