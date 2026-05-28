@@ -9,6 +9,7 @@ import org.kotlincrypto.hash.sha2.SHA256
 import kotlin.time.Instant
 
 internal fun String.parseConfigJson(): Config {
+    require(this.isNotBlank()) { "Config JSON content is empty." }
     val config: Config = Constants.json.decodeFromString(this)
     config.addConfigSaltAndSegmentsToSettings()
     return config
