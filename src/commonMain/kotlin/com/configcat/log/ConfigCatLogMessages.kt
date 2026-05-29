@@ -33,7 +33,7 @@ internal object ConfigCatLogMessages {
     /**
      * Log message for Fetch Received 200 With Invalid Body error. The log eventId is 1105.
      */
-    const val FETCH_RECEIVED_200_WITH_INVALID_BODY_ERROR =
+    private const val FETCH_RECEIVED_200_WITH_INVALID_BODY_ERROR =
         "Fetching config JSON was successful but the HTTP response content was invalid."
 
     /**
@@ -46,7 +46,7 @@ internal object ConfigCatLogMessages {
     /**
      * Log message for Fetch Failed Due To Unexpected error. The log eventId is 1103.
      */
-    const val FETCH_FAILED_DUE_TO_UNEXPECTED_ERROR =
+    private const val FETCH_FAILED_DUE_TO_UNEXPECTED_ERROR =
         "Unexpected error occurred while trying to fetch config JSON. It is most likely due to a local network " +
             "issue. Please make sure your application can reach the ConfigCat CDN servers (or your proxy server) " +
             "over HTTP."
@@ -54,8 +54,21 @@ internal object ConfigCatLogMessages {
     /**
      * Log message for Fetch Failed Due To Invalid Sdk Key error. The log eventId is 1100.
      */
-    const val FETCH_FAILED_DUE_TO_INVALID_SDK_KEY_ERROR =
+   private const val FETCH_FAILED_DUE_TO_INVALID_SDK_KEY_ERROR =
         "Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey."
+
+    /**
+     * Log message for Fetch Failed Due To Unexpected Http Response error. The log eventId is 1101.
+     */
+    private const val  FETCH_FAILED_DUE_TO_UNEXPECTED_HTTP_RESPONSE =
+        "Unexpected HTTP response was received while trying to fetch config JSON:"
+
+    /**
+     * Log message for Fetch Failed Due To Request Timeout error. The log eventId is 1102.
+     */
+    private const val FETCH_FAILED_DUE_TO_REQUEST_TIMEOUT_ERROR =
+        "Request timed out while trying to fetch config JSON. Timeout value:"
+
 
     /**
      * Log message for Config Json Is Not Presented errors when the method returns with default value.
@@ -139,26 +152,77 @@ internal object ConfigCatLogMessages {
             "`$defaultParamName` parameter that you specified in your application: '$defaultParamValue'."
 
     /**
+     * Log message for Fetch Failed Due To Invalid Sdk Key error. The log eventId is 1100.
+     *
+     * @param cfRayId The CF-Ray ID from the response header, if available.
+     * @return The formatted error message.
+     */
+    fun getFetchFailDueToInvalidSdkKeyError(cfRayId: String?): String {
+        if (cfRayId != null) {
+            return "$FETCH_FAILED_DUE_TO_INVALID_SDK_KEY_ERROR ${cfRayIdPostFix(cfRayId)}"
+        }
+        return FETCH_FAILED_DUE_TO_INVALID_SDK_KEY_ERROR
+    }
+    /**
      * Log message for Fetch Failed Due To Unexpected Http Response error. The log eventId is 1101.
      *
      * @param responseCode    The http response code.
      * @param responseMessage The http response message.
+     * @param cfRayId The CF-Ray ID from the response header, if available.
      * @return The formatted error message.
      */
     fun getFetchFailedDueToUnexpectedHttpResponse(
         responseCode: Int,
         responseMessage: String,
-    ): String =
-        "Unexpected HTTP response was received while trying to fetch config JSON: $responseCode $responseMessage"
+        cfRayId: String?
+    ): String {
+        if (cfRayId != null) {
+            return "$FETCH_FAILED_DUE_TO_UNEXPECTED_HTTP_RESPONSE $responseCode $responseMessage " +
+                    cfRayIdPostFix(cfRayId)
+        }
+        return "$FETCH_FAILED_DUE_TO_UNEXPECTED_HTTP_RESPONSE $responseCode $responseMessage"
+    }
 
     /**
      * Log message for Fetch Failed Due To Request Timeout error. The log eventId is 1102.
      *
      * @param timeout Timeout in milliseconds.
+     * @param cfRayId The CF-Ray ID from the response header, if available.
      * @return The formatted error message.
      */
-    fun getFetchFailedDueToRequestTimeout(timeout: Duration): String =
-        "Request timed out while trying to fetch config JSON. Timeout value: ${timeout.inWholeMilliseconds}ms"
+    fun getFetchFailedDueToRequestTimeout(timeout: Duration, cfRayId: String?): String {
+        if (cfRayId != null) {
+            return "$FETCH_FAILED_DUE_TO_REQUEST_TIMEOUT_ERROR ${timeout.inWholeMilliseconds}ms " +
+                    cfRayIdPostFix(cfRayId)
+        }
+        return "$FETCH_FAILED_DUE_TO_REQUEST_TIMEOUT_ERROR ${timeout.inWholeMilliseconds}ms"
+    }
+
+    /**
+     * Log message for Fetch Failed Due To Unexpected error. The log eventId is 1103.
+     *
+     * @param cfRayId The CF-Ray ID from the response header, if available.
+     * @return The formatted error message.
+     */
+    fun getFetchFailedDueToRequestTimeout(cfRayId: String?): String {
+        if (cfRayId != null) {
+            return "$FETCH_FAILED_DUE_TO_UNEXPECTED_ERROR ${cfRayIdPostFix(cfRayId)}"
+        }
+        return FETCH_FAILED_DUE_TO_UNEXPECTED_ERROR
+    }
+
+    /**
+     * Log message for Fetch Received 200 With Invalid Body error. The log eventId is 1105.
+     *
+     * @param cfRayId The CF-Ray ID from the response header, if available.
+     * @return The formatted error message.
+     */
+    fun getFetchReceived200WithInvalidBodyError(cfRayId: String?): String {
+        if (cfRayId != null) {
+            return "$FETCH_RECEIVED_200_WITH_INVALID_BODY_ERROR ${cfRayIdPostFix(cfRayId)}"
+        }
+        return FETCH_RECEIVED_200_WITH_INVALID_BODY_ERROR
+    }
 
     /**
      * Log message for Setting For Variation Id Is Not Present error. The log eventId is 2011.
@@ -289,4 +353,6 @@ internal object ConfigCatLogMessages {
      * @return The formatted info message.
      */
     fun getConfigServiceStatusChanged(mode: String): String = "Switched to $mode mode."
+
+    private fun cfRayIdPostFix(cfRayId: String): String = "(Ray ID: $cfRayId)"
 }
