@@ -118,9 +118,10 @@ internal class ConfigFetcher(
                         err,
                         cfRayId
                     )
+                } else {
+                    val entry = Entry(config, newETag ?: "", body, Clock.System.now())
+                    fetchResponse = FetchResponse.success(entry, cfRayId)
                 }
-                val entry = Entry(config, newETag ?: "", body, Clock.System.now())
-                fetchResponse = FetchResponse.success(entry, cfRayId)
             } else if (responseCode == HttpStatusCode.NotModified) {
                 logger.debug("Fetch was successful: config not modified.")
                 fetchResponse = FetchResponse.notModified(cfRayId)
