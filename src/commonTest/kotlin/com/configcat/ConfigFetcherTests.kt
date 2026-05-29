@@ -269,6 +269,68 @@ class ConfigFetcherTests {
             assertEquals(eTag, mockEngine.requestHistory.last().headers["If-None-Match"])
         }
 
+    @Test
+    fun testFetchForbiddenLogContainsCfRayId() =
+        runTest {
+            val cfRayId = "abc123-IAD"
+            val mockEngine =
+                MockEngine {
+                    respond(
+                        content = "",
+                        status = HttpStatusCode.Forbidden,
+                        headers = headersOf("CF-RAY" to listOf(cfRayId))
+                    )
+                }
+            val fetcher = Services.createFetcher(mockEngine)
+            val result = fetcher.fetch("")
+
+            assertTrue(result.isFailed)
+            assertEquals(RefreshErrorCode.INVALID_SDK_KEY, result.errorCode)
+            assertEquals(cfRayId, result.cfRayId)
+            assertNotNull(result.error)
+            assertTrue(result.error!!.contains(cfRayId))
+        }
+
+    @Test
+    fun testFetchNotModifiedLogContainsCfRayId() =
+        runTest {
+            val cfRayId = "def456-FRA"
+            val mockEngine =
+                MockEngine {
+                    respond(
+                        content = "",
+                        status = HttpStatusCode.NotModified,
+                        headers = headersOf("CF-RAY" to listOf(cfRayId))
+                    )
+                }
+            val fetcher = Services.createFetcher(mockEngine)
+            val result = fetcher.fetch("")
+
+            assertTrue(result.isNotModified)
+            assertEquals(cfRayId, result.cfRayId)
+        }
+
+    @Test
+    fun testFetchOkInvalidBodyLogContainsCfRayId() =
+        runTest {
+            val cfRayId = "ghi789-SIN"
+            val mockEngine =
+                MockEngine {
+                    respond(
+                        content = "{ invalid json",
+                        status = HttpStatusCode.OK,
+                        headers = headersOf("CF-RAY" to listOf(cfRayId))
+                    )
+                }
+            val fetcher = Services.createFetcher(mockEngine)
+            val result = fetcher.fetch("")
+
+            assertTrue(result.isFailed)
+            assertEquals(RefreshErrorCode.INVALID_HTTP_RESPONSE_CONTENT, result.errorCode)
+            assertEquals(cfRayId, result.cfRayId)
+            assertNotNull(result.errorException)
+        }
+
     companion object {
         const val TEST_BODY =
             """{
