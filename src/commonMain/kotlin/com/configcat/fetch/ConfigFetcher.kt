@@ -111,13 +111,14 @@ internal class ConfigFetcher(
 
                 val (config, err) = deserializeConfig(body, cfRayId)
                 if (err != null) {
-                    fetchResponse = FetchResponse.failure(
-                        err.message ?: "",
-                        RefreshErrorCode.INVALID_HTTP_RESPONSE_CONTENT,
-                        true,
-                        err,
-                        cfRayId
-                    )
+                    fetchResponse =
+                        FetchResponse.failure(
+                            err.message ?: "",
+                            RefreshErrorCode.INVALID_HTTP_RESPONSE_CONTENT,
+                            true,
+                            err,
+                            cfRayId,
+                        )
                 } else {
                     val entry = Entry(config, newETag ?: "", body, Clock.System.now())
                     fetchResponse = FetchResponse.success(entry, cfRayId)
@@ -129,18 +130,28 @@ internal class ConfigFetcher(
                 val message =
                     ConfigCatLogMessages.getFetchFailDueToInvalidSdkKeyError(cfRayId)
                 logger.error(1100, message)
-                fetchResponse = FetchResponse.failure(message, RefreshErrorCode.INVALID_SDK_KEY,
-                    false, cfRayId = cfRayId)
+                fetchResponse =
+                    FetchResponse.failure(
+                        message,
+                        RefreshErrorCode.INVALID_SDK_KEY,
+                        false,
+                        cfRayId = cfRayId,
+                    )
             } else {
                 val message =
                     ConfigCatLogMessages.getFetchFailedDueToUnexpectedHttpResponse(
                         responseCode.value,
                         response.bodyAsText(),
-                        cfRayId
+                        cfRayId,
                     )
                 logger.error(1101, message)
-                fetchResponse = FetchResponse.failure(message, RefreshErrorCode.UNEXPECTED_HTTP_RESPONSE,
-                    true, cfRayId = cfRayId)
+                fetchResponse =
+                    FetchResponse.failure(
+                        message,
+                        RefreshErrorCode.UNEXPECTED_HTTP_RESPONSE,
+                        true,
+                        cfRayId = cfRayId,
+                    )
             }
         } catch (e: HttpRequestTimeoutException) {
             val message =
@@ -152,10 +163,15 @@ internal class ConfigFetcher(
             logger.error(1103, message, e)
             fetchResponse = FetchResponse.failure(message, RefreshErrorCode.HTTP_REQUEST_FAILURE, true, e, cfRayId)
         } finally {
-            if(fetchResponse == null){
+            if (fetchResponse == null) {
                 val message = ConfigCatLogMessages.getFetchFailedDueToRequestTimeout(cfRayId)
-                fetchResponse = FetchResponse.failure(message, RefreshErrorCode.HTTP_REQUEST_FAILURE,
-                    true, cfRayId =  cfRayId)
+                fetchResponse =
+                    FetchResponse.failure(
+                        message,
+                        RefreshErrorCode.HTTP_REQUEST_FAILURE,
+                        true,
+                        cfRayId = cfRayId,
+                    )
             }
         }
         return fetchResponse
@@ -174,7 +190,10 @@ internal class ConfigFetcher(
         }
     }
 
-    private fun deserializeConfig(jsonString: String, cfRayId: String?): Pair<Config, Exception?> =
+    private fun deserializeConfig(
+        jsonString: String,
+        cfRayId: String?,
+    ): Pair<Config, Exception?> =
         try {
             Pair(jsonString.parseConfigJson(), null)
         } catch (e: Exception) {

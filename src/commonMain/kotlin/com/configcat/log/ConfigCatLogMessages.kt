@@ -54,13 +54,13 @@ internal object ConfigCatLogMessages {
     /**
      * Log message for Fetch Failed Due To Invalid Sdk Key error. The log eventId is 1100.
      */
-   private const val FETCH_FAILED_DUE_TO_INVALID_SDK_KEY_ERROR =
+    private const val FETCH_FAILED_DUE_TO_INVALID_SDK_KEY_ERROR =
         "Your SDK Key seems to be wrong. You can find the valid SDK Key at https://app.configcat.com/sdkkey."
 
     /**
      * Log message for Fetch Failed Due To Unexpected Http Response error. The log eventId is 1101.
      */
-    private const val  FETCH_FAILED_DUE_TO_UNEXPECTED_HTTP_RESPONSE =
+    private const val FETCH_FAILED_DUE_TO_UNEXPECTED_HTTP_RESPONSE =
         "Unexpected HTTP response was received while trying to fetch config JSON:"
 
     /**
@@ -68,7 +68,6 @@ internal object ConfigCatLogMessages {
      */
     private const val FETCH_FAILED_DUE_TO_REQUEST_TIMEOUT_ERROR =
         "Request timed out while trying to fetch config JSON. Timeout value:"
-
 
     /**
      * Log message for Config Json Is Not Presented errors when the method returns with default value.
@@ -163,6 +162,7 @@ internal object ConfigCatLogMessages {
         }
         return FETCH_FAILED_DUE_TO_INVALID_SDK_KEY_ERROR
     }
+
     /**
      * Log message for Fetch Failed Due To Unexpected Http Response error. The log eventId is 1101.
      *
@@ -174,11 +174,11 @@ internal object ConfigCatLogMessages {
     fun getFetchFailedDueToUnexpectedHttpResponse(
         responseCode: Int,
         responseMessage: String,
-        cfRayId: String?
+        cfRayId: String?,
     ): String {
         if (cfRayId != null) {
             return "$FETCH_FAILED_DUE_TO_UNEXPECTED_HTTP_RESPONSE $responseCode $responseMessage " +
-                    cfRayIdPostFix(cfRayId)
+                cfRayIdPostFix(cfRayId)
         }
         return "$FETCH_FAILED_DUE_TO_UNEXPECTED_HTTP_RESPONSE $responseCode $responseMessage"
     }
@@ -190,10 +190,13 @@ internal object ConfigCatLogMessages {
      * @param cfRayId The CF-Ray ID from the response header, if available.
      * @return The formatted error message.
      */
-    fun getFetchFailedDueToRequestTimeout(timeout: Duration, cfRayId: String?): String {
+    fun getFetchFailedDueToRequestTimeout(
+        timeout: Duration,
+        cfRayId: String?,
+    ): String {
         if (cfRayId != null) {
             return "$FETCH_FAILED_DUE_TO_REQUEST_TIMEOUT_ERROR ${timeout.inWholeMilliseconds}ms " +
-                    cfRayIdPostFix(cfRayId)
+                cfRayIdPostFix(cfRayId)
         }
         return "$FETCH_FAILED_DUE_TO_REQUEST_TIMEOUT_ERROR ${timeout.inWholeMilliseconds}ms"
     }

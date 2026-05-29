@@ -28,8 +28,10 @@ internal class FetchResponse(
     val isFailed: Boolean = status == FetchStatus.FAILED
 
     companion object {
-        fun success(entry: Entry, cfRayId: String?): FetchResponse =
-            FetchResponse(FetchStatus.FETCHED, entry, cfRayId = cfRayId)
+        fun success(
+            entry: Entry,
+            cfRayId: String?,
+        ): FetchResponse = FetchResponse(FetchStatus.FETCHED, entry, cfRayId = cfRayId)
 
         fun notModified(cfRayId: String?): FetchResponse = FetchResponse(FetchStatus.NOT_MODIFIED, cfRayId = cfRayId)
 
@@ -38,7 +40,7 @@ internal class FetchResponse(
             errorCode: RefreshErrorCode,
             isTransient: Boolean,
             exception: Exception? = null,
-            cfRayId: String?
+            cfRayId: String?,
         ): FetchResponse =
             FetchResponse(
                 FetchStatus.FAILED,
@@ -46,7 +48,7 @@ internal class FetchResponse(
                 isTransientError = isTransient,
                 errorCode = errorCode,
                 errorException = exception,
-                cfRayId = cfRayId
+                cfRayId = cfRayId,
             )
     }
 }
