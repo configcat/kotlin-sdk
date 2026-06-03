@@ -39,7 +39,7 @@ internal object ConfigCatLogMessages {
     /**
      * Log message for Fetch Failed Due To Redirect Loop error. The log eventId is 1104.
      */
-    const val FETCH_FAILED_DUE_TO_REDIRECT_LOOP_ERROR =
+    private const val FETCH_FAILED_DUE_TO_REDIRECT_LOOP_ERROR =
         "Redirection loop encountered while trying to fetch config JSON. " +
             "Please contact us at https://configcat.com/support/"
 
@@ -190,7 +190,7 @@ internal object ConfigCatLogMessages {
      * @param cfRayId The CF-Ray ID from the response header, if available.
      * @return The formatted error message.
      */
-    fun getFetchFailedDueToRequestTimeout(
+    fun getFetchFailedDueToUnexpectedError(
         timeout: Duration,
         cfRayId: String?,
     ): String {
@@ -207,11 +207,24 @@ internal object ConfigCatLogMessages {
      * @param cfRayId The CF-Ray ID from the response header, if available.
      * @return The formatted error message.
      */
-    fun getFetchFailedDueToRequestTimeout(cfRayId: String?): String {
+    fun getFetchFailedDueToUnexpectedError(cfRayId: String?): String {
         if (cfRayId != null) {
             return "$FETCH_FAILED_DUE_TO_UNEXPECTED_ERROR ${cfRayIdPostFix(cfRayId)}"
         }
         return FETCH_FAILED_DUE_TO_UNEXPECTED_ERROR
+    }
+
+    /**
+     * Log message for Fetch Failed Due To Redirect Loop error. The log eventId is 1104.
+     *
+     * @param cfRayId The CF-Ray ID from the response header, if available.
+     * @return The formatted error message.
+     */
+    fun getFetchFailedDueToRedirectLoop(cfRayId: String?): String {
+        if (cfRayId != null) {
+            return "$FETCH_FAILED_DUE_TO_REDIRECT_LOOP_ERROR ${cfRayIdPostFix(cfRayId)}"
+        }
+        return FETCH_FAILED_DUE_TO_REDIRECT_LOOP_ERROR
     }
 
     /**

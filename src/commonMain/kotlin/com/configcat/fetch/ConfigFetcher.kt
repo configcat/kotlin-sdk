@@ -50,8 +50,9 @@ internal class ConfigFetcher(
 
     private suspend fun fetchHTTPWithPreferenceHandling(eTag: String): FetchResponse {
         var cfRayId: String? = null
+        var response: FetchResponse? = null
         repeat(3) {
-            val response = fetchHTTP(baseUrl.load(), eTag)
+            response = fetchHTTP(baseUrl.load(), eTag)
             val preferences = response.entry.config.preferences
             if (!response.isFetched ||
                 response.entry.isEmpty() ||
@@ -73,9 +74,18 @@ internal class ConfigFetcher(
             }
             cfRayId = response.cfRayId
         }
-        val message = ConfigCatLogMessages.FETCH_FAILED_DUE_TO_REDIRECT_LOOP_ERROR
-        logger.error(1104, message)
-        return FetchResponse.failure(message, RefreshErrorCode.UNEXPECTED_ERROR, true, cfRayId = cfRayId)
+
+        response?.let {
+            val message = ConfigCatLogMessages.getFetchFailedDueToRedirectLoop(cfRayId)
+            logger.error(1104, message)
+            return response
+        }
+        return FetchResponse.failure(
+            "Fetch response is null after retries, which should not happen.",
+            RefreshErrorCode.UNEXPECTED_ERROR,
+            true,
+            cfRayId = cfRayId,
+        )
     }
 
     private suspend fun fetchHTTP(
@@ -155,16 +165,16 @@ internal class ConfigFetcher(
             }
         } catch (e: HttpRequestTimeoutException) {
             val message =
-                ConfigCatLogMessages.getFetchFailedDueToRequestTimeout(options.requestTimeout, cfRayId)
+                ConfigCatLogMessages.getFetchFailedDueToUnexpectedError(options.requestTimeout, cfRayId)
             logger.error(1102, message)
             fetchResponse = FetchResponse.failure(message, RefreshErrorCode.HTTP_REQUEST_TIMEOUT, true, e, cfRayId)
         } catch (e: Exception) {
-            val message = ConfigCatLogMessages.getFetchFailedDueToRequestTimeout(cfRayId)
+            val message = ConfigCatLogMessages.getFetchFailedDueToUnexpectedError(cfRayId)
             logger.error(1103, message, e)
             fetchResponse = FetchResponse.failure(message, RefreshErrorCode.HTTP_REQUEST_FAILURE, true, e, cfRayId)
         } finally {
             if (fetchResponse == null) {
-                val message = ConfigCatLogMessages.getFetchFailedDueToRequestTimeout(cfRayId)
+                val message = ConfigCatLogMessages.getFetchFailedDueToUnexpectedError(cfRayId)
                 fetchResponse =
                     FetchResponse.failure(
                         message,
