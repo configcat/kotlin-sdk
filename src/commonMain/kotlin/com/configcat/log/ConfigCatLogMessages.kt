@@ -190,7 +190,7 @@ internal object ConfigCatLogMessages {
      * @param cfRayId The CF-Ray ID from the response header, if available.
      * @return The formatted error message.
      */
-    fun getFetchFailedDueToUnexpectedError(
+    fun getFetchFailedDueToRequestTimeout(
         timeout: Duration,
         cfRayId: String?,
     ): String {

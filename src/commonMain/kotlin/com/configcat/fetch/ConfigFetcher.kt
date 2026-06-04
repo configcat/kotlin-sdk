@@ -94,7 +94,6 @@ internal class ConfigFetcher(
     ): FetchResponse {
         val url = "$baseUrl/configuration-files/${options.sdkKey}/${Constants.CONFIG_FILE_NAME}"
         var cfRayId: String? = null
-        var fetchResponse: FetchResponse? = null
         try {
             val httpRequestBuilder =
                 httpRequestBuilder("ConfigCat-Kotlin/${options.pollingMode.identifier}-${Constants.VERSION}", eTag)
@@ -121,32 +120,30 @@ internal class ConfigFetcher(
 
                 val (config, err) = deserializeConfig(body, cfRayId)
                 if (err != null) {
-                    fetchResponse =
-                        FetchResponse.failure(
-                            err.message ?: "",
-                            RefreshErrorCode.INVALID_HTTP_RESPONSE_CONTENT,
-                            true,
-                            err,
-                            cfRayId,
-                        )
+                    return FetchResponse.failure(
+                        err.message ?: "",
+                        RefreshErrorCode.INVALID_HTTP_RESPONSE_CONTENT,
+                        true,
+                        err,
+                        cfRayId,
+                    )
                 } else {
                     val entry = Entry(config, newETag ?: "", body, Clock.System.now())
-                    fetchResponse = FetchResponse.success(entry, cfRayId)
+                    return FetchResponse.success(entry, cfRayId)
                 }
             } else if (responseCode == HttpStatusCode.NotModified) {
                 logger.debug("Fetch was successful: config not modified.")
-                fetchResponse = FetchResponse.notModified(cfRayId)
+                return FetchResponse.notModified(cfRayId)
             } else if (responseCode == HttpStatusCode.NotFound || responseCode == HttpStatusCode.Forbidden) {
                 val message =
                     ConfigCatLogMessages.getFetchFailDueToInvalidSdkKeyError(cfRayId)
                 logger.error(1100, message)
-                fetchResponse =
-                    FetchResponse.failure(
-                        message,
-                        RefreshErrorCode.INVALID_SDK_KEY,
-                        false,
-                        cfRayId = cfRayId,
-                    )
+                return FetchResponse.failure(
+                    message,
+                    RefreshErrorCode.INVALID_SDK_KEY,
+                    false,
+                    cfRayId = cfRayId,
+                )
             } else {
                 val message =
                     ConfigCatLogMessages.getFetchFailedDueToUnexpectedHttpResponse(
@@ -155,36 +152,23 @@ internal class ConfigFetcher(
                         cfRayId,
                     )
                 logger.error(1101, message)
-                fetchResponse =
-                    FetchResponse.failure(
-                        message,
-                        RefreshErrorCode.UNEXPECTED_HTTP_RESPONSE,
-                        true,
-                        cfRayId = cfRayId,
-                    )
+                return FetchResponse.failure(
+                    message,
+                    RefreshErrorCode.UNEXPECTED_HTTP_RESPONSE,
+                    true,
+                    cfRayId = cfRayId,
+                )
             }
         } catch (e: HttpRequestTimeoutException) {
             val message =
-                ConfigCatLogMessages.getFetchFailedDueToUnexpectedError(options.requestTimeout, cfRayId)
+                ConfigCatLogMessages.getFetchFailedDueToRequestTimeout(options.requestTimeout, cfRayId)
             logger.error(1102, message)
-            fetchResponse = FetchResponse.failure(message, RefreshErrorCode.HTTP_REQUEST_TIMEOUT, true, e, cfRayId)
+            return FetchResponse.failure(message, RefreshErrorCode.HTTP_REQUEST_TIMEOUT, true, e, cfRayId)
         } catch (e: Exception) {
             val message = ConfigCatLogMessages.getFetchFailedDueToUnexpectedError(cfRayId)
             logger.error(1103, message, e)
-            fetchResponse = FetchResponse.failure(message, RefreshErrorCode.HTTP_REQUEST_FAILURE, true, e, cfRayId)
-        } finally {
-            if (fetchResponse == null) {
-                val message = ConfigCatLogMessages.getFetchFailedDueToUnexpectedError(cfRayId)
-                fetchResponse =
-                    FetchResponse.failure(
-                        message,
-                        RefreshErrorCode.HTTP_REQUEST_FAILURE,
-                        true,
-                        cfRayId = cfRayId,
-                    )
-            }
+            return FetchResponse.failure(message, RefreshErrorCode.HTTP_REQUEST_FAILURE, true, e, cfRayId)
         }
-        return fetchResponse
     }
 
     private fun createClient(): HttpClient =
