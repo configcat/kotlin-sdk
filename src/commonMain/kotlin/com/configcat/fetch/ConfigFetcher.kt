@@ -49,8 +49,10 @@ internal class ConfigFetcher(
     }
 
     private suspend fun fetchHTTPWithPreferenceHandling(eTag: String): FetchResponse {
+        var cfRayId: String? = null
+        var response: FetchResponse? = null
         repeat(3) {
-            val response = fetchHTTP(baseUrl.load(), eTag)
+            response = fetchHTTP(baseUrl.load(), eTag)
             val preferences = response.entry.config.preferences
             if (!response.isFetched ||
                 response.entry.isEmpty() ||
@@ -70,10 +72,20 @@ internal class ConfigFetcher(
             } else if (preferences.redirect == RedirectMode.SHOULD_REDIRECT.ordinal) {
                 logger.warning(3002, ConfigCatLogMessages.DATA_GOVERNANCE_IS_OUT_OF_SYNC_WARN)
             }
+            cfRayId = response.cfRayId
         }
-        val message = ConfigCatLogMessages.FETCH_FAILED_DUE_TO_REDIRECT_LOOP_ERROR
-        logger.error(1104, message)
-        return FetchResponse.failure(message, RefreshErrorCode.UNEXPECTED_ERROR, true)
+
+        response?.let {
+            val message = ConfigCatLogMessages.getFetchFailedDueToRedirectLoop(cfRayId)
+            logger.error(1104, message)
+            return response
+        }
+        return FetchResponse.failure(
+            "Fetch response is null after retries, which should not happen.",
+            RefreshErrorCode.UNEXPECTED_ERROR,
+            true,
+            cfRayId = cfRayId,
+        )
     }
 
     private suspend fun fetchHTTP(
@@ -81,6 +93,7 @@ internal class ConfigFetcher(
         eTag: String,
     ): FetchResponse {
         val url = "$baseUrl/configuration-files/${options.sdkKey}/${Constants.CONFIG_FILE_NAME}"
+        var cfRayId: String? = null
         try {
             val httpRequestBuilder =
                 httpRequestBuilder("ConfigCat-Kotlin/${options.pollingMode.identifier}-${Constants.VERSION}", eTag)
@@ -95,48 +108,66 @@ internal class ConfigFetcher(
                         }
                     }
                 }
-            if (response.status == HttpStatusCode.OK) {
-                logger.debug("Fetch was successful: new config fetched.")
+
+            val newETag = response.etag()
+            val responseCode = response.status
+            cfRayId = response.headers["CF-RAY"]
+
+            if (responseCode == HttpStatusCode.OK) {
                 val body = response.bodyAsText()
-                val newETag = response.etag()
-                val (config, err) = deserializeConfig(body)
+
+                logger.debug("Fetch was successful: new config fetched.")
+
+                val (config, err) = deserializeConfig(body, cfRayId)
                 if (err != null) {
                     return FetchResponse.failure(
                         err.message ?: "",
                         RefreshErrorCode.INVALID_HTTP_RESPONSE_CONTENT,
                         true,
                         err,
+                        cfRayId,
                     )
+                } else {
+                    val entry = Entry(config, newETag ?: "", body, Clock.System.now())
+                    return FetchResponse.success(entry, cfRayId)
                 }
-                val entry = Entry(config, newETag ?: "", body, Clock.System.now())
-                return FetchResponse.success(entry)
-            } else if (response.status == HttpStatusCode.NotModified) {
+            } else if (responseCode == HttpStatusCode.NotModified) {
                 logger.debug("Fetch was successful: config not modified.")
-                return FetchResponse.notModified()
-            } else if (response.status == HttpStatusCode.NotFound || response.status == HttpStatusCode.Forbidden) {
+                return FetchResponse.notModified(cfRayId)
+            } else if (responseCode == HttpStatusCode.NotFound || responseCode == HttpStatusCode.Forbidden) {
                 val message =
-                    ConfigCatLogMessages.FETCH_FAILED_DUE_TO_INVALID_SDK_KEY_ERROR +
-                        " Received response: ${response.status}"
+                    ConfigCatLogMessages.getFetchFailDueToInvalidSdkKeyError(cfRayId)
                 logger.error(1100, message)
-                return FetchResponse.failure(message, RefreshErrorCode.INVALID_SDK_KEY, false)
+                return FetchResponse.failure(
+                    message,
+                    RefreshErrorCode.INVALID_SDK_KEY,
+                    false,
+                    cfRayId = cfRayId,
+                )
             } else {
                 val message =
                     ConfigCatLogMessages.getFetchFailedDueToUnexpectedHttpResponse(
-                        response.status.value,
+                        responseCode.value,
                         response.bodyAsText(),
+                        cfRayId,
                     )
                 logger.error(1101, message)
-                return FetchResponse.failure(message, RefreshErrorCode.UNEXPECTED_HTTP_RESPONSE, true)
+                return FetchResponse.failure(
+                    message,
+                    RefreshErrorCode.UNEXPECTED_HTTP_RESPONSE,
+                    true,
+                    cfRayId = cfRayId,
+                )
             }
         } catch (e: HttpRequestTimeoutException) {
             val message =
-                ConfigCatLogMessages.getFetchFailedDueToRequestTimeout(options.requestTimeout)
+                ConfigCatLogMessages.getFetchFailedDueToRequestTimeout(options.requestTimeout, cfRayId)
             logger.error(1102, message)
-            return FetchResponse.failure(message, RefreshErrorCode.HTTP_REQUEST_TIMEOUT, true, e)
+            return FetchResponse.failure(message, RefreshErrorCode.HTTP_REQUEST_TIMEOUT, true, e, cfRayId)
         } catch (e: Exception) {
-            val message = ConfigCatLogMessages.FETCH_FAILED_DUE_TO_UNEXPECTED_ERROR
+            val message = ConfigCatLogMessages.getFetchFailedDueToUnexpectedError(cfRayId)
             logger.error(1103, message, e)
-            return FetchResponse.failure(message, RefreshErrorCode.HTTP_REQUEST_FAILURE, true, e)
+            return FetchResponse.failure(message, RefreshErrorCode.HTTP_REQUEST_FAILURE, true, e, cfRayId)
         }
     }
 
@@ -153,11 +184,14 @@ internal class ConfigFetcher(
         }
     }
 
-    private fun deserializeConfig(jsonString: String): Pair<Config, Exception?> =
+    private fun deserializeConfig(
+        jsonString: String,
+        cfRayId: String?,
+    ): Pair<Config, Exception?> =
         try {
             Pair(jsonString.parseConfigJson(), null)
         } catch (e: Exception) {
-            logger.error(1105, ConfigCatLogMessages.FETCH_RECEIVED_200_WITH_INVALID_BODY_ERROR, e)
+            logger.error(1105, ConfigCatLogMessages.getFetchReceived200WithInvalidBodyError(cfRayId), e)
             Pair(Config.empty, e)
         }
 }

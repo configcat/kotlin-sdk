@@ -21,21 +21,26 @@ internal class FetchResponse(
     val errorCode: RefreshErrorCode = RefreshErrorCode.NONE,
     val errorException: Exception? = null,
     val isTransientError: Boolean = false,
+    val cfRayId: String? = null,
 ) {
     val isFetched: Boolean = status == FetchStatus.FETCHED
     val isNotModified: Boolean = status == FetchStatus.NOT_MODIFIED
     val isFailed: Boolean = status == FetchStatus.FAILED
 
     companion object {
-        fun success(entry: Entry): FetchResponse = FetchResponse(FetchStatus.FETCHED, entry)
+        fun success(
+            entry: Entry,
+            cfRayId: String?,
+        ): FetchResponse = FetchResponse(FetchStatus.FETCHED, entry, cfRayId = cfRayId)
 
-        fun notModified(): FetchResponse = FetchResponse(FetchStatus.NOT_MODIFIED)
+        fun notModified(cfRayId: String?): FetchResponse = FetchResponse(FetchStatus.NOT_MODIFIED, cfRayId = cfRayId)
 
         fun failure(
             error: String,
             errorCode: RefreshErrorCode,
             isTransient: Boolean,
             exception: Exception? = null,
+            cfRayId: String?,
         ): FetchResponse =
             FetchResponse(
                 FetchStatus.FAILED,
@@ -43,6 +48,7 @@ internal class FetchResponse(
                 isTransientError = isTransient,
                 errorCode = errorCode,
                 errorException = exception,
+                cfRayId = cfRayId,
             )
     }
 }

@@ -414,7 +414,7 @@ class ConfigCatClientTests {
             assertFalse(result.isSuccess)
             assertEquals(
                 "Your SDK Key seems to be wrong. You can find the valid SDK Key at " +
-                    "https://app.configcat.com/sdkkey. Received response: 404 Not Found",
+                    "https://app.configcat.com/sdkkey.",
                 result.error,
             )
             assertEquals("test", client.getValue("fakeKey", ""))
@@ -443,7 +443,7 @@ class ConfigCatClientTests {
             assertFalse(result.isSuccess)
             assertEquals(
                 "Your SDK Key seems to be wrong. You can find the valid SDK Key at " +
-                    "https://app.configcat.com/sdkkey. Received response: 403 Forbidden",
+                    "https://app.configcat.com/sdkkey.",
                 result.error,
             )
             assertEquals("test1", client.getValue("fakeKey", ""))
@@ -538,7 +538,7 @@ class ConfigCatClientTests {
             assertFalse(result.isSuccess)
             assertEquals(
                 "Your SDK Key seems to be wrong. You can find the valid SDK Key at " +
-                    "https://app.configcat.com/sdkkey. Received response: 404 Not Found",
+                    "https://app.configcat.com/sdkkey.",
                 result.error,
             )
             assertEquals(false, client.getValue("fakeKey", false))
@@ -585,7 +585,7 @@ class ConfigCatClientTests {
             assertFalse(result.isSuccess)
             assertEquals(
                 "Your SDK Key seems to be wrong. You can find the valid SDK Key at " +
-                    "https://app.configcat.com/sdkkey. Received response: 404 Not Found",
+                    "https://app.configcat.com/sdkkey.",
                 result.error,
             )
             assertEquals(false, client.getValue("fakeKey", false))
@@ -1087,7 +1087,7 @@ class ConfigCatClientTests {
 
             assertEquals(
                 "Your SDK Key seems to be wrong. You can find the valid SDK Key at " +
-                    "https://app.configcat.com/sdkkey. Received response: 404 Not Found",
+                    "https://app.configcat.com/sdkkey.",
                 error,
             )
             assertTrue(changed)
@@ -1125,7 +1125,7 @@ class ConfigCatClientTests {
 
             assertEquals(
                 "Your SDK Key seems to be wrong. You can find the valid SDK Key at " +
-                    "https://app.configcat.com/sdkkey. Received response: 404 Not Found",
+                    "https://app.configcat.com/sdkkey.",
                 error,
             )
             assertTrue(changed)
