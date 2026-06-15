@@ -618,24 +618,10 @@ internal class Client private constructor(
         get() = service?.isOffline ?: true
 
     override fun setDefaultUser(user: ConfigCatUser) {
-        if (isClosed()) {
-            this.logger.warning(
-                3201,
-                ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("setDefaultUser"),
-            )
-            return
-        }
         snapshotBuilder.defaultUser.store(user)
     }
 
     override fun clearDefaultUser() {
-        if (isClosed()) {
-            this.logger.warning(
-                3201,
-                ConfigCatLogMessages.getConfigServiceMethodHasNoEffectDueToClosedClient("clearDefaultUser"),
-            )
-            return
-        }
         snapshotBuilder.defaultUser.store(null)
     }
 

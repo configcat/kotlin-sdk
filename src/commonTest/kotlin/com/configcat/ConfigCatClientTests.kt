@@ -1054,6 +1054,44 @@ class ConfigCatClientTests {
         }
 
     @Test
+    fun testGetValueAfterCloseWithDefaultUserAndClearedUser() =
+        runTest {
+            val mockEngine =
+                MockEngine {
+                    respond(
+                        content = Data.formatConfigWithRules(),
+                        status = HttpStatusCode.OK,
+                    )
+                }
+            val client =
+                ConfigCatClient(TestUtils.randomSdkKey()) {
+                    httpEngine = mockEngine
+                    pollingMode = manualPoll()
+                }
+            client.forceRefresh()
+
+            val user1 = ConfigCatUser("test@test1.com")
+            val user2 = ConfigCatUser("test@test2.com")
+
+            client.setDefaultUser(user1)
+
+            var value = client.getValue("key", "")
+            assertEquals("fake1", value)
+
+            client.close()
+
+            client.setDefaultUser(user2)
+
+            value = client.getValue("key", "")
+            assertEquals("fake2", value)
+
+            client.clearDefaultUser()
+
+            value = client.getValue("key", "")
+            assertEquals("default", value)
+        }
+
+    @Test
     fun testHooks() =
         runTest {
             val mockEngine =
