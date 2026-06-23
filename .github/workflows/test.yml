@@ -138,5 +138,5 @@ jobs:
         with:
           name: analysis-report
       - name: Upload reports to SonarCloud
-        run: ./gradlew sonarqube --stacktrace
+        run: ./gradlew sonar --stacktrace
         shell: bash
