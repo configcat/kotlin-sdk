@@ -13,7 +13,7 @@ public enum class RefreshErrorCode(
     NONE(0),
 
     /**
-     * The refresh operation failed because the client is configured to use the `OverrideBehaviour.LocalOnly`
+     * The refresh operation failed because the client is configured to use the `OverrideBehaviour.LOCAL_ONLY`
      * override behavior, which prevents synchronization with the external cache and making HTTP requests.
      */
     LOCAL_ONLY_CLIENT(1),

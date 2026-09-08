@@ -26,7 +26,8 @@ admin@configcat.com;admin@configcat.com;France;["read", "write","execute"];False
 admin@configcat.com;admin@configcat.com;France;["Read", "Write",  "execute"];False;Cat;Cat;Dog;Dog;Dog;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Horse;NotFound;Horse;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Dog;Dog;Cat;Cat
 admin@configcat.com;admin@configcat.com;France;["Read",  "Write", "eXecute"];False;Cat;Cat;Dog;Dog;Dog;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Falcon;NotFound;Horse;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog
 user@configcat.com;user@configcat.com;Greece;["","execute"];False;Cat;Cat;Dog;Dog;Cat;Dog;Dog;Cat;Cat;Dog;Cat;Dog;Horse;NotFound;Horse;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Dog;Dog;Cat;Cat
-user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Cat;Dog;Dog;Cat;Dog;Dog;Cat;Cat;Cat;Cat;Cat;Falcon;NotFound;Horse;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Cat;Cat"""
+user@configcat.com;user@configcat.com;Monaco;,null, ,,nil, None;False;Cat;Cat;Dog;Dog;Cat;Dog;Dog;Cat;Cat;Cat;Cat;Cat;Falcon;NotFound;Horse;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Cat;Cat
+user@configcat.com;user@configcat.com;Greece;[];False;Cat;Cat;Dog;Dog;Cat;Dog;Dog;Cat;Cat;Dog;Cat;Dog;Falcon;NotFound;Horse;Cat;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog;Cat;Cat;Dog;Dog"""
     override val remoteJson =
         """{
    "p":{
