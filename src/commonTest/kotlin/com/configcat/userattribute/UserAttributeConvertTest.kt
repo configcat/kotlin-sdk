@@ -42,10 +42,13 @@ class UserAttributeConvertTest {
         runTest {
             runConvertTest(StringArrayConvertData, arrayOf("x", "read"), "Dog")
             runConvertTest(StringArrayConvertData, arrayOf("x", "Read"), "Cat")
+            runConvertTest(StringArrayConvertData, arrayOf("x", "read", null), "Cat")
             runConvertTest(StringArrayConvertData, mutableListOf("x", "read"), "Dog")
             runConvertTest(StringArrayConvertData, mutableListOf("x", "Read"), "Cat")
+            runConvertTest(StringArrayConvertData, mutableListOf("x", "read", null), "Cat")
             runConvertTest(StringArrayConvertData, "[\"x\", \"read\"]", "Dog")
             runConvertTest(StringArrayConvertData, "[\"x\", \"Read\"]", "Cat")
+            runConvertTest(StringArrayConvertData, "[\"x\", \"read\", null]", "Cat")
             runConvertTest(StringArrayConvertData, "x, read", "Cat")
         }
 

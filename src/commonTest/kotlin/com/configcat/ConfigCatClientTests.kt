@@ -1175,18 +1175,20 @@ class ConfigCatClientTests {
             val cache = SingleValueCache(Data.formatCacheEntry("test"))
 
             var ready: ClientCacheState? = null
-
+            var changed = false
             val client =
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     pollingMode = manualPoll()
                     configCache = cache
                     hooks.addOnClientReady { clientReadyState: ClientCacheState -> ready = clientReadyState }
+                    hooks.addOnConfigChanged { settings, snapshot -> changed = true }
                 }
 
             TestUtils.awaitUntil {
                 ready != null
             }
 
+            assertTrue(changed)
             assertEquals(ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY, ready)
         }
 
