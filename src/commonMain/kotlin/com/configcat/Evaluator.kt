@@ -911,11 +911,10 @@ internal class Evaluator(
         @Suppress("SwallowedException")
         try {
             if (userAttribute is Array<*> && userAttribute.all { it is String }) {
-                return userAttribute as Array<String>
+                return userAttribute.filterIsInstance<String>().toTypedArray()
             }
             if ((userAttribute is List<*>) && userAttribute.all { it is String }) {
-                val stringList: List<String> = userAttribute as List<String>
-                return stringList.toTypedArray()
+                return userAttribute.filterIsInstance<String>().toTypedArray()
             }
             if (userAttribute is String) {
                 return Constants.json.decodeFromString(userAttribute)
@@ -1060,10 +1059,10 @@ internal class Evaluator(
             return userValue
         }
         if (userValue is Array<*> && userValue.all { it is String }) {
-            return Constants.json.encodeToString(userValue as Array<String>)
+            return Constants.json.encodeToString(userValue.filterIsInstance<String>())
         }
         if (userValue is List<*> && userValue.all { it is String }) {
-            return Constants.json.encodeToString(userValue as List<String>)
+            return Constants.json.encodeToString(userValue.filterIsInstance<String>())
         }
         if (userValue is Float) {
             return doubleToString(userValue.toDouble())
