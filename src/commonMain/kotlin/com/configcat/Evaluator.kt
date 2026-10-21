@@ -404,7 +404,7 @@ internal class Evaluator(
         return result
     }
 
-    @Suppress("ThrowsCount", "ReturnCount", "CyclomaticComplexMethod", "LongMethod")
+    @Suppress("ThrowsCount", "CyclomaticComplexMethod", "LongMethod")
     private fun evaluateUserCondition(
         condition: UserCondition,
         configSalt: String?,
@@ -434,14 +434,14 @@ internal class Evaluator(
             throw RolloutEvaluatorException("cannot evaluate, the User.$comparisonAttribute attribute is missing")
         }
 
-        when (comparator) {
+        return when (comparator) {
             UserComparator.CONTAINS_ANY_OF,
             UserComparator.NOT_CONTAINS_ANY_OF,
             -> {
                 val negateContainsAnyOf = UserComparator.NOT_CONTAINS_ANY_OF == comparator
                 val userAttributeAsString =
                     getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
-                return processContains(condition, userAttributeAsString, negateContainsAnyOf)
+                processContains(condition, userAttributeAsString, negateContainsAnyOf)
             }
 
             UserComparator.ONE_OF_SEMVER,
@@ -450,7 +450,7 @@ internal class Evaluator(
                 val negateSemverIsOneOf: Boolean = UserComparator.NOT_ONE_OF_SEMVER == comparator
                 val userAttributeAsVersion =
                     getUserAttributeAsVersion(context.key, condition, comparisonAttribute, userValue)
-                return processSemVerOneOf(condition, userAttributeAsVersion, negateSemverIsOneOf)
+                processSemVerOneOf(condition, userAttributeAsVersion, negateSemverIsOneOf)
             }
 
             UserComparator.LT_SEMVER,
@@ -460,7 +460,7 @@ internal class Evaluator(
             -> {
                 val userAttributeAsVersion =
                     getUserAttributeAsVersion(context.key, condition, comparisonAttribute, userValue)
-                return processSemVerCompare(condition, userAttributeAsVersion, comparator)
+                processSemVerCompare(condition, userAttributeAsVersion, comparator)
             }
 
             UserComparator.EQ_NUM,
@@ -472,7 +472,7 @@ internal class Evaluator(
             -> {
                 val userAttributeAsDouble =
                     getUserAttributeAsDouble(context.key, condition, comparisonAttribute, userValue)
-                return processNumber(condition, userAttributeAsDouble, comparator)
+                processNumber(condition, userAttributeAsDouble, comparator)
             }
 
             UserComparator.IS_ONE_OF,
@@ -487,7 +487,7 @@ internal class Evaluator(
 
                 val userAttributeAsString =
                     getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
-                return processSensitiveOneOf(
+                processSensitiveOneOf(
                     condition,
                     userAttributeAsString,
                     configSalt,
@@ -501,7 +501,7 @@ internal class Evaluator(
             UserComparator.DATE_AFTER,
             -> {
                 val userAttributeForDate = getUserAttributeForDate(condition, context, comparisonAttribute, userValue)
-                return processDateCompare(condition, userAttributeForDate, comparator)
+                processDateCompare(condition, userAttributeForDate, comparator)
             }
 
             UserComparator.TEXT_EQUALS,
@@ -516,7 +516,7 @@ internal class Evaluator(
 
                 val userAttributeAsString =
                     getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
-                return processHashedEqualsCompare(
+                processHashedEqualsCompare(
                     condition,
                     userAttributeAsString,
                     configSalt,
@@ -533,7 +533,7 @@ internal class Evaluator(
             -> {
                 val userAttributeAsString =
                     getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
-                return processHashedStartEndsWithCompare(
+                processHashedStartEndsWithCompare(
                     condition,
                     userAttributeAsString,
                     ensureConfigSalt(configSalt),
@@ -548,7 +548,7 @@ internal class Evaluator(
                 val negateTextStartWith = UserComparator.TEXT_NOT_STARTS_WITH == comparator
                 val userAttributeAsString =
                     getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
-                return processTextStartWithCompare(condition, userAttributeAsString, negateTextStartWith)
+                processTextStartWithCompare(condition, userAttributeAsString, negateTextStartWith)
             }
 
             UserComparator.TEXT_ENDS_WITH,
@@ -557,7 +557,7 @@ internal class Evaluator(
                 val negateTextEndsWith = UserComparator.TEXT_NOT_ENDS_WITH == comparator
                 val userAttributeAsString =
                     getUserAttributeAsString(context.key, condition, comparisonAttribute, userValue)
-                return processTextEndWithCompare(condition, userAttributeAsString, negateTextEndsWith)
+                processTextEndWithCompare(condition, userAttributeAsString, negateTextEndsWith)
             }
 
             UserComparator.TEXT_ARRAY_CONTAINS,
@@ -572,7 +572,7 @@ internal class Evaluator(
                     UserComparator.HASHED_ARRAY_CONTAINS == comparator ||
                         UserComparator.HASHED_ARRAY_NOT_CONTAINS == comparator
                 val userArrayValue = getUserAttributeAsStringArray(condition, context, comparisonAttribute, userValue)
-                return processHashedArrayContainsCompare(
+                processHashedArrayContainsCompare(
                     condition,
                     userArrayValue,
                     configSalt,

@@ -188,13 +188,13 @@ internal class ConfigService(
             // Cache isn't expired
             if (!cachedEntry.load().isExpired(threshold)) {
                 initializeAndReportCacheState()
-                return EntryResult(cachedEntry.load(), null, RefreshErrorCode.NONE, null)
+                EntryResult(cachedEntry.load(), null, RefreshErrorCode.NONE, null)
             }
             // If we are in offline mode, or prohibited from using HTTP,
             // or the caller prefers cached values, do not initiate fetch.
             if (isOffline || preferCached) {
                 initializeAndReportCacheState()
-                return EntryResult(cachedEntry.load(), null, RefreshErrorCode.NONE, null)
+                EntryResult(cachedEntry.load(), null, RefreshErrorCode.NONE, null)
             }
 
             if (fetchJob == null) {
