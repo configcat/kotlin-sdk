@@ -46,4 +46,28 @@ public data class Setting(
     internal var segments: Array<Segment> = arrayOf()
 
     public constructor() : this(0, "", null, null, SettingValue(), "")
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Setting) return false
+
+        if (type != other.type) return false
+        if (percentageAttribute != other.percentageAttribute) return false
+        if (!percentageOptions.contentEquals(other.percentageOptions)) return false
+        if (!targetingRules.contentEquals(other.targetingRules)) return false
+        if (settingValue != other.settingValue) return false
+        if (variationId != other.variationId) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = type
+        result = 31 * result + (percentageAttribute?.hashCode() ?: 0)
+        result = 31 * result + percentageOptions.contentHashCode()
+        result = 31 * result + targetingRules.contentHashCode()
+        result = 31 * result + settingValue.hashCode()
+        result = 31 * result + (variationId?.hashCode() ?: 0)
+        return result
+    }
 }

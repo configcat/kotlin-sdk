@@ -44,4 +44,34 @@ public data class UserCondition(
 
     @Transient
     override val prerequisiteFlagCondition: PrerequisiteFlagCondition? = null
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is UserCondition) return false
+
+        if (comparator != other.comparator) return false
+        if (doubleValue != other.doubleValue) return false
+        if (comparisonAttribute != other.comparisonAttribute) return false
+        if (stringValue != other.stringValue) return false
+        if (!stringArrayValue.contentEquals(other.stringArrayValue)) return false
+        if (userCondition != other.userCondition) return false
+        if (segmentCondition != other.segmentCondition) return false
+        if (prerequisiteFlagCondition != other.prerequisiteFlagCondition) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = comparator
+        result = 31 * result + (doubleValue?.hashCode() ?: 0)
+        result = 31 * result + comparisonAttribute.hashCode()
+        result = 31 * result + (stringValue?.hashCode() ?: 0)
+        result = 31 * result + (stringArrayValue?.contentHashCode() ?: 0)
+        result = 31 * result + userCondition.hashCode()
+        result = 31 * result + (segmentCondition?.hashCode() ?: 0)
+        result = 31 * result + (prerequisiteFlagCondition?.hashCode() ?: 0)
+        return result
+    }
+
+
 }
