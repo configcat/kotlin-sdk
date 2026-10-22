@@ -54,9 +54,6 @@ public data class UserCondition(
         if (comparisonAttribute != other.comparisonAttribute) return false
         if (stringValue != other.stringValue) return false
         if (!stringArrayValue.contentEquals(other.stringArrayValue)) return false
-        if (userCondition != other.userCondition) return false
-        if (segmentCondition != other.segmentCondition) return false
-        if (prerequisiteFlagCondition != other.prerequisiteFlagCondition) return false
 
         return true
     }
@@ -67,9 +64,6 @@ public data class UserCondition(
         result = 31 * result + comparisonAttribute.hashCode()
         result = 31 * result + (stringValue?.hashCode() ?: 0)
         result = 31 * result + (stringArrayValue?.contentHashCode() ?: 0)
-        result = 31 * result + userCondition.hashCode()
-        result = 31 * result + (segmentCondition?.hashCode() ?: 0)
-        result = 31 * result + (prerequisiteFlagCondition?.hashCode() ?: 0)
         return result
     }
 }
