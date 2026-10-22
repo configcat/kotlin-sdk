@@ -113,7 +113,7 @@ internal class ConfigFetcher(
             val responseCode = response.status
             cfRayId = response.headers["CF-RAY"]
 
-            return when(responseCode) {
+            return when (responseCode) {
                 HttpStatusCode.OK -> {
                     val body = response.bodyAsText()
 

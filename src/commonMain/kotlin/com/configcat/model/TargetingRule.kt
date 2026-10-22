@@ -48,8 +48,6 @@ public data class TargetingRule(
         result = 31 * result + conditionAccessors.hashCode()
         return result
     }
-
-
 }
 
 @Serializable

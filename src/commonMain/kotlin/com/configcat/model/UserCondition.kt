@@ -72,6 +72,4 @@ public data class UserCondition(
         result = 31 * result + (prerequisiteFlagCondition?.hashCode() ?: 0)
         return result
     }
-
-
 }
