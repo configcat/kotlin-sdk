@@ -638,10 +638,7 @@ internal class Client private constructor(
 
     override suspend fun waitForReady(): ClientCacheState {
         val completableDeferred = CompletableDeferred<ClientCacheState>()
-        hooks.addOnClientReady { clientCacheState: ClientCacheState ->
-            if (completableDeferred.isCompleted) throw IllegalStateException("Client is already ready")
-            completableDeferred.complete(clientCacheState)
-        }
+        hooks.addOnClientReady { clientCacheState: ClientCacheState -> completableDeferred.complete(clientCacheState) }
         return completableDeferred.await()
     }
 
