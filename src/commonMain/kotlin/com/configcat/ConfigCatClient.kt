@@ -91,7 +91,7 @@ public class ConfigCatOptions {
     /**
      * Hooks for events fired by [ConfigCatClient].
      */
-    public var hooks: Hooks = Hooks()
+    public var hooks: (Hooks.() -> Unit)? = null
 
     /**
      * Represents an optional monitor for tracking application state changes within the SDK.
@@ -398,11 +398,12 @@ internal class Client private constructor(
 
     init {
         options.sdkKey = sdkKey
-        logger = InternalLogger(options.logger, options.logLevel, options.hooks)
-        hooks = options.hooks
+        this.hooks = Hooks()
+        options.hooks?.invoke(this.hooks)
+        logger = InternalLogger(options.logger, options.logLevel, this.hooks)
         flagOverrides = options.flagOverrides?.let { FlagOverrides().apply(it) }
         evaluator = Evaluator(logger)
-        flagEvaluator = FlagEvaluator(logger, evaluator, options.hooks)
+        flagEvaluator = FlagEvaluator(logger, evaluator, this.hooks)
         snapshotBuilder = SnapshotBuilder(flagEvaluator, flagOverrides, logger, options.defaultUser)
         service =
             if (flagOverrides != null && flagOverrides.behavior == OverrideBehavior.LOCAL_ONLY) {
@@ -415,7 +416,7 @@ internal class Client private constructor(
                 )
                 null
             } else {
-                ConfigService(options, snapshotBuilder, ConfigFetcher(options, logger), logger, options.hooks)
+                ConfigService(options, snapshotBuilder, ConfigFetcher(options, logger), logger, this.hooks)
             }
     }
 
@@ -637,7 +638,10 @@ internal class Client private constructor(
 
     override suspend fun waitForReady(): ClientCacheState {
         val completableDeferred = CompletableDeferred<ClientCacheState>()
-        hooks.addOnClientReady { clientCacheState: ClientCacheState -> completableDeferred.complete(clientCacheState) }
+        hooks.addOnClientReady { clientCacheState: ClientCacheState ->
+            if (completableDeferred.isCompleted) throw IllegalStateException("Client is already ready")
+            completableDeferred.complete(clientCacheState)
+        }
         return completableDeferred.await()
     }
 

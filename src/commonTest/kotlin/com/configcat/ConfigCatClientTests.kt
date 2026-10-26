@@ -15,6 +15,8 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.incrementAndFetch
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -67,6 +69,39 @@ class ConfigCatClientTests {
 
             assertTrue { results.all { it } }
             assertEquals(1, mockEngine.requestHistory.size)
+        }
+
+    @Test
+    fun testInitSharedOptions() =
+        runTest {
+            var readyCount = AtomicInt(0)
+            var flagEvaluatedCount = 0
+            val mockEngine =
+                MockEngine {
+                    respond(content = Data.formatJsonBodyWithString("test1"), status = HttpStatusCode.OK)
+                }
+            val sdkKey1 = TestUtils.randomSdkKey()
+            val sdkKey2 = TestUtils.randomSdkKey()
+            val opts = ConfigCatOptions()
+            opts.logLevel = LogLevel.DEBUG
+            opts.httpEngine = mockEngine
+            opts.hooks = {
+                addOnClientReady { readyCount.incrementAndFetch() }
+            }
+            val client1 = ConfigCatClient(sdkKey1, opts)
+            val client2 = ConfigCatClient(sdkKey2, opts)
+
+            client1.hooks.addOnFlagEvaluated { flagEvaluatedCount++ }
+            client2.hooks.addOnFlagEvaluated { flagEvaluatedCount++ }
+
+            client1.waitForReady()
+            client2.waitForReady()
+
+            client1.getValue("fakeKey", "")
+            client2.getValue("fakeKey", "")
+
+            assertEquals(2, readyCount.load())
+            assertEquals(2, flagEvaluatedCount)
         }
 
     @Test
@@ -894,7 +929,7 @@ class ConfigCatClientTests {
                 httpEngine = mockEngine
                 pollingMode = autoPoll { pollingInterval = 2.seconds }
                 offline = true
-                hooks.addOnClientReady { clientCacheState: ClientCacheState -> ready = clientCacheState }
+                hooks = { addOnClientReady { clientCacheState: ClientCacheState -> ready = clientCacheState } }
             }
 
             assertEquals(0, mockEngine.requestHistory.size)
@@ -1112,10 +1147,12 @@ class ConfigCatClientTests {
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = manualPoll()
-                    hooks.addOnConfigChanged { settings, snapshot -> changed = true }
-                    hooks.addOnClientReady { clientCacheState: ClientCacheState -> readyWithClientState = clientCacheState }
-                    hooks.addOnClientReadyWithSnapshot { snapshot: ConfigCatClientSnapshot -> ready = true}
-                    hooks.addOnError { err -> error = err }
+                    hooks = {
+                        addOnConfigChanged { settings, snapshot -> changed = true }
+                        addOnClientReady { clientCacheState: ClientCacheState -> readyWithClientState = clientCacheState }
+                        addOnClientReadyWithSnapshot { snapshot: ConfigCatClientSnapshot -> ready = true}
+                        addOnError { err -> error = err }
+                    }
                 }
 
             client.waitForReady()
@@ -1180,8 +1217,10 @@ class ConfigCatClientTests {
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     pollingMode = manualPoll()
                     configCache = cache
-                    hooks.addOnClientReady { clientReadyState: ClientCacheState -> ready = clientReadyState }
-                    hooks.addOnConfigChanged { settings, snapshot -> changed = true }
+                    hooks = {
+                        addOnClientReady { clientReadyState: ClientCacheState -> ready = clientReadyState }
+                        addOnConfigChanged { settings, snapshot -> changed = true }
+                    }
                 }
 
             TestUtils.awaitUntil {
@@ -1202,7 +1241,7 @@ class ConfigCatClientTests {
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     flagOverrides = { behavior = OverrideBehavior.LOCAL_ONLY }
                     pollingMode = manualPoll()
-                    hooks.addOnClientReady { clientReadyState: ClientCacheState -> ready = clientReadyState }
+                    hooks = { addOnClientReady { clientReadyState: ClientCacheState -> ready = clientReadyState } }
                 }
 
             assertEquals(ClientCacheState.HAS_LOCAL_OVERRIDE_FLAG_DATA_ONLY, ready)
@@ -1228,9 +1267,11 @@ class ConfigCatClientTests {
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = autoPoll()
-                    hooks.addOnConfigChanged { settings, snapshot -> changed = true }
-                    hooks.addOnClientReady { clientReadyState: ClientCacheState -> ready = clientReadyState }
-                    hooks.addOnError { err -> error = err }
+                    hooks = {
+                        addOnConfigChanged { settings, snapshot -> changed = true }
+                        addOnClientReady { clientReadyState: ClientCacheState -> ready = clientReadyState }
+                        addOnError { err -> error = err }
+                    }
                 }
 
             client.forceRefresh()
@@ -1284,17 +1325,19 @@ class ConfigCatClientTests {
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = manualPoll()
-                    hooks.addOnFlagEvaluated { details ->
-                        called = true
-                        assertTrue(details.isDefaultValue)
-                        assertEquals("", details.value)
-                        assertEquals("ID", details.user?.identifier)
-                        assertEquals(
-                            "Config JSON is not present when evaluating setting 'fakeKey'. Returning the " +
-                                "`defaultValue` parameter that you specified in your application: ''.",
-                            details.error,
-                        )
-                        assertEquals(EvaluationErrorCode.CONFIG_JSON_NOT_AVAILABLE, details.errorCode)
+                    hooks = {
+                        addOnFlagEvaluated { details ->
+                            called = true
+                            assertTrue(details.isDefaultValue)
+                            assertEquals("", details.value)
+                            assertEquals("ID", details.user?.identifier)
+                            assertEquals(
+                                "Config JSON is not present when evaluating setting 'fakeKey'. Returning the " +
+                                        "`defaultValue` parameter that you specified in your application: ''.",
+                                details.error,
+                            )
+                            assertEquals(EvaluationErrorCode.CONFIG_JSON_NOT_AVAILABLE, details.errorCode)
+                        }
                     }
                 }
 
@@ -1348,23 +1391,25 @@ class ConfigCatClientTests {
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     pollingMode = manualPoll()
-                    hooks.addOnFlagEvaluated { details ->
-                        assertFalse(details.isDefaultValue)
-                        assertEquals("fake1", details.value)
-                        assertEquals("key", details.key)
-                        assertEquals("fakeId1", details.variationId)
-                        assertNull(details.error)
-                        assertEquals("test@test1.com", details.user?.identifier)
-                        assertEquals(1, details.matchedTargetingRule?.conditions?.size)
-                        val condition = details.matchedTargetingRule?.conditions?.get(0)
+                    hooks = {
+                        addOnFlagEvaluated { details ->
+                            assertFalse(details.isDefaultValue)
+                            assertEquals("fake1", details.value)
+                            assertEquals("key", details.key)
+                            assertEquals("fakeId1", details.variationId)
+                            assertNull(details.error)
+                            assertEquals("test@test1.com", details.user?.identifier)
+                            assertEquals(1, details.matchedTargetingRule?.conditions?.size)
+                            val condition = details.matchedTargetingRule?.conditions?.get(0)
 
-                        assertEquals("Identifier", condition?.userCondition?.comparisonAttribute)
-                        assertEquals(2, condition?.userCondition?.comparator)
-                        assertEquals("@test1.com", condition?.userCondition?.stringArrayValue?.get(0))
-                        assertEquals(EvaluationErrorCode.NONE, details.errorCode)
-                        assertNull(details.matchedPercentageOption)
+                            assertEquals("Identifier", condition?.userCondition?.comparisonAttribute)
+                            assertEquals(2, condition?.userCondition?.comparator)
+                            assertEquals("@test1.com", condition?.userCondition?.stringArrayValue?.get(0))
+                            assertEquals(EvaluationErrorCode.NONE, details.errorCode)
+                            assertNull(details.matchedPercentageOption)
 
-                        called = true
+                            called = true
+                        }
                     }
                 }
 

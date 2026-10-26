@@ -98,14 +98,16 @@ class SnapshotTests {
             val client =
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
-                    hooks.addOnConfigChanged { settings, snapshot ->
-                        assertEquals(ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA, snapshot.cacheState)
-                        val value = snapshot.getValue("key1", false)
-                        assertTrue(value)
+                    hooks = {
+                        addOnConfigChanged { settings, snapshot ->
+                            assertEquals(ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA, snapshot.cacheState)
+                            val value = snapshot.getValue("key1", false)
+                            assertTrue(value)
 
-                        val anyVal = snapshot.getAnyValue("key1", false, null)
-                        assertEquals(true, anyVal)
-                        called = true
+                            val anyVal = snapshot.getAnyValue("key1", false, null)
+                            assertEquals(true, anyVal)
+                            called = true
+                        }
                     }
                 }
 
@@ -128,14 +130,16 @@ class SnapshotTests {
             val client =
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
-                    hooks.addOnClientReadyWithSnapshot { snapshot ->
-                        assertEquals(ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA, snapshot.cacheState)
-                        val value = snapshot.getValue("key1", false)
-                        assertTrue(value)
+                    hooks = {
+                        addOnClientReadyWithSnapshot { snapshot ->
+                            assertEquals(ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA, snapshot.cacheState)
+                            val value = snapshot.getValue("key1", false)
+                            assertTrue(value)
 
-                        val anyVal = snapshot.getAnyValue("key1", false, null)
-                        assertEquals(true, anyVal)
-                        called = true
+                            val anyVal = snapshot.getAnyValue("key1", false, null)
+                            assertEquals(true, anyVal)
+                            called = true
+                        }
                     }
                 }
 
@@ -161,11 +165,13 @@ class SnapshotTests {
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     configCache = cache
-                    hooks.addOnConfigChanged { settings, snapshot ->
-                        assertEquals(ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA, snapshot.cacheState)
-                        val value = snapshot.getValue("fakeKey", "")
-                        assertEquals("test", value)
-                        called = true
+                    hooks = {
+                        addOnConfigChanged { settings, snapshot ->
+                            assertEquals(ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA, snapshot.cacheState)
+                            val value = snapshot.getValue("fakeKey", "")
+                            assertEquals("test", value)
+                            called = true
+                        }
                     }
                 }
 
@@ -191,11 +197,13 @@ class SnapshotTests {
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     configCache = cache
-                    hooks.addOnClientReadyWithSnapshot { snapshot ->
-                        assertEquals(ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA, snapshot.cacheState)
-                        val value = snapshot.getValue("fakeKey", "")
-                        assertEquals("test", value)
-                        called = true
+                    hooks = {
+                        addOnClientReadyWithSnapshot { snapshot ->
+                            assertEquals(ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA, snapshot.cacheState)
+                            val value = snapshot.getValue("fakeKey", "")
+                            assertEquals("test", value)
+                            called = true
+                        }
                     }
                 }
 
@@ -221,11 +229,13 @@ class SnapshotTests {
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
                     configCache = cache
-                    hooks.addOnConfigChanged { settings, snapshot ->
-                        assertEquals(ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY, snapshot.cacheState)
-                        val value = snapshot.getValue("fakeKey", "")
-                        assertEquals("test", value)
-                        called = true
+                    hooks = {
+                        addOnConfigChanged { settings, snapshot ->
+                            assertEquals(ClientCacheState.HAS_CACHED_FLAG_DATA_ONLY, snapshot.cacheState)
+                            val value = snapshot.getValue("fakeKey", "")
+                            assertEquals("test", value)
+                            called = true
+                        }
                     }
                 }
 

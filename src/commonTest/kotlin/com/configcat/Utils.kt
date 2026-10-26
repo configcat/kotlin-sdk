@@ -193,7 +193,9 @@ internal object Services {
         val opts = options ?: ConfigCatOptions()
         opts.httpEngine = engine
         opts.baseUrl = customUrl
-        val fetcher = ConfigFetcher(opts, InternalLogger(opts.logger, opts.logLevel, opts.hooks))
+        val hooks = Hooks()
+        opts.hooks?.invoke(hooks)
+        val fetcher = ConfigFetcher(opts, InternalLogger(opts.logger, opts.logLevel, hooks))
         closeables.add(fetcher)
         return fetcher
     }
@@ -202,14 +204,16 @@ internal object Services {
         engine: MockEngine,
         mode: PollingMode = autoPoll(),
         cache: ConfigCache? = EmptyConfigCache(),
-        hooks: Hooks = Hooks(),
+        hooksUnit: (Hooks.() -> Unit)? = null,
         offline: Boolean = false,
         options: ConfigCatOptions = ConfigCatOptions(),
     ): ConfigService {
         options.pollingMode = mode
         options.configCache = cache
-        options.hooks = hooks
+        options.hooks = hooksUnit
         options.offline = offline
+        val hooks = Hooks()
+        options.hooks?.invoke(hooks)
         val logger = InternalLogger(options.logger, options.logLevel, hooks)
         val service =
             ConfigService(
