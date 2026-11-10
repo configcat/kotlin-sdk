@@ -206,25 +206,22 @@ internal class ConfigService(
                             // Waiting for the client initialization.
                             // After the maxInitWaitTimeInSeconds timeout the client will be initialized and while
                             // the config is not ready the default value will be returned.
-                            val result =
-                                withTimeoutOrNull(mode.configuration.maxInitWaitTime) {
-                                    fetchConfig(eTag)
-                                }
-                            if (result != null) {
-                                return@async result
-                            }
-                            // We got a timeout
-                            val message =
-                                ConfigCatLogMessages.getAutoPollMaxInitWaitTimeReached(
-                                    mode.configuration.maxInitWaitTime.inWholeMilliseconds,
-                                )
-                            logger.warning(4200, message)
-                            initializeAndReportCacheState()
+                            withTimeoutOrNull(mode.configuration.maxInitWaitTime) {
+                                fetchConfig(eTag)
+                            } ?: run {
+                                // We got a timeout
+                                val message =
+                                    ConfigCatLogMessages.getAutoPollMaxInitWaitTimeReached(
+                                        mode.configuration.maxInitWaitTime.inWholeMilliseconds,
+                                    )
+                                logger.warning(4200, message)
+                                initializeAndReportCacheState()
 
-                            return@async EntryResult(Entry.empty, message, RefreshErrorCode.CLIENT_INIT_TIMED_OUT, null)
+                                EntryResult(Entry.empty, message, RefreshErrorCode.CLIENT_INIT_TIMED_OUT, null)
+                            }
                         } else {
                             // The service is initialized, start fetch without timeout.
-                            return@async fetchConfig(eTag)
+                            fetchConfig(eTag)
                         }
                     }
             }

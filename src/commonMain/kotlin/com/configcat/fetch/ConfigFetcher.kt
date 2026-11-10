@@ -113,51 +113,56 @@ internal class ConfigFetcher(
             val responseCode = response.status
             cfRayId = response.headers["CF-RAY"]
 
-            if (responseCode == HttpStatusCode.OK) {
-                val body = response.bodyAsText()
+            return when (responseCode) {
+                HttpStatusCode.OK -> {
+                    val body = response.bodyAsText()
 
-                logger.debug("Fetch was successful: new config fetched.")
+                    logger.debug("Fetch was successful: new config fetched.")
 
-                val (config, err) = deserializeConfig(body, cfRayId)
-                if (err != null) {
-                    return FetchResponse.failure(
-                        err.message ?: "",
-                        RefreshErrorCode.INVALID_HTTP_RESPONSE_CONTENT,
-                        true,
-                        err,
-                        cfRayId,
-                    )
-                } else {
-                    val entry = Entry(config, newETag ?: "", body, Clock.System.now())
-                    return FetchResponse.success(entry, cfRayId)
+                    val (config, err) = deserializeConfig(body, cfRayId)
+                    if (err != null) {
+                        FetchResponse.failure(
+                            err.message ?: "",
+                            RefreshErrorCode.INVALID_HTTP_RESPONSE_CONTENT,
+                            true,
+                            err,
+                            cfRayId,
+                        )
+                    } else {
+                        val entry = Entry(config, newETag ?: "", body, Clock.System.now())
+                        FetchResponse.success(entry, cfRayId)
+                    }
                 }
-            } else if (responseCode == HttpStatusCode.NotModified) {
-                logger.debug("Fetch was successful: config not modified.")
-                return FetchResponse.notModified(cfRayId)
-            } else if (responseCode == HttpStatusCode.NotFound || responseCode == HttpStatusCode.Forbidden) {
-                val message =
-                    ConfigCatLogMessages.getFetchFailDueToInvalidSdkKeyError(cfRayId)
-                logger.error(1100, message)
-                return FetchResponse.failure(
-                    message,
-                    RefreshErrorCode.INVALID_SDK_KEY,
-                    false,
-                    cfRayId = cfRayId,
-                )
-            } else {
-                val message =
-                    ConfigCatLogMessages.getFetchFailedDueToUnexpectedHttpResponse(
-                        responseCode.value,
-                        response.bodyAsText(),
-                        cfRayId,
+                HttpStatusCode.NotModified -> {
+                    logger.debug("Fetch was successful: config not modified.")
+                    FetchResponse.notModified(cfRayId)
+                }
+                HttpStatusCode.NotFound, HttpStatusCode.Forbidden -> {
+                    val message =
+                        ConfigCatLogMessages.getFetchFailDueToInvalidSdkKeyError(cfRayId)
+                    logger.error(1100, message)
+                    FetchResponse.failure(
+                        message,
+                        RefreshErrorCode.INVALID_SDK_KEY,
+                        false,
+                        cfRayId = cfRayId,
                     )
-                logger.error(1101, message)
-                return FetchResponse.failure(
-                    message,
-                    RefreshErrorCode.UNEXPECTED_HTTP_RESPONSE,
-                    true,
-                    cfRayId = cfRayId,
-                )
+                }
+                else -> {
+                    val message =
+                        ConfigCatLogMessages.getFetchFailedDueToUnexpectedHttpResponse(
+                            responseCode.value,
+                            response.bodyAsText(),
+                            cfRayId,
+                        )
+                    logger.error(1101, message)
+                    FetchResponse.failure(
+                        message,
+                        RefreshErrorCode.UNEXPECTED_HTTP_RESPONSE,
+                        true,
+                        cfRayId = cfRayId,
+                    )
+                }
             }
         } catch (e: HttpRequestTimeoutException) {
             val message =
