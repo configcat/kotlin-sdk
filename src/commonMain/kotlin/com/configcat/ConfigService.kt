@@ -178,6 +178,9 @@ internal class ConfigService(
         threshold: Instant,
         preferCached: Boolean = false,
     ): EntryResult {
+        // Captured under the lock: fetchConfig clears fetchJob when it completes, so reading the field
+        // after releasing the lock could miss a finished fetch and wrongly report success.
+        val job: Deferred<EntryResult>?
         asyncLock.withLock {
             // Sync up with the cache and use it when it's not expired.
             val fromCache = readCache()
@@ -225,9 +228,10 @@ internal class ConfigService(
                         }
                     }
             }
+            job = fetchJob
         }
         // Await the fetch routine.
-        val result = fetchJob?.await()
+        val result = job?.await()
         return result?.let { value ->
             when {
                 value.entry.isEmpty() -> value.withEntry(cachedEntry.load())
