@@ -9,6 +9,7 @@ import com.configcat.model.Entry
 import com.configcat.model.Setting
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -19,8 +20,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.AtomicReference
@@ -65,7 +64,6 @@ internal class ConfigService(
     private val hooks: Hooks,
 ) : Closeable {
     internal val cacheKey: String = getCacheKey()
-    private val asyncLock = Mutex()
     private val syncLock = reentrantLock()
     private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val closed = AtomicBoolean(false)
@@ -75,9 +73,9 @@ internal class ConfigService(
     private val inForegroundAndHasNetwork = AtomicBoolean(options.stateMonitor?.isAllowedToUseHTTP() ?: true)
     private val offline = AtomicBoolean(isOffline)
     private val mode = options.pollingMode
-    private var fetchJob: Deferred<EntryResult>? = null
     private val cachedEntry = AtomicReference(Entry.empty)
     private var pollingJob: Job? = null
+    private val fetchingJob: AtomicReference<Deferred<EntryResult>> = AtomicReference(completedTask)
 
     val isOffline: Boolean get() = userIndicatedOffline.load() || !inForegroundAndHasNetwork.load()
 
@@ -178,85 +176,86 @@ internal class ConfigService(
         threshold: Instant,
         preferCached: Boolean = false,
     ): EntryResult {
-        // Captured under the lock: fetchConfig clears fetchJob when it completes, so reading the field
-        // after releasing the lock could miss a finished fetch and wrongly report success.
-        val job: Deferred<EntryResult>?
-        asyncLock.withLock {
-            // Sync up with the cache and use it when it's not expired.
-            val fromCache = readCache()
-            if (!fromCache.isEmpty() && fromCache.eTag != cachedEntry.load().eTag) {
-                cachedEntry.store(fromCache)
-                reportConfigChanged()
-            }
-            // Cache isn't expired
-            if (!cachedEntry.load().isExpired(threshold)) {
-                initializeAndReportCacheState()
-                return EntryResult(cachedEntry.load(), null, RefreshErrorCode.NONE, null)
-            }
-            // If we are in offline mode, or prohibited from using HTTP,
-            // or the caller prefers cached values, do not initiate fetch.
-            if (isOffline || preferCached) {
-                initializeAndReportCacheState()
-                return EntryResult(cachedEntry.load(), null, RefreshErrorCode.NONE, null)
-            }
-
-            if (fetchJob == null) {
-                // No fetch is running, initiate a new one.
-                val eTag = cachedEntry.load().eTag
-                fetchJob =
-                    coroutineScope.async {
-                        if (mode is AutoPollMode && !initialized.load()) {
-                            // Waiting for the client initialization.
-                            // After the maxInitWaitTimeInSeconds timeout the client will be initialized and while
-                            // the config is not ready the default value will be returned.
-                            withTimeoutOrNull(mode.configuration.maxInitWaitTime) {
-                                fetchConfig(eTag)
-                            } ?: run {
-                                // We got a timeout
-                                val message =
-                                    ConfigCatLogMessages.getAutoPollMaxInitWaitTimeReached(
-                                        mode.configuration.maxInitWaitTime.inWholeMilliseconds,
-                                    )
-                                logger.warning(4200, message)
-                                initializeAndReportCacheState()
-
-                                EntryResult(Entry.empty, message, RefreshErrorCode.CLIENT_INIT_TIMED_OUT, null)
-                            }
-                        } else {
-                            // The service is initialized, start fetch without timeout.
-                            fetchConfig(eTag)
-                        }
-                    }
-            }
-            job = fetchJob
+        // Sync up with the cache and use it when it's not expired.
+        val fromCache = readCache()
+        if (!fromCache.isEmpty() && fromCache.eTag != cachedEntry.load().eTag) {
+            cachedEntry.store(fromCache)
+            reportConfigChanged()
         }
-        // Await the fetch routine.
-        val result = job?.await()
-        return result?.let { value ->
-            when {
-                value.entry.isEmpty() -> value.withEntry(cachedEntry.load())
-                else -> value
+        // Cache isn't expired
+        if (!cachedEntry.load().isExpired(threshold)) {
+            initializeAndReportCacheState()
+            return EntryResult(cachedEntry.load(), null, RefreshErrorCode.NONE, null)
+        }
+        // If we are in offline mode, or prohibited from using HTTP,
+        // or the caller prefers cached values, do not initiate fetch.
+        if (isOffline || preferCached) {
+            initializeAndReportCacheState()
+            return EntryResult(cachedEntry.load(), null, RefreshErrorCode.NONE, null)
+        }
+
+        val fetchTask =
+            syncLock.withLock {
+                fetchingJob.load().takeUnless { it === completedTask } ?: run {
+                    val task =
+                        coroutineScope.async {
+                            if (!cachedEntry.load().isExpired(threshold) || isOffline) {
+                                initializeAndReportCacheState()
+                                return@async EntryResult(cachedEntry.load(), null, RefreshErrorCode.NONE, null)
+                            }
+
+                            if (mode is AutoPollMode && !initialized.load()) {
+                                // Waiting for the client initialization.
+                                // After the maxInitWaitTimeInSeconds timeout the client will be initialized and while
+                                // the config is not ready the default value will be returned.
+                                withTimeoutOrNull(mode.configuration.maxInitWaitTime) {
+                                    fetchConfig()
+                                } ?: run {
+                                    // We got a timeout
+                                    val message =
+                                        ConfigCatLogMessages.getAutoPollMaxInitWaitTimeReached(
+                                            mode.configuration.maxInitWaitTime.inWholeMilliseconds,
+                                        )
+                                    logger.warning(4200, message)
+                                    initializeAndReportCacheState()
+
+                                    return@async EntryResult(
+                                        cachedEntry.load(),
+                                        message,
+                                        RefreshErrorCode.CLIENT_INIT_TIMED_OUT,
+                                        null,
+                                    )
+                                }
+                            } else {
+                                // The service is initialized, start fetch without timeout.
+                                fetchConfig()
+                            }
+                        }
+                    fetchingJob.store(task)
+                    task.invokeOnCompletion {
+                        fetchingJob.compareAndSet(task, completedTask)
+                    }
+                    task
+                }
             }
-        } ?: EntryResult.success(cachedEntry.load())
+
+        return fetchTask.await()
     }
 
-    private suspend fun fetchConfig(eTag: String): EntryResult {
-        val response = configFetcher.fetch(eTag)
-        asyncLock.withLock {
-            fetchJob = null
-            if (response.isFetched) {
-                cachedEntry.store(response.entry)
-                writeCache(response.entry)
-                reportConfigChanged()
-                initializeAndReportCacheState()
-                return EntryResult.success(response.entry)
-            } else if ((response.isNotModified || !response.isTransientError) && !cachedEntry.load().isEmpty()) {
-                cachedEntry.store(cachedEntry.load().copy(fetchTime = Clock.System.now()))
-                writeCache(cachedEntry.load())
-            }
+    private suspend fun fetchConfig(): EntryResult {
+        val response = configFetcher.fetch(cachedEntry.load().eTag)
+        if (response.isFetched) {
+            cachedEntry.store(response.entry)
+            writeCache(response.entry)
+            reportConfigChanged()
             initializeAndReportCacheState()
-            return EntryResult(cachedEntry.load(), response.error, response.errorCode, response.errorException)
+            return EntryResult.success(response.entry)
+        } else if ((response.isNotModified || !response.isTransientError) && !cachedEntry.load().isEmpty()) {
+            cachedEntry.store(cachedEntry.load().copy(fetchTime = Clock.System.now()))
+            writeCache(cachedEntry.load())
         }
+        initializeAndReportCacheState()
+        return EntryResult(cachedEntry.load(), response.error, response.errorCode, response.errorException)
     }
 
     private fun startPoll(mode: AutoPollMode) {
@@ -349,5 +348,10 @@ internal class ConfigService(
             }
         }
         return ClientCacheState.HAS_UP_TO_DATE_FLAG_DATA
+    }
+
+    companion object {
+        val completedTask: Deferred<EntryResult> =
+            CompletableDeferred(EntryResult(Entry.empty, null, RefreshErrorCode.NONE, null))
     }
 }
