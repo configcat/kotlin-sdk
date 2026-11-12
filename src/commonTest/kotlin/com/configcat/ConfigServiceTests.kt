@@ -283,15 +283,10 @@ class ConfigServiceTests {
     fun testAutoPollInitWaitTimeTimeoutReturnsWithCached() =
         runTest {
             val mockEngine =
-                MockEngine.create {
-                    this.addHandler {
-                        delay(5.seconds)
-                        respond(content = "", status = HttpStatusCode.BadGateway)
-                    }
-                    this.addHandler {
-                        respond(content = "", status = HttpStatusCode.BadGateway)
-                    }
-                } as MockEngine
+                MockEngine {
+                    delay(5.seconds)
+                    respond(content = Data.formatJsonBodyWithString("test1"), status = HttpStatusCode.OK)
+                }
             val cache = SingleValueCache(Data.formatCacheEntryWithDate("test", Instant.DISTANT_PAST))
             val ts = TimeSource.Monotonic
             val start = ts.markNow()
