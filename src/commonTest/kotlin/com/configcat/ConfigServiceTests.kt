@@ -3,8 +3,14 @@ package com.configcat
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
+import kotlin.concurrent.atomics.AtomicInt
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -195,11 +201,43 @@ class ConfigServiceTests {
         }
 
     @Test
+    fun testConcurrentRefreshSharesFetchWhenCallerIsCancelled() =
+        runTest {
+            val allowResponse = CompletableDeferred<Unit>()
+            val requestCount = AtomicInt(0)
+            val mockEngine =
+                MockEngine.create {
+                    this.addHandler {
+                        requestCount.fetchAndAdd(1)
+                        allowResponse.await()
+                        respond(content = Data.formatJsonBodyWithString("test"), status = HttpStatusCode.OK)
+                    }
+                } as MockEngine
+            val service = Services.createConfigService(mockEngine, manualPoll())
+
+            val cancelledCaller = async(Dispatchers.Default, start = CoroutineStart.UNDISPATCHED) { service.refresh() }
+            TestUtils.awaitUntil { requestCount.load() == 1 }
+            val waitingCaller = async(Dispatchers.Default, start = CoroutineStart.UNDISPATCHED) { service.refresh() }
+            cancelledCaller.cancelAndJoin()
+            val laterCaller = async(Dispatchers.Default, start = CoroutineStart.UNDISPATCHED) { service.refresh() }
+
+            try {
+                assertEquals(1, requestCount.load())
+            } finally {
+                allowResponse.complete(Unit)
+            }
+
+            assertTrue(waitingCaller.await().isSuccess)
+            assertTrue(laterCaller.await().isSuccess)
+            assertEquals(1, requestCount.load())
+        }
+
+    @Test
     fun testAutoPollInitWaitTimeTimeout() =
         runTest {
             val mockEngine =
                 MockEngine {
-                    delay(5000)
+                    delay(5.seconds)
                     respond(content = Data.formatJsonBodyWithString("test1"), status = HttpStatusCode.OK)
                 }
 
@@ -246,7 +284,7 @@ class ConfigServiceTests {
         runTest {
             val mockEngine =
                 MockEngine {
-                    delay(5000)
+                    delay(5.seconds)
                     respond(content = Data.formatJsonBodyWithString("test1"), status = HttpStatusCode.OK)
                 }
             val cache = SingleValueCache(Data.formatCacheEntryWithDate("test", Instant.DISTANT_PAST))
@@ -391,7 +429,7 @@ class ConfigServiceTests {
         runTest {
             val mockEngine =
                 MockEngine {
-                    delay(5000)
+                    delay(5.seconds)
                     respond(content = Data.formatJsonBodyWithString("test"), status = HttpStatusCode.OK)
                 }
             val ts = TimeSource.Monotonic
