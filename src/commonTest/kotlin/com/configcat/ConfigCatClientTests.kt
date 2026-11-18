@@ -963,7 +963,7 @@ class ConfigCatClientTests {
                         status = HttpStatusCode.NotModified,
                     )
                 }
-            val cache = SingleValueCache(Data.formatCacheEntryWithDate("test1", Clock.System.now().minus(1.days)))
+            val cache = SingleValueCache(Data.formatCacheEntryWithDate("test1", Clock.System.now().minus(2.days)))
             val client =
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
@@ -980,7 +980,7 @@ class ConfigCatClientTests {
                 value == "test1"
             }
 
-            cache.write("", Data.formatCacheEntryWithDate("test2", Clock.System.now().plus(1.seconds)))
+            cache.write("", Data.formatCacheEntryWithDate("test2", Clock.System.now().minus(1.days)))
 
             TestUtils.awaitUntil {
                 val snapshot = client.snapshot()
