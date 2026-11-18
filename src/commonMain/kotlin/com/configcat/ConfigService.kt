@@ -178,20 +178,24 @@ internal class ConfigService(
     ): EntryResult {
         // Sync up with the cache and use it when it's not expired.
         val fromCache = readCache()
-        if (!fromCache.isEmpty() && fromCache.eTag != cachedEntry.load().eTag) {
-            cachedEntry.store(fromCache)
+        var current = cachedEntry.load()
+        if (!fromCache.isEmpty() &&
+            (current.isEmpty() || (fromCache.eTag != current.eTag && fromCache.fetchTime > current.fetchTime)) &&
+            cachedEntry.compareAndSet(current, fromCache)
+        ) {
             reportConfigChanged()
         }
         // Cache isn't expired
-        if (!cachedEntry.load().isExpired(threshold)) {
+        current = cachedEntry.load()
+        if (!current.isExpired(threshold)) {
             initializeAndReportCacheState()
-            return EntryResult(cachedEntry.load(), null, RefreshErrorCode.NONE, null)
+            return EntryResult(current, null, RefreshErrorCode.NONE, null)
         }
         // If we are in offline mode, or prohibited from using HTTP,
         // or the caller prefers cached values, do not initiate fetch.
         if (isOffline || preferCached) {
             initializeAndReportCacheState()
-            return EntryResult(cachedEntry.load(), null, RefreshErrorCode.NONE, null)
+            return EntryResult(current, null, RefreshErrorCode.NONE, null)
         }
 
         val fetchTask =
@@ -199,9 +203,10 @@ internal class ConfigService(
                 fetchingJob.load().takeUnless { it === completedTask } ?: run {
                     val task =
                         coroutineScope.async {
-                            if (!cachedEntry.load().isExpired(threshold) || isOffline) {
+                            val current = cachedEntry.load()
+                            if (!current.isExpired(threshold) || isOffline) {
                                 initializeAndReportCacheState()
-                                return@async EntryResult(cachedEntry.load(), null, RefreshErrorCode.NONE, null)
+                                return@async EntryResult(current, null, RefreshErrorCode.NONE, null)
                             }
 
                             if (mode is AutoPollMode && !initialized.load()) {
@@ -243,16 +248,17 @@ internal class ConfigService(
     }
 
     private suspend fun fetchConfig(): EntryResult {
-        val response = configFetcher.fetch(cachedEntry.load().eTag)
+        val current = cachedEntry.load()
+        val response = configFetcher.fetch(current.eTag)
         if (response.isFetched) {
             cachedEntry.store(response.entry)
             writeCache(response.entry)
             reportConfigChanged()
-            initializeAndReportCacheState()
-            return EntryResult.success(response.entry)
-        } else if ((response.isNotModified || !response.isTransientError) && !cachedEntry.load().isEmpty()) {
-            cachedEntry.store(cachedEntry.load().copy(fetchTime = Clock.System.now()))
-            writeCache(cachedEntry.load())
+        } else if ((response.isNotModified || !response.isTransientError) && !current.isEmpty()) {
+            val updatedEntry = current.copy(fetchTime = Clock.System.now())
+            if (cachedEntry.compareAndSet(current, updatedEntry)) {
+                writeCache(updatedEntry)
+            }
         }
         initializeAndReportCacheState()
         return EntryResult(cachedEntry.load(), response.error, response.errorCode, response.errorException)
