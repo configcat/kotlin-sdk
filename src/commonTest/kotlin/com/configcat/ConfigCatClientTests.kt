@@ -26,6 +26,8 @@ import kotlin.test.assertNotSame
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
@@ -913,7 +915,7 @@ class ConfigCatClientTests {
                         status = HttpStatusCode.NotModified,
                     )
                 }
-            val cache = SingleValueCache(Data.formatCacheEntry("test1"))
+            val cache = SingleValueCache(Data.formatCacheEntryWithDate("test1", Clock.System.now().minus(1.days)))
             val client =
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
@@ -961,7 +963,7 @@ class ConfigCatClientTests {
                         status = HttpStatusCode.NotModified,
                     )
                 }
-            val cache = SingleValueCache(Data.formatCacheEntry("test1"))
+            val cache = SingleValueCache(Data.formatCacheEntryWithDate("test1", Clock.System.now().minus(1.days)))
             val client =
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine

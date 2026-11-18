@@ -9,6 +9,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
@@ -210,7 +212,7 @@ class SnapshotTests {
     @Test
     fun testHookSnapshotCacheExpired() =
         runTest {
-            val cache = SingleValueCache(Data.formatCacheEntryWithDate("test", Instant.DISTANT_PAST))
+            val cache = SingleValueCache(Data.formatCacheEntryWithDate("test", Clock.System.now().minus(1.days)))
 
             val mockEngine =
                 MockEngine {

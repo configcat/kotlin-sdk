@@ -21,6 +21,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlin.time.TimeSource
@@ -290,7 +291,7 @@ class ConfigServiceTests {
                     delay(5.seconds)
                     respond(content = Data.formatJsonBodyWithString("test1"), status = HttpStatusCode.OK)
                 }
-            val cache = SingleValueCache(Data.formatCacheEntryWithDate("test", Instant.DISTANT_PAST))
+            val cache = SingleValueCache(Data.formatCacheEntryWithDate("test", Clock.System.now().minus(1.days)))
             val ts = TimeSource.Monotonic
             val start = ts.markNow()
             val service =
