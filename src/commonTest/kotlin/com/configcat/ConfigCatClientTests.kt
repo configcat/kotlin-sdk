@@ -933,7 +933,7 @@ class ConfigCatClientTests {
             val value = client.getValue("fakeKey", "")
             assertEquals("test1", value)
 
-            cache.write("", Data.formatCacheEntry("test2"))
+            cache.write("", Data.formatCacheEntryWithDate("test2", Clock.System.now().plus(1.seconds)))
 
             val result = client.forceRefresh()
 
@@ -980,7 +980,7 @@ class ConfigCatClientTests {
                 value == "test1"
             }
 
-            cache.write("", Data.formatCacheEntry("test2"))
+            cache.write("", Data.formatCacheEntryWithDate("test2", Clock.System.now().plus(1.seconds)))
 
             TestUtils.awaitUntil {
                 val snapshot = client.snapshot()
