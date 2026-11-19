@@ -16,12 +16,17 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlin.time.TimeSource
 
 internal object TestUtils {
-    private val allowedSdkKeyChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
+    private val allowedSdkKeyChars = buildList {
+        addAll('A'..'Z')
+        addAll('a'..'z')
+        addAll('0'..'9')
+    }
 
     suspend fun awaitUntil(
         timeout: Duration = 5.seconds,
@@ -31,7 +36,7 @@ internal object TestUtils {
         val start = ts.markNow()
         withContext(Dispatchers.Default) {
             while (!condTarget()) {
-                delay(200)
+                delay(200.milliseconds)
                 val elapsed = ts.markNow() - start
                 if (elapsed.inWholeMilliseconds > timeout.inWholeMilliseconds) {
                     throw Exception("Test await timed out.")

@@ -1,7 +1,10 @@
 package com.configcat
 
+import com.configcat.fetch.RefreshErrorCode
+import com.configcat.model.Entry
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
@@ -18,6 +21,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlin.time.TimeSource
@@ -287,7 +291,7 @@ class ConfigServiceTests {
                     delay(5.seconds)
                     respond(content = Data.formatJsonBodyWithString("test1"), status = HttpStatusCode.OK)
                 }
-            val cache = SingleValueCache(Data.formatCacheEntryWithDate("test", Instant.DISTANT_PAST))
+            val cache = SingleValueCache(Data.formatCacheEntryWithDate("test", Clock.System.now().minus(1.days)))
             val ts = TimeSource.Monotonic
             val start = ts.markNow()
             val service =
@@ -530,6 +534,71 @@ class ConfigServiceTests {
             service.getSettings()
 
             assertEquals(1, mockEngine.requestHistory.size)
+        }
+
+    @Test
+    fun testNotModifiedDoesNotRefreshEntryReplacedDuringFetch() =
+        assertResponseDoesNotRefreshEntryReplacedDuringFetch(HttpStatusCode.NotModified, RefreshErrorCode.NONE)
+
+    @Test
+    fun testNonTransientErrorDoesNotRefreshEntryReplacedDuringFetch() =
+        assertResponseDoesNotRefreshEntryReplacedDuringFetch(HttpStatusCode.NotFound, RefreshErrorCode.INVALID_SDK_KEY)
+
+    private fun assertResponseDoesNotRefreshEntryReplacedDuringFetch(
+        status: HttpStatusCode,
+        expectedErrorCode: RefreshErrorCode,
+    ) =
+        runTest {
+            val requestedETag = CompletableDeferred<String?>()
+            val allowResponse = CompletableDeferred<Unit>()
+            val mockEngine =
+                MockEngine { request ->
+                    requestedETag.complete(request.headers[HttpHeaders.IfNoneMatch] ?: request.url.parameters["ccetag"])
+                    allowResponse.await()
+                    respond(content = "", status = status)
+                }
+            val now = Clock.System.now()
+            val original = Data.formatCacheEntryWithDate("original", now.minus(120.seconds))
+            val replacement = Data.formatCacheEntryWithDate("replacement", now.minus(60.seconds))
+            val cache = SingleValueCache(original)
+            val service = Services.createConfigService(mockEngine, manualPoll(), cache)
+            val refresh = async { service.refresh() }
+            val replacementFetchTime = Entry.fromString(replacement).fetchTime
+
+            try {
+                assertEquals("original", requestedETag.await())
+                cache.write(service.cacheKey, replacement)
+                val settings = service.getSettings()
+                assertEquals("replacement", settings.settings["fakeKey"]?.settingValue?.stringValue)
+                assertEquals(replacementFetchTime, settings.fetchTime)
+            } finally {
+                allowResponse.complete(Unit)
+            }
+
+            val result = refresh.await()
+            assertEquals(expectedErrorCode, result.errorCode)
+            assertEquals(expectedErrorCode == RefreshErrorCode.NONE, result.isSuccess)
+            assertEquals(replacementFetchTime, service.getInMemoryState().settingResult.fetchTime)
+            assertEquals(replacement, cache.read(service.cacheKey))
+        }
+
+    @Test
+    fun testOlderExternalCacheEntryDoesNotReplaceNewerInMemoryEntry() =
+        runTest {
+            val mockEngine = MockEngine { error("Manual polling should not make a request") }
+            val now = Clock.System.now()
+            val newerEntry = Data.formatCacheEntryWithDate("newer", now)
+            val olderEntry = Data.formatCacheEntryWithDate("older", now.minus(60.seconds))
+            val cache = SingleValueCache(newerEntry)
+            val service = Services.createConfigService(mockEngine, manualPoll(), cache)
+            val newerSettings = service.getSettings()
+            assertEquals("newer", newerSettings.settings["fakeKey"]?.settingValue?.stringValue)
+
+            cache.write(service.cacheKey, olderEntry)
+            val settings = service.getSettings()
+            assertEquals("newer", settings.settings["fakeKey"]?.settingValue?.stringValue)
+            assertEquals(newerSettings.fetchTime, settings.fetchTime)
+            assertEquals(0, mockEngine.requestHistory.size)
         }
 
     @Test

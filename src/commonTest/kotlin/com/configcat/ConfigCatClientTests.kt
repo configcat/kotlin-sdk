@@ -26,6 +26,8 @@ import kotlin.test.assertNotSame
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
@@ -913,7 +915,7 @@ class ConfigCatClientTests {
                         status = HttpStatusCode.NotModified,
                     )
                 }
-            val cache = SingleValueCache(Data.formatCacheEntry("test1"))
+            val cache = SingleValueCache(Data.formatCacheEntryWithDate("test1", Clock.System.now().minus(1.days)))
             val client =
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
@@ -931,7 +933,7 @@ class ConfigCatClientTests {
             val value = client.getValue("fakeKey", "")
             assertEquals("test1", value)
 
-            cache.write("", Data.formatCacheEntry("test2"))
+            cache.write("", Data.formatCacheEntryWithDate("test2", Clock.System.now().plus(1.seconds)))
 
             val result = client.forceRefresh()
 
@@ -961,7 +963,7 @@ class ConfigCatClientTests {
                         status = HttpStatusCode.NotModified,
                     )
                 }
-            val cache = SingleValueCache(Data.formatCacheEntry("test1"))
+            val cache = SingleValueCache(Data.formatCacheEntryWithDate("test1", Clock.System.now().minus(2.days)))
             val client =
                 ConfigCatClient(TestUtils.randomSdkKey()) {
                     httpEngine = mockEngine
@@ -978,7 +980,7 @@ class ConfigCatClientTests {
                 value == "test1"
             }
 
-            cache.write("", Data.formatCacheEntry("test2"))
+            cache.write("", Data.formatCacheEntryWithDate("test2", Clock.System.now().minus(1.days)))
 
             TestUtils.awaitUntil {
                 val snapshot = client.snapshot()
