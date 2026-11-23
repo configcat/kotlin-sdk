@@ -434,7 +434,7 @@ class ConfigServiceTests {
             val mockEngine =
                 MockEngine {
                     delay(5.seconds)
-                    respond(content = Data.formatJsonBodyWithString("test"), status = HttpStatusCode.OK)
+                    respond(content = Data.formatJsonBodyWithString("test1"), status = HttpStatusCode.OK)
                 }
             val ts = TimeSource.Monotonic
             val start = ts.markNow()
