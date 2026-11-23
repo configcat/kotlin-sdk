@@ -37,7 +37,7 @@ internal data class Entry(
             val eTag = cacheValue.substring(fetchTimeIndex + 1, eTagIndex)
             require(eTag.isNotEmpty()) { "Empty eTag value." }
             val configJson = cacheValue.substring(eTagIndex + 1)
-            require(configJson.isNotEmpty()) { "Empty config jsom value." }
+            require(configJson.isNotEmpty()) { "Empty config json value." }
             return try {
                 val config: Config = configJson.parseConfigJson()
                 Entry(config, eTag, configJson, Instant.fromEpochMilliseconds(fetchTimeUnixMillis))
