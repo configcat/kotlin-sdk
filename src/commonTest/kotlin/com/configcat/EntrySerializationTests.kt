@@ -121,7 +121,7 @@ class EntrySerializationTests {
                 assertFailsWith<IllegalArgumentException> {
                     Entry.fromString(cacheValueEmptyJson)
                 }
-            assertEquals("Empty config jsom value.", exception.message)
+            assertEquals("Empty config json value.", exception.message)
 
             val cacheValueWrongJson = "${fetchTimeTest}\nTestETag\nwrongjson"
 
